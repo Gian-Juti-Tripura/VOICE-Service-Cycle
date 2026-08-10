@@ -1,0 +1,1272 @@
+Build a complete production-ready application called:
+
+VOICE SERVICE MANAGEMENT SYSTEM
+
+VOICE = Vedic Oasis for Inspiration, Culture, and Education
+
+IMPORTANT:
+This is a real application intended for daily use by our community, not a demo or simple prototype.
+
+You must understand the COMPLETE future system described below before beginning development.
+
+However, DO NOT attempt to implement everything at once.
+
+You must execute the project in clearly separated phases, in order.
+
+Complete one phase, test it, fix errors, verify the architecture, and only then continue to the next phase.
+
+Do not skip phases.
+
+Do not invent missing business rules.
+
+When information is not yet provided, create the appropriate architecture/placeholders and wait for the required information.
+
+==================================================
+PART 1 — CORE PRODUCT VISION
+==================================================
+
+The current VOICE service system is maintained manually using a physical service-cycle chart.
+
+Every day, the Internal Manager has to determine:
+
+- Which member has which service
+- Which member has multiple services
+- Which member/service is absent
+- Why a service is absent
+- Whether a replacement is needed
+- Then manually prepare and post an announcement in the WhatsApp group
+
+The purpose of this application is to automate this entire workflow.
+
+The application must automatically calculate the daily service cycle, display assignments, manage members and services, manage absences and replacements, generate WhatsApp announcements, and later automatically communicate through Telegram.
+
+The VOICE application must become the single source of truth for the service system.
+
+Messaging platforms must NEVER become the source of truth.
+
+==================================================
+PART 2 — TECHNOLOGY / ARCHITECTURE
+==================================================
+
+Build the primary application as a:
+
+FULL-STACK RESPONSIVE WEB APPLICATION + PWA
+
+Preferred architecture:
+
+- React
+- TypeScript
+- Node.js server-side backend where needed
+- Firebase Authentication
+- Firebase Firestore
+- Secure server-side environment variables/secrets
+- PWA support
+- Responsive mobile-first UI
+
+The architecture must be clean enough to support a future native Android application.
+
+The same backend/database/authentication system should be reusable by a future Android client.
+
+Do not create an architecture that locks VOICE into the browser.
+
+Do not create a fake APK download button.
+
+The final system must be exportable/downloadable and suitable for continuing development in Android Studio.
+
+The eventual Android application should be capable of producing:
+
+- APK for direct installation
+- AAB for Google Play
+
+The web application itself must be installable as a PWA on Android.
+
+==================================================
+PART 3 — VERY IMPORTANT DEVELOPMENT PRINCIPLE
+==================================================
+
+The core VOICE service cycle must NOT depend on AI.
+
+Do NOT use Gemini/AI to decide who receives which service.
+
+The cycle engine must be deterministic normal application code.
+
+The system should work even if all AI functionality is unavailable.
+
+AI may assist during development, but the running VOICE application must not depend on AI for:
+
+- Cycle calculation
+- Assignments
+- Absence
+- Replacement
+- Permissions
+- Notifications
+- Announcement generation
+
+==================================================
+PART 4 — USER ROLES
+==================================================
+
+There are initially TWO roles.
+
+--------------------------------
+ROLE 1 — INTERNAL MANAGER
+--------------------------------
+
+Use the exact term:
+
+INTERNAL MANAGER
+
+Do NOT use "Admin" in the user-facing interface.
+
+The Internal Manager has FULL ACCESS to the entire system.
+
+The Internal Manager can:
+
+- View all members
+- Add members
+- Edit members
+- Disable/enable members
+- View all services
+- Add/edit services
+- Configure the cycle
+- View today's assignments
+- View future assignments
+- View previous assignments
+- Mark services as absent
+- Unmark services as absent
+- Select absence reasons
+- Assign replacements
+- Remove replacements
+- Generate WhatsApp announcements
+- Edit WhatsApp announcements
+- Copy WhatsApp announcements
+- Configure Telegram
+- Enable/disable Telegram automation
+- View history
+- View absence history
+- View replacement history
+- View audit history
+- Manage settings
+- Manage notification settings
+- Manage language settings
+- Manage all system information
+
+The Internal Manager should have access to everything.
+
+--------------------------------
+ROLE 2 — MEMBER
+--------------------------------
+
+Members can:
+
+- Sign in
+- View their own assignments
+- View today's service
+- View tomorrow's service
+- View upcoming services
+- View service details
+- View their own history
+- View relevant absence/replacement information
+- Receive notifications
+- Manage permitted personal settings
+- Change language preference
+- Log out
+
+Members cannot modify the official service cycle.
+
+Members cannot modify other members.
+
+Members cannot officially mark their own service as absent.
+
+The Internal Manager controls official absence status.
+
+==================================================
+PART 5 — LANGUAGE
+==================================================
+
+Default language:
+
+STANDARD BENGALI
+
+The application must use simple, natural, understandable Standard Bengali.
+
+Avoid overly literary or complicated Bengali.
+
+Provide a clear language toggle:
+
+বাংলা | English
+
+The selected language must persist.
+
+All UI elements must support both languages:
+
+- Buttons
+- Menus
+- Labels
+- Errors
+- Statuses
+- Settings
+- Notifications
+- Service descriptions
+- Dashboard
+- Forms
+
+The actual database records must be language-independent.
+
+Example:
+
+Bengali:
+
+আগামী সকালের জন্য সবজি প্রস্তুত করা (সেবা ৪)
+
+English:
+
+Preparing vegetables for next morning (Service 4)
+
+The same service is being displayed.
+
+==================================================
+PART 6 — UI / UX PRINCIPLES
+==================================================
+
+The UI must be:
+
+- Very simple
+- Clean
+- Calm
+- Friendly
+- Mobile-first
+- Easy for non-technical users
+- Easy for older users
+- Touch-friendly
+- Readable
+
+Do NOT create an unnecessarily fancy dashboard.
+
+Avoid:
+
+- Excessive animations
+- Excessive gradients
+- Complicated charts
+- Too many buttons
+- Crowded screens
+- Corporate-style UI
+
+Prioritize:
+
+- Large readable text
+- Clear status
+- Simple navigation
+- Obvious actions
+- Minimal steps
+
+The application should feel like a simple community service-management system.
+
+==================================================
+PART 7 — SERVICE SYSTEM
+==================================================
+
+The current VOICE system has 12 service numbers.
+
+Services:
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+
+The actual names, descriptions and timings will be provided from the existing VOICE service documentation/chart.
+
+DO NOT INVENT service names or details.
+
+Each service record must support:
+
+- Service number
+- Bengali name
+- English name
+- Bengali detailed description
+- English detailed description
+- Timing
+- Additional instructions
+- Active/inactive status
+
+Display format:
+
+Bengali:
+
+সেবার নাম (সেবা ৪)
+
+English:
+
+Service Name (Service 4)
+
+Always show the service name together with its service number where possible.
+
+Do not display only "Service 4" when the name exists.
+
+The database should not be permanently restricted to exactly 12 services, even though the current system uses 12.
+
+==================================================
+PART 8 — MEMBERS
+==================================================
+
+Each member record should support:
+
+- Full name
+- Display name
+- Profile photo (optional)
+- Phone number (optional)
+- Telegram ID (optional)
+- User account relationship
+- Active/inactive status
+- Created timestamp
+- Updated timestamp
+
+Internal Manager can:
+
+- Add
+- Edit
+- Activate
+- Deactivate
+- Search
+- View
+
+members.
+
+==================================================
+PART 9 — SERVICE CYCLE ENGINE
+==================================================
+
+THIS IS THE MOST IMPORTANT BUSINESS LOGIC.
+
+The current VOICE physical chart defines the actual service rotation.
+
+The exact chart/rules will be supplied separately.
+
+DO NOT GUESS THE CYCLE.
+
+Once the chart is supplied:
+
+1. Study it carefully.
+2. Identify the mathematical/logical rotation.
+3. Translate it into deterministic code.
+4. Create test cases based on the original chart.
+5. Compare generated assignments with the physical chart.
+6. Only consider the cycle engine complete after the results match.
+
+If any part of the chart is ambiguous:
+
+DO NOT invent a rule.
+
+Clearly identify the ambiguity and request confirmation.
+
+The system must calculate:
+
+Date
+→ Cycle position
+→ Member rotation
+→ Service assignments
+→ Absence overrides
+→ Replacement assignments
+→ Final daily service list
+
+The underlying base cycle must remain stable.
+
+Temporary absence or replacement must NOT permanently alter the base cycle.
+
+The system must support viewing:
+
+- Today
+- Tomorrow
+- Next 7 days
+- Next 30 days
+- Previous dates
+- Monthly cycle
+- Future cycle
+
+The cycle engine must be deterministic and testable.
+
+==================================================
+PART 10 — MULTIPLE SERVICES PER MEMBER
+==================================================
+
+A member may have MORE THAN ONE service on the same day.
+
+This is extremely important.
+
+Example:
+
+Gian Juti Tripura
+
+Service 4
+Preparing vegetables...
+
+Service 3
+Cleaning utensils...
+
+Each assignment is an independent service assignment.
+
+Do NOT treat a member as simply:
+
+Member → Absent
+
+Instead:
+
+Member
+→ Service 4 → Active
+→ Service 3 → Absent
+
+This distinction must exist in the database and UI.
+
+==================================================
+PART 11 — ABSENCE SYSTEM
+==================================================
+
+The Internal Manager controls absence.
+
+For every individual service assignment, the Internal Manager can:
+
+MARK AS ABSENT
+
+or
+
+UNMARK AS ABSENT
+
+The Internal Manager can select a reason.
+
+Initial absence reasons:
+
+- Illness
+- Exam
+- Personal Reason
+- Away
+- Other
+
+The reason system should be configurable later.
+
+The database must conceptually separate:
+
+Assignment Status:
+
+- Active
+- Absent
+
+from:
+
+Absence Reason:
+
+- Illness
+- Exam
+- Personal Reason
+- Away
+- Other
+
+Example:
+
+Gian Juti Tripura
+
+Preparing vegetables... (Service 4)
+ACTIVE
+
+Cleaning utensils... (Service 3)
+ABSENT — EXAM
+
+If the Internal Manager selects UNMARK ABSENT:
+
+Service 3 becomes ACTIVE again.
+
+The base cycle must not change.
+
+==================================================
+PART 12 — REPLACEMENT SYSTEM
+==================================================
+
+If a service is absent, the Internal Manager can assign another member as replacement.
+
+Example:
+
+Original:
+
+Gian → Service 3
+
+Status:
+
+Absent — Exam
+
+Replacement:
+
+Khokon → Service 3
+
+The base cycle must remain unchanged.
+
+Store:
+
+- Date
+- Original member
+- Service
+- Absence status
+- Absence reason
+- Replacement member
+- Timestamp
+- Internal Manager who made the change
+
+The daily display must clearly distinguish:
+
+Original assignment
+Absent assignment
+Replacement assignment
+
+==================================================
+PART 13 — INTERNAL MANAGER DASHBOARD
+==================================================
+
+Create a simple dashboard.
+
+Main dashboard:
+
+TODAY
+
+Date
+
+Total members
+
+Active services
+
+Absent services
+
+Replacement services
+
+Then show the daily list.
+
+Example:
+
+Gian Juti Tripura
+
+🟢 Preparing vegetables for next morning (Service 4)
+
+🔴 Cleaning utensils + Kirtan + room cleaning (Service 3)
+
+Absent — Exam
+
+If replacement exists:
+
+🔁 Replacement: Khokon Prabhu
+
+The Internal Manager can tap the assignment to manage it.
+
+==================================================
+PART 14 — MEMBER DASHBOARD
+==================================================
+
+The member dashboard should be extremely simple.
+
+Show:
+
+🙏 Hare Krishna
+
+আজকের সেবা
+
+Date
+
+আপনার দায়িত্ব
+
+Service cards.
+
+Each card:
+
+- Service name
+- Service number
+- Timing
+- Short instruction
+- Status
+
+Then:
+
+আগামীকালের সেবা
+
+Also provide:
+
+- Upcoming
+- History
+- Profile
+
+==================================================
+PART 15 — SERVICE DETAILS
+==================================================
+
+When a service is opened, show:
+
+- Service name
+- Service number
+- Timing
+- Full description
+- Instructions
+- Additional notes
+
+Support Bengali and English.
+
+==================================================
+PART 16 — WHATSAPP ANNOUNCEMENT GENERATOR
+==================================================
+
+THIS IS A REQUIRED FEATURE.
+
+Most VOICE members use WhatsApp.
+
+We do NOT need direct WhatsApp automation.
+
+Instead, create a professional WhatsApp announcement generator.
+
+The Internal Manager must have:
+
+GENERATE WHATSAPP ANNOUNCEMENT
+
+The announcement is generated from the FINAL daily assignment data.
+
+It must include:
+
+- Date
+- Members
+- Service names
+- Service numbers
+- Active services
+- Absent services
+- Absence reasons when enabled
+- Replacement information
+
+Example:
+
+🙏 Hare Krishna
+
+*VOICE Daily Service*
+📅 11 August
+
+@Khokon Prabhu
+• Offering Bhogo (Service 2)
+• Offering Arati & Sringer (Service 1)
+
+@Gian Juti Tripura
+• Preparing vegetables for next morning (Service 4)
+• Cleaning utensils + Kirtan + room cleaning (Service 3) — ABSENT (Exam)
+
+Please inform the Internal Manager if there is any issue with the assigned service.
+
+Hare Krishna 🙏
+
+Use actual service data from Firestore.
+
+Provide:
+
+- Generate
+- Regenerate
+- Edit Before Copying
+- Copy Announcement
+
+Provide:
+
+SHOW ABSENCE REASONS: ON/OFF
+
+ON:
+
+Service 3 — ABSENT (Exam)
+
+OFF:
+
+Service 3 — ABSENT
+
+The generated text must be optimized for WhatsApp copy/paste.
+
+Do NOT implement unofficial WhatsApp automation.
+
+==================================================
+PART 17 — TELEGRAM BOT
+==================================================
+
+Telegram automation is confirmed.
+
+Implement a Telegram Bot integration.
+
+The Telegram Bot must be server-side.
+
+Never expose the Telegram Bot Token in client-side code.
+
+Support:
+
+- Daily service announcement
+- Individual service notification
+- Service reminder
+- Absence notification
+- Replacement notification
+
+The Telegram announcement must use the same final assignment data as the WhatsApp generator.
+
+Architecture:
+
+VOICE DATABASE
+→ Cycle Engine
+→ Assignments
+→ Absence
+→ Replacement
+→ Final Daily Data
+→ Telegram
+
+Telegram must not independently calculate the cycle.
+
+If Telegram is unavailable:
+
+- Web app continues
+- Cycle continues
+- WhatsApp generator continues
+- Internal Manager continues working
+
+Telegram is only a communication channel.
+
+==================================================
+PART 18 — NOTIFICATIONS
+==================================================
+
+Prepare notification architecture for:
+
+- Daily service notification
+- Reminder
+- Absence update
+- Replacement update
+- Important system notification
+
+Use deterministic templates.
+
+Notification preferences should be configurable.
+
+==================================================
+PART 19 — AUTOMATIC SCHEDULING
+==================================================
+
+Support configurable timing for:
+
+- Daily announcement
+- Reminder
+- Telegram announcement
+
+The Internal Manager can configure the timing.
+
+The actual cycle must automatically determine the correct date's assignments.
+
+==================================================
+PART 20 — HISTORY
+==================================================
+
+Maintain historical information.
+
+Internal Manager can view:
+
+- Previous assignments
+- Absences
+- Absence reasons
+- Replacements
+- Changes
+- Announcement history where practical
+
+Do not overwrite important historical records.
+
+The system should preserve what was originally scheduled and what actually happened.
+
+==================================================
+PART 21 — DATABASE
+==================================================
+
+Use Firebase Firestore.
+
+Create a maintainable structure around:
+
+- users
+- members
+- services
+- cycle_configuration
+- assignments
+- absence_records
+- replacement_records
+- announcements
+- notifications
+- user_preferences
+- system_settings
+- audit_logs
+
+You may improve the exact schema if there is a better design.
+
+Prioritize:
+
+- Data integrity
+- Security
+- Maintainability
+- Query efficiency
+- Historical accuracy
+
+==================================================
+PART 22 — AUTHENTICATION & SECURITY
+==================================================
+
+Use Firebase Authentication.
+
+Enforce role-based permissions.
+
+Do NOT rely only on hiding buttons.
+
+Members must not be able to modify:
+
+- Other members
+- Official cycle
+- Official assignments
+- Absence records
+- Replacement records
+
+Internal Manager has full access.
+
+Use Firestore security rules and backend authorization.
+
+Never expose:
+
+- Privileged Firebase credentials
+- Telegram bot token
+- Server secrets
+- API keys
+
+in client-side code.
+
+==================================================
+PART 23 — ERROR HANDLING
+==================================================
+
+Never show technical errors to normal users.
+
+Example:
+
+Instead of:
+
+Firestore permission-denied
+
+show Bengali:
+
+এই তথ্য পরিবর্তন করা যায়নি। আবার চেষ্টা করুন।
+
+English:
+
+Unable to update this information. Please try again.
+
+Show:
+
+Saving...
+Saved
+Failed — Try Again
+
+Never falsely display "Saved" before the server confirms success.
+
+==================================================
+PART 24 — TESTING
+==================================================
+
+Create automated tests.
+
+Especially test:
+
+- Authentication
+- Role permissions
+- Bengali/English switching
+- Member management
+- Service management
+- Cycle calculation
+- Multiple services per member
+- Absence
+- Unmark absence
+- Illness
+- Exam
+- Other absence reasons
+- Replacement
+- Remove replacement
+- Future dates
+- Historical dates
+- WhatsApp generation
+- Telegram generation
+- Notifications
+
+Critical test:
+
+A member has:
+
+Service 4 → Active
+Service 3 → Active
+
+Internal Manager marks Service 3 absent.
+
+Expected:
+
+Service 4 → Active
+Service 3 → Absent
+
+NOT:
+
+Member → Absent
+
+Then unmark Service 3.
+
+Expected:
+
+Service 4 → Active
+Service 3 → Active
+
+Then assign replacement.
+
+Verify the base cycle remains unchanged.
+
+==================================================
+PART 25 — PWA
+==================================================
+
+The web application must be a proper installable PWA.
+
+Include:
+
+- Web manifest
+- App icons
+- Mobile viewport
+- Service worker
+- Installable behavior
+- Responsive UI
+- Mobile-first design
+
+The application should feel like an Android application when installed as a PWA.
+
+==================================================
+PART 26 — ANDROID FUTURE / APK REQUIREMENT
+==================================================
+
+An eventual Android application is REQUIRED.
+
+The web application must be architected so the same Firebase/backend can support a native Android client.
+
+Preferred future native technology:
+
+Kotlin
+Jetpack Compose
+
+The Android version should provide the same essential functionality.
+
+The project must remain exportable/downloadable.
+
+Document the process for:
+
+1. Exporting the web project
+2. Continuing development outside AI Studio
+3. Creating the native Android project/client
+4. Connecting Android to the same Firebase backend
+5. Building APK
+6. Building signed APK
+7. Building AAB
+8. Preparing for Google Play
+
+Do not create a fake APK download feature.
+
+The actual APK should eventually be buildable through Android Studio.
+
+==================================================
+PART 27 — DEVELOPMENT PHASES
+==================================================
+
+You MUST implement the project in the following order.
+
+Do NOT try to implement all phases at once.
+
+--------------------------------
+PHASE 1 — FOUNDATION
+--------------------------------
+
+Build:
+
+- React/TypeScript application
+- Firebase
+- Authentication
+- Firestore
+- Roles
+- Bengali/English system
+- Basic UI
+- PWA foundation
+- Internal Manager dashboard shell
+- Member dashboard shell
+- Secure architecture
+
+Do NOT implement the actual cycle yet.
+
+--------------------------------
+PHASE 2 — MEMBERS + SERVICES
+--------------------------------
+
+Build:
+
+- Member management
+- Service management
+- Service details
+- Internal Manager controls
+- Member profiles
+
+Do NOT invent missing service data.
+
+--------------------------------
+PHASE 3 — VOICE CYCLE ENGINE
+--------------------------------
+
+This phase begins only after the actual VOICE service-cycle chart and rules have been supplied.
+
+Study the chart carefully.
+
+Derive the exact deterministic cycle.
+
+Do not guess.
+
+Create automated tests.
+
+Compare results with the physical chart.
+
+Ask for clarification if necessary.
+
+--------------------------------
+PHASE 4 — DAILY ASSIGNMENTS + ABSENCE + REPLACEMENTS
+--------------------------------
+
+Implement:
+
+- Daily assignments
+- Multiple services per member
+- Service-level absence
+- Unmark absence
+- Illness
+- Exam
+- Personal Reason
+- Away
+- Other
+- Replacement
+
+Do not corrupt the underlying cycle.
+
+--------------------------------
+PHASE 5 — MEMBER EXPERIENCE
+--------------------------------
+
+Implement:
+
+- Today's service
+- Tomorrow's service
+- Upcoming
+- Service details
+- History
+- Profile
+- Notifications/preferences
+
+--------------------------------
+PHASE 6 — WHATSAPP ANNOUNCEMENT GENERATOR
+--------------------------------
+
+Implement:
+
+- Generate
+- Regenerate
+- Edit
+- Copy
+- Absence reason toggle
+- Replacement display
+- WhatsApp formatting
+
+No unofficial WhatsApp automation.
+
+--------------------------------
+PHASE 7 — TELEGRAM + AUTOMATION
+--------------------------------
+
+Implement:
+
+- Telegram Bot
+- Secure token storage
+- Daily announcement
+- Individual notifications
+- Reminders
+- Absence notifications
+- Replacement notifications
+- Scheduling
+
+--------------------------------
+PHASE 8 — HISTORY + AUDIT + REPORTING
+--------------------------------
+
+Implement:
+
+- Service history
+- Absence history
+- Replacement history
+- Audit logs
+- Useful simple reports
+
+Keep reporting simple.
+
+--------------------------------
+PHASE 9 — FINAL SECURITY + TESTING
+--------------------------------
+
+Verify:
+
+- Permissions
+- Security
+- Data integrity
+- Cycle accuracy
+- Error handling
+- Mobile usability
+- Bengali/English
+- Telegram
+- WhatsApp generator
+
+Remove debug code and fake data.
+
+--------------------------------
+PHASE 10 — PWA + ANDROID PREPARATION
+--------------------------------
+
+Finalize:
+
+- PWA
+- Icons
+- Installability
+- Mobile polish
+- Export instructions
+- Android architecture
+- Android Studio continuation instructions
+- APK/AAB build documentation
+
+==================================================
+PART 28 — HOW YOU MUST EXECUTE THE PROJECT
+==================================================
+
+THIS IS VERY IMPORTANT.
+
+Do NOT attempt all phases in one generation.
+
+Execute the phases sequentially.
+
+Start ONLY with PHASE 1.
+
+After completing Phase 1:
+
+1. Run/build the application.
+2. Check for compilation errors.
+3. Check runtime errors.
+4. Check Firebase integration.
+5. Check authentication.
+6. Check Bengali/English toggle.
+7. Check responsive mobile UI.
+8. Check PWA configuration.
+9. Fix all errors you find.
+10. Confirm Phase 1 is stable.
+
+Then STOP.
+
+Do not automatically jump into Phase 2 unless the foundation is stable.
+
+When moving to a later phase, preserve all existing functionality.
+
+Never rewrite working components unnecessarily.
+
+Never destroy existing database structure without a migration strategy.
+
+Never replace working business logic merely to simplify implementation.
+
+==================================================
+PART 29 — IMPORTANT MISSING INFORMATION
+==================================================
+
+The following information will be provided separately:
+
+1. Exact VOICE member list
+2. Exact 12 service definitions
+3. Existing physical service-cycle chart
+4. Exact cycle rules
+5. Existing announcement format/examples
+6. Any special VOICE-specific rules
+
+DO NOT invent any of these.
+
+When these are supplied:
+
+- Analyze them
+- Ask for clarification only where genuinely necessary
+- Encode them into the system
+- Test against the real-world chart
+
+==================================================
+PART 30 — FINAL PRODUCT GOAL
+==================================================
+
+The final application should allow the Internal Manager to open the system and immediately see:
+
+TODAY'S SERVICE
+
+Every member
+
+Every assigned service
+
+Which services are active
+
+Which services are absent
+
+Why they are absent
+
+Which services have replacements
+
+The Internal Manager should be able to manage everything from the dashboard.
+
+The system should automatically calculate the cycle.
+
+The system should generate the WhatsApp announcement.
+
+Telegram should be capable of automatic communication.
+
+Members should have a simple personal dashboard.
+
+The entire system should be available in:
+
+বাংলা
+
+or
+
+English
+
+The application should be simple enough that a non-technical member can understand it immediately.
+
+The eventual system should be usable every day by VOICE without manually calculating the service cycle.
+
+==================================================
+START NOW
+==================================================
+
+Start with PHASE 1 ONLY.
+
+Do not implement the cycle engine yet.
+
+Do not invent service data.
+
+Do not invent members.
+
+Build the foundation first.
+
+After Phase 1 is complete and tested, stop and report:
+
+- What was built
+- What was tested
+- Any remaining configuration
+- Any errors
+- What is needed before Phase 2
+
+Then wait for the next instruction.
