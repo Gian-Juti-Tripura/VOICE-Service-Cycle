@@ -31,14 +31,14 @@ const INITIAL_SERVICES: Partial<ServiceDefinition>[] = [
     nameBn: 'ভোগ নিবেদন (+ সেবা ৫ অনুপস্থিত)',
     descEn: 'Offering Bhogo (Fallback for Service 5)',
     descBn: 'ভোগ নিবেদন (সেবা ৫ এর অবর্তমানে)',
-    timing: 'Flexible'
+    timing: 'Complete before 8 AM'
   },
   {
     id: '3',
-    nameEn: 'Cleaning utensils at night + Kirton + Room',
-    nameBn: 'রাতে বাসন মাজা + কীর্তন + রুম পরিষ্কার',
-    descEn: 'Cleaning utensils at night + Kirtan + Room cleaning',
-    descBn: 'রাতে বাসন মাজা + কীর্তন + রুম পরিষ্কার',
+    nameEn: 'Cleaning utensils at night + Mangal Arati Kirton + Room',
+    nameBn: 'রাতে বাসন মাজা + মঙ্গল আরতি কীর্তন + রুম পরিষ্কার',
+    descEn: 'Cleaning utensils at night + Mangal Arati Kirton + Room cleaning',
+    descBn: 'রাতে বাসন মাজা + মঙ্গল আরতি কীর্তন + রুম পরিষ্কার',
     timing: 'Night'
   },
   {
@@ -91,10 +91,10 @@ const INITIAL_SERVICES: Partial<ServiceDefinition>[] = [
   },
   {
     id: '10',
-    nameEn: 'Dinner service + Prasad hall + Utensils (+ 9th Absent)',
-    nameBn: 'রাতের প্রসাদ সেবা + প্রসাদ হল + বাসন মাজা (+ সেবা ৯ অনুপস্থিত)',
-    descEn: 'Dinner service + Prasad hall cleaning + Utensils cleaning (Fallback for Service 9)',
-    descBn: 'রাতের প্রসাদ সেবা + প্রসাদ হল পরিষ্কার + বাসন মাজা (সেবা ৯ এর অবর্তমানে)',
+    nameEn: 'Dinner service + Prasad hall + Utensils (+ 1st Absent)',
+    nameBn: 'রাতের প্রসাদ সেবা + প্রসাদ হল + বাসন মাজা (+ সেবা ১ অনুপস্থিত)',
+    descEn: 'Dinner service + Prasad hall cleaning + Utensils cleaning (Fallback for 1st Absent)',
+    descBn: 'রাতের প্রসাদ সেবা + প্রসাদ হল পরিষ্কার + বাসন মাজা (১ম অনুপস্থিত ব্যক্তির জন্য)',
     timing: 'Night'
   },
   {
@@ -107,11 +107,19 @@ const INITIAL_SERVICES: Partial<ServiceDefinition>[] = [
   },
   {
     id: '12',
-    nameEn: 'Cooking at night + Shayan + Nrisimha Kirton',
-    nameBn: 'রাতে রান্না করা + শয়ন + নৃসিংহ কীর্তন',
-    descEn: 'Cooking at night + Shayan + Nrisimha Kirtan',
-    descBn: 'রাতে রান্না করা + শয়ন + নৃসিংহ কীর্তন',
-    timing: 'Before 10:30 PM'
+    nameEn: 'Cooking at night + Shayan + Nrisimha Arati Kirton',
+    nameBn: 'রাতে রান্না করা + শয়ন + নৃসিংহ আরতি কীর্তন',
+    descEn: 'Cooking at night + Shayan + Nrisimha Arati Kirton',
+    descBn: 'রাতে রান্না করা + শয়ন + নৃসিংহ আরতি কীর্তন',
+    timing: 'Enter Before 7:00 PM'
+  },
+  {
+    id: '13',
+    nameEn: 'Prasad-hall Cleaning + Breakfast Service',
+    nameBn: 'প্রসাদ হল পরিষ্কার + প্রাতরাশ সেবা',
+    descEn: 'Prasad-hall Cleaning + Breakfast Service',
+    descBn: 'প্রসাদ হল পরিষ্কার + প্রাতরাশ সেবা',
+    timing: 'Before 7.30 AM'
   }
 ];
 
@@ -137,13 +145,13 @@ export const seedInitialData = async () => {
   // 2. Seed Services
   const existingServices = await localDb.getServices();
   
-  if (existingServices.length === 0) {
+  if (existingServices.length !== INITIAL_SERVICES.length) {
     const newServices: ServiceDefinition[] = INITIAL_SERVICES.map(s => ({
       ...(s as ServiceDefinition),
       isActive: true
     }));
     await localDb.saveServices(newServices);
-    console.log('Seeding 12 services...');
+    console.log(`Seeding ${INITIAL_SERVICES.length} services (upserted)...`);
   }
   
   console.log('Seeding completed successfully!');

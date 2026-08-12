@@ -1,96 +1,258 @@
+import { supabase } from '../supabase/supabaseClient';
 import type { Member, ServiceDefinition, AssignmentOverride } from '../types';
-
-const MEMBERS_KEY = 'voice_members';
-const SERVICES_KEY = 'voice_services';
-const OVERRIDES_KEY = 'voice_overrides';
-
-// Helper to simulate network delay for realistic UI loading states
-const delay = (ms: number = 300) => new Promise(res => setTimeout(res, ms));
 
 export const localDb = {
   // Members
   getMembers: async (): Promise<Member[]> => {
-    await delay();
-    const data = localStorage.getItem(MEMBERS_KEY);
-    return data ? JSON.parse(data) : [];
+    const { data, error } = await supabase
+      .from('members')
+      .select('*')
+      .order('cycle_order', { ascending: true });
+      
+    if (error) throw new Error(error.message);
+    
+    return data.map((m: any) => ({
+      id: m.id,
+      fullName: m.full_name,
+      phone: m.phone,
+      dob: m.dob,
+      userId: m.user_id,
+      isActive: m.is_active,
+      cycleOrder: m.cycle_order,
+      createdAt: m.created_at,
+      updatedAt: m.updated_at
+    }));
   },
   
   saveMembers: async (members: Member[]): Promise<void> => {
-    await delay(100);
-    localStorage.setItem(MEMBERS_KEY, JSON.stringify(members));
+    const records = members.map(m => ({
+      id: m.id,
+      full_name: m.fullName,
+      phone: m.phone,
+      dob: m.dob,
+      user_id: m.userId,
+      is_active: m.isActive,
+      cycle_order: m.cycleOrder,
+      created_at: m.createdAt,
+      updated_at: m.updatedAt
+    }));
+    
+    const { error } = await supabase.from('members').upsert(records);
+    if (error) throw new Error(error.message);
   },
   
   getMember: async (id: string): Promise<Member | null> => {
-    const members = await localDb.getMembers();
-    return members.find(m => m.id === id) || null;
+    const { data, error } = await supabase
+      .from('members')
+      .select('*')
+      .eq('id', id)
+      .single();
+      
+    if (error) {
+      if (error.code === 'PGRST116') return null; // not found
+      throw new Error(error.message);
+    }
+    if (!data) return null;
+    
+    return {
+      id: data.id,
+      fullName: data.full_name,
+      phone: data.phone,
+      dob: data.dob,
+      userId: data.user_id,
+      isActive: data.is_active,
+      cycleOrder: data.cycle_order,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at
+    };
   },
   
   saveMember: async (member: Member): Promise<void> => {
-    const members = await localDb.getMembers();
-    const existingIndex = members.findIndex(m => m.id === member.id);
-    if (existingIndex >= 0) {
-      members[existingIndex] = member;
-    } else {
-      members.push(member);
-    }
-    await localDb.saveMembers(members);
+    const { error } = await supabase.from('members').upsert({
+      id: member.id,
+      full_name: member.fullName,
+      phone: member.phone,
+      dob: member.dob,
+      user_id: member.userId,
+      is_active: member.isActive,
+      cycle_order: member.cycleOrder,
+      created_at: member.createdAt,
+      updated_at: member.updatedAt
+    });
+    if (error) throw new Error(error.message);
   },
   
   // Services
   getServices: async (): Promise<ServiceDefinition[]> => {
-    await delay();
-    const data = localStorage.getItem(SERVICES_KEY);
-    return data ? JSON.parse(data) : [];
+    const { data, error } = await supabase
+      .from('services')
+      .select('*');
+      
+    if (error) throw new Error(error.message);
+    
+    // Sort by parsing ID since they are strings like "1", "2"
+    data.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+    
+    return data.map((s: any) => ({
+      id: s.id,
+      nameBn: s.name_bn,
+      nameEn: s.name_en,
+      descBn: s.desc_bn,
+      descEn: s.desc_en,
+      timing: s.timing,
+      isActive: s.is_active
+    }));
   },
   
   saveServices: async (services: ServiceDefinition[]): Promise<void> => {
-    await delay(100);
-    localStorage.setItem(SERVICES_KEY, JSON.stringify(services));
+    const records = services.map(s => ({
+      id: s.id,
+      name_bn: s.nameBn,
+      name_en: s.nameEn,
+      desc_bn: s.descBn,
+      desc_en: s.descEn,
+      timing: s.timing,
+      is_active: s.isActive
+    }));
+    
+    const { error } = await supabase.from('services').upsert(records);
+    if (error) throw new Error(error.message);
   },
 
   getService: async (id: string): Promise<ServiceDefinition | null> => {
-    const services = await localDb.getServices();
-    return services.find(s => s.id === id) || null;
+    const { data, error } = await supabase
+      .from('services')
+      .select('*')
+      .eq('id', id)
+      .single();
+      
+    if (error) {
+      if (error.code === 'PGRST116') return null; // not found
+      throw new Error(error.message);
+    }
+    if (!data) return null;
+    
+    return {
+      id: data.id,
+      nameBn: data.name_bn,
+      nameEn: data.name_en,
+      descBn: data.desc_bn,
+      descEn: data.desc_en,
+      timing: data.timing,
+      isActive: data.is_active
+    };
   },
   
   saveService: async (service: ServiceDefinition): Promise<void> => {
-    const services = await localDb.getServices();
-    const existingIndex = services.findIndex(s => s.id === service.id);
-    if (existingIndex >= 0) {
-      services[existingIndex] = service;
-    } else {
-      services.push(service);
+    const { error } = await supabase.from('services').upsert({
+      id: service.id,
+      name_bn: service.nameBn,
+      name_en: service.nameEn,
+      desc_bn: service.descBn,
+      desc_en: service.descEn,
+      timing: service.timing,
+      is_active: service.isActive
+    });
+    if (error) throw new Error(error.message);
+  },
+
+  deleteService: async (id: string): Promise<void> => {
+    // 1. Delete all overrides to prevent foreign key errors
+    await supabase.from('assignment_overrides').delete().eq('service_id', id);
+    
+    // 2. Delete the service
+    const { error } = await supabase.from('services').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+  },
+  deleteMember: async (id: string): Promise<void> => {
+    // 1. Delete all overrides to prevent foreign key errors
+    await supabase.from('assignment_overrides').delete().eq('member_id', id);
+    await supabase.from('assignment_overrides').delete().eq('replacement_member_id', id);
+    
+    // 2. Delete the member
+    const { error } = await supabase.from('members').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+
+    // 3. Re-sequence cycle orders for remaining members
+    const members = await localDb.getMembers();
+    for (let i = 0; i < members.length; i++) {
+      members[i].cycleOrder = i;
+      members[i].updatedAt = new Date().toISOString();
     }
-    await localDb.saveServices(services);
+    
+    if (members.length > 0) {
+      await localDb.saveMembers(members);
+    }
   },
 
   // Overrides
   getOverridesByDate: async (dateStr: string): Promise<AssignmentOverride[]> => {
-    await delay();
-    const data = localStorage.getItem(OVERRIDES_KEY);
-    const overrides: AssignmentOverride[] = data ? JSON.parse(data) : [];
-    return overrides.filter(o => o.dateStr === dateStr);
+    const { data, error } = await supabase
+      .from('assignment_overrides')
+      .select('*')
+      .in('date_str', [dateStr, 'CONTINUOUS']);
+      
+    if (error) throw new Error(error.message);
+    
+    return data.map((o: any) => ({
+      id: o.id,
+      dateStr: o.date_str,
+      memberId: o.member_id,
+      serviceId: o.service_id,
+      status: o.status,
+      absenceReason: o.absence_reason,
+      replacementMemberId: o.replacement_member_id,
+      managerId: o.manager_id,
+      timestamp: o.timestamp
+    }));
+  },
+  
+  getOverridesByDateRange: async (dateStrs: string[]): Promise<AssignmentOverride[]> => {
+    const { data, error } = await supabase
+      .from('assignment_overrides')
+      .select('*')
+      .in('date_str', [...dateStrs, 'CONTINUOUS']);
+      
+    if (error) throw new Error(error.message);
+    
+    return data.map((o: any) => ({
+      id: o.id,
+      dateStr: o.date_str,
+      memberId: o.member_id,
+      serviceId: o.service_id,
+      status: o.status,
+      absenceReason: o.absence_reason,
+      replacementMemberId: o.replacement_member_id,
+      managerId: o.manager_id,
+      timestamp: o.timestamp
+    }));
   },
   
   saveOverride: async (override: AssignmentOverride): Promise<void> => {
-    await delay();
-    const data = localStorage.getItem(OVERRIDES_KEY);
-    const overrides: AssignmentOverride[] = data ? JSON.parse(data) : [];
-    
-    // Replace if same override
-    const existingIndex = overrides.findIndex(o => o.id === override.id);
-    if (existingIndex >= 0) {
-      overrides[existingIndex] = override;
-    } else {
-      overrides.push(override);
-    }
-    
-    localStorage.setItem(OVERRIDES_KEY, JSON.stringify(overrides));
+    const { error } = await supabase.from('assignment_overrides').upsert({
+      id: override.id,
+      date_str: override.dateStr,
+      member_id: override.memberId,
+      service_id: override.serviceId,
+      status: override.status,
+      absence_reason: override.absenceReason,
+      replacement_member_id: override.replacementMemberId,
+      manager_id: override.managerId,
+      timestamp: override.timestamp
+    });
+    if (error) throw new Error(error.message);
+  },
+
+  deleteOverride: async (id: string): Promise<void> => {
+    const { error } = await supabase.from('assignment_overrides').delete().eq('id', id);
+    if (error) throw new Error(error.message);
   },
 
   clearAll: async (): Promise<void> => {
-    localStorage.removeItem(MEMBERS_KEY);
-    localStorage.removeItem(SERVICES_KEY);
-    localStorage.removeItem(OVERRIDES_KEY);
+    // Utility for wiping data in development if needed
+    // You must add proper RLS / warnings for this in production
+    await supabase.from('assignment_overrides').delete().neq('id', '0');
+    await supabase.from('members').delete().neq('id', '0');
+    await supabase.from('services').delete().neq('id', '0');
   }
 };

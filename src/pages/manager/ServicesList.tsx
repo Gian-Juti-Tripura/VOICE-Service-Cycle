@@ -94,7 +94,8 @@ export default function ServicesList() {
                     <td className="p-5 text-right">
                       <Link
                         to={`/manager/services/${service.id}`}
-                        className="inline-flex items-center justify-center p-2 text-slate-400 hover:text-saffron-600 hover:bg-saffron-50 rounded-xl transition-all duration-200 opacity-0 group-hover:opacity-100"
+                        className="inline-flex items-center justify-center p-2 text-slate-400 hover:text-saffron-600 hover:bg-saffron-50 rounded-xl transition-all duration-200"
+                        title="Edit Service"
                       >
                         <Edit size={18} />
                       </Link>

@@ -1,23 +1,29 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import type { ReactNode } from 'react';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect, type ReactNode } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import Navbar from './components/layout/Navbar';
+import { Toaster } from 'react-hot-toast';
 import Login from './pages/auth/Login';
 import ManagerDashboard from './pages/manager/ManagerDashboard';
 import MembersList from './pages/manager/MembersList';
 import MemberEdit from './pages/manager/MemberEdit';
 import ServicesList from './pages/manager/ServicesList';
 import ServiceEdit from './pages/manager/ServiceEdit';
+import SettingsDashboard from './pages/manager/SettingsDashboard';
 import MemberDashboard from './pages/member/MemberDashboard';
+import { initializeOneSignal } from './utils/onesignal';
+import { scheduleDailyNotifications } from './utils/notificationScheduler';
 
 // Protected Route Component
 const ProtectedRoute = ({ 
   children, 
-  allowedRole 
+  allowedRole,
+  allowedRoles
 }: { 
   children: ReactNode;
-  allowedRole?: 'INTERNAL_MANAGER' | 'MEMBER';
+  allowedRole?: 'INTERNAL_MANAGER' | 'MEMBER' | 'ADMIN';
+  allowedRoles?: Array<'INTERNAL_MANAGER' | 'MEMBER' | 'ADMIN'>;
 }) => {
   const { user, role, loading } = useAuth();
 
@@ -33,31 +39,46 @@ const ProtectedRoute = ({
     return <Navigate to="/login" replace />;
   }
 
-  // Very basic role check for Phase 1
-  if (allowedRole && role !== allowedRole) {
+  const rolesToCheck = allowedRoles || (allowedRole ? [allowedRole] : undefined);
+
+  if (rolesToCheck && !rolesToCheck.includes(role as any)) {
+    // If user is ADMIN, allow them everywhere INTERNAL_MANAGER is allowed
+    if (role === 'ADMIN' && rolesToCheck.includes('INTERNAL_MANAGER')) {
+      return <>{children}</>;
+    }
+    
     // If role is null (e.g. Firestore blocked by adblocker), show error
     if (role === null) {
       return (
         <div className="container flex items-center justify-center text-center" style={{ minHeight: 'calc(100vh - 4rem)', color: 'var(--color-danger)' }}>
-          <div>
-            <h2 className="mb-4">Access Denied</h2>
-            <p>We could not determine your role.</p>
-            <p className="mt-2 text-sm">If you are using an ad-blocker (like Brave Shields or uBlock), please disable it for localhost, as it is blocking our database connection.</p>
+          <div className="glass-card p-8 border-rose-200 bg-rose-50/50">
+            <h2 className="text-2xl font-bold mb-4 text-rose-700">Authentication Error</h2>
+            <p className="text-rose-600">Could not determine your access level. Please check your connection or disable adblockers.</p>
           </div>
         </div>
       );
     }
     
-    // If user is a member but tries to access manager route, redirect them to member dashboard
+    // Redirect logic that prevents infinite loops
     if (role === 'MEMBER') {
       return <Navigate to="/member" replace />;
     }
-    // If user is manager but tries to access member route, allow it or redirect?
-    // Let's redirect managers to their dashboard if they hit the root
-    return <Navigate to="/manager" replace />;
+    if (role === 'INTERNAL_MANAGER' || role === 'ADMIN') {
+      return <Navigate to="/manager" replace />;
+    }
+    
+    // Fallback for unknown roles to prevent infinite redirect blank screens
+    return (
+      <div className="container flex items-center justify-center text-center" style={{ minHeight: 'calc(100vh - 4rem)' }}>
+        <div className="glass-card p-8 border-amber-200 bg-amber-50/50">
+          <h2 className="text-2xl font-bold mb-4 text-amber-700">Access Denied</h2>
+          <p className="text-amber-600">Your current role ({String(role)}) does not have permission to view this page.</p>
+        </div>
+      </div>
+    );
   }
 
-  return children;
+  return <>{children}</>;
 };
 
 // Default Route component to redirect based on role
@@ -67,7 +88,7 @@ const DefaultRoute = () => {
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
   
-  if (role === 'INTERNAL_MANAGER') {
+  if (role === 'INTERNAL_MANAGER' || role === 'ADMIN') {
     return <Navigate to="/manager" replace />;
   }
   
@@ -76,17 +97,26 @@ const DefaultRoute = () => {
 
 
 const AppContent = () => {
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      scheduleDailyNotifications(user.id);
+    }
+  }, [user]);
+
   return (
     <>
       <Navbar />
       <main style={{ flex: 1 }}>
+        <Toaster position="top-center" />
         <Routes>
           <Route path="/login" element={<Login />} />
           
           <Route 
             path="/manager" 
             element={
-              <ProtectedRoute allowedRole="INTERNAL_MANAGER">
+              <ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'MEMBER']}>
                 <ManagerDashboard />
               </ProtectedRoute>
             } 
@@ -95,6 +125,7 @@ const AppContent = () => {
           <Route path="/manager/members/:id" element={<ProtectedRoute allowedRole="INTERNAL_MANAGER"><MemberEdit /></ProtectedRoute>} />
           <Route path="/manager/services" element={<ProtectedRoute allowedRole="INTERNAL_MANAGER"><ServicesList /></ProtectedRoute>} />
           <Route path="/manager/services/:id" element={<ProtectedRoute allowedRole="INTERNAL_MANAGER"><ServiceEdit /></ProtectedRoute>} />
+          <Route path="/manager/settings" element={<ProtectedRoute allowedRole="ADMIN"><SettingsDashboard /></ProtectedRoute>} />
           
           <Route 
             path="/member" 
@@ -114,6 +145,13 @@ const AppContent = () => {
 };
 
 function App() {
+  useEffect(() => {
+    // Wait a brief moment for Capacitor's native bridge to fully inject before initializing
+    setTimeout(() => {
+      initializeOneSignal();
+    }, 500);
+  }, []);
+
   return (
     <AuthProvider>
       <LanguageProvider>

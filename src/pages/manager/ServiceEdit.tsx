@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { localDb } from '../../utils/localDb';
 import type { ServiceDefinition } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
-import { ArrowLeft, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function ServiceEdit() {
@@ -72,6 +72,21 @@ export default function ServiceEdit() {
       console.error(err);
       setError(err.message || 'Failed to save service');
     } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this service? This will also delete its assignment history.')) return;
+    
+    setSaving(true);
+    setError('');
+    try {
+      await localDb.deleteService(id!);
+      navigate('/manager/services');
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Failed to delete service');
       setSaving(false);
     }
   };
@@ -183,15 +198,27 @@ export default function ServiceEdit() {
             </div>
           </div>
 
-          <div className="pt-6 border-t border-gray-100">
+          <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row gap-3">
             <button
               type="submit"
               disabled={saving}
-              className="w-full flex items-center justify-center gap-2 bg-saffron-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-saffron-700 transition-colors disabled:opacity-70"
+              className="flex-1 flex items-center justify-center gap-2 bg-saffron-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-saffron-700 transition-colors disabled:opacity-70"
             >
               {saving ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}
               {t('save')}
             </button>
+
+            {!isNew && (
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={saving}
+                className="flex items-center justify-center gap-2 bg-red-50 text-red-600 py-3 px-4 rounded-lg font-medium hover:bg-red-100 transition-colors disabled:opacity-70"
+              >
+                <Trash2 size={20} />
+                Delete Service
+              </button>
+            )}
           </div>
         </form>
       </div>

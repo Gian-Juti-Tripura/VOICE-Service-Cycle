@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "602230840366",
+    "project_id": "voice-service-system",
+    "storage_bucket": "voice-service-system.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602230840366:android:0778841187eaa4203213bf",
+        "android_client_info": {
+          "package_name": "org.voice.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "602230840366-3a3qrpsfoq94k7o2c4usr3nb966hpu28.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcxN4a1c9szsubf6C08L-3NT7kzbj4LNQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "602230840366-3a3qrpsfoq94k7o2c4usr3nb966hpu28.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

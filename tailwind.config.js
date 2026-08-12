@@ -31,6 +31,14 @@ export default {
           800: '#3730a3',
           900: '#312e81',
         },
+      },
+      animation: {
+        shimmer: 'shimmer 2s infinite',
+      },
+      keyframes: {
+        shimmer: {
+          '100%': { transform: 'translateX(100%)' },
+        }
       }
     },
   },

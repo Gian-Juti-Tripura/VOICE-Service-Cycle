@@ -1,32 +1,113 @@
-# React + TypeScript + Vite
+# VOICE Service Cycle
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+VOICE Service Cycle is a cross-platform (Web & Android) application designed to automate, manage, and track daily service assignments for community members. It provides a dynamic cycle-based scheduling engine, a centralized manager dashboard for handling absences and replacements, and integrated export features for WhatsApp announcements.
 
-Currently, two official plugins are available:
+## 🚀 Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+*   **Dynamic Cycle Engine:** Automatically rotates and assigns daily services to members based on a predefined cycle order (0 to 11).
+*   **Manager Dashboard:** A centralized control panel for managers to oversee daily assignments and manage personnel.
+*   **Absence & Replacement Management:** Easily mark members as absent (for a single day or continuously) and assign replacement members to cover their specific services.
+*   **Immediate Status Synchronization:** Status overrides (Active, Absent, Replaced) are reflected instantly across the UI without requiring a page reload.
+*   **WhatsApp Export:** Generate formatted, emoji-rich summaries of daily assignments (including replacements and absences) tailored for easy copying and pasting into WhatsApp groups.
+*   **Cross-Platform (Web & Mobile):** Built as a Progressive Web App (PWA) and packaged as a native Android APK using Capacitor.
+*   **Real-time Data:** Powered by Supabase for database synchronization and management.
 
-## React Compiler
+## 🛠 Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+*   **Frontend Framework:** React 19 + TypeScript + Vite
+*   **Styling:** Tailwind CSS + Lucide React (Icons)
+*   **State Management & Routing:** React Router v7
+*   **Backend / Database:** Supabase (PostgreSQL)
+*   **Mobile Wrapper:** Capacitor v6 (Android)
+*   **PWA Integration:** `vite-plugin-pwa`
 
-## Expanding the Oxlint configuration
+## 📦 Prerequisites
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+Before you begin, ensure you have the following installed:
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+*   [Node.js](https://nodejs.org/) (v18+ recommended)
+*   [npm](https://www.npmjs.com/) or yarn
+*   [Android Studio](https://developer.android.com/studio) (required for building the Android APK)
+*   A [Supabase](https://supabase.com/) account and project.
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## ⚙️ Installation & Setup
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/yourusername/VOICE-Service-Cycle.git
+    cd VOICE-Service-Cycle
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+3.  **Environment Variables:**
+    Create a `.env` file in the root of your project and add your Supabase credentials:
+    ```env
+    VITE_SUPABASE_URL=your_supabase_project_url
+    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+    ```
+
+4.  **Database Setup (Supabase):**
+    Ensure your Supabase project has the following tables configured (refer to `src/types/index.ts` for full schemas):
+    *   `members`: (id, fullName, phone, dob, userId, isActive, cycleOrder)
+    *   `services`: (id, nameBn, nameEn, descBn, descEn, timing, isActive)
+    *   `assignment_overrides`: (id, dateStr, memberId, serviceId, status, absenceReason, replacementMemberId, managerId, timestamp)
+
+5.  **Run the Web App locally:**
+    ```bash
+    npm run dev
+    ```
+    The application will be available at `http://localhost:5173`.
+
+## 📱 Building the Android APK
+
+This project uses Capacitor to package the React web app into a native Android application.
+
+1.  **Build the web assets:**
+    ```bash
+    npm run build
+    ```
+
+2.  **Sync assets with Capacitor:**
+    ```bash
+    npx cap sync android
+    ```
+
+3.  **Generate App Icons and Splash Screens (Optional):**
+    If you change the logo (`public/logo.png` or `voice_logo.png`), regenerate the native assets using `@capacitor/assets`:
+    ```bash
+    npx @capacitor/assets generate --android
+    ```
+
+4.  **Open in Android Studio (for manual building/debugging):**
+    ```bash
+    npx cap open android
+    ```
+
+5.  **Build the APK via CLI:**
+    You can build the debug APK directly from the terminal:
+    ```bash
+    cd android
+    ./gradlew assembleDebug
+    ```
+    The generated APK will be located at `android/app/build/outputs/apk/debug/app-debug.apk`.
+
+## 📂 Project Structure
+
+*   `/src/components`: Reusable UI components (Navbar, Action Modals, etc.)
+*   `/src/pages`: Main application views (ManagerDashboard, UserDashboard)
+*   `/src/utils`: Core logic (`cycleEngine.ts` for rotation logic, `localDb.ts` for database interactions)
+*   `/src/types`: TypeScript interfaces defining the data models
+*   `/android`: Native Android project generated by Capacitor
+*   `/public`: Static assets (Logo, PWA icons)
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
+
+## 📄 License
+
+This project is licensed under the MIT License.
