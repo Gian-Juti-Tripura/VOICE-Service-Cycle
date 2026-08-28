@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { localDb } from '../../utils/localDb';
@@ -226,6 +227,20 @@ const MemberDashboard: React.FC = () => {
 
   return (
     <div className="container max-w-4xl mx-auto" style={{ padding: '2rem 1rem' }}>
+      
+      {/* Prominent Back Button */}
+      <div className="mb-4 flex items-center justify-between">
+        <Link 
+          to="/" 
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40 shadow-xs hover:shadow-sm transition-all group shrink-0"
+        >
+          <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform text-emerald-600 dark:text-emerald-400" />
+          <span>{language === 'bn' ? 'হাব হোমে ফিরে যান' : 'Back to Hub Home'}</span>
+        </Link>
+        <span className="text-[11px] font-bold text-slate-400 hidden sm:inline">
+          {language === 'bn' ? 'আমার দৈনিক সেবা ড্যাশবোর্ড' : 'My Daily Seva Dashboard'}
+        </span>
+      </div>
       
       <div className="flex flex-col items-center justify-center mb-8 animate-fade-in bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-8 rounded-3xl shadow-lg border border-indigo-500/20">
         <h1 className="text-2xl font-bold mb-2 text-indigo-50">{t('member.greeting')}</h1>

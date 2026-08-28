@@ -13,7 +13,7 @@ const INITIAL_MEMBERS = [
   { fullName: 'ROTON P.', cycleOrder: 8 },
   { fullName: 'JOY\'S P.', cycleOrder: 9 },
   { fullName: 'JOYKAN P.', cycleOrder: 10 },
-  { fullName: 'ARNOB P.', cycleOrder: 11 },
+  { fullName: 'BAPPI C. P.', cycleOrder: 11 },
 ];
 
 const INITIAL_SERVICES: Partial<ServiceDefinition>[] = [

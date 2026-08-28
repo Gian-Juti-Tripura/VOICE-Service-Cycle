@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
@@ -6,7 +7,7 @@ import { useSupabaseSync } from '../../hooks/useSupabaseSync';
 import type { Member, DailyAssignment, AssignmentOverride } from '../../types';
 import { calculateDailyAssignments } from '../../utils/cycleEngine';
 import { seedInitialData } from '../../utils/seedData';
-import { ChevronLeft, ChevronRight, Calendar, Edit2, X, Copy, Check } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Calendar, Edit2, X, Copy, Check } from 'lucide-react';
 
 import { createPortal } from 'react-dom';
 
@@ -173,7 +174,7 @@ const ManagerDashboard: React.FC = () => {
       
       const activeOrReplacement = memberAssignments.filter(a => !a.isAbsent);
       if (activeOrReplacement.length > 0) {
-        text += `${index}. 👤 *${member.fullName}*\n`;
+        text += `${index}. 👤 *${member.fullName.trim()}*\n`;
         activeOrReplacement.forEach(a => {
           let sName = language === 'bn' ? a.service.nameBn : a.service.nameEn;
           const mainName = sName.split(' (+ ')[0];
@@ -192,7 +193,7 @@ const ManagerDashboard: React.FC = () => {
     if (absentAssignments.length > 0) {
       text += `🔴 *Absent:*\n`;
       absentAssignments.forEach(a => {
-        text += `   - ${a.member.fullName} (${a.absenceReason || 'No reason specified'})\n`;
+        text += `   - ${a.member.fullName.trim()} (${a.absenceReason || 'No reason specified'})\n`;
       });
       text += `\n`;
     }
@@ -231,23 +232,38 @@ const ManagerDashboard: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in">
+      {/* Prominent Back Button */}
+      <div className="mb-4 flex items-center justify-between">
+        <Link 
+          to="/" 
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-teal-600 dark:hover:text-teal-400 hover:border-teal-500/40 shadow-xs hover:shadow-sm transition-all group shrink-0"
+        >
+          <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform text-teal-600 dark:text-teal-400" />
+          <span>{language === 'bn' ? 'হাব হোমে ফিরে যান' : 'Back to Hub Home'}</span>
+        </Link>
+        <span className="text-[11px] font-bold text-slate-400 hidden sm:inline">
+          {language === 'bn' ? '১২ দিনের সেবাক্রম রোস্টার' : '12-Day Service Cycle Roster'}
+        </span>
+      </div>
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">{t('manager.dashboard')}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{t('manager.dashboard')}</h1>
           <p className="mt-2 text-lg text-primary-600 font-medium">Daily Schedule &amp; Overrides</p>
         </div>
-        <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md p-1.5 rounded-xl border border-slate-200/60 shadow-sm">
-          <button onClick={() => changeDate(-1)} className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors" title="Previous Day">
-            <ChevronLeft size={20} />
-          </button>
-          <div className="flex items-center gap-2 px-4 py-1">
-            <Calendar size={18} className="text-primary-500" />
-            <span className="font-semibold text-slate-800 min-w-[140px] text-center">{selectedDateStr}</span>
+        <div className="flex items-center gap-1 sm:gap-2 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md p-1 sm:p-1.5 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm w-full md:w-auto justify-between md:justify-start overflow-hidden">
+          <div className="flex items-center">
+            <button onClick={() => changeDate(-1)} className="p-1.5 sm:p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300 transition-colors shrink-0" title="Previous Day">
+              <ChevronLeft size={20} />
+            </button>
+            <div className="flex items-center gap-1.5 sm:gap-2 px-1 sm:px-4 py-1">
+              <Calendar size={18} className="text-primary-500 hidden sm:block shrink-0" />
+              <span className="font-semibold text-slate-800 dark:text-slate-200 min-w-[110px] sm:min-w-[140px] text-center text-sm sm:text-base truncate">{selectedDateStr}</span>
+            </div>
+            <button onClick={() => changeDate(1)} className="p-1.5 sm:p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300 transition-colors shrink-0" title="Next Day">
+              <ChevronRight size={20} />
+            </button>
           </div>
-          <button onClick={() => changeDate(1)} className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors" title="Next Day">
-            <ChevronRight size={20} />
-          </button>
-          <button onClick={() => setSelectedDate(new Date())} className="ml-2 px-3 py-1.5 text-sm font-medium text-primary-600 hover:bg-primary-50 rounded-lg transition-colors border border-primary-100">
+          <button onClick={() => setSelectedDate(new Date())} className="ml-1 sm:ml-2 px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition-colors border border-primary-100 dark:border-primary-900/50 shrink-0 whitespace-nowrap">
             Today
           </button>
         </div>
@@ -259,26 +275,26 @@ const ManagerDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="glass-card flex flex-col items-center justify-center p-6">
-          <span className="text-4xl font-extrabold text-slate-800">{members.length}</span>
-          <span className="text-sm font-medium text-slate-500 mt-2 uppercase tracking-wide">{t('manager.totalMembers') || 'Total Members'}</span>
+          <span className="text-4xl font-extrabold text-slate-800 dark:text-slate-100">{members.length}</span>
+          <span className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-2 uppercase tracking-wide">{t('manager.totalMembers') || 'Total Members'}</span>
         </div>
         <div className="glass-card flex flex-col items-center justify-center p-6">
-          <span className="text-4xl font-extrabold text-emerald-500">{activeCount}</span>
-          <span className="text-sm font-medium text-slate-500 mt-2 uppercase tracking-wide">{t('manager.activeServices') || 'Active'}</span>
+          <span className="text-4xl font-extrabold text-emerald-500 dark:text-emerald-400">{activeCount}</span>
+          <span className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-2 uppercase tracking-wide">{t('manager.activeServices') || 'Active'}</span>
         </div>
         <div className="glass-card flex flex-col items-center justify-center p-6">
-          <span className="text-4xl font-extrabold text-rose-500">{absentCount}</span>
-          <span className="text-sm font-medium text-slate-500 mt-2 uppercase tracking-wide">{t('manager.absentServices') || 'Absent'}</span>
+          <span className="text-4xl font-extrabold text-rose-500 dark:text-rose-400">{absentCount}</span>
+          <span className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-2 uppercase tracking-wide">{t('manager.absentServices') || 'Absent'}</span>
         </div>
         <div className="glass-card flex flex-col items-center justify-center p-6">
-          <span className="text-4xl font-extrabold text-amber-500">{replacementCount}</span>
-          <span className="text-sm font-medium text-slate-500 mt-2 uppercase tracking-wide">{t('manager.replacementServices') || 'Replacement'}</span>
+          <span className="text-4xl font-extrabold text-amber-500 dark:text-amber-400">{replacementCount}</span>
+          <span className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-2 uppercase tracking-wide">{t('manager.replacementServices') || 'Replacement'}</span>
         </div>
       </div>
 
       <div className="glass-card p-6 lg:p-8">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-bold text-slate-800">Assignments for {selectedDateIso}</h3>
+          <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Assignments for {selectedDateIso}</h3>
           <div className="flex gap-2">
             <button 
               onClick={handleCopyWhatsApp} 
@@ -317,8 +333,8 @@ const ManagerDashboard: React.FC = () => {
               const memberAssignments = assignments.filter(a => a.member.id === member.id);
               if (memberAssignments.length === 0) return null;
               return (
-                <div key={member.id} className="bg-slate-50/80 rounded-xl p-5 border border-slate-200/80 hover:bg-slate-100 transition-colors shadow-sm relative group flex flex-col h-full">
-                  <h4 className="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200/50">{member.fullName}</h4>
+                <div key={member.id} className="bg-slate-50/80 dark:bg-slate-800/80 rounded-xl p-5 border border-slate-200/80 dark:border-slate-700/80 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm relative group flex flex-col h-full">
+                  <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4 pb-2 border-b border-slate-200/50 dark:border-slate-700/50">{member.fullName}</h4>
                   <div className="space-y-4 flex-grow">
                     {memberAssignments.map((assignment, idx) => {
                       const serviceName = language === 'bn' ? assignment.service.nameBn : assignment.service.nameEn;
@@ -338,7 +354,7 @@ const ManagerDashboard: React.FC = () => {
                               )}
                             </div>
                             <div>
-                              <p className="font-semibold text-slate-800 leading-snug">
+                              <p className="font-semibold text-slate-800 dark:text-slate-200 leading-snug">
                                 <span className="text-primary-600 mr-2 block sm:inline">Service {assignment.service.id}:</span>
                                 {mainName}
                               </p>
@@ -357,7 +373,7 @@ const ManagerDashboard: React.FC = () => {
                             </div>
                           </div>
                           {!assignment.isReplacementFor && (role === 'INTERNAL_MANAGER' || role === 'ADMIN') && (
-                            <button onClick={() => handleEditClick(assignment)} className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-all" title="Edit Assignment / Add Override">
+                            <button onClick={() => handleEditClick(assignment)} className="p-1.5 text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-md transition-all" title="Edit Assignment / Add Override">
                               <Edit2 size={16} />
                             </button>
                           )}
@@ -366,7 +382,7 @@ const ManagerDashboard: React.FC = () => {
                     })}
                   </div>
                   
-                  <div className="mt-5 pt-4 border-t border-slate-200/60 text-center">
+                  <div className="mt-5 pt-4 border-t border-slate-200/60 dark:border-slate-700/60 text-center">
                     {memberAssignments.some(a => a.isAbsent) ? (
                       <p className="text-sm font-semibold text-rose-600">Absent Today</p>
                     ) : memberAssignments.some(a => a.isReplacementFor) ? (

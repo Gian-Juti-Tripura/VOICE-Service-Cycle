@@ -1,19 +1,38 @@
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, Suspense, lazy, type ReactNode } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import Navbar from './components/layout/Navbar';
 import { Toaster } from 'react-hot-toast';
-import Login from './pages/auth/Login';
-import ManagerDashboard from './pages/manager/ManagerDashboard';
-import MembersList from './pages/manager/MembersList';
-import MemberEdit from './pages/manager/MemberEdit';
-import ServicesList from './pages/manager/ServicesList';
-import ServiceEdit from './pages/manager/ServiceEdit';
-import SettingsDashboard from './pages/manager/SettingsDashboard';
-import MemberDashboard from './pages/member/MemberDashboard';
 import { initializeOneSignal } from './utils/onesignal';
 import { scheduleDailyNotifications } from './utils/notificationScheduler';
+
+// Lazy Loaded Modules (Instant First Paint & Ultra-Small Initial Bundle)
+const HubHome = lazy(() => import('./pages/HubHome'));
+const SyllabusExplorer = lazy(() => import('./pages/syllabus/SyllabusExplorer'));
+const SadhanaTracker = lazy(() => import('./pages/sadhana/SadhanaTracker'));
+const AdvaitaOrgPage = lazy(() => import('./pages/management/AdvaitaOrgPage'));
+const PreachersToolkit = lazy(() => import('./pages/preaching/PreachersToolkit'));
+const VaishnavaCalendarPage = lazy(() => import('./pages/calendar/VaishnavaCalendarPage'));
+const CoursesAndCamps = lazy(() => import('./pages/camps/CoursesAndCamps'));
+const CounselorDesk = lazy(() => import('./pages/counselor/CounselorDesk'));
+const Login = lazy(() => import('./pages/auth/Login'));
+const ManagerDashboard = lazy(() => import('./pages/manager/ManagerDashboard'));
+const MembersList = lazy(() => import('./pages/manager/MembersList'));
+const MemberEdit = lazy(() => import('./pages/manager/MemberEdit'));
+const ServicesList = lazy(() => import('./pages/manager/ServicesList'));
+const ServiceEdit = lazy(() => import('./pages/manager/ServiceEdit'));
+const SettingsDashboard = lazy(() => import('./pages/manager/SettingsDashboard'));
+const MemberDashboard = lazy(() => import('./pages/member/MemberDashboard'));
+
+const LoadingFallback = () => (
+  <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
+    <div className="w-8 h-8 rounded-full border-2 border-primary-600 border-t-transparent animate-spin" />
+    <span className="text-xs font-bold text-slate-400 dark:text-slate-500 animate-pulse">
+      Loading Advaita VOICE Module...
+    </span>
+  </div>
+);
 
 // Protected Route Component
 const ProtectedRoute = ({ 
@@ -28,11 +47,7 @@ const ProtectedRoute = ({
   const { user, role, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="container flex items-center justify-center" style={{ minHeight: 'calc(100vh - 4rem)' }}>
-        <p className="text-muted">Loading...</p>
-      </div>
-    );
+    return <LoadingFallback />;
   }
 
   if (!user) {
@@ -42,59 +57,20 @@ const ProtectedRoute = ({
   const rolesToCheck = allowedRoles || (allowedRole ? [allowedRole] : undefined);
 
   if (rolesToCheck && !rolesToCheck.includes(role as any)) {
-    // If user is ADMIN, allow them everywhere INTERNAL_MANAGER is allowed
     if (role === 'ADMIN' && rolesToCheck.includes('INTERNAL_MANAGER')) {
       return <>{children}</>;
     }
     
-    // If role is null (e.g. Firestore blocked by adblocker), show error
-    if (role === null) {
-      return (
-        <div className="container flex items-center justify-center text-center" style={{ minHeight: 'calc(100vh - 4rem)', color: 'var(--color-danger)' }}>
-          <div className="glass-card p-8 border-rose-200 bg-rose-50/50">
-            <h2 className="text-2xl font-bold mb-4 text-rose-700">Authentication Error</h2>
-            <p className="text-rose-600">Could not determine your access level. Please check your connection or disable adblockers.</p>
-          </div>
-        </div>
-      );
-    }
-    
-    // Redirect logic that prevents infinite loops
     if (role === 'MEMBER') {
       return <Navigate to="/member" replace />;
     }
     if (role === 'INTERNAL_MANAGER' || role === 'ADMIN') {
       return <Navigate to="/manager" replace />;
     }
-    
-    // Fallback for unknown roles to prevent infinite redirect blank screens
-    return (
-      <div className="container flex items-center justify-center text-center" style={{ minHeight: 'calc(100vh - 4rem)' }}>
-        <div className="glass-card p-8 border-amber-200 bg-amber-50/50">
-          <h2 className="text-2xl font-bold mb-4 text-amber-700">Access Denied</h2>
-          <p className="text-amber-600">Your current role ({String(role)}) does not have permission to view this page.</p>
-        </div>
-      </div>
-    );
   }
 
   return <>{children}</>;
 };
-
-// Default Route component to redirect based on role
-const DefaultRoute = () => {
-  const { user, role, loading } = useAuth();
-  
-  if (loading) return null;
-  if (!user) return <Navigate to="/login" replace />;
-  
-  if (role === 'INTERNAL_MANAGER' || role === 'ADMIN') {
-    return <Navigate to="/manager" replace />;
-  }
-  
-  return <Navigate to="/member" replace />;
-};
-
 
 const AppContent = () => {
   const { user } = useAuth();
@@ -106,47 +82,73 @@ const AppContent = () => {
   }, [user]);
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main style={{ flex: 1 }}>
+      <main className="flex-1">
         <Toaster position="top-center" />
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          
-          <Route 
-            path="/manager" 
-            element={
-              <ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'MEMBER']}>
-                <ManagerDashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route path="/manager/members" element={<ProtectedRoute allowedRole="INTERNAL_MANAGER"><MembersList /></ProtectedRoute>} />
-          <Route path="/manager/members/:id" element={<ProtectedRoute allowedRole="INTERNAL_MANAGER"><MemberEdit /></ProtectedRoute>} />
-          <Route path="/manager/services" element={<ProtectedRoute allowedRole="INTERNAL_MANAGER"><ServicesList /></ProtectedRoute>} />
-          <Route path="/manager/services/:id" element={<ProtectedRoute allowedRole="INTERNAL_MANAGER"><ServiceEdit /></ProtectedRoute>} />
-          <Route path="/manager/settings" element={<ProtectedRoute allowedRole="ADMIN"><SettingsDashboard /></ProtectedRoute>} />
-          
-          <Route 
-            path="/member" 
-            element={
-              <ProtectedRoute allowedRole="MEMBER">
-                <MemberDashboard />
-              </ProtectedRoute>
-            } 
-          />
-          
-          <Route path="/" element={<DefaultRoute />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            {/* Public Hub Landing Cards (Open to all visitors & members) */}
+            <Route path="/" element={<HubHome />} />
+            <Route path="/syllabus" element={<SyllabusExplorer />} />
+            <Route path="/management" element={<AdvaitaOrgPage />} />
+            <Route path="/preaching" element={<PreachersToolkit />} />
+            <Route path="/calendar" element={<VaishnavaCalendarPage />} />
+            <Route path="/camps" element={<CoursesAndCamps />} />
+            
+            {/* Auth */}
+            <Route path="/login" element={<Login />} />
+            
+            {/* Sadhana Module */}
+            <Route path="/sadhana" element={<SadhanaTracker />} />
+            <Route path="/counselor" element={<CounselorDesk />} />
+
+            {/* Service Cycle Seva Roster */}
+            <Route 
+              path="/service-cycle" 
+              element={
+                <ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'MEMBER', 'ADMIN']}>
+                  <MemberDashboard />
+                </ProtectedRoute>
+              } 
+            />
+
+            {/* Member Personal Dashboard */}
+            <Route 
+              path="/member" 
+              element={
+                <ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}>
+                  <MemberDashboard />
+                </ProtectedRoute>
+              } 
+            />
+
+            {/* Manager & Admin Routes */}
+            <Route 
+              path="/manager" 
+              element={
+                <ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN', 'MEMBER']}>
+                  <ManagerDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/manager/members" element={<ProtectedRoute allowedRole="INTERNAL_MANAGER"><MembersList /></ProtectedRoute>} />
+            <Route path="/manager/members/:id" element={<ProtectedRoute allowedRole="INTERNAL_MANAGER"><MemberEdit /></ProtectedRoute>} />
+            <Route path="/manager/services" element={<ProtectedRoute allowedRole="INTERNAL_MANAGER"><ServicesList /></ProtectedRoute>} />
+            <Route path="/manager/services/:id" element={<ProtectedRoute allowedRole="INTERNAL_MANAGER"><ServiceEdit /></ProtectedRoute>} />
+            <Route path="/manager/settings" element={<ProtectedRoute allowedRole="ADMIN"><SettingsDashboard /></ProtectedRoute>} />
+
+            {/* Catch-all redirect to Hub */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </main>
-    </>
+    </div>
   );
 };
 
 function App() {
   useEffect(() => {
-    // Wait a brief moment for Capacitor's native bridge to fully inject before initializing
     setTimeout(() => {
       initializeOneSignal();
     }, 500);
