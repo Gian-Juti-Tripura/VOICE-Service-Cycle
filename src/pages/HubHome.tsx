@@ -592,8 +592,8 @@ export const HubHome: React.FC = () => {
               </div>
             </div>
 
-            {/* Symmetrical 8-Tab Action Grid: 2 cols mobile, 4 tablet, 8 desktop */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-2.5 pt-2">
+            {/* Symmetrical 10-Tab Action Grid: 2 cols mobile, 5 tablet, 10 desktop */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-5 xl:grid-cols-10 gap-2 sm:gap-2.5 pt-2">
               
               {/* 1. Counselor Desk */}
               <button
@@ -606,14 +606,14 @@ export const HubHome: React.FC = () => {
                 </span>
               </button>
 
-              {/* 2. Discipline Audit */}
+              {/* 2. VOICE & Lotus Group Discipline */}
               <button
                 onClick={() => navigate('/discipline-audit')}
                 className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-black flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
                 <Clock size={14} className="shrink-0 text-white" />
                 <span className="text-[10px] xs:text-[11px] sm:text-xs font-black tracking-tight truncate">
-                  {language === 'bn' ? 'শৃঙ্খলা অডিট' : 'Discipline'}
+                  {language === 'bn' ? 'ভয়েস ও লোটাস' : 'VOICE & Lotus'}
                 </span>
               </button>
 
@@ -628,7 +628,18 @@ export const HubHome: React.FC = () => {
                 </span>
               </button>
 
-              {/* 4. Digital Sadhana */}
+              {/* 4. Audio & Video Media Library */}
+              <button
+                onClick={() => navigate('/lectures-library')}
+                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
+              >
+                <PlayCircle size={14} className="shrink-0 text-white" />
+                <span className="text-[10px] xs:text-[11px] sm:text-xs font-black tracking-tight truncate">
+                  {language === 'bn' ? 'অডিও ও ভিডিও' : 'Audio & Video'}
+                </span>
+              </button>
+
+              {/* 5. Digital Sadhana */}
               <button
                 onClick={() => navigate('/sadhana')}
                 className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
@@ -639,7 +650,7 @@ export const HubHome: React.FC = () => {
                 </span>
               </button>
 
-              {/* 5. Service Cycle Duty */}
+              {/* 6. Service Cycle Duty */}
               <button
                 onClick={() => navigate('/service-cycle')}
                 className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
@@ -650,7 +661,7 @@ export const HubHome: React.FC = () => {
                 </span>
               </button>
 
-              {/* 6. Full VOICE Syllabus */}
+              {/* 7. Full VOICE Syllabus */}
               <button
                 onClick={() => navigate('/syllabus')}
                 className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
@@ -661,7 +672,7 @@ export const HubHome: React.FC = () => {
                 </span>
               </button>
 
-              {/* 7. Sebananda Library */}
+              {/* 8. Sebananda Library */}
               <button
                 onClick={() => navigate('/library')}
                 className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
@@ -672,7 +683,18 @@ export const HubHome: React.FC = () => {
                 </span>
               </button>
 
-              {/* 8. Announcements & Notices */}
+              {/* 9. Preachers Pocket Toolkit */}
+              <button
+                onClick={() => navigate('/preaching')}
+                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
+              >
+                <Flame size={14} className="shrink-0 text-amber-300" />
+                <span className="text-[10px] xs:text-[11px] sm:text-xs font-bold tracking-tight truncate">
+                  {language === 'bn' ? 'প্রচারক' : 'Preachers'}
+                </span>
+              </button>
+
+              {/* 10. Announcements & Notices */}
               <button
                 onClick={() => navigate('/announcements')}
                 className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
