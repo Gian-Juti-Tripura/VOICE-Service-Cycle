@@ -60,12 +60,15 @@ export async function exportPdf(_elementId?: string, meta?: ExportPdfMeta) {
   container.innerHTML = `
     <div style="background: #ffffff; color: #0f172a; width: 100%;">
       
-      <!-- Top Sacred Header -->
+      <!-- Top Sacred Header with Official VOICE Logo -->
       <div style="text-align: center; margin-bottom: 6px;">
-        <div style="font-size: 11px; font-style: italic; color: #64748b; margin-bottom: 3px;">
+        <div style="font-size: 11px; font-style: italic; color: #64748b; margin-bottom: 4px;">
           For the pleasure of Sri Sri Guru and Gauranga
         </div>
-        <div style="font-size: 20px; font-weight: 900; color: #1e1b4b; letter-spacing: 0.5px; text-transform: uppercase;">
+        <div style="text-align: center; margin-bottom: 4px;">
+          <img src="/logo.png" style="width: 52px; height: 52px; object-fit: contain; margin: 0 auto; display: block;" alt="VOICE" />
+        </div>
+        <div style="font-size: 19px; font-weight: 900; color: #1e1b4b; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 4px;">
           ADVAITA VOICE • MONTHLY PRASAD &amp; MEAL REPORT
         </div>
       </div>

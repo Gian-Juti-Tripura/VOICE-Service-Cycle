@@ -537,17 +537,24 @@ export const HubHome: React.FC = () => {
             {/* Header Identity Row: Official IYF Logo + Restyled Titles */}
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
               
-              {/* Official IYF Emblem Logo at First */}
+              {/* Official VOICE Emblem Logo */}
               <div className="relative shrink-0 group">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1 bg-gradient-to-tr from-amber-500 via-orange-500 to-indigo-600 shadow-[0_0_25px_rgba(245,158,11,0.35)] transition-transform duration-300 group-hover:scale-105">
-                  <img 
-                    src="/assets/iyf_logo.png" 
-                    alt="ISKCON Youth Forum (IYF)" 
-                    className="w-full h-full object-cover rounded-full bg-slate-950"
-                  />
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl p-2 bg-gradient-to-tr from-amber-500 via-orange-500 to-indigo-600 shadow-[0_0_25px_rgba(245,158,11,0.35)] transition-transform duration-300 group-hover:scale-105 flex items-center justify-center">
+                  <div className="w-full h-full bg-white dark:bg-slate-950 rounded-xl p-1.5 flex items-center justify-center">
+                    <img 
+                      src="/voice-logo-transparent.png" 
+                      alt="VOICE Official Logo" 
+                      className="w-full h-full object-contain dark:hidden"
+                    />
+                    <img 
+                      src="/voice-logo-white.png" 
+                      alt="VOICE Official Logo" 
+                      className="w-full h-full object-contain hidden dark:block"
+                    />
+                  </div>
                 </div>
-                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full bg-amber-500 text-slate-950 font-black text-[8.5px] uppercase font-mono shadow-md whitespace-nowrap">
-                  IYF • VOICE
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[8.5px] uppercase font-mono shadow-md whitespace-nowrap">
+                  OFFICIAL LOGO
                 </div>
               </div>
 

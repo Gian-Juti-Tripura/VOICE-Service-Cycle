@@ -5,7 +5,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { getStoredNotices, type ManagerAnnouncement } from '../../utils/noticesStore';
 import { 
   Sun, Moon, Globe, LogOut, User,
-  Flame, Sparkles, Bell, Menu, X, CheckCircle2,
+  Sparkles, Bell, Menu, X, CheckCircle2,
   Settings, ArrowRight, Calendar, Megaphone, AlertCircle
 } from 'lucide-react';
 import { NotificationSettingsModal } from '../notifications/NotificationSettingsModal';
@@ -189,12 +189,19 @@ export const Navbar: React.FC = () => {
     <nav className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl shadow-sm border-b border-slate-200/80 dark:border-slate-800 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
         
-        {/* Brand Logo with Flame Glow */}
-        <Link to="/" className="flex items-center gap-2 min-w-0 group shrink-0">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-amber-600 via-rose-600 to-rose-700 p-0.5 shadow-md shadow-rose-500/20 group-hover:scale-105 transition-all">
-            <div className="w-full h-full bg-white dark:bg-slate-900 rounded-[10px] sm:rounded-[14px] flex items-center justify-center text-amber-500 dark:text-amber-400">
-              <Flame size={18} className="fill-amber-500 text-amber-500 animate-pulse" />
-            </div>
+        {/* Brand Official VOICE Logo */}
+        <Link to="/" className="flex items-center gap-2.5 min-w-0 group shrink-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-1 shadow-sm group-hover:scale-105 group-hover:shadow-amber-500/20 transition-all flex items-center justify-center overflow-hidden">
+            <img 
+              src="/voice-logo-transparent.png" 
+              className="w-full h-full object-contain dark:hidden" 
+              alt="Advaita VOICE Official Logo" 
+            />
+            <img 
+              src="/voice-logo-white.png" 
+              className="w-full h-full object-contain hidden dark:block" 
+              alt="Advaita VOICE Official Logo" 
+            />
           </div>
           <div className="flex flex-col min-w-0">
             <span className="font-black text-xs sm:text-base bg-gradient-to-r from-slate-900 via-rose-700 to-amber-600 dark:from-white dark:via-rose-300 dark:to-amber-400 bg-clip-text text-transparent truncate tracking-tight">

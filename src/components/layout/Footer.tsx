@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Phone, Mail, Sparkles, Flame, ChevronLeft, ChevronRight, Copy, Check } from 'lucide-react';
+import { Phone, Mail, Sparkles, ChevronLeft, ChevronRight, Copy, Check } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -247,9 +247,18 @@ export const Footer: React.FC = () => {
         <div className="mt-8 pt-6 border-t border-slate-200/80 dark:border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
           
           {/* Brand Tag */}
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-600 to-rose-500 flex items-center justify-center text-white shadow-sm shrink-0">
-              <Flame size={16} className="fill-white" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1 flex items-center justify-center shadow-sm shrink-0">
+              <img 
+                src="/voice-logo-transparent.png" 
+                className="w-full h-full object-contain dark:hidden" 
+                alt="VOICE Logo" 
+              />
+              <img 
+                src="/voice-logo-white.png" 
+                className="w-full h-full object-contain hidden dark:block" 
+                alt="VOICE Logo" 
+              />
             </div>
             <div>
               <span className="font-extrabold text-slate-900 dark:text-white block">
