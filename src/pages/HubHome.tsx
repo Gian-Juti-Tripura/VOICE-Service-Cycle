@@ -8,7 +8,7 @@ import { VOICE_HANDBOOK_DATA } from '../data/voiceHandbookData';
 import { 
   Users, BookOpen, HeartHandshake, RefreshCw, ShieldCheck,
   GraduationCap, Tent, Calendar, Compass, Phone,
-  Sparkles,
+  Sparkles, PlayCircle,
   Flame, Landmark, MapPin, ChevronDown, ChevronUp,
   Bell, ArrowRight
 } from 'lucide-react';
@@ -171,6 +171,32 @@ export const HubHome: React.FC = () => {
     },
     
     
+{
+      id: 'unified_library',
+      titleEn: 'VOICE Audio & Video Library',
+      titleBn: 'ভয়েস অডিও ও ভিডিও লাইব্রেরি',
+      descEn: 'Complete collection of Srila Prabhupada Vani and HG Radheshyam Prabhu video classes as per syllabus.',
+      descBn: 'শ্রীল প্রভুপাদের অডিও এবং শ্রীপাদ রাধেশ্যাম প্রভুর ভিডিও লেকচার সমূহ (সিলেবাস অনুযায়ী)।',
+      categoryEn: 'Media Archive',
+      categoryBn: 'মিডিয়া আর্কাইভ',
+      categoryType: 'STUDY',
+      icon: PlayCircle,
+      link: '/lectures-library',
+      colorScheme: {
+        bgLight: 'bg-rose-50',
+        bgDark: 'bg-rose-950/20',
+        borderLight: 'border-rose-200',
+        borderDark: 'border-rose-900/40',
+        iconBg: 'bg-rose-600',
+        iconText: 'text-white',
+        badgeBg: 'bg-rose-50 dark:bg-rose-950/50',
+        badgeText: 'text-rose-700 dark:text-rose-300',
+        glow: 'rgba(225, 29, 72, 0.2)'
+      },
+      badgeEn: 'SP Vani + RSP Videos',
+      badgeBn: 'প্রভুপাদ বাণী + রাধেশ্যাম প্রভু',
+      isMemberOnly: false
+    },
     {
       id: 'all_courses',
       titleEn: 'All Courses & Diplomas',
