@@ -6,7 +6,7 @@ import { Footer } from '../components/layout/Footer';
 import { 
   BookOpen, HeartHandshake, RefreshCw, ShieldCheck, Users, Headphones, 
   Sparkles, Calendar, HelpCircle, Search, 
-  GraduationCap, Compass, X
+  GraduationCap, Tent, X
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -124,30 +124,56 @@ export const HubHome: React.FC = () => {
       badgeBn: '৮৫৪ বিষয়',
       isMemberOnly: false
     },
-    {
-      id: 'courses_and_camps',
-      titleEn: 'All Courses & Youth Camps',
-      titleBn: 'সকল কোর্স ও ইয়ুথ ক্যাম্প',
-      descEn: 'DYS, EBG, VVS, Bhakti Shastri & annual spiritual youth retreats.',
-      descBn: 'ডিওয়াইএস, ভক্তি শাস্ত্রী ও বার্ষিক আধ্যাত্মিক যুব শিবির।',
-      categoryEn: 'Courses & Camps',
-      categoryBn: 'কোর্স ও ক্যাম্প',
+        {
+      id: 'all_courses',
+      titleEn: 'All Courses & Diplomas',
+      titleBn: 'সকল কোর্স ও ডিপ্লোমা',
+      descEn: 'DYS, EBG, VVS, Bhakti Shastri & Preacher Training curriculum with session breakdowns.',
+      descBn: 'ডিওয়াইএস, ইবিজি, ভিভিএস, ভক্তি শাস্ত্রী ও প্রচারক প্রশিক্ষণ সেশন ও সনদপত্র।',
+      categoryEn: 'Vedic Courses',
+      categoryBn: 'বৈদিক কোর্স',
       categoryType: 'STUDY',
-      icon: Compass,
+      icon: GraduationCap,
+      link: '/courses',
+      colorScheme: {
+        bgLight: 'bg-indigo-50',
+        bgDark: 'bg-indigo-950/20',
+        borderLight: 'border-indigo-200',
+        borderDark: 'border-indigo-900/40',
+        iconBg: 'bg-indigo-600',
+        iconText: 'text-white',
+        badgeBg: 'bg-indigo-50 dark:bg-indigo-950/50',
+        badgeText: 'text-indigo-700 dark:text-indigo-300',
+        glow: 'rgba(99, 102, 241, 0.2)'
+      },
+      badgeEn: '6 Courses',
+      badgeBn: '৬টি কোর্স',
+      isMemberOnly: false
+    },
+    {
+      id: 'all_camps',
+      titleEn: 'Youth Retreats & Camps',
+      titleBn: 'যুব রিট্রিট ও মহা শিবির',
+      descEn: 'Annual Residential Retreat, Mega Fest UDGOSH, Holy Dham Pilgrimage & Weekend Immersion.',
+      descBn: 'বার্ষিক আবাসিক রিট্রিট, উদ্ঘোষ ফেস্ট, মায়াপুর-বৃন্দাবন পরিক্রমা ও সাপ্তাহিক সাধনা ক্যাম্প।',
+      categoryEn: 'Camps & Yatras',
+      categoryBn: 'ক্যাম্প ও যাত্রা',
+      categoryType: 'STUDY',
+      icon: Tent,
       link: '/camps',
       colorScheme: {
-        bgLight: 'bg-orange-50',
-        bgDark: 'bg-orange-950/20',
-        borderLight: 'border-orange-200',
-        borderDark: 'border-orange-900/40',
-        iconBg: 'bg-orange-600',
+        bgLight: 'bg-amber-50',
+        bgDark: 'bg-amber-950/20',
+        borderLight: 'border-amber-200',
+        borderDark: 'border-amber-900/40',
+        iconBg: 'bg-amber-600',
         iconText: 'text-white',
-        badgeBg: 'bg-orange-50 dark:bg-orange-950/50',
-        badgeText: 'text-orange-700 dark:text-orange-300',
-        glow: 'rgba(249, 115, 22, 0.2)'
+        badgeBg: 'bg-amber-50 dark:bg-amber-950/50',
+        badgeText: 'text-amber-700 dark:text-amber-300',
+        glow: 'rgba(245, 158, 11, 0.2)'
       },
-      badgeEn: 'Youth Camps',
-      badgeBn: 'ক্যাম্প ও রিট্রিট',
+      badgeEn: '5 Retreats',
+      badgeBn: '৫টি ক্যাম্প',
       isMemberOnly: false
     },
     {

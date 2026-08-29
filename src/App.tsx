@@ -14,7 +14,8 @@ const SadhanaTracker = lazy(() => import('./pages/sadhana/SadhanaTracker'));
 const AdvaitaOrgPage = lazy(() => import('./pages/management/AdvaitaOrgPage'));
 const PreachersToolkit = lazy(() => import('./pages/preaching/PreachersToolkit'));
 const VaishnavaCalendarPage = lazy(() => import('./pages/calendar/VaishnavaCalendarPage'));
-const CoursesAndCamps = lazy(() => import('./pages/camps/CoursesAndCamps'));
+const CoursesPage = lazy(() => import('./pages/camps/CoursesPage'));
+const CampsPage = lazy(() => import('./pages/camps/CampsPage'));
 const CounselorDesk = lazy(() => import('./pages/counselor/CounselorDesk'));
 const Login = lazy(() => import('./pages/auth/Login'));
 const ManagerDashboard = lazy(() => import('./pages/manager/ManagerDashboard'));
@@ -94,7 +95,8 @@ const AppContent = () => {
             <Route path="/management" element={<AdvaitaOrgPage />} />
             <Route path="/preaching" element={<PreachersToolkit />} />
             <Route path="/calendar" element={<VaishnavaCalendarPage />} />
-            <Route path="/camps" element={<CoursesAndCamps />} />
+            <Route path="/courses" element={<CoursesPage />} />
+            <Route path="/camps" element={<CampsPage />} />
             
             {/* Auth */}
             <Route path="/login" element={<Login />} />
