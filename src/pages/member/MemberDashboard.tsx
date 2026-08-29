@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Calendar, Bell, ShieldCheck, Clock, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { localDb } from '../../utils/localDb';
@@ -29,7 +29,12 @@ const MemberDashboard: React.FC = () => {
   const tomorrowDate = new Date(todayDate);
   tomorrowDate.setDate(tomorrowDate.getDate() + 1);
 
-  const todayStr = todayDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+  const todayStr = todayDate.toLocaleDateString(language === 'bn' ? 'bn-BD' : 'en-GB', { 
+    weekday: 'long', 
+    day: 'numeric', 
+    month: 'long', 
+    year: 'numeric' 
+  });
 
   const handleTestNotification = async () => {
     try {
@@ -48,8 +53,8 @@ const MemberDashboard: React.FC = () => {
       await LocalNotifications.schedule({
         notifications: [{
           id: Math.floor(fireDate.getTime() / 1000),
-          title: "Test Notification",
-          body: "It works! Your daily notifications will work offline too.",
+          title: "Advaita VOICE Seva Alert",
+          body: "It works! Your daily seva notifications are ready.",
           schedule: { at: fireDate },
           smallIcon: "ic_stat_onesignal_default",
           sound: "default"
@@ -131,7 +136,7 @@ const MemberDashboard: React.FC = () => {
         
         const normalizePhone = (phone: string) => {
           const digitsOnly = phone.replace(/\D/g, '');
-          return digitsOnly.slice(-10); // Match on last 10 digits to handle +880, 0, etc.
+          return digitsOnly.slice(-10);
         };
 
         const targetPhone = normalizePhone(memberToLink.phone);
@@ -166,179 +171,246 @@ const MemberDashboard: React.FC = () => {
     let statusBadge = null;
     if (assignment.isAbsent) {
       statusBadge = (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-rose-50 text-rose-600 ring-1 ring-inset ring-rose-500/10">
-          <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
-          Absent
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 shadow-2xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+          <span>{language === 'bn' ? 'অনুপস্থিত' : 'Absent'}</span>
         </span>
       );
     } else if (assignment.isReplacementFor) {
       statusBadge = (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-50 text-amber-600 ring-1 ring-inset ring-amber-500/10">
-          <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
-          Replacement
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shadow-2xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+          <span>{language === 'bn' ? 'প্রতিস্থাপন সেবা' : 'Replacement'}</span>
         </span>
       );
     } else {
       statusBadge = (
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-600 ring-1 ring-inset ring-emerald-500/10">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-          Active
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100/80 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300/60 dark:border-amber-700/60 shadow-2xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+          <span>{language === 'bn' ? 'সক্রিয় সেবা' : 'Active'}</span>
         </span>
       );
     }
 
     return (
-      <div key={assignment.service.id} className="bg-white/50 rounded-xl p-5 border border-slate-100/50 hover:bg-white/80 transition-colors shadow-sm mb-4">
-        <div className="flex justify-between items-start mb-1.5">
-          <h3 className="text-lg font-bold text-slate-900 leading-snug">
-            <span className="text-indigo-600 mr-2 block sm:inline">Service {assignment.service.id}:</span>
+      <div 
+        key={assignment.service.id} 
+        className="rounded-2xl p-5 bg-slate-50/90 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/70 shadow-xs hover:shadow-md transition-all mb-4 space-y-3"
+      >
+        <div className="flex justify-between items-start gap-2 flex-wrap">
+          <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-snug">
+            <span className="text-amber-600 dark:text-amber-400 font-mono font-bold mr-2 block sm:inline">
+              Service {assignment.service.id}:
+            </span>
             {mainName}
           </h3>
-          <div className="shrink-0 ml-3">
+          <div className="shrink-0">
             {statusBadge}
           </div>
         </div>
         
         {absentDetail && (
-          <div className="mb-2">
-            <span className="inline-block text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/50">
+          <div>
+            <span className="inline-block text-xs font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-0.5 rounded-full border border-amber-200/80 dark:border-amber-800">
               {absentDetail}
             </span>
           </div>
         )}
         
         {assignment.isReplacementFor && (
-          <div className="mb-3 inline-block bg-amber-50/80 border border-amber-200/60 rounded px-2 py-1">
-            <p className="text-xs font-bold text-amber-700">
-              Extra Duty (Replacement for {assignment.isReplacementFor.fullName})
+          <div className="inline-block bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl px-2.5 py-1">
+            <p className="text-xs font-bold text-amber-800 dark:text-amber-300">
+              {language === 'bn' 
+                ? `অতিরিক্ত সেবা (${assignment.isReplacementFor.fullName}-এর পরিবর্তে)`
+                : `Extra Duty (Replacement for ${assignment.isReplacementFor.fullName})`}
             </p>
           </div>
         )}
 
-        <p className="text-sm text-slate-500 mb-4 mt-2">{serviceDesc}</p>
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+          {serviceDesc}
+        </p>
         
-        <div className="bg-slate-50/50 p-3 rounded-lg flex items-center gap-2 border border-slate-100">
-          <span className="opacity-70">🕒</span>
-          <span className="text-sm font-medium text-slate-700">{assignment.service.timing}</span>
+        <div className="bg-white/80 dark:bg-slate-900/80 p-2.5 rounded-xl flex items-center gap-2 border border-slate-200/80 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 text-xs font-bold">
+          <Clock size={14} className="text-amber-500 shrink-0" />
+          <span>{assignment.service.timing}</span>
         </div>
       </div>
     );
   };
 
   return (
-    <div className="container max-w-4xl mx-auto" style={{ padding: '2rem 1rem' }}>
-      
-      {/* Prominent Back Button */}
-      <div className="mb-4 flex items-center justify-between">
-        <Link 
-          to="/" 
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40 shadow-xs hover:shadow-sm transition-all group shrink-0"
-        >
-          <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform text-emerald-600 dark:text-emerald-400" />
-          <span>{language === 'bn' ? 'হাব হোমে ফিরে যান' : 'Back to Hub Home'}</span>
-        </Link>
-        <span className="text-[11px] font-bold text-slate-400 hidden sm:inline">
-          {language === 'bn' ? 'আমার দৈনিক সেবা ড্যাশবোর্ড' : 'My Daily Seva Dashboard'}
-        </span>
-      </div>
-      
-      <div className="flex flex-col items-center justify-center mb-8 animate-fade-in bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-8 rounded-3xl shadow-lg border border-indigo-500/20">
-        <h1 className="text-2xl font-bold mb-2 text-indigo-50">{t('member.greeting')}</h1>
-        <p className="text-indigo-200/80 font-medium tracking-wide">{todayStr}</p>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-6 sm:py-8 px-4 sm:px-6 lg:px-8 transition-colors">
+      <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
         
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link to="/manager" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-6 py-2.5 rounded-lg font-medium transition-all">
-            <span>📅</span> View Full Schedule
+        {/* Navigation Bar */}
+        <div className="flex items-center justify-between">
+          <Link 
+            to="/" 
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 hover:border-amber-500/40 shadow-xs hover:shadow-sm transition-all group shrink-0"
+          >
+            <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform text-amber-500" />
+            <span>{language === 'bn' ? 'হাব হোমে ফিরে যান' : 'Back to Hub Home'}</span>
           </Link>
-          <button onClick={handleTestNotification} className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white border border-amber-400 px-6 py-2.5 rounded-lg font-medium transition-all">
-            <span>🔔</span> Test Notification
-          </button>
+          <span className="text-xs font-black text-amber-600 dark:text-amber-400 uppercase font-mono tracking-wider">
+            {language === 'bn' ? 'দৈনিক সেবা পোর্টাল' : 'Daily Seva Portal'}
+          </span>
         </div>
-      </div>
-
-      {!myMember && !loading && !isGuest && (
-        <div className="glass-card mb-8 p-6 lg:p-8 border-l-4 border-l-indigo-500">
-          <h2 className="text-xl font-bold text-slate-800 mb-2">Claim Your Profile</h2>
-          <p className="text-slate-600 mb-6">Your account hasn't been linked to a member profile yet. Please select your name from the list below to link your account and view your assignments.</p>
+        
+        {/* Hero Greeting Box (Unified Royal Saffron & Slate Luxury Theme) */}
+        <div className="relative overflow-hidden rounded-[32px] p-6 sm:p-8 bg-gradient-to-br from-indigo-950 via-slate-900 to-amber-950 text-white shadow-xl border border-white/15">
+          <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
           
-          <div className="max-w-md flex flex-col gap-3">
-            <select 
-              className="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white/50"
-              value={selectedMemberId}
-              onChange={(e) => setSelectedMemberId(e.target.value)}
-              disabled={linking}
-            >
-              <option value="">-- Select your name --</option>
-              {unlinkedMembers.sort((a, b) => a.cycleOrder - b.cycleOrder).map(m => (
-                <option key={m.id} value={m.id}>{m.fullName}</option>
-              ))}
-            </select>
+          <div className="relative z-10 space-y-3 text-center sm:text-left">
+            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 text-amber-300 font-mono text-[10.5px] font-extrabold uppercase tracking-wider border border-white/15">
+              <Sparkles size={12} className="text-amber-400" />
+              <span>Advaita VOICE • University of Chittagong</span>
+            </div>
             
-            {selectedMemberId && (
-              <div className="animate-fade-in">
-                <label className="block text-sm font-medium text-slate-700 mb-1">Verify Identity</label>
-                <input 
-                  type="tel"
-                  placeholder="Enter the phone number for this profile"
-                  value={phonePin}
-                  onChange={(e) => setPhonePin(e.target.value)}
-                  disabled={linking}
-                  className="w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white/50 mb-3"
-                />
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+              {t('member.greeting')}
+            </h1>
+            
+            <p className="text-xs sm:text-sm text-amber-200/90 font-serif italic">
+              {todayStr}
+            </p>
+            
+            <div className="pt-2 flex flex-wrap gap-2.5 justify-center sm:justify-start">
+              <Link 
+                to="/manager" 
+                className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs"
+              >
+                <Calendar size={14} className="text-amber-300" />
+                <span>{language === 'bn' ? 'সম্পূর্ণ সেবা সূচি দেখুন' : 'View Full Schedule'}</span>
+              </Link>
+              <button 
+                onClick={handleTestNotification} 
+                className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-4 py-2 rounded-xl text-xs transition-all shadow-md cursor-pointer"
+              >
+                <Bell size={14} className="text-slate-950" />
+                <span>{language === 'bn' ? 'টেস্ট নোটিফিকেশন' : 'Test Notification'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Profile Claim Section (If unlinked) */}
+        {!myMember && !loading && !isGuest && (
+          <div className="rounded-[28px] p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md border-l-4 border-l-amber-500 space-y-4">
+            <div>
+              <h2 className="text-lg font-black text-slate-900 dark:text-white">
+                {language === 'bn' ? 'আপনার প্রোফাইল লিংক করুন' : 'Claim Your Profile'}
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                {language === 'bn' 
+                  ? 'আপনার অ্যাকাউন্টের সাথে সেবা প্রোফাইল যুক্ত করতে নিচে আপনার নাম নির্বাচন করুন।'
+                  : "Your account hasn't been linked to a member profile yet. Select your name below to link your account."}
+              </p>
+            </div>
+            
+            <div className="max-w-md space-y-3">
+              <select 
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500"
+                value={selectedMemberId}
+                onChange={(e) => setSelectedMemberId(e.target.value)}
+                disabled={linking}
+              >
+                <option value="">{language === 'bn' ? '-- আপনার নাম বেছে নিন --' : '-- Select your name --'}</option>
+                {unlinkedMembers.sort((a, b) => a.cycleOrder - b.cycleOrder).map(m => (
+                  <option key={m.id} value={m.id}>{m.fullName}</option>
+                ))}
+              </select>
+              
+              {selectedMemberId && (
+                <div className="space-y-2 pt-1 animate-fade-in">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    {language === 'bn' ? 'ফোন নম্বর দিয়ে পরিচয় নিশ্চিত করুন' : 'Verify Identity (Phone PIN)'}
+                  </label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="password" 
+                      placeholder="Enter registered phone number"
+                      className="flex-1 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs text-slate-900 dark:text-white"
+                      value={phonePin}
+                      onChange={(e) => setPhonePin(e.target.value)}
+                    />
+                    <button
+                      onClick={handleLinkAccount}
+                      disabled={linking || !phonePin}
+                      className="px-4 py-2 rounded-xl bg-amber-500 text-slate-950 font-black text-xs hover:bg-amber-400 disabled:opacity-50 cursor-pointer"
+                    >
+                      {linking ? 'Linking...' : 'Confirm'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <button 
+                onClick={() => setIsGuest(true)}
+                className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 underline cursor-pointer"
+              >
+                {language === 'bn' ? 'আমি অতিথি হিসেবে দেখতে চাই' : "I'm visiting as a guest"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Daily Service Cards Grid (Unified Harmonized Theme) */}
+        <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
+          
+          {/* Today's Service Card */}
+          <div className="rounded-[28px] p-6 sm:p-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <ShieldCheck size={18} className="text-amber-500" />
+                <span>{t('member.todayService')}</span>
+              </h2>
+              <span className="text-[11px] font-bold text-slate-400 font-mono">
+                {todayDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+              </span>
+            </div>
+            
+            {loading ? (
+              <p className="text-slate-400 text-xs text-center py-8">Loading...</p>
+            ) : todayAssignments.length === 0 ? (
+              <div className="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-8 text-center border-2 border-dashed border-slate-200 dark:border-slate-800">
+                <p className="text-slate-500 dark:text-slate-400 text-xs font-bold">
+                  {language === 'bn' ? 'আজ আপনার কোনো নির্ধারিত সেবা নেই।' : 'No services assigned for today.'}
+                </p>
               </div>
+            ) : (
+              <div>{todayAssignments.map(renderAssignmentCard)}</div>
             )}
+          </div>
+
+          {/* Tomorrow's Service Card */}
+          <div className="rounded-[28px] p-6 sm:p-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <Calendar size={18} className="text-amber-500" />
+                <span>{t('member.tomorrowService')}</span>
+              </h2>
+              <span className="text-[11px] font-bold text-slate-400 font-mono">
+                {tomorrowDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+              </span>
+            </div>
             
-            <button
-              onClick={handleLinkAccount}
-              disabled={!selectedMemberId || !phonePin || linking}
-              className="w-full py-2.5 bg-indigo-600 text-white font-medium rounded-lg shadow-sm hover:bg-indigo-700 disabled:opacity-50 transition-colors"
-            >
-              {linking ? 'Linking...' : 'Link Account'}
-            </button>
+            {loading ? (
+              <p className="text-slate-400 text-xs text-center py-8">Loading...</p>
+            ) : tomorrowAssignments.length === 0 ? (
+              <div className="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-8 text-center border-2 border-dashed border-slate-200 dark:border-slate-800">
+                <p className="text-slate-500 dark:text-slate-400 text-xs font-bold">
+                  {language === 'bn' ? 'আগামীকাল আপনার কোনো নির্ধারিত সেবা নেই।' : 'No services assigned for tomorrow.'}
+                </p>
+              </div>
+            ) : (
+              <div>{tomorrowAssignments.map(renderAssignmentCard)}</div>
+            )}
           </div>
-          <div className="mt-4">
-            <button 
-              onClick={() => setIsGuest(true)}
-              className="text-sm text-slate-500 hover:text-slate-700 underline transition-colors"
-            >
-              My name isn't here, I'm just visiting as a guest
-            </button>
-          </div>
-        </div>
-      )}
 
-      <div className="grid md:grid-cols-2 gap-8">
-        <div className="glass-card p-6 lg:p-8">
-          <h2 className="text-xl font-bold text-slate-800 mb-6 pb-4 border-b border-slate-200/50">
-            {t('member.todayService')}
-          </h2>
-          {loading ? (
-            <p className="text-slate-400 text-sm text-center py-8">Loading...</p>
-          ) : todayAssignments.length === 0 ? (
-            <div className="bg-slate-50/50 rounded-xl p-8 text-center border border-slate-100 border-dashed">
-              <p className="text-slate-500 text-sm font-medium">No services assigned for today.</p>
-            </div>
-          ) : (
-            <div>{todayAssignments.map(renderAssignmentCard)}</div>
-          )}
         </div>
 
-        <div className="glass-card p-6 lg:p-8">
-          <h2 className="text-xl font-bold text-slate-800 mb-6 pb-4 border-b border-slate-200/50">
-            {t('member.tomorrowService')}
-          </h2>
-          {loading ? (
-            <p className="text-slate-400 text-sm text-center py-8">Loading...</p>
-          ) : tomorrowAssignments.length === 0 ? (
-            <div className="bg-slate-50/50 rounded-xl p-8 text-center border border-slate-100 border-dashed">
-              <p className="text-slate-500 text-sm font-medium">No services assigned for tomorrow.</p>
-            </div>
-          ) : (
-            <div>{tomorrowAssignments.map(renderAssignmentCard)}</div>
-          )}
-        </div>
       </div>
-
     </div>
   );
 };
