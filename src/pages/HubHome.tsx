@@ -7,7 +7,7 @@ import { VOICE_HANDBOOK_DATA } from '../data/voiceHandbookData';
 import { 
   Users, BookOpen, HeartHandshake, RefreshCw, ShieldCheck,
   GraduationCap, Tent, Calendar, Compass, Phone,
-  Sparkles, CheckCircle2,
+  Sparkles,
   Flame, Landmark, MapPin, ChevronDown, ChevronUp,
   Bell, ArrowRight
 } from 'lucide-react';
@@ -19,7 +19,6 @@ export const HubHome: React.FC = () => {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<'ALL' | 'SEVA' | 'STUDY' | 'PREACHING' | 'ORG'>('ALL');
   const [showIskconCenters, setShowIskconCenters] = useState(false);
-  const [selectedYearTab, setSelectedYearTab] = useState<number>(0);
 
   const isLoggedIn = !!user;
 
@@ -672,116 +671,219 @@ export const HubHome: React.FC = () => {
           </div>
         </div>
 
-        {/* ================= 5. 4-YEAR ACADEMIC & CAMP PROGRESSION ROADMAP ================= */}
-        <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 text-white shadow-xl space-y-6 border border-purple-500/20">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
-            <div>
-              <span className="text-xs font-bold text-purple-400 uppercase tracking-wider font-mono">
-                Official VOICE Curriculum
-              </span>
-              <h3 className="text-xl sm:text-2xl font-black text-white">
-                {language === 'bn' ? '৪-বছর মেয়াদী বৈদিক কোর্স ও ক্যাম্প কারিকুলাম' : '4-Year VOICE Academic & Camp Progression Roadmap'}
-              </h3>
-            </div>
-
-            {/* Year Selector Buttons */}
-            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-white/10 text-xs font-bold">
-              {VOICE_HANDBOOK_DATA.fourYearMatrix.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setSelectedYearTab(idx)}
-                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${selectedYearTab === idx ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-300 hover:text-white'}`}
-                >
-                  Year {idx + 1}
-                </button>
-              ))}
-            </div>
+        {/* ================= 5. AUTHENTIC 4-YEAR VOICE SYLLABUS & CAMPS MATRIX (IMAGE 2 REPLICA) ================= */}
+        <div className="rounded-[32px] p-6 sm:p-8 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white shadow-2xl space-y-6 border border-white/15">
+          
+          <div className="text-center space-y-2 max-w-2xl mx-auto">
+            <span className="inline-block px-4 py-1 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-xs font-mono font-black uppercase tracking-widest shadow-md">
+              VOICE Syllabus
+            </span>
+            <h3 className="text-xl sm:text-3xl font-black text-white tracking-tight">
+              {language === 'bn' ? '৪-বর্ষীয় ভয়েস সিলেবাস ও কোর্স-ক্যাম্প কাঠামো' : '4-Year VOICE Academic & Camp Progression Roadmap'}
+            </h3>
+            <p className="text-xs sm:text-sm text-amber-200/90 font-serif italic">
+              "Introducing Krishna Consciousness to youths by one time seminars on Art of Mind Control, Power of Habit, Stress Management etc."
+            </p>
           </div>
 
-          {/* Selected Year Display Box */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* 4 Years Golden Plaque Grid (Exact replica of Handbook structure) */}
+          <div className="space-y-6">
             
-            {/* Courses Column */}
-            <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-              <div className="flex items-center gap-2">
-                <GraduationCap size={16} className="text-purple-400" />
-                <h4 className="text-sm font-black text-purple-300 uppercase">
-                  {language === 'bn' ? 'অধ্যয়ন কোর্সসমূহ (Courses)' : 'Academic Courses'}
-                </h4>
+            {/* --- FIRST YEAR --- */}
+            <div className="space-y-2">
+              <div className="text-center">
+                <span className="text-xs font-black uppercase tracking-widest text-amber-300 font-mono px-3 py-0.5 rounded-md bg-amber-400/20 border border-amber-400/30">
+                  FIRST YEAR
+                </span>
               </div>
-              <ul className="space-y-2 text-xs text-slate-200">
-                {VOICE_HANDBOOK_DATA.fourYearMatrix[selectedYearTab].courses.map((c, i) => (
-                  <li key={i} className="flex items-center gap-2 p-2 rounded-xl bg-white/5">
-                    <CheckCircle2 size={13} className="text-emerald-400 shrink-0" />
-                    <span>{c}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Course Plaque */}
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-orange-500/20 border-2 border-amber-400/50 shadow-md backdrop-blur-md space-y-2">
+                  <div className="text-center pb-1.5 border-b border-amber-400/30">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">COURSE</span>
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-center text-amber-100 font-medium">
+                    <li className="p-1 rounded bg-black/20">Discover Yourself (DYS)</li>
+                    <li className="p-1 rounded bg-black/20">Spiritual Scientist (SS)</li>
+                    <li className="p-1 rounded bg-black/20">Positive Thinker (PT)</li>
+                  </ul>
+                </div>
+                {/* Camp Plaque */}
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-orange-500/20 border-2 border-amber-400/50 shadow-md backdrop-blur-md space-y-2">
+                  <div className="text-center pb-1.5 border-b border-amber-400/30">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">CAMP</span>
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-center text-amber-100 font-medium">
+                    <li className="p-1 rounded bg-black/20">Sankalpa</li>
+                    <li className="p-1 rounded bg-black/20">Sphurti</li>
+                    <li className="p-1 rounded bg-black/20">Utsaha</li>
+                    <li className="p-1 rounded bg-black/20">Utkarsha</li>
+                  </ul>
+                </div>
+              </div>
             </div>
 
-            {/* Camps Column */}
-            <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-3">
-              <div className="flex items-center gap-2">
-                <Tent size={16} className="text-amber-400" />
-                <h4 className="text-sm font-black text-amber-300 uppercase">
-                  {language === 'bn' ? 'আবাসিক ক্যাম্পসমূহ (Camps)' : 'Residential Camps'}
-                </h4>
+            {/* --- SECOND YEAR --- */}
+            <div className="space-y-2">
+              <div className="text-center">
+                <span className="text-xs font-black uppercase tracking-widest text-amber-300 font-mono px-3 py-0.5 rounded-md bg-amber-400/20 border border-amber-400/30">
+                  SECOND YEAR
+                </span>
               </div>
-              <ul className="space-y-2 text-xs text-slate-200">
-                {VOICE_HANDBOOK_DATA.fourYearMatrix[selectedYearTab].camps.map((camp, i) => (
-                  <li key={i} className="flex items-center gap-2 p-2 rounded-xl bg-white/5">
-                    <Flame size={13} className="text-amber-400 shrink-0" />
-                    <span>{camp}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Course Plaque */}
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-orange-500/20 border-2 border-amber-400/50 shadow-md backdrop-blur-md space-y-2">
+                  <div className="text-center pb-1.5 border-b border-amber-400/30">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">COURSE</span>
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-center text-amber-100 font-medium">
+                    <li className="p-1 rounded bg-black/20">Self Manager (SM)</li>
+                    <li className="p-1 rounded bg-black/20">Hearing Srila Prabhupada-100 Lecture</li>
+                  </ul>
+                </div>
+                {/* Camp Plaque */}
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-orange-500/20 border-2 border-amber-400/50 shadow-md backdrop-blur-md space-y-2">
+                  <div className="text-center pb-1.5 border-b border-amber-400/30">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">CAMP</span>
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-center text-amber-100 font-medium">
+                    <li className="p-1 rounded bg-black/20">SRCGD</li>
+                    <li className="p-1 rounded bg-black/20">Nistha Camp</li>
+                    <li className="p-1 rounded bg-black/20">Follow up Training Workshop (FTW)</li>
+                    <li className="p-1 rounded bg-black/20">Facilitator Empowerment Course (FEC)</li>
+                    <li className="p-1 rounded bg-black/20">DYS Preachers Training</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* --- THIRD YEAR --- */}
+            <div className="space-y-2">
+              <div className="text-center">
+                <span className="text-xs font-black uppercase tracking-widest text-amber-300 font-mono px-3 py-0.5 rounded-md bg-amber-400/20 border border-amber-400/30">
+                  THIRD YEAR
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Course Plaque */}
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-orange-500/20 border-2 border-amber-400/50 shadow-md backdrop-blur-md space-y-2">
+                  <div className="text-center pb-1.5 border-b border-amber-400/30">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">COURSE</span>
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-center text-amber-100 font-medium">
+                    <li className="p-1 rounded bg-black/20">Proactive Leader</li>
+                    <li className="p-1 rounded bg-black/20">Hearing Srila Prabhupada &amp; Gurumaharaj 100 Lecture</li>
+                  </ul>
+                </div>
+                {/* Camp Plaque */}
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-orange-500/20 border-2 border-amber-400/50 shadow-md backdrop-blur-md space-y-2">
+                  <div className="text-center pb-1.5 border-b border-amber-400/30">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">CAMP</span>
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-center text-amber-100 font-medium">
+                    <li className="p-1 rounded bg-black/20">Ashraya Camp</li>
+                    <li className="p-1 rounded bg-black/20">Gauranga Sabha Camp &amp; Nityananda Sabha Camp</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* --- FOURTH YEAR --- */}
+            <div className="space-y-2">
+              <div className="text-center">
+                <span className="text-xs font-black uppercase tracking-widest text-amber-300 font-mono px-3 py-0.5 rounded-md bg-amber-400/20 border border-amber-400/30">
+                  FOURTH YEAR
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Course Plaque */}
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-orange-500/20 border-2 border-amber-400/50 shadow-md backdrop-blur-md space-y-2">
+                  <div className="text-center pb-1.5 border-b border-amber-400/30">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">COURSE</span>
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-center text-amber-100 font-medium">
+                    <li className="p-1 rounded bg-black/20">Proactive Leader</li>
+                    <li className="p-1 rounded bg-black/20">Personality Development Course</li>
+                    <li className="p-1 rounded bg-black/20">Hearing Srila Prabhupada &amp; Gurumaharaj 100 Lecture</li>
+                  </ul>
+                </div>
+                {/* Camp Plaque */}
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-orange-500/20 border-2 border-amber-400/50 shadow-md backdrop-blur-md space-y-2">
+                  <div className="text-center pb-1.5 border-b border-amber-400/30">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">CAMP</span>
+                  </div>
+                  <ul className="space-y-1.5 text-xs text-center text-amber-100 font-medium">
+                    <li className="p-1 rounded bg-black/20">Sharanagati Camp</li>
+                    <li className="p-1 rounded bg-black/20">Gauranga Sabha Camp &amp; Nityananda Sabha Camp</li>
+                  </ul>
+                </div>
+              </div>
             </div>
 
           </div>
         </div>
 
-        {/* ================= 6. 2026 NIGHT STAY FESTIVALS & HOST ASHRAMS ================= */}
-        <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 flex-wrap gap-2">
-            <div>
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 font-mono">
-                Monthly Fellowship
-              </span>
-              <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white mt-1">
-                {language === 'bn' ? '২০২৬ নাইট স্টে ফেস্টিভ্যাল ও হোস্ট আশ্রম তালিকা' : '2026 Night Stay Festivals Calendar'}
-              </h3>
-            </div>
-            <Link to="/calendar" className="text-xs font-bold text-indigo-600 hover:underline">
-              View Vaishnava Calendar →
-            </Link>
+        {/* ================= 6. DEVOTEE'S ADVANCEMENT MATRIX (IMAGE 3 REPLICA: ভক্তের উন্নতির পাঠ্যক্রম) ================= */}
+        <div className="rounded-[32px] p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
+          
+          <div className="text-center space-y-1 max-w-2xl mx-auto">
+            <span className="inline-block px-3.5 py-1 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs font-mono font-bold uppercase tracking-wider border border-rose-200 dark:border-rose-900">
+              Spiritual Evolution Matrix
+            </span>
+            <h3 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              {language === 'bn' ? 'ভক্তের উন্নতির পাঠ্যক্রম' : "Devotee's Advancement Curriculum Matrix"}
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {language === 'bn' ? 'শুরু থেকে ৭+ বছর পর্যন্ত আধ্যাত্মিক শাস্ত্রজ্ঞান, আচার্য নিষ্ঠা, বৈষ্ণব সদাচার ও সেবার পর্যায়ক্রমিক সারণি' : 'Chronological matrix from initiation to 7+ years of spiritual study, Acharya dedication and devotional service.'}
+            </p>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-800 text-[11px] font-extrabold text-slate-400 uppercase">
-                  <th className="pb-2">Month</th>
-                  <th className="pb-2">Servants / Organizers</th>
-                  <th className="pb-2">Managed By (VOICE Host Ashrams)</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
-                {VOICE_HANDBOOK_DATA.nightStayFestivals2026.map((n, i) => (
-                  <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                    <td className="py-2.5 font-bold text-indigo-600 dark:text-indigo-400 font-mono">
-                      {language === 'bn' ? n.monthBn : n.monthEn}
-                    </td>
-                    <td className="py-2.5 text-slate-800 dark:text-slate-200">
-                      {language === 'bn' ? n.servantBn : n.servantEn}
-                    </td>
-                    <td className="py-2.5 font-semibold text-slate-600 dark:text-slate-400">
-                      {language === 'bn' ? n.managedByBn : n.managedByEn}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* 4 Column Progression Table Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {VOICE_HANDBOOK_DATA.devoteeAdvancementMatrix.map((stage, idx) => (
+              <div 
+                key={idx}
+                className={`rounded-2xl border-2 ${stage.borderColor} bg-gradient-to-b ${stage.color} overflow-hidden shadow-sm flex flex-col justify-between`}
+              >
+                <div>
+                  {/* Stage Header */}
+                  <div className={`p-3 text-center font-black text-xs sm:text-sm tracking-wide shadow-xs ${stage.headerBg}`}>
+                    {language === 'bn' ? stage.stageBn : stage.stageEn}
+                  </div>
+
+                  {/* Stage Items */}
+                  <div className="p-3 space-y-2">
+                    {stage.items.map((item, iIdx) => (
+                      <div 
+                        key={iIdx}
+                        className="p-2.5 rounded-xl bg-white/85 dark:bg-slate-800/90 border border-slate-200/60 dark:border-slate-700/60 text-xs text-slate-800 dark:text-slate-200 font-semibold shadow-2xs leading-snug flex items-start gap-2"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0 mt-1.5" />
+                        <span>{language === 'bn' ? item.bn : item.en}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
+
+          {/* Footer Official Accreditations */}
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-4 flex-wrap text-xs font-mono font-black text-slate-700 dark:text-slate-300">
+            <span className="px-3 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
+              🎓 BHAKTISASTRI
+            </span>
+            <span className="px-3 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
+              📜 TTC1
+            </span>
+            <span className="px-3 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
+              📜 TTC2
+            </span>
+            <span className="px-3 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
+              🏛️ BSTTC
+            </span>
+          </div>
+
         </div>
 
         {/* ================= 7. BLESSINGS & CENTRAL LEADERSHIP ================= */}
