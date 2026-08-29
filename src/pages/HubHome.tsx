@@ -460,9 +460,9 @@ export const HubHome: React.FC = () => {
 
               {/* Restyled Names & Sacred Motto */}
               <div className="space-y-1 text-center sm:text-left flex-1 min-w-0">
-                <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 text-amber-300 font-mono text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest border border-white/15 backdrop-blur-md">
-                  <Sparkles size={11} className="text-amber-400" />
-                  <span>{language === 'bn' ? 'ইসকন যুব ফোরাম • অদ্বৈত ভয়েস' : 'ISKCON Youth Forum • Advaita VOICE'}</span>
+                <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/10 text-amber-300 font-mono text-[10.5px] sm:text-[11.5px] font-extrabold uppercase tracking-wider border border-white/15 backdrop-blur-md">
+                  <Sparkles size={12} className="text-amber-400 shrink-0" />
+                  <span>{language === 'bn' ? 'অদ্বৈত ভয়েস, চট্টগ্রাম বিশ্ববিদ্যালয়' : 'ADVAITA VOICE, University of Chittagong'}</span>
                 </div>
                 
                 <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none bg-gradient-to-r from-amber-200 via-orange-100 to-white bg-clip-text text-transparent drop-shadow-sm whitespace-nowrap">
