@@ -71,7 +71,23 @@ export const UnifiedLectureLibrary: React.FC = () => {
           </button>
         </div>
 
+        
+        {/* Chapter Header */}
+        <div className="bg-gradient-to-r from-[#2c1a0e] to-[#4a2812] text-[#fff6ee] p-4 sm:p-5 rounded-xl shadow-md border-l-[5px] border-[#c28834]">
+          <h2 className="font-serif text-lg sm:text-xl font-bold tracking-wide">
+            {activeSpeaker === 'PRABHUPADA' 
+              ? '8. Vani Syllabus — Morning Program Series'
+              : '3. HG Radheshyam Prabhu\'s Video Lecture Series'}
+          </h2>
+          <div className="font-bengali text-sm text-[#e2a850] mt-1.5">
+            {activeSpeaker === 'PRABHUPADA'
+              ? 'বাণী সিলেবাস — শ্রীল প্রভুপাদের প্রাতঃকালীন ভাগবতম লেকচার সংকলন'
+              : 'শ্রীল রাধেশ্যাম প্রভুর ভিডিও লেকচার সিরিজ'}
+          </div>
+        </div>
+
         {/* Search Bar */}
+
         <div className="relative w-full">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
