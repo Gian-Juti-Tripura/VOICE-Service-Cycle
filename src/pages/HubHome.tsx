@@ -405,52 +405,61 @@ export const HubHome: React.FC = () => {
               </div>
             </div>
 
-            {/* 5 Core Action Navigation Buttons */}
-            <div className="flex items-center gap-2.5 pt-2 flex-wrap text-xs font-bold">
+            {/* Symmetrical 2-Column Action Grid (Equal Size & Length Boxes) */}
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5 pt-2">
               
               {/* 1. Counselor Desk */}
               <button
                 onClick={() => navigate('/counselor')}
-                className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black flex items-center gap-1.5 shadow-lg hover:scale-102 transition-all cursor-pointer"
+                className="h-11 sm:h-12 w-full px-2.5 sm:px-3 py-2 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black flex items-center justify-center gap-2 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
-                <ShieldCheck size={15} />
-                <span>{language === 'bn' ? 'কাউন্সেলর ডেস্ক' : 'Counselor Desk'}</span>
+                <ShieldCheck size={16} className="shrink-0 text-slate-950" />
+                <span className="text-[11px] sm:text-xs font-black truncate">{language === 'bn' ? 'কাউন্সেলর ডেস্ক' : 'Counselor Desk'}</span>
               </button>
 
               {/* 2. Digital Sadhana */}
               <button
                 onClick={() => navigate('/sadhana')}
-                className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5 shadow-lg hover:scale-102 transition-all cursor-pointer"
+                className="h-11 sm:h-12 w-full px-2.5 sm:px-3 py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold flex items-center justify-center gap-2 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
-                <HeartHandshake size={15} />
-                <span>{language === 'bn' ? 'ডিজিটাল সাধনাপত্র' : 'Digital Sadhana'}</span>
+                <HeartHandshake size={16} className="shrink-0 text-indigo-200" />
+                <span className="text-[11px] sm:text-xs font-bold truncate">{language === 'bn' ? 'ডিজিটাল সাধনাপত্র' : 'Digital Sadhana'}</span>
               </button>
 
               {/* 3. Sebananda Library */}
               <button
                 onClick={() => navigate('/library')}
-                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 shadow-lg hover:scale-102 transition-all cursor-pointer"
+                className="h-11 sm:h-12 w-full px-2.5 sm:px-3 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center justify-center gap-2 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
-                <BookOpen size={15} />
-                <span>{language === 'bn' ? 'সেবানন্দ গ্রন্থাগার' : 'Sebananda Library'}</span>
+                <BookOpen size={16} className="shrink-0 text-emerald-200" />
+                <span className="text-[11px] sm:text-xs font-bold truncate">{language === 'bn' ? 'সেবানন্দ গ্রন্থাগার' : 'Sebananda Library'}</span>
               </button>
 
               {/* 4. Daily Service Duty */}
               <button
                 onClick={() => navigate(isLoggedIn ? '/member' : '/login')}
-                className="px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white flex items-center gap-1.5 shadow-lg hover:scale-102 transition-all cursor-pointer"
+                className="h-11 sm:h-12 w-full px-2.5 sm:px-3 py-2 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white font-bold flex items-center justify-center gap-2 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
-                <RefreshCw size={15} />
-                <span>{language === 'bn' ? 'আমার দৈনিক সেবা' : 'My Daily Seva'}</span>
+                <RefreshCw size={16} className="shrink-0 text-teal-200" />
+                <span className="text-[11px] sm:text-xs font-bold truncate">{language === 'bn' ? 'আমার দৈনিক সেবা' : 'My Daily Seva'}</span>
               </button>
 
               {/* 5. Full VOICE Syllabus & Lectures */}
               <button
                 onClick={() => navigate('/syllabus')}
-                className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white flex items-center gap-1.5 shadow-lg hover:scale-102 transition-all cursor-pointer"
+                className="h-11 sm:h-12 w-full px-2.5 sm:px-3 py-2 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-bold flex items-center justify-center gap-2 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
-                <Compass size={15} />
-                <span>{language === 'bn' ? 'ভয়েস সিলেবাস ও লেকচার' : 'Full Syllabus & Lectures'}</span>
+                <Compass size={16} className="shrink-0 text-rose-200" />
+                <span className="text-[11px] sm:text-xs font-bold truncate">{language === 'bn' ? 'ভয়েস সিলেবাস' : 'Syllabus & Notes'}</span>
+              </button>
+
+              {/* 6. Announcements & Notices */}
+              <button
+                onClick={() => navigate('/announcements')}
+                className="h-11 sm:h-12 w-full px-2.5 sm:px-3 py-2 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-bold flex items-center justify-center gap-2 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
+              >
+                <Bell size={16} className="shrink-0 text-purple-200" />
+                <span className="text-[11px] sm:text-xs font-bold truncate">{language === 'bn' ? 'ইনচার্জ নোটিশ' : 'Incharge Notices'}</span>
               </button>
 
             </div>
