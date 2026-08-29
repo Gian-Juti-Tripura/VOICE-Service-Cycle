@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { MealHeader } from '../../components/meals/MealHeader';
+import { ExportPdfButton } from '../../components/meals/ExportPdfButton';
 import { 
   Copy, Check, MessageSquare, 
   Printer, Download
@@ -144,6 +145,18 @@ export const MealReportsPage: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
+              <ExportPdfButton
+                elementId="meal-report-table-section"
+                meta={{
+                  month: selectedMonth,
+                  mealRate: report.mealRate,
+                  totalMeals: report.totalMeals,
+                  totalExpense: report.totalBazar,
+                  rows: report.rows,
+                }}
+                label="Official PDF"
+              />
+
               <button
                 onClick={() => copyToClipboard(generateGroupReport())}
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-sm transition-all cursor-pointer"
@@ -195,7 +208,7 @@ export const MealReportsPage: React.FC = () => {
         </div>
 
         {/* Complete Devotee Billing Statement Table */}
-        <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden">
+        <div id="meal-report-table-section" className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 dark:border-slate-700">
