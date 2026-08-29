@@ -353,21 +353,55 @@ export const HubHome: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50/40 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
       
-      {/* Live Rotating Announcements Ticker Bar */}
-      <div className="bg-gradient-to-r from-amber-600 via-orange-600 to-indigo-700 text-white text-xs font-bold py-2 px-4 shadow-sm">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4 overflow-hidden">
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="px-2 py-0.5 rounded bg-black/30 text-[10px] uppercase tracking-wider font-mono font-black">
-              Upcoming Feast
+      {/* ================= TOP TWO-ROW MOVING NOTICES & UPCOMING FESTIVAL MARQUEE ================= */}
+      <div className="w-full shadow-sm text-white text-xs font-bold divide-y divide-white/10 select-none">
+        
+        {/* Row 1: Upcoming Festival Marquee */}
+        <div className="bg-gradient-to-r from-amber-700 via-orange-600 to-amber-800 py-1.5 px-3 sm:px-4 flex items-center gap-2.5 overflow-hidden">
+          <div className="flex items-center gap-1 shrink-0 z-10 bg-amber-950/50 px-2 py-0.5 rounded-md border border-amber-400/30">
+            <span className="text-[10px] uppercase tracking-wider font-mono font-black text-amber-200">
+              {language === 'bn' ? '🌸 আসন্ন মহোৎসব' : '🌸 FESTIVAL'}
             </span>
           </div>
-          <p className="truncate text-[11px] sm:text-xs">
-            🌸 <strong>Sri Krishna Janmastami (04 September 2026):</strong> Fasting till midnight 12:00 AM • Mahabhisheka &amp; Prasadam!
-          </p>
-          <Link to="/calendar" className="shrink-0 underline text-[11px] hover:text-amber-200">
-            View Calendar →
+          <div className="relative flex-1 overflow-hidden">
+            <div className="animate-marquee whitespace-nowrap flex items-center gap-8 text-[11px] sm:text-xs">
+              <span>🌸 <strong>শ্রীকৃষ্ণ জন্মাষ্টমী (৪ সেপ্টেম্বর ২০২৬):</strong> মধ্যরাত ১২:০০ পর্যন্ত উপবাস ও রাত ১২টায় মহাভিষেক</span>
+              <span>✨ <strong>শ্রীমতী রাধাষ্টমী (১৯ সেপ্টেম্বর ২০২৬):</strong> দুপুর ১২:০০ পর্যন্ত উপবাস ও শ্রীরাধা কৃপাকটাক্ষ স্তোত্র</span>
+              <span>🏔️ <strong>শ্রী গোবর্ধন পূজা ও অন্নকূট (১০ নভেম্বর ২০২৬):</strong> গিরিরাজ পূজা, গো-সেবা ও শত ব্যঞ্জনের মহাপ্রসাদ</span>
+              {/* Seamless loop duplicate */}
+              <span>🌸 <strong>শ্রীকৃষ্ণ জন্মাষ্টমী (৪ সেপ্টেম্বর ২০২৬):</strong> মধ্যরাত ১২:০০ পর্যন্ত উপবাস ও রাত ১২টায় মহাভিষেক</span>
+              <span>✨ <strong>শ্রীমতী রাধাষ্টমী (১৯ সেপ্টেম্বর ২০২৬):</strong> দুপুর ১২:০০ পর্যন্ত উপবাস ও শ্রীরাধা কৃপাকটাক্ষ স্তোত্র</span>
+              <span>🏔️ <strong>শ্রী গোবর্ধন পূজা ও অন্নকূট (১০ নভেম্বর ২০২৬):</strong> গিরিরাজ পূজা, গো-সেবা ও শত ব্যঞ্জনের মহাপ্রসাদ</span>
+            </div>
+          </div>
+          <Link to="/calendar" className="shrink-0 text-[10px] sm:text-[11px] font-mono underline hover:text-amber-200 z-10 pl-1">
+            {language === 'bn' ? 'পঞ্জিকা →' : 'Calendar →'}
           </Link>
         </div>
+
+        {/* Row 2: Most Recent Incharge & Admin Announcement Marquee */}
+        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 py-1.5 px-3 sm:px-4 flex items-center gap-2.5 overflow-hidden">
+          <div className="flex items-center gap-1 shrink-0 z-10 bg-rose-950/60 px-2 py-0.5 rounded-md border border-rose-400/30">
+            <span className="text-[10px] uppercase tracking-wider font-mono font-black text-rose-300">
+              {language === 'bn' ? '📢 জরুরি নোটিশ' : '📢 NOTICE'}
+            </span>
+          </div>
+          <div className="relative flex-1 overflow-hidden">
+            <div className="animate-marquee whitespace-nowrap flex items-center gap-8 text-[11px] sm:text-xs text-slate-200">
+              <span>📢 <strong>সাপ্তাহিক সাধনা অডিট:</strong> শুক্রবার রাত ৮:০০ টার মধ্যে সকল শিক্ষার্থীকে সাধনাপত্র জমা দিতে হবে</span>
+              <span>🧹 <strong>আশ্রম পরিচ্ছন্নতা ও কক্ষ পরিদর্শন:</strong> প্রতিদিন সকাল ৬:৩০ টায় জপ শেষে রুম চেকিং সম্পন্ন হবে</span>
+              <span>🚪 <strong>রাত্রিকালীন ফটক বন্ধ:</strong> রাত ১০:০০ টায় প্রধান ফটক বন্ধ করা হয়, বহিরাগতদের এন্ট্রি বাধ্যতামূলক</span>
+              {/* Seamless loop duplicate */}
+              <span>📢 <strong>সাপ্তাহিক সাধনা অডিট:</strong> শুক্রবার রাত ৮:০০ টার মধ্যে সকল শিক্ষার্থীকে সাধনাপত্র জমা দিতে হবে</span>
+              <span>🧹 <strong>আশ্রম পরিচ্ছন্নতা ও কক্ষ পরিদর্শন:</strong> প্রতিদিন সকাল ৬:৩০ টায় জপ শেষে রুম চেকিং সম্পন্ন হবে</span>
+              <span>🚪 <strong>রাত্রিকালীন ফটক বন্ধ:</strong> রাত ১০:০০ টায় প্রধান ফটক বন্ধ করা হয়, বহিরাগতদের এন্ট্রি বাধ্যতামূলক</span>
+            </div>
+          </div>
+          <Link to="/announcements" className="shrink-0 text-[10px] sm:text-[11px] font-mono underline hover:text-rose-300 z-10 pl-1">
+            {language === 'bn' ? 'সকল নোটিশ →' : 'Notices →'}
+          </Link>
+        </div>
+
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
