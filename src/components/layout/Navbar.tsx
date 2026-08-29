@@ -6,7 +6,7 @@ import { getStoredNotices, type ManagerAnnouncement } from '../../utils/noticesS
 import { 
   Sun, Moon, Globe, LogOut, User,
   Flame, Sparkles, Bell, Menu, X, CheckCircle2,
-  Settings, ArrowRight, Calendar, Megaphone
+  Settings, ArrowRight, Calendar, Megaphone, AlertCircle
 } from 'lucide-react';
 import { NotificationSettingsModal } from '../notifications/NotificationSettingsModal';
 
@@ -14,6 +14,10 @@ interface DynamicNotification {
   id: string;
   titleEn: string;
   titleBn: string;
+  roleTitleEn?: string;
+  roleTitleBn?: string;
+  inchargeEn?: string;
+  inchargeBn?: string;
   descEn: string;
   descBn: string;
   timeEn: string;
@@ -27,12 +31,12 @@ interface DynamicNotification {
 const STATIC_FESTIVALS_NOTIFS: DynamicNotification[] = [
   {
     id: 'fest_janmastami',
-    titleEn: '🌸 Sri Krishna Janmastami (04 Sep 2026)',
-    titleBn: '🌸 শ্রীকৃষ্ণ জন্মাষ্টমী মহোৎসব (৪ সেপ্টেম্বর ২০২৬)',
+    titleEn: 'Sri Krishna Janmastami (04 Sep 2026)',
+    titleBn: 'শ্রীকৃষ্ণ জন্মাষ্টমী মহোৎসব (৪ সেপ্টেম্বর ২০২৬)',
     descEn: 'Fasting till Midnight 12:00 AM • Mahabhisheka & Divine Feast.',
     descBn: 'মধ্যরাত ১২:০০ পর্যন্ত নির্জলা/সজল উপবাস • রাত ১২টায় অভিষেক ও আনন্দ উৎসব।',
-    timeEn: 'Upcoming Festival',
-    timeBn: 'আসন্ন মহোৎসব',
+    timeEn: '04 Sep 2026',
+    timeBn: '৪ সেপ্টে ২০২৬',
     read: false,
     type: 'FESTIVAL',
     priority: 'HIGH',
@@ -40,12 +44,12 @@ const STATIC_FESTIVALS_NOTIFS: DynamicNotification[] = [
   },
   {
     id: 'fest_radhastami',
-    titleEn: '🌸 Srimati Radhastami (19 Sep 2026)',
-    titleBn: '🌸 শ্রীমতী রাধাষ্টমী শুভ আবির্ভাব (১৯ সেপ্টেম্বর ২০২৬)',
+    titleEn: 'Srimati Radhastami (19 Sep 2026)',
+    titleBn: 'শ্রীমতী রাধাষ্টমী শুভ আবির্ভাব (১৯ সেপ্টেম্বর ২০২৬)',
     descEn: 'Fasting till Noon 12:00 PM • Radha Kripa Kataksha & Kirtan.',
     descBn: 'দুপুর ১২:০০ পর্যন্ত উপবাস ও শ্রীরাধা কৃপাকটাক্ষ স্তোত্র পাঠ।',
-    timeEn: 'Upcoming Festival',
-    timeBn: 'আসন্ন মহোৎসব',
+    timeEn: '19 Sep 2026',
+    timeBn: '১৯ সেপ্টে ২০২৬',
     read: false,
     type: 'FESTIVAL',
     priority: 'HIGH',
@@ -53,12 +57,12 @@ const STATIC_FESTIVALS_NOTIFS: DynamicNotification[] = [
   },
   {
     id: 'seva_daily_alert',
-    titleEn: '🌸 Daily Seva Duty Roster Active',
-    titleBn: '🌸 আজকের সেবাক্রম ও দায়িত্ব সক্রিয়',
+    titleEn: 'Daily Seva Duty Roster Active',
+    titleBn: 'আজকের সেবাক্রম ও দায়িত্ব সক্রিয়',
     descEn: 'Please check your seva assignment & reporting time in the Service Cycle.',
     descBn: 'সার্ভিস সাইকেলে আপনার আজকের সেবা ও দায়িত্ব দেখে নিন।',
-    timeEn: 'Daily Morning 6:00 AM',
-    timeBn: 'প্রতিদিন সকাল ৬:০০',
+    timeEn: 'Today 6:00 AM',
+    timeBn: 'আজ সকাল ৬:০০',
     read: false,
     type: 'SEVA',
     priority: 'NORMAL',
@@ -99,10 +103,14 @@ export const Navbar: React.FC = () => {
     // 1. All real manager posted notices from localStorage
     ...storedNotices.map(n => ({
       id: n.id,
-      titleEn: `📢 ${n.titleEn}`,
-      titleBn: `📢 ${n.titleBn}`,
-      descEn: `${n.roleTitleEn} (${n.inchargeNameEn}): ${n.descEn}`,
-      descBn: `${n.roleTitleBn} (${n.inchargeNameBn}): ${n.descBn}`,
+      titleEn: n.titleEn,
+      titleBn: n.titleBn,
+      roleTitleEn: n.roleTitleEn,
+      roleTitleBn: n.roleTitleBn,
+      inchargeEn: n.inchargeNameEn,
+      inchargeBn: n.inchargeNameBn,
+      descEn: n.descEn,
+      descBn: n.descBn,
       timeEn: n.date,
       timeBn: n.date,
       read: readNotifIds.includes(n.id),
@@ -178,7 +186,7 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl shadow-xs border-b border-slate-200/80 dark:border-slate-800 transition-colors duration-300">
+    <nav className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl shadow-sm border-b border-slate-200/80 dark:border-slate-800 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
         
         {/* Brand Logo with Flame Glow */}
@@ -228,21 +236,24 @@ export const Navbar: React.FC = () => {
               <>
                 {/* Backdrop Overlay for Dismissal */}
                 <div 
-                  className="fixed inset-0 z-40 bg-black/20 sm:bg-transparent backdrop-blur-2xs sm:backdrop-blur-none" 
+                  className="fixed inset-0 z-[90] bg-slate-950/60 backdrop-blur-xs" 
                   onClick={() => setNotifOpen(false)} 
                 />
 
-                <div className="fixed sm:absolute left-3 right-3 sm:left-auto sm:right-0 top-16 sm:top-full mt-1 sm:mt-2 w-auto sm:w-96 rounded-3xl bg-white/98 dark:bg-slate-900/98 backdrop-blur-2xl border border-slate-200 dark:border-slate-800 shadow-2xl z-50 p-4 animate-scale-in max-h-[85vh] flex flex-col">
+                {/* Solid Opaque Dropdown Container */}
+                <div className="fixed sm:absolute left-3 right-3 sm:left-auto sm:right-0 top-16 sm:top-full mt-2 w-auto sm:w-[420px] rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)] z-[100] p-4 sm:p-5 animate-scale-in max-h-[85vh] flex flex-col space-y-3">
                   
                   {/* Header */}
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                    <div className="flex items-center gap-1.5">
-                      <Sparkles size={14} className="text-amber-500" />
-                      <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                        <Sparkles size={14} />
+                      </div>
+                      <h4 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-900 dark:text-white">
                         {language === 'bn' ? 'বিজ্ঞপ্তি ও অ্যালার্ট' : 'Notifications & Alerts'}
                       </h4>
                       {unreadCount > 0 && (
-                        <span className="px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[9px] font-black">
+                        <span className="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-black shadow-xs">
                           {unreadCount}
                         </span>
                       )}
@@ -254,25 +265,25 @@ export const Navbar: React.FC = () => {
                           setSettingsOpen(true);
                         }}
                         title="Notification Settings"
-                        className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-amber-500 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-amber-500 transition-colors cursor-pointer"
                       >
-                        <Settings size={13} />
+                        <Settings size={14} />
                       </button>
                       {unreadCount > 0 && (
                         <button 
                           onClick={markAllAsRead} 
-                          className="text-[10px] font-black text-rose-600 hover:underline dark:text-rose-400 cursor-pointer"
+                          className="text-[11px] font-black text-rose-600 hover:underline dark:text-rose-400 cursor-pointer"
                         >
-                          {language === 'bn' ? 'সব পঠিত' : 'Mark all read'}
+                          {language === 'bn' ? 'সব পঠিত' : 'Mark read'}
                         </button>
                       )}
                     </div>
                   </div>
 
-                  {/* Notification Items List */}
-                  <div className="mt-3 space-y-2.5 overflow-y-auto pr-1 flex-1">
+                  {/* Notification Items List (Solid, high contrast cards) */}
+                  <div className="space-y-2.5 overflow-y-auto pr-1 flex-1 max-h-[60vh]">
                     {notifications.length === 0 ? (
-                      <div className="p-6 text-center text-xs text-slate-400">
+                      <div className="p-8 text-center text-xs text-slate-400">
                         {language === 'bn' ? 'কোনো নতুন বিজ্ঞপ্তি নেই' : 'No new notifications'}
                       </div>
                     ) : (
@@ -280,32 +291,64 @@ export const Navbar: React.FC = () => {
                         <div 
                           key={n.id} 
                           onClick={() => handleNotificationClick(n)}
-                          className={`p-3 rounded-2xl border text-xs transition-all cursor-pointer hover:scale-[1.01] ${
+                          className={`p-3.5 rounded-2xl border text-xs transition-all cursor-pointer shadow-xs ${
                             n.read 
-                              ? 'bg-slate-50/60 border-slate-100 dark:bg-slate-800/30 dark:border-slate-800/60 text-slate-500' 
+                              ? 'bg-slate-50 dark:bg-slate-800/60 border-slate-200/80 dark:border-slate-700/60 opacity-85 hover:opacity-100' 
                               : n.priority === 'HIGH'
-                              ? 'bg-rose-500/10 border-rose-400/40 dark:bg-rose-950/30 dark:border-rose-800/60 text-slate-800 dark:text-slate-200'
-                              : 'bg-amber-500/10 border-amber-400/40 dark:bg-amber-950/30 dark:border-amber-800/60 text-slate-800 dark:text-slate-200'
+                              ? 'bg-rose-50/80 dark:bg-slate-800 border-rose-300 dark:border-rose-900/80 ring-1 ring-rose-500/20' 
+                              : 'bg-amber-50/80 dark:bg-slate-800 border-amber-300 dark:border-amber-900/80 ring-1 ring-amber-500/20'
                           }`}
                         >
-                          <div className="font-bold mb-1 text-slate-900 dark:text-white flex items-start justify-between gap-1.5">
-                            <span className="text-xs leading-snug">
-                              {language === 'bn' ? n.titleBn : n.titleEn}
-                            </span>
+                          {/* Card Top: Department / Incharge Pill & Unread indicator */}
+                          <div className="flex items-center justify-between gap-2 mb-1.5">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {n.type === 'ANNOUNCEMENT' ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-600 text-white font-black text-[9px] uppercase tracking-wider">
+                                  <Megaphone size={9} />
+                                  <span>{language === 'bn' ? n.roleTitleBn : n.roleTitleEn}</span>
+                                </span>
+                              ) : n.type === 'FESTIVAL' ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal-600 text-white font-black text-[9px] uppercase tracking-wider">
+                                  <Calendar size={9} />
+                                  <span>{language === 'bn' ? 'উৎসব' : 'Festival'}</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-600 text-white font-black text-[9px] uppercase tracking-wider">
+                                  <AlertCircle size={9} />
+                                  <span>{language === 'bn' ? 'সেবা' : 'Seva'}</span>
+                                </span>
+                              )}
+
+                              {n.inchargeBn && (
+                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                                  • {language === 'bn' ? n.inchargeBn : n.inchargeEn}
+                                </span>
+                              )}
+                            </div>
+
                             {!n.read && (
-                              <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0 mt-1 animate-pulse" />
+                              <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0 animate-pulse" />
                             )}
                           </div>
 
+                          {/* Notice Title */}
+                          <h5 className="font-black text-xs sm:text-[13px] text-slate-900 dark:text-white leading-snug mb-1">
+                            {language === 'bn' ? n.titleBn : n.titleEn}
+                          </h5>
+
+                          {/* Notice Description */}
                           <p className="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed mb-2 font-normal line-clamp-2">
                             {language === 'bn' ? n.descBn : n.descEn}
                           </p>
 
-                          <div className="flex items-center justify-between text-[9px] font-bold text-slate-400 dark:text-slate-500">
-                            <span>{language === 'bn' ? n.timeBn : n.timeEn}</span>
-                            <span className="flex items-center gap-1 text-rose-600 dark:text-amber-400 font-extrabold">
+                          {/* Card Footer: Timestamp & Action Link */}
+                          <div className="flex items-center justify-between text-[10px] font-bold pt-1.5 border-t border-slate-200/60 dark:border-slate-700/60">
+                            <span className="text-slate-400 dark:text-slate-500 font-mono">
+                              {language === 'bn' ? n.timeBn : n.timeEn}
+                            </span>
+                            <span className="flex items-center gap-1 text-rose-600 dark:text-amber-400 font-black">
                               <span>{language === 'bn' ? 'বিস্তারিত দেখুন' : 'View Details'}</span>
-                              <ArrowRight size={10} />
+                              <ArrowRight size={11} />
                             </span>
                           </div>
                         </div>
@@ -314,22 +357,22 @@ export const Navbar: React.FC = () => {
                   </div>
 
                   {/* Quick Action Footer */}
-                  <div className="pt-3 mt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
                     <Link
                       to="/announcements"
                       onClick={() => setNotifOpen(false)}
-                      className="text-[11px] font-bold text-rose-600 hover:text-rose-700 dark:text-rose-400 flex items-center gap-1"
+                      className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 hover:text-rose-600 text-slate-700 dark:text-slate-300 text-[11px] font-bold flex items-center gap-1.5 transition-colors"
                     >
-                      <Megaphone size={12} />
-                      <span>{language === 'bn' ? 'সকল নোটিশ বোর্ড' : 'All Notices'}</span>
+                      <Megaphone size={12} className="text-rose-500" />
+                      <span>{language === 'bn' ? 'সকল নোটিশ বোর্ড' : 'All Notices Board'}</span>
                     </Link>
                     <Link
                       to="/calendar"
                       onClick={() => setNotifOpen(false)}
-                      className="text-[11px] font-bold text-teal-600 hover:text-teal-700 dark:text-teal-400 flex items-center gap-1"
+                      className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-teal-50 hover:text-teal-600 text-slate-700 dark:text-slate-300 text-[11px] font-bold flex items-center gap-1.5 transition-colors"
                     >
-                      <Calendar size={12} />
-                      <span>{language === 'bn' ? 'উৎসব পঞ্জিকা' : 'Festivals'}</span>
+                      <Calendar size={12} className="text-teal-500" />
+                      <span>{language === 'bn' ? 'বৈষ্ণব পঞ্জিকা' : 'Vaishnava Calendar'}</span>
                     </Link>
                   </div>
 
@@ -405,7 +448,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden px-4 pt-2 pb-4 space-y-1.5 bg-white/95 dark:bg-slate-900/95 border-b border-slate-200/80 dark:border-slate-800 backdrop-blur-2xl shadow-xl animate-fade-in">
+        <div className="lg:hidden px-4 pt-2 pb-4 space-y-1.5 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 shadow-xl animate-fade-in">
           {NAV_LINKS.map(link => (
             <NavLink key={link.to} {...link} />
           ))}
