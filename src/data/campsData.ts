@@ -508,364 +508,425 @@ export const DETAILED_COURSES_DATA: CourseDetailItem[] = [
 ];
 
 // -------------------------------------------------------------
-// 2. DETAILED CAMPS DATA (5 Major Camps with Sub-sections)
+// 2. DETAILED CAMPS DATA (Authentic Official 13 VOICE Camps from Syllabus Handbook)
 // -------------------------------------------------------------
 export const DETAILED_CAMPS_DATA: CampDetailItem[] = [
+  // --- FIRST YEAR CAMPS ---
   {
-    id: 'camp_annual',
-    titleEn: 'Annual Advaita VOICE Youth Retreat',
-    titleBn: 'বার্ষিক অদ্বৈত ভয়েস আবাসিক যুব রিট্রিট ও মহাসম্মেলন',
-    categoryEn: 'Annual Residential Retreat',
-    categoryBn: 'বার্ষিক আবাসিক যুব রিট্রিট',
-    locationEn: 'Chittagong Hill Tracts & Bandarban Valley Spiritual Sanctuary',
-    locationBn: 'বান্দরবান উপত্যকা ও পাহাড়ি প্রাকৃতিক মনোরম পরিবেশ',
-    durationEn: '3 Days & 2 Nights (Full Residential)',
-    durationBn: '৩ দিন ২ রাত (পূর্ণ আবাসিক)',
-    descEn: 'The flagship annual 3-day spiritual retreat where university students step away from academic stress into deep nature, absorbing in japa meditation, dynamic workshops, bonfire kirtan, and profound association.',
-    descBn: 'বিশ্ববিদ্যালয় জীবনের যান্ত্রিক ব্যস্ততা থেকে মুক্ত হয়ে প্রকৃতির কোলে ৩ দিনের নিবিড় সাধনা, ভজন, কর্মশালা, ক্যাম্পফায়ার ও বৈষ্ণব সঙ্গের মহা মিলনমেলা।',
-    visionEn: 'Rejuvenating youth enthusiasm in Krishna Consciousness through pristine nature, deep hearing, and affectionate ashram brotherhood.',
-    visionBn: 'প্রকৃতির সান্নিধ্যে গভীর শ্রবণ-কীর্তনের মাধ্যমে যুবকদের মাঝে কৃষ্ণভাবনার নতুন উদ্দীপনা ও প্রীতিপূর্ণ ভ্রাতৃত্ব জাগ্রত করা।',
+    id: 'camp_sankalpa',
+    titleEn: 'Sankalpa Camp (Determination & Vows)',
+    titleBn: 'সংকল্প ক্যাম্প (দৃঢ় সংকল্প ও ব্রত গ্রহণ)',
+    categoryEn: 'First Year Camp 1',
+    categoryBn: '১ম বর্ষ ক্যাম্প ১',
+    locationEn: 'Advaita VOICE Ashram / Spiritual Retreat Centre',
+    locationBn: 'অদ্বৈত ভয়েস আশ্রম / আধ্যাত্মিক রিট্রিট সেন্টার',
+    durationEn: '2 Days & 1 Night (Full Residential)',
+    durationBn: '২ দিন ১ রাত (পূর্ণ আবাসিক)',
+    descEn: 'The foundational first-year camp where new students take solemn vows to practice daily japa meditation, regulate habits, and cultivate determination on the spiritual path.',
+    descBn: '১ম বর্ষের শিক্ষার্থীদের প্রাথমিক আবাসিক ক্যাম্প যেখানে প্রাত্যহিক জপ সাধনা, সাত্ত্বিক জীবনাচরণ ও সংকল্প গ্রহণের বাস্তব প্রশিক্ষণ প্রদান করা হয়।',
+    visionEn: 'Building an unshakeable foundation of spiritual discipline and daily japa habit in youth.',
+    visionBn: 'তরুণ শিক্ষার্থীদের মাঝে নিয়মিত জপ সাধনা ও নিয়মানুবর্তিতার দৃঢ় সংকল্প গড়ে তোলা।',
     highlightsEn: [
-      '64-Rounds Japa Marathon Challenge in Early Morning Mist',
-      'Interactive Case-Study Workshops by Senior Sannyasis & Scholars',
-      'Nature Parikrama through Pristine Mountain Forest Trails',
-      'Ecstatic Nightly Campfire Harinama Sankirtana under Open Sky',
-      'Vedic Leadership Games, Debates & Team Quizzes',
-      'Sumptuous 100% Pure Sanctified Feasts (Mahaprasadam)'
+      'Early Morning Mangalarati & Guided Japa Workshop',
+      'Art of Mind Control & Overcoming Procrastination Seminar',
+      'Formal Sankalpa (Devotional Vow) Ceremony',
+      'Loving Vaishnava Association & Ashram Community Living'
     ],
     highlightsBn: [
-      'ভোরের কুয়াশাচ্ছন্ন পাহাড়ে ৬৪ মালা জপ চ্যালেঞ্জ',
-      'বরেণ্য সন্ন্যাসী ও পণ্ডিতদের অনুপ্রেরণামূলক কর্মশালা',
-      'প্রাকৃতিক পাহাড়ি বনপথে নাম-সংকীর্তন পরিক্রমা',
-      'উন্মুক্ত আকাশের নিচে ক্যাম্পফায়ার ভজন সন্ধ্যা',
-      'বৈদিক নেতৃত্ব গেমস, বিতর্ক ও টিম কুইজ',
-      'প্রতিদিন ৩ বেলা অমৃতময় মহাপ্রসাদ আস্বাদন'
+      'ভোরের মঙ্গল আরতি ও নিবিড় জপ কর্মশালা',
+      'মন নিয়ন্ত্রণ ও সময়ের সদ্ব্যবহার বিষয়ক সেমিনার',
+      'আনুষ্ঠানিক সংকল্প গ্রহণ ও ব্রত উৎসব',
+      'স্নেহপূর্ণ বৈষ্ণব সঙ্গ ও আশ্রম জীবনের অভিজ্ঞতা'
     ],
     packingListEn: [
-      'Dhoti-Kurta / Formal Vaishnava attire + Warm jacket for night',
-      'Japa Mala, Bead Bag, Note Pad, Pen & Spiritual Reading Book',
-      'Personal toiletries, towel, water bottle, torch light',
-      'Comfortable walking shoes / sandals for forest trails',
-      'Prescribed personal medications (if any)'
+      'Dhoti-Kurta / Vaishnava dress',
+      'Japa Mala, Bead Bag & Notebook',
+      'Personal toiletries & essential items'
     ],
     packingListBn: [
-      'ধুতি-পাঞ্জাবি / মার্জিত পোশাক + রাতের জন্য হালকা গরম কাপড়',
-      'জপমালা, জপ থলি, নোটবুক, কলম ও একটি শাস্ত্রীয় গ্রন্থ',
-      'ব্যক্তিগত প্রসাধন সামগ্রী, গামছা, পানির বোতল ও টর্চলাইট',
-      'পাহাড়ি হাঁটার উপযোগী জুতো বা স্যান্ডেল',
-      'ব্যক্তিগত প্রয়োজনীয় ওষুধপত্র'
+      'ধুতি-পাঞ্জাবি / মার্জিত পোশাক',
+      'জপমালা, জপ থলি ও নোটবুক',
+      'ব্যক্তিগত প্রসাধন সামগ্রী ও প্রয়োজনীয় জিনিসপত্র'
     ],
     guidelinesEn: [
-      'Full participation in morning Mangalarati (4:30 AM) is required.',
-      'Strictly vegetarian/prasadam zone; external outside food not permitted.',
-      'Digital curfew: Phones kept in silent focus mode during all sessions.',
-      'Maintain affectionate ashram brotherhood and cooperative seva mood.'
+      'Full attendance in all morning and evening ashram programs.',
+      'Mobile phones kept on silent focus mode during sessions.'
     ],
     guidelinesBn: [
-      'ভোর ৪:৩০টায় মঙ্গল আরতিতে সকলের উপস্থিতি বাধ্যতামূলক।',
-      'সম্পূর্ণ অহিংস ও মহাপ্রসাদময় পরিবেশ; বাইরের খাবার সম্পূর্ণ নিষিদ্ধ।',
-      'ডিজিটাল সংযম: সেশন চলাকালীন মোবাইল ফোন সাইলেন্ট রাখতে হবে।',
-      'পারস্পরিক প্রীতি ও সেবামূলক মনোভাব বজায় রাখা।'
+      'সকালের মঙ্গল আরতি ও সন্ধ্যার আরতি-কীর্তনে বাধ্যতামূলক উপস্থিতি।',
+      'সেশন চলাকালীন মোবাইল ফোন সাইলেন্ট রাখতে হবে।'
     ],
-    coordinatorEn: 'HG Raghav Kirtan Das & HG Rashbihari KC Das (Advaita VOICE)',
-    coordinatorBn: 'শ্রীল রাঘব কীর্তন দাস ও শ্রীল রাসবিহারী কেসি দাস (অদ্বৈত ভয়েস)',
+    coordinatorEn: 'Advaita VOICE Youth Training Team',
+    coordinatorBn: 'অদ্বৈত ভয়েস যুব প্রশিক্ষণ টিম',
     schedule: [
       {
-        dayTitleEn: 'Day 1: Arrival, Inauguration & Campfire Sankirtan',
-        dayTitleBn: '১ম দিন: আগমন, উদ্বোধন ও ক্যাম্পফায়ার সংকীর্তন',
+        dayTitleEn: 'Day 1: Arrival, Orientation & Guided Japa',
+        dayTitleBn: '১ম দিন: আগমন, পরিচিতি ও জপ প্রশিক্ষণ',
         timeline: [
-          { time: '02:00 PM', activityEn: 'Arrival, Room Check-in & Welcome Refreshments', activityBn: 'শিবিরে আগমন, কক্ষ বণ্টন ও স্বাগত মহাপ্রসাদ' },
-          { time: '04:30 PM', activityEn: 'Inaugural Keynote Address: "Why Youth Need Spirituality"', activityBn: 'উদ্বোধনী বক্তব্য: "যুবসমাজের কেন আধ্যাত্মিকতা প্রয়োজন"' },
-          { time: '06:30 PM', activityEn: 'Sandhya Arati & Heartfelt Gauranga Kirtan', activityBn: 'সন্ধ্যা আরতি ও গৌর আরতি কীর্তন' },
-          { time: '08:00 PM', activityEn: 'Nightly Bonfire Vedic Katha & Mantra Rock', activityBn: 'ক্যাম্পফায়ার ভাগবত কথা ও মন্ত্র রক সংকীর্তন' },
-          { time: '09:30 PM', activityEn: 'Night Rest (Brahma-Muhurta Preparation)', activityBn: 'নিদ্রা বিশ্রাম' }
+          { time: '03:00 PM', activityEn: 'Arrival, Room Allocation & Welcome Refreshments', activityBn: 'শিবিরে আগমন, আসন বণ্টন ও স্বাগত মহাপ্রসাদ' },
+          { time: '05:00 PM', activityEn: 'Orientation: "The Power of Sankalpa in Youth Life"', activityBn: 'পরিচিতি সেশন: "যুব জীবনে সংকল্পের শক্তি"' },
+          { time: '06:30 PM', activityEn: 'Sandhya Arati, Gaura Arati & Kirtan', activityBn: 'সন্ধ্যা আরতি, গৌর আরতি ও কীর্তন' },
+          { time: '08:00 PM', activityEn: 'Evening Prasadam & Sanga Discussion', activityBn: 'রাতের মহাপ্রসাদ ও প্রীতি সম্মিলন' }
         ]
       },
       {
-        dayTitleEn: 'Day 2: 64-Rounds Japa Day & Mountain Forest Parikrama',
-        dayTitleBn: '২য় দিন: ৬৪ মালা জপ দিবস ও পাহাড়ি বন পরিক্রমা',
+        dayTitleEn: 'Day 2: Vow Taking Ceremony & Conclusion',
+        dayTitleBn: '২য় দিন: সংকল্প গ্রহণ ও সমাপনী',
         timeline: [
-          { time: '04:30 AM', activityEn: 'Mangalarati, Nrsimha Prayers & Tulasi Puja', activityBn: 'মঙ্গল আরতি, নৃসিংহ স্তব ও তুলসী পরিক্রমা' },
-          { time: '06:00 AM', activityEn: 'Morning Nature Japa Walk (64-Rounds Meditation)', activityBn: 'প্রকৃতির কোলে প্রাতঃকালীন জপ পরিক্রমা (৬৪ মালা)' },
-          { time: '08:30 AM', activityEn: 'Grand Breakfast Mahaprasadam', activityBn: 'সকালের মহাপ্রসাদ গ্রহণ' },
-          { time: '10:00 AM', activityEn: 'Workshop: "Mind Mastery & Overcoming Digital Maya"', activityBn: 'কর্মশালা: "মন নিয়ন্ত্রণ ও ডিজিটাল মায়ামুক্তি"' },
-          { time: '01:30 PM', activityEn: 'Sumptuous Feast & Short Rest', activityBn: 'দুপুরের মহা ভোজ ও বিশ্রাম' },
-          { time: '04:00 PM', activityEn: 'Mountain Forest Parikrama & Outdoor Team Games', activityBn: 'পাহাড় পরিক্রমা ও দলগত বৈদিক গেমস' },
-          { time: '07:30 PM', activityEn: 'Cultural Drama: "The Transformation of Bilvamangala"', activityBn: 'নাটক: "বিল্বমঙ্গল ঠাকুরের রূপান্তর"' }
+          { time: '04:30 AM', activityEn: 'Mangalarati & Tulasi Parikrama', activityBn: 'মঙ্গল আরতি ও তুলসী পরিক্রমা' },
+          { time: '06:00 AM', activityEn: 'Guided Japa Meditation Workshop', activityBn: 'নিবিড় জপ সাধনা কর্মশালা' },
+          { time: '08:30 AM', activityEn: 'Breakfast Mahaprasadam', activityBn: 'সকালের মহাপ্রসাদ' },
+          { time: '10:00 AM', activityEn: 'Formal Sankalpa Vow Ceremony & Certificates', activityBn: 'আনুষ্ঠানিক সংকল্প গ্রহণ ও সমাপনী' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'camp_sphurti',
+    titleEn: 'Sphurti Camp (Spiritual Joy & Energy)',
+    titleBn: 'স্ফূর্তি ক্যাম্প (আধ্যাত্মিক উল্লাস ও নব উদ্দীপনা)',
+    categoryEn: 'First Year Camp 2',
+    categoryBn: '১ম বর্ষ ক্যাম্প ২',
+    locationEn: 'Scenic Ashram Nature Retreat',
+    locationBn: 'প্রাকৃতিক মনোরম আশ্রম পরিবেশ',
+    durationEn: '2 Days & 1 Night',
+    durationBn: '২ দিন ১ রাত',
+    descEn: 'Igniting dynamic enthusiasm, joyful service, drama, Vedic games, and ecstatic kirtan for first-year devotees.',
+    descBn: '১ম বর্ষের ভক্তদের আধ্যাত্মিক আনন্দ, উৎসাহ উদ্দীপনা, বৈদিক নাটক ও সংকীর্তনে উজ্জীবিত করার প্রাণবন্ত ক্যাম্প।',
+    visionEn: 'Transforming spiritual practice into a joyful, vibrant way of life.',
+    visionBn: 'আধ্যাত্মিক জীবনকে আনন্দময়, প্রাণবন্ত ও উদ্যমী করে তোলা।',
+    highlightsEn: [
+      'Dynamic Harinama Sankirtana & Mridanga Beats',
+      'Vedic Quiz Competitions & Team Games',
+      'Devotional Drama & Cultural Performances',
+      'Overcoming Negative Mindsets Workshop'
+    ],
+    highlightsBn: [
+      'উচ্ছ্বসিত হরিনাম সংকীর্তন ও মৃদঙ্গ বাদন',
+      'বৈদিক কুইজ ও দলগত অনুপ্রেরণামূলক খেলা',
+      'ভক্তিমূলক নাটক ও সাংস্কৃতিক পরিবেশনা',
+      'নেতিবাচক চিন্তা দূরীকরণ কর্মশালা'
+    ],
+    packingListEn: ['Vaishnava attire', 'Japa Mala & notes'],
+    packingListBn: ['মার্জিত পোশাক', 'জপমালা ও নোটবুক'],
+    guidelinesEn: ['Active participation in all team activities.'],
+    guidelinesBn: ['সকল দলগত কার্যক্রমে সক্রিয় অংশগ্রহণ।'],
+    coordinatorEn: 'Advaita VOICE Cultural Department',
+    coordinatorBn: 'অদ্বৈত ভয়েস সাংস্কৃতিক বিভাগ',
+    schedule: [
+      {
+        dayTitleEn: 'Day 1: Energy & Expression',
+        dayTitleBn: '১ম দিন: উদ্দীপনা ও সৃজনশীল প্রকাশ',
+        timeline: [
+          { time: '04:00 PM', activityEn: 'Arrival & Welcome Kirtan', activityBn: 'আগমন ও স্বাগত কীর্তন' },
+          { time: '07:00 PM', activityEn: 'Mantra Rock & Cultural Night', activityBn: 'মন্ত্র সংকীর্তন ও সাংস্কৃতিক সন্ধ্যা' }
         ]
       },
       {
-        dayTitleEn: 'Day 3: Resolution, Award Ceremony & Return Yatra',
-        dayTitleBn: '৩য় দিন: সংকল্প গ্রহণ, সম্মাননা সনদ ও প্রত্যাবর্তন',
+        dayTitleEn: 'Day 2: Vedic Games & Conclusion',
+        dayTitleBn: '২য় দিন: বৈদিক খেলা ও সমাপনী',
         timeline: [
-          { time: '04:30 AM', activityEn: 'Mangalarati & Srimad Bhagavatam Discourse', activityBn: 'মঙ্গল আরতি ও শ্রীমদ্ভাগবত প্রবচন' },
-          { time: '08:00 AM', activityEn: 'Breakfast Mahaprasadam', activityBn: 'প্রাতঃরাশ প্রসাদ' },
-          { time: '09:30 AM', activityEn: 'Counselor Round-table: Personal Spiritual Action Plan', activityBn: 'কাউন্সেলরদের সাথে ব্যক্তিগত জীবন পরিকল্পনা' },
-          { time: '11:30 AM', activityEn: 'Certificate Distribution & Camp Awards', activityBn: 'সনদপত্র বিতরণ ও শ্রেষ্ঠ সাধক সম্মাননা' },
-          { time: '01:00 PM', activityEn: 'Grand Farewell Feast & Return Bus Departure', activityBn: 'বিদায়ী প্রীতিভোজ ও যাত্রা সমাপ্তি' }
+          { time: '04:30 AM', activityEn: 'Mangalarati & Morning Japa', activityBn: 'মঙ্গল আরতি ও প্রভাতী জপ' },
+          { time: '10:00 AM', activityEn: 'Team Games, Prizes & Feast', activityBn: 'দলগত খেলা, পুরস্কার ও মহাপ্রসাদ' }
         ]
       }
     ]
   },
   {
-    id: 'camp_udgosh',
-    titleEn: 'Mega Youth Fest "UDGOSH"',
-    titleBn: 'মেগা ইয়ুথ ফেস্ট "উদ্ঘোষ" — আন্তঃবিশ্ববিদ্যালয় যুব সম্মেলন',
-    categoryEn: 'Campus Convention',
-    categoryBn: 'ক্যাম্পাস মহা সম্মেলন',
-    locationEn: 'University of Chittagong Central Auditorium / City Convention Center',
-    locationBn: 'চট্টগ্রাম বিশ্ববিদ্যালয় কেন্দ্রীয় মিলনায়তন / কনভেনশন সেন্টার',
-    durationEn: '1 Full Day Convention (8:30 AM – 6:00 PM)',
-    durationBn: '১ দিনব্যাপী মেগা উৎসব (সকাল ৮:৩০ – সন্ধ্যা ৬:০০)',
-    descEn: 'The largest annual gathering of university student youth, featuring keynote discourses by renowned scholars, mind-blowing stage drama, musical mantra rock, Vedic quiz championship, and an enormous feast.',
-    descBn: '১০০০+ বিশ্ববিদ্যালয়ের ছাত্রছাত্রীদের অংশগ্রহণে বার্ষিক মহা যুব সম্মেলন—দিকনির্দেশনামূলক বক্তব্য, আধ্যাত্মিক নাটক, কুইজ প্রতিযোগিতা ও মহা ভোজ।',
-    visionEn: 'Inspiring modern educated youth to embrace eternal spiritual values alongside outstanding academic and career excellence.',
-    visionBn: 'আধুনিক শিক্ষিত তরুণদের মাঝে মেধা, ক্যারিয়ার ও শাশ্বত বৈদিক মূল্যবোধের অপূর্ব মেলবন্ধন তৈরি করা।',
-    highlightsEn: [
-      '1,000+ University Students & Professors Attendance',
-      'Keynote Lectures by Internationally Renowned Sannyasis',
-      'Inter-University Vedic Quiz Championship with Prizes',
-      'Spectacular Theatrical Drama by Advaita VOICE Youth Troupe',
-      'Live Mantra Fusion Rock & Ecstatic Dancing Kirtan',
-      'Free Multi-Course Sanctified Vegetarian Feast for All'
-    ],
-    highlightsBn: [
-      '১০০০+ শিক্ষার্থী ও অধ্যাপকদের মিলনমেলা',
-      'আন্তর্জাতিক খ্যাতিসম্পন্ন বক্তাদের সারগর্ভ বক্তব্য',
-      'আকর্ষণীয় পুরস্কারসহ আন্তঃবিশ্ববিদ্যালয় কুইজ প্রতিযোগিতা',
-      'অদ্বৈত ভয়েস ড্রামা দল কর্তৃক মনমুগ্ধকর নাটক পরিবেশনা',
-      'মন্ত্র ফিউশন ও উদ্বেল নৃত্য-কীর্তন',
-      'সবার জন্য বিনামূল্যে মহা প্রীতিভোজ'
-    ],
-    packingListEn: [
-      'Fest Registration Pass / Digital QR Ticket',
-      'Student ID Card & Notebook for taking notes',
-      'Smart casual / formal marjita attire'
-    ],
-    packingListBn: [
-      'ফেস্টের রেজিস্ট্রেশন পাস বা ডিজিটাল কিউআর কোড',
-      'বিশ্ববিদ্যালয়ের স্টুডেন্ট আইডি কার্ড ও নোটবুক',
-      'মার্জিত পোশাক'
-    ],
-    guidelinesEn: [
-      'Auditorium entry opens at 8:30 AM; please be seated by 9:00 AM.',
-      'Photography & recordings strictly permitted in designated zones.',
-      'Maintain discipline and sacred decorum inside the hall.'
-    ],
-    guidelinesBn: [
-      'সকাল ৮:৩০টায় হলরুম উন্মুক্ত হবে; ৯:০০টার মধ্যে আসন গ্রহণ করতে হবে।',
-      'মিলনায়তনে শৃঙ্খলা ও পবিত্র পরিবেশ বজায় রাখা।'
-    ],
-    coordinatorEn: 'Advaita VOICE Youth Festival Organizing Committee',
-    coordinatorBn: 'অদ্বৈত ভয়েস যুব উৎসব বাস্তবায়ন পরিষদ',
+    id: 'camp_utsaha',
+    titleEn: 'Utsaha Camp (Unflinching Enthusiasm)',
+    titleBn: 'উৎসাহ ক্যাম্প (অদম্য উৎসাহ ও অধ্যবসায়)',
+    categoryEn: 'First Year Camp 3',
+    categoryBn: '১ম বর্ষ ক্যাম্প ৩',
+    locationEn: 'Advaita VOICE Center',
+    locationBn: 'অদ্বৈত ভয়েস কেন্দ্র',
+    durationEn: '2 Days & 1 Night',
+    durationBn: '২ দিন ১ রাত',
+    descEn: 'Deepening enthusiasm (utsahan niscayad dhairyat) in spiritual practices and academic excellence.',
+    descBn: 'উপদেশামৃত ৩ অনুযায়ী উৎসাহ, নিশ্চয় ও ধৈর্যের সাথে সাধনা ও পড়াশোনায় অগ্রগতির বিশেষ ক্যাম্প।',
+    visionEn: 'Sustaining high energy and spiritual enthusiasm across all campus challenges.',
+    visionBn: 'ক্যাম্পাস জীবনের সকল প্রতিকূলতার মাঝেও আধ্যাত্মিক উৎসাহ বজায় রাখা।',
+    highlightsEn: ['Upadeshamrita 3 Deep Dive', 'Time Management for University Students'],
+    highlightsBn: ['উপদেশামৃত ৩ এর প্রয়োগ', 'বিশ্ববিদ্যালয় শিক্ষার্থীদের টাইম ম্যানেজমেন্ট'],
+    packingListEn: ['Japa mala', 'Notebook', 'Dress'],
+    packingListBn: ['জপমালা', 'নোটবুক', 'পোশাক'],
+    guidelinesEn: ['Maintain punctuality in all sessions.'],
+    guidelinesBn: ['সময়ানুবর্তিতা রক্ষা করা।'],
+    coordinatorEn: 'Advaita VOICE Mentorship Cell',
+    coordinatorBn: 'অদ্বৈত ভয়েস মেন্টরশিপ সেল',
     schedule: [
       {
-        dayTitleEn: 'UDGOSH Full Day Program Flow',
-        dayTitleBn: 'উদ্ঘোষ দিনব্যাপী উৎসব সূচি',
+        dayTitleEn: 'Day 1: The Principle of Utsaha',
+        dayTitleBn: '১ম দিন: উৎসাহের মূলনীতি',
         timeline: [
-          { time: '08:30 AM', activityEn: 'Registration, Welcome Gift Kit & Seating', activityBn: 'রেজিস্ট্রেশন কিট প্রদান ও আসন গ্রহণ' },
-          { time: '09:30 AM', activityEn: 'Vedic Invocation & Lighting of Sacred Lamp', activityBn: 'বেদমন্ত্র পাঠ ও মঙ্গল প্রদীপ প্রজ্জ্বলন' },
-          { time: '10:00 AM', activityEn: 'Keynote Speech: "The Science of Inner Leadership"', activityBn: 'মূল প্রবন্ধ: "নেতৃত্বের অভ্যন্তরীণ বিজ্ঞান"' },
-          { time: '11:30 AM', activityEn: 'Inter-University Vedic Quiz Grand Finale', activityBn: 'আন্তঃবিশ্ববিদ্যালয় বৈদিক কুইজ গ্র্যান্ড ফিনালে' },
-          { time: '01:00 PM', activityEn: 'Sumptuous Feast (Mahaprasadam Banquet)', activityBn: 'মহা প্রীতিভোজ উৎসব' },
-          { time: '02:30 PM', activityEn: 'Mega Stage Drama Presentation', activityBn: 'মহা মঞ্চ নাটক পরিবেশনা' },
-          { time: '04:00 PM', activityEn: 'Prize Giving Ceremony & Dignitary Speeches', activityBn: 'পুরস্কার বিতরণ ও অতিথিবৃন্দের সম্মাননা' },
-          { time: '05:00 PM', activityEn: 'Mantra Rock Concert & Ecstatic Harinam', activityBn: 'মন্ত্র রক কনসার্ট ও উল্লাসিত নৃত্যকীর্তন' }
+          { time: '05:00 PM', activityEn: 'Keynote: "Keeping the Fire of Enthusiasm Burning"', activityBn: 'মূল বক্তব্য: "উৎসাহের প্রদীপ প্রজ্বলন"' }
         ]
       }
     ]
   },
   {
-    id: 'camp_yatra',
-    titleEn: 'Sri Mayapur & Sri Vrindavan Dham Parikrama Yatra',
-    titleBn: 'বার্ষিক শ্রীমায়াপুর ও ব্রজমণ্ডল ধাম পরিক্রমা যাত্রা',
-    categoryEn: 'Holy Dham Pilgrimage',
-    categoryBn: 'পবিত্র তীর্থ পরিক্রমা যাত্রা',
-    locationEn: 'Sridham Mayapur (Nadia) & Sri Vrindavan Dham (Mathura)',
-    locationBn: 'শ্রীধাম মায়াপুর (নদীয়া) ও শ্রী শ্রীল বৃন্দাবন ধাম (মথুরা)',
-    durationEn: '7 Days Sacred Parikrama & Pilgrimage',
-    durationBn: '৭ দিনের পবিত্র তীর্থযাত্রা ও পরিক্রমা',
-    descEn: 'A life-transforming pilgrimage walking in the footprints of Lord Sri Chaitanya Mahaprabhu and Sri Sri Radha Krishna, accompanied by senior sannyasis explaining transcendental pastimes.',
-    descBn: 'শ্রীচৈতন্য মহাপ্রভু ও শ্রীশ্রী রাধাকৃষ্ণের অপ্রাকৃত লীলাধাম দর্শন, যমুনা স্নান, গোবর্ধন পরিক্রমা ও সাধু সঙ্গের এক অপার্থিব তীর্থযাত্রা।',
-    visionEn: 'Experiencing the transcendental reality of the holy dhams to deepen devotion, detaching the heart from mundane world.',
-    visionBn: 'তীর্থ পরিক্রমার মাধ্যমে জড় জগতের প্রতি অনাসক্তি এবং শ্রীভগবানের চরণে গভীর ভক্তি ও শরণাগতি লাভ।',
-    highlightsEn: [
-      'Govardhana Hill 21-Kilometer Sacred Parikrama with Harinama',
-      'Holy Bathing in Yamuna River, Radha Kunda & Shyama Kunda',
-      'Visiting Historic Temples: Madana Mohana, Radha Raman, Govindaji',
-      'Temple of Vedic Planetarium (TOVP) Architectural Tour at Mayapur',
-      'Visiting Yogapitha (Birthplace of Lord Chaitanya) & Srivasa Angan',
-      'Deep Harikatha Seminars by Senior Acharyas every evening'
-    ],
-    highlightsBn: [
-      '২১ কিলোমিটার গিরিরাজ গোবর্ধন পরিক্রমা ও কীর্তন',
-      'পবিত্র যমুনা, শ্রী রাধাকুণ্ড ও শ্যামকুণ্ডে পুণ্যস্নান',
-      'মদনমোহন, রাধারমণ ও গোবিন্দজীর মতো প্রাচীন ঐতিহাসিক বিগ্রহ দর্শন',
-      'মায়াপুরে নির্মাণাধীন বিশ্বখ্যাত টিওভিপি (TOVP) দর্শন',
-      'শ্রীযোগপীঠ (মহাপ্রভুর জন্মস্থান) ও শ্রীবাস অঙ্গন পরিক্রমা',
-      'প্রতি সন্ধ্যায় বরেণ্য বৈষ্ণবদের মুখে অপ্রাকৃত ভাগবত কথা'
-    ],
-    packingListEn: [
-      'Valid Passport / NID / Student Verification ID',
-      'Dhoti-Kurta / Saffron / White Vaishnava clothes for temples',
-      'Japa Mala, Gopi Chandan, Tilak, Bead Bag, Scripture Reader',
-      'Light travel bedding, comfortable walking shoes for long parikramas',
-      'Essential travel medicines and personal items'
-    ],
-    packingListBn: [
-      'বৈধ পাসপোর্ট / এনআইডি / স্টুডেন্ট আইডি',
-      'ধুতি-পাঞ্জাবি / মার্জিত পোশাক ও তিলক সামগ্রী',
-      'জপমালা, জপ থলি ও নিত্য পাঠের গীতা গ্রন্থ',
-      'পরিক্রমায় হাঁটার উপযোগী নরম জুতো',
-      'ব্যক্তিগত ভ্রমণ কিট ও প্রয়োজনীয় ওষুধ'
-    ],
-    guidelinesEn: [
-      'Pilgrims must strictly abide by the 4 regulative principles during the yatra.',
-      'Always move with the assigned group; avoid solitary wandering in unfamiliar areas.',
-      'Maintain an attitude of humble service (Seva-bhava) to the holy dham.'
-    ],
-    guidelinesBn: [
-      'যাত্রাকালে কঠোরভাবে ভক্তির ৪টি নিয়ম মেনে চলতে হবে।',
-      'সর্বদা দলের সাথে থাকতে হবে এবং শৃঙ্খলার সাথে নির্দেশিকা অনুসরণ করতে হবে।',
-      'ধামে কোনো অপরাধ না করে সেবামূলক ও শ্রদ্ধাশীল মনোভাব বজায় রাখা।'
-    ],
-    coordinatorEn: 'Advaita VOICE Yatra Coordination Dept & Temple Tour Guides',
-    coordinatorBn: 'অদ্বৈত ভয়েস যাত্রা বিভাগ ও অভিজ্ঞ তীর্থ গাইড',
-    schedule: [
-      {
-        dayTitleEn: '7-Day Parikrama Overview',
-        dayTitleBn: '৭ দিনের পরিক্রমা সংক্ষিপ্ত রূপরেখা',
-        timeline: [
-          { time: 'Day 1–3', activityEn: 'Sri Mayapur Dham: Yogapitha, Srivas Angan, Ganga Snana, TOVP & Harinam', activityBn: 'শ্রীধাম মায়াপুর: যোগপীঠ, শ্রীবাস অঙ্গন, সুরধনী গঙ্গা স্নান ও টিওভিপি দর্শন' },
-          { time: 'Day 4', activityEn: 'Travel to Sri Vrindavan Dham & Evening Yamuna Arati at Kesi Ghat', activityBn: 'শ্রী বৃন্দাবন যাত্রা ও কেশী ঘাটে অপূর্ব যমুনা আরতি দর্শন' },
-          { time: 'Day 5', activityEn: 'Sri Govardhana Parikrama, Radha Kunda & Shyama Kunda Snana', activityBn: 'গিরিরাজ গোবর্ধন পরিক্রমা, রাধাকুণ্ড ও শ্যামকুণ্ড দর্শন ও স্নান' },
-          { time: 'Day 6', activityEn: 'Historic 7 Goswami Temples Darshan & Nidhivan / Seva Kunj', activityBn: 'সাত গোস্বামী মন্দির দর্শন, নিধুবন ও সেবা কুঞ্জ পরিক্রমা' },
-          { time: 'Day 7', activityEn: 'Special Yatra Conclusion Katha, Mahaprasadam & Safe Return Departure', activityBn: 'সমাপনী কথা, মহাপ্রসাদ ভোজ ও দেশে প্রত্যাবর্তন' }
-        ]
-      }
-    ]
+    id: 'camp_utkarsha',
+    titleEn: 'Utkarsha Camp (Character Excellence)',
+    titleBn: 'উৎকর্ষ ক্যাম্প (চারিত্রিক উৎকর্ষ ও ব্যক্তিত্ব বিকাশ)',
+    categoryEn: 'First Year Camp 4',
+    categoryBn: '১ম বর্ষ ক্যাম্প ৪',
+    locationEn: 'Advaita VOICE Retreat Ground',
+    locationBn: 'অদ্বৈত ভয়েস রিট্রিট প্রাঙ্গণ',
+    durationEn: '2 Days & 1 Night',
+    durationBn: '২ দিন ১ রাত',
+    descEn: 'Culmination of first-year training, focusing on character excellence, integrity, and personal sadhana audit.',
+    descBn: '১ম বর্ষের সমাপনী ক্যাম্প, যেখানে চারিত্রিক সাধুতা, সততা ও সামগ্রিক ব্যক্তিত্বের উৎকর্ষ সাধন করা হয়।',
+    visionEn: 'Producing youths of character and competence for the society.',
+    visionBn: 'সমাজে চারিত্রিক উৎকর্ষসম্পন্ন সৎ ও যোগ্য তরুণ নেতৃত্ব গড়ে তোলা।',
+    highlightsEn: ['Sad-achara Workshop', 'Personal Transformation Testimonies'],
+    highlightsBn: ['সদাচার প্রশিক্ষণ', 'ব্যক্তিগত পরিবর্তনের অভিজ্ঞতা বিনিময়'],
+    packingListEn: ['Standard Vaishnava items'],
+    packingListBn: ['প্রয়োজনীয় বৈষ্ণব উপকরণ'],
+    guidelinesEn: ['Strict adherence to ashram discipline.'],
+    guidelinesBn: ['আশ্রম নিয়মাবলী কঠোরভাবে অনুসরণ।'],
+    coordinatorEn: 'HG Rasvihari KC Das',
+    coordinatorBn: 'শ্রীল রাসবিহারী কেসি দাস',
+    schedule: [{ dayTitleEn: 'Day 1-2', dayTitleBn: '১ম-২য় দিন', timeline: [{ time: '08:00 AM', activityEn: 'Excellence Seminars', activityBn: 'উৎকর্ষ সেমিনার' }] }]
+  },
+
+  // --- SECOND YEAR CAMPS ---
+  {
+    id: 'camp_srcgd',
+    titleEn: 'SRCGD Camp (Scriptural Study & Devotional Culture)',
+    titleBn: 'SRCGD ক্যাম্প (শাস্ত্রচর্চা ও ভক্তিমূলক সংস্কৃতি)',
+    categoryEn: 'Second Year Camp 1',
+    categoryBn: '২য় বর্ষ ক্যাম্প ১',
+    locationEn: 'Advaita VOICE Central Ashram',
+    locationBn: 'অদ্বৈত ভয়েস কেন্দ্রীয় আশ্রম',
+    durationEn: '3 Days & 2 Nights',
+    durationBn: '৩ দিন ২ রাত',
+    descEn: 'Rigorous scriptural study and immersion in the authentic mood and teachings of Gaudiya Vaishnavism.',
+    descBn: 'গৌড়ীয় বৈষ্ণব সিদ্ধান্ত ও শাস্ত্রীয় গভীর তত্ত্ব উপলব্ধির বিশেষ আবাসিক পাঠশালা ও কর্মশালা।',
+    visionEn: 'Grounding 2nd year students deeply into philosophical conviction.',
+    visionBn: '২য় বর্ষের শিক্ষার্থীদের দার্শনিক বিশ্বাস ও শাস্ত্রীয় জ্ঞানে সুপ্রতিষ্ঠিত করা।',
+    highlightsEn: ['Systematic Bhagavad Gita Section Analysis', 'Morning Mangalarati & Japa Standards'],
+    highlightsBn: ['ভগবদ্গীতার পদ্ধতিগত বিশ্লেষণ', 'উন্নত মানের প্রাতঃকালীন সাধনা'],
+    packingListEn: ['Bhagavad Gita As It Is', 'Notebook', 'Japa Mala'],
+    packingListBn: ['যথার্থ ভগবদ্গীতা', 'নোটবুক', 'জপমালা'],
+    guidelinesEn: ['Mandatory attendance in all study periods.'],
+    guidelinesBn: ['সকল স্টাডি সেশনে বাধ্যতামূলক উপস্থিতি।'],
+    coordinatorEn: 'Senior Preachers Council',
+    coordinatorBn: 'সিনিয়র প্রচারক পরিষদ',
+    schedule: [{ dayTitleEn: 'Day 1-3', dayTitleBn: '১ম-৩য় দিন', timeline: [{ time: '09:00 AM', activityEn: 'Shastric Colloquium', activityBn: 'শাস্ত্র বিচার ও প্রশ্নোত্তর' }] }]
   },
   {
-    id: 'camp_weekend',
-    titleEn: 'Weekend 24-Hour Ashram Living Immersion',
-    titleBn: 'সাপ্তাহিক ২৪ ঘণ্টার আশ্রমিক জীবন অভিজ্ঞতা ক্যাম্প',
-    categoryEn: 'Ashram Immersion',
-    categoryBn: 'আশ্রমিক সাধনা ক্যাম্প',
-    locationEn: 'Advaita VOICE University Ashram, Chittagong',
-    locationBn: 'অদ্বৈত ভয়েস বিশ্ববিদ্যালয় আশ্রম, চট্টগ্রাম',
-    durationEn: 'Saturday 4:00 PM – Sunday 6:00 PM (24 Hours)',
-    durationBn: 'শনিবার বিকাল ৪:০০ – রবিবার সন্ধ্যা ৬:০০ (২৪ ঘণ্টা)',
-    descEn: 'Experience the pure monastic lifestyle of an authentic Vedic ashram for 24 hours: waking up at Brahma-muhurta, engaging in deity worship, temple cooking seva, and hearing sublime philosophy.',
-    descBn: '২৪ ঘণ্টার জন্য বাস্তব আশ্রমিক জীবনের স্বাদ গ্রহণ: ব্রহ্ম মুহূর্তে জাগরণ, দেবালয়ে সেবা, রন্ধন সেবা ও নিবিড় বৈদিক শিক্ষা।',
-    visionEn: 'Allowing student day-scholars to experience the profound inner peace and discipline of authentic ashram life.',
-    visionBn: 'অনাবাসিক শিক্ষার্থীদের আশ্রমিক জীবনের শুচিতা, নিয়মানুবর্তিতা ও মানসিক প্রশান্তি আস্বাদনের সুযোগ প্রদান।',
-    highlightsEn: [
-      'Complete Brahma-Muhurta & Mangalarati Experience (3:30 AM)',
-      'Hands-on Temple Seva: Cooking, Deities decoration, and Cleaning',
-      'Exclusive Q&A Session with Senior Resident Brahmacharis',
-      'Systematic Japa Absorption Workshop (Chanting with Focus)'
-    ],
-    highlightsBn: [
-      'ব্রহ্ম মুহূর্তে (ভোর ৩:৩০) জাগরণ ও সম্পূর্ণ প্রভাতীয় অনুষ্ঠান',
-      'দেবালয়ে প্রত্যক্ষ রন্ধন ও শৃঙ্গার সেবায় অংশগ্রহণ',
-      'আশ্রমবাসী ব্রহ্মচারীদের সাথে একান্ত প্রশ্নোত্তর পর্ব',
-      'মনোযোগ সহকারে জপ করার বিশেষ কৌশল কর্মশালা'
-    ],
-    packingListEn: [
-      'Vaishnava clothes for 1 day',
-      'Personal Japa Mala & notebook',
-      'Toiletries & bedsheet'
-    ],
-    packingListBn: [
-      '১ দিনের উপযোগী বৈষ্ণবীয় মার্জিত পোশাক',
-      'জপমালা ও নোটবুক',
-      'প্রসাধন ও ব্যক্তিগত চাদর'
-    ],
-    guidelinesEn: [
-      'Arrival by 4:00 PM on Saturday; orientation starts at 4:30 PM.',
-      'Follow all ashram daily bell schedules with enthusiasm.'
-    ],
-    guidelinesBn: [
-      'শনিবার বিকাল ৪:০০টার মধ্যে আশ্রমে উপস্থিতি আবশ্যক।',
-      'আশ্রমের দৈনন্দিন নিয়মাবলি প্রফুল্ল চিত্তে পালন করা।'
-    ],
-    coordinatorEn: 'Advaita VOICE Ashram General Secretary',
-    coordinatorBn: 'অদ্বৈত ভয়েস আশ্রম সাধারণ সম্পাদক',
-    schedule: [
-      {
-        dayTitleEn: '24-Hour Ashram Living Timeline',
-        dayTitleBn: '২৪ ঘণ্টার আশ্রম জীবন সূচি',
-        timeline: [
-          { time: '04:00 PM (Sat)', activityEn: 'Arrival, Check-in & Orientation Session', activityBn: 'আগমন ও পরিচিতি পর্ব' },
-          { time: '06:30 PM (Sat)', activityEn: 'Sandhya Arati, Gaura Arati & Bhagavad Gita Study', activityBn: 'সন্ধ্যা আরতি ও গীতা পাঠ' },
-          { time: '08:30 PM (Sat)', activityEn: 'Night Prasad & Rest by 9:30 PM', activityBn: 'রাতের মহাপ্রসাদ ও ঘুম' },
-          { time: '03:30 AM (Sun)', activityEn: 'Rising at Brahma-muhurta & Holy Bath', activityBn: 'ব্রহ্ম মুহূর্তে জাগরণ ও স্নান' },
-          { time: '04:30 AM (Sun)', activityEn: 'Mangalarati, Nrsimharati & Tulasi Parikrama', activityBn: 'মঙ্গল আরতি ও তুলসী পূজা' },
-          { time: '05:30 AM (Sun)', activityEn: 'Morning Attentive Japa Meditation (16 Rounds)', activityBn: 'নিবিষ্ট জপ মেডিটেশন (১৬ মালা)' },
-          { time: '08:00 AM (Sun)', activityEn: 'Deity Darshan, Guru Puja & Srimad Bhagavatam Class', activityBn: 'দর্শন আরতি, গুরুপূজা ও শ্রীমদ্ভাগবত ক্লাস' },
-          { time: '09:00 AM (Sun)', activityEn: 'Breakfast Prasad & Temple Seva Work (Cooking/Cleaning)', activityBn: 'প্রাতঃরাশ ও আশ্রম সেবা' },
-          { time: '02:00 PM (Sun)', activityEn: 'Sunday Feast Program & Youth Discussion', activityBn: 'রবিবাসরীয় মহোৎসব ও যুব সম্মেলন' },
-          { time: '05:30 PM (Sun)', activityEn: 'Reflections, Blessing by Senior Devotees & Return Home', activityBn: 'অনুভূতি বিনিময় ও শুভ সমাপ্তি' }
-        ]
-      }
-    ]
+    id: 'camp_nistha',
+    titleEn: 'Nistha Camp (Steadfast Devotion & Japa)',
+    titleBn: 'নিষ্ঠা ক্যাম্প (অবিচল নিষ্ঠা ও গভীর জপ সাধনা)',
+    categoryEn: 'Second Year Camp 2',
+    categoryBn: '২য় বর্ষ ক্যাম্প ২',
+    locationEn: 'Serene Spiritual Retreat Center',
+    locationBn: 'শান্ত ও নিভৃত আধ্যাত্মিক আশ্রম',
+    durationEn: '3 Days & 2 Nights',
+    durationBn: '৩ দিন ২ রাত',
+    descEn: 'Achieving the stage of Nistha (steadiness in devotional service), freedom from doubts, and pure 16-round chanting.',
+    descBn: 'অনর্থ নিবৃত্তি পেরিয়ে ভক্তি সাধনায় অবিচল নিষ্ঠা অর্জন ও অভিনিবেশ সহকারে ১৬ মালা জপ অনুশীলনের ক্যাম্প।',
+    visionEn: 'Eliminating mental distractions to attain unflinching steady devotion.',
+    visionBn: 'চিত্তের চাঞ্চল্য দূর করে অবিচল ভক্তি সাধন নিষ্ঠা লাভ।',
+    highlightsEn: ['64-Rounds Japa Challenge', 'Anartha Nivritti Seminar', 'Silence & Meditation Hours'],
+    highlightsBn: ['৬৪ মালা জপ চ্যালেঞ্জ', 'অনর্থ নিবৃত্তি সেমিনার', 'মৌন জপ ও ধ্যান সেশন'],
+    packingListEn: ['Vaishnava attire', 'Japa bead bag', 'Prabhupada lectures notes'],
+    packingListBn: ['ধুতি-পাঞ্জাবি', 'জপ থলি', 'প্রভুপাদ লেকচার নোটবুক'],
+    guidelinesEn: ['Total silence maintained during japa marathon hours.'],
+    guidelinesBn: ['জপ চলার সময় পূর্ণ নীরবতা পালনীয়।'],
+    coordinatorEn: 'HG Rasvihari KC Das',
+    coordinatorBn: 'শ্রীল রাসবিহারী কেসি দাস',
+    schedule: [{ dayTitleEn: 'Day 1-3', dayTitleBn: '১ম-৩য় দিন', timeline: [{ time: '05:00 AM', activityEn: 'Japa Marathon', activityBn: 'টানা জপ সাধনা' }] }]
   },
   {
-    id: 'camp_padayatra',
-    titleEn: 'Campus Padayatra & Book Distribution Marathon',
-    titleBn: 'ক্যাম্পাস পদযাত্রা ও গীতা বিতরণ প্রচার ক্যাম্প',
-    categoryEn: 'Outreach & Harinama',
-    categoryBn: 'নগর প্রচার ও বই বিতরণ',
-    locationEn: 'University of Chittagong Campus & Adjacent Hill Communities',
-    locationBn: 'চট্টগ্রাম বিশ্ববিদ্যালয় ক্যাম্পাস, জিরো পয়েন্ট ও পার্শ্ববর্তী উপশহর',
-    durationEn: 'Weekend Intensive (Saturday Full Day)',
-    durationBn: 'সাপ্তাহিক ছুটির দিনব্যাপী প্রচার ক্যাম্প',
-    descEn: 'Equipping youth with the sublime joy of sharing Vedic literature door-to-door, distributing hot sanctified food, and performing vibrant Harinama Sankirtana.',
-    descBn: 'দ্বারে দ্বারে গিয়ে গীতা ও আত্মোপলব্ধির বিজ্ঞান গ্রন্থ বিতরণ, হরিনাম সংকীর্তন এবং তৃষ্ণার্ত মানুষের মাঝে মহাপ্রসাদ বিতরণ।',
-    visionEn: 'Experiencing the highest transcendental ecstasy of practical preaching and sharing Srila Prabhupada’s mercy.',
-    visionBn: 'শ্রীল প্রভুপাদের গ্রন্থ বিতরণের মাধ্যমে প্রত্যক্ষ প্রচারের অপার্থিব আনন্দ লাভ।',
+    id: 'camp_ftw',
+    titleEn: 'Follow up Training Workshop (FTW)',
+    titleBn: 'ফলো-আপ ট্রেনিং ওয়ার্কশপ (FTW কর্মশালা)',
+    categoryEn: 'Second Year Workshop',
+    categoryBn: '২য় বর্ষ প্রশিক্ষণ কর্মশালা',
+    locationEn: 'Advaita VOICE Hall',
+    locationBn: 'অদ্বৈত ভয়েস মিলনায়তন',
+    durationEn: '2 Days Workshop',
+    durationBn: '২ দিনব্যাপী কর্মশালা',
+    descEn: 'Structured follow-up training to audit sadhana, track academic progress, and troubleshoot practical devotee-life obstacles.',
+    descBn: 'শিক্ষার্থীদের সাধনা মূল্যায়ন, পড়াশোনার অগ্রগতি নিরীক্ষণ এবং বাস্তব জীবনের সমস্যা সমাধানের ফলো-আপ কর্মশালা।',
+    visionEn: 'Personal care and holistic progress monitoring of all growing devotees.',
+    visionBn: 'প্রত্যেক শিক্ষার্থীর ব্যক্তিগত যত্ন গ্রহণ ও সমন্বিত অগ্রগতি নিশ্চিত করা।',
+    highlightsEn: ['1-on-1 Counselor Review', 'Time Table Optimization', 'Spiritual Health Assessment'],
+    highlightsBn: ['কাউন্সেলরের সাথে একান্তে পর্যালোচনা', 'রুটিন উন্নয়ন', 'আধ্যাত্মিক স্বাস্থ্য মূল্যায়ন'],
+    packingListEn: ['Sadhana chart records', 'Notebook'],
+    packingListBn: ['সাধনা রেকর্ড খাতা', 'নোটবুক'],
+    guidelinesEn: ['Bring completed 3-month sadhana records.'],
+    guidelinesBn: ['বিগত ৩ মাসের সাধনা রিপোর্ট সাথে আনতে হবে।'],
+    coordinatorEn: 'Advaita VOICE Counselor Team',
+    coordinatorBn: 'অদ্বৈত ভয়েস কাউন্সেলর টিম',
+    schedule: [{ dayTitleEn: 'Day 1-2', dayTitleBn: '১ম-২য় দিন', timeline: [{ time: '10:00 AM', activityEn: 'Evaluation & Coaching', activityBn: 'মূল্যায়ন ও দিকনির্দেশনা' }] }]
+  },
+  {
+    id: 'camp_fec',
+    titleEn: 'Facilitator Empowerment Course (FEC)',
+    titleBn: 'ফ্যাসিলিটেটর এমপাওয়ারমেন্ট কোর্স (FEC ক্যাম্প)',
+    categoryEn: 'Second Year Empowerment',
+    categoryBn: '২য় বর্ষ ক্ষমতায়ন ক্যাম্প',
+    locationEn: 'Advaita VOICE Training Academy',
+    locationBn: 'অদ্বৈত ভয়েস ট্রেনিং একাডেমি',
+    durationEn: '2 Days Intensive',
+    durationBn: '২ দিনের নিবিড় প্রশিক্ষণ',
+    descEn: 'Empowering senior 2nd year devotees with leadership skills to facilitate DYS small groups, mentor newcomers, and lead discussion circles.',
+    descBn: '২য় বর্ষের শিক্ষার্থীদের ছোট দল পরিচালনা, নতুনদের মেন্টরিং ও দলনেতার দায়িত্ব পালনের বাস্তব প্রশিক্ষণ।',
+    visionEn: 'Creating capable facilitators to nurture future generations of students.',
+    visionBn: 'আগামী প্রজন্মের শিক্ষার্থীদের সঠিক পথ প্রদর্শনে সক্ষম ফ্যাসিলিটেটর তৈরি।',
+    highlightsEn: ['Group Discussion Moderation Skills', 'Active Listening & Empathy Training', 'Mock Facilitation Practicals'],
+    highlightsBn: ['গ্রুপ আলোচনা পরিচালনার কৌশল', 'মনোযোগ দিয়ে শোনার দক্ষতা', 'মক ফ্যাসিলিটেশন প্র্যাকটিস'],
+    packingListEn: ['Facilitator handbook', 'Formal attire'],
+    packingListBn: ['ফ্যাসিলিটেটর হ্যান্ডবুক', 'মার্জিত পোশাক'],
+    guidelinesEn: ['Participate in mock presentation sessions.'],
+    guidelinesBn: ['মক প্রেজেন্টেশনে বাধ্যতামূলক অংশগ্রহণ।'],
+    coordinatorEn: 'HG Utpol Das Khocon',
+    coordinatorBn: 'উৎপল দাস খোকন',
+    schedule: [{ dayTitleEn: 'Day 1-2', dayTitleBn: '১ম-২য় দিন', timeline: [{ time: '09:00 AM', activityEn: 'Facilitator Mastery', activityBn: 'ফ্যাসিলিটেশন দক্ষতা' }] }]
+  },
+  {
+    id: 'camp_dys_pt',
+    titleEn: 'DYS Preachers Training Camp',
+    titleBn: 'ডিওয়াইএস প্রচারক প্রশিক্ষণ ক্যাম্প (DYS Preachers Training)',
+    categoryEn: 'Second Year Preaching Camp',
+    categoryBn: '২য় বর্ষ প্রচার প্রশিক্ষণ',
+    locationEn: 'Advaita VOICE Preaching Hub',
+    locationBn: 'অদ্বৈত ভয়েস প্রচার হাব',
+    durationEn: '3 Days Camp',
+    durationBn: '৩ দিনের প্রচার প্রশিক্ষণ',
+    descEn: 'Practical public speaking, slide presentation, logic presentation, and answering youth questions to deliver the Discover Your Self (DYS) seminars on campus.',
+    descBn: 'বিশ্ববিদ্যালয়ে ডিসকভার ইয়োর সেলফ কোর্স পড়ানোর জন্য পাবলিক স্পিকিং, স্লাইড প্রেজেন্টেশন ও প্রশ্নের উত্তর প্রদানের বিশেষ প্রশিক্ষণ।',
+    visionEn: 'Developing bold, charismatic, and scripturally sound youth preachers.',
+    visionBn: 'দৃঢ়প্রত্যয়ী, বাগ্মী ও শাস্ত্রনিষ্ঠ তরুণ প্রচারক তৈরি করা।',
+    highlightsEn: ['Live Speech Delivery & Peer Feedback', 'Defending Science vs Spirituality Arguments', 'Slide Mastery & Body Language'],
+    highlightsBn: ['সরাসরি বক্তব্য প্রদান ও ফিডব্যাক', 'বিজ্ঞান বনাম আধ্যাত্মিকতা বিষয়ক যুক্তি', 'বডি ল্যাঙ্গুয়েজ ও স্লাইড প্রেজেন্টেশন'],
+    packingListEn: ['Laptop / Presentation slides', 'Notebook', 'Formal attire'],
+    packingListBn: ['ল্যাপটপ / স্লাইড নোট', 'নোটবুক', 'মার্জিত পোশাক'],
+    guidelinesEn: ['Prepare a 15-minute mock DYS presentation.'],
+    guidelinesBn: ['১৫ মিনিটের একটি মক ডিওয়াইএস প্রেজেন্টেশন প্রস্তুত রাখতে হবে।'],
+    coordinatorEn: 'Advaita VOICE Preaching Cell',
+    coordinatorBn: 'অদ্বৈত ভয়েস প্রচার সেল',
+    schedule: [{ dayTitleEn: 'Day 1-3', dayTitleBn: '১ম-৩য় দিন', timeline: [{ time: '10:00 AM', activityEn: 'Preaching Practicals', activityBn: 'বাস্তব প্রচার মহড়া' }] }]
+  },
+
+  // --- THIRD YEAR CAMPS ---
+  {
+    id: 'camp_ashraya',
+    titleEn: 'Ashraya Camp (Formal Spiritual Shelter)',
+    titleBn: 'আশ্রয় ক্যাম্প (শ্রীগুরু চরণে আনুষ্ঠানিক আশ্রয়)',
+    categoryEn: 'Third Year Camp',
+    categoryBn: '৩য় বর্ষ ক্যাম্প',
+    locationEn: 'Holy Dham / Central ISKCON Temple',
+    locationBn: 'পবিত্র ধাম / কেন্দ্রীয় ইসকন মন্দির',
+    durationEn: '3 Days Residential',
+    durationBn: '৩ দিনের বিশেষ আবাসিক ক্যাম্প',
+    descEn: 'Preparing for and accepting formal spiritual shelter (Ashraya) at the lotus feet of Srila Prabhupada and Sri Guru, committing to eternal service.',
+    descBn: 'শ্রীগুরু ও শ্রীল প্রভুপাদের পাদপদ্মে আনুষ্ঠানিক আশ্রয় গ্রহণ ও ভক্তিসাধনায় আজীবন আনুগত্যের পবিত্র ক্যাম্প।',
+    visionEn: 'Entering formal guru-shishya relationship and eternal devotional shelter.',
+    visionBn: 'শ্রীগুরু-শিষ্য সম্বন্ধ ও শাশ্বত ভক্তি আশ্রয়ে প্রবেশ।',
+    highlightsEn: ['Guru-Tattva Intensive Seminar', '10 Offenses to the Holy Name Study', 'Formal Ashraya Yajna & Blessings'],
+    highlightsBn: ['গুরুতত্ত্ব বিষয়ক নিবিড় পাঠ', 'দশবিধ নামাপরাধ বর্জন বিধি', 'আনুষ্ঠানিক আশ্রয় যজ্ঞ ও আশীর্বাদ'],
+    packingListEn: ['New Vaishnava clothes for ceremony', 'Japa Mala', 'Kanthi Mala'],
+    packingListBn: ['অনুষ্ঠানের জন্য নতুন ধুতি-পাঞ্জাবি', 'জপমালা', 'কণ্ঠীমালা'],
+    guidelinesEn: ['Fast till noon on ceremony day.'],
+    guidelinesBn: ['অনুষ্ঠান দিবসে মধ্যাহ্ন পর্যন্ত উপবাস পালনীয়।'],
+    coordinatorEn: 'HG Rasvihari KC Das',
+    coordinatorBn: 'শ্রীল রাসবিহারী কেসি দাস',
+    schedule: [{ dayTitleEn: 'Day 1-3', dayTitleBn: '১ম-৩য় দিন', timeline: [{ time: '08:00 AM', activityEn: 'Ashraya Ceremony', activityBn: 'আশ্রয় অনুষ্ঠান' }] }]
+  },
+  {
+    id: 'camp_gauranga_sabha',
+    titleEn: 'Gauranga Sabha Camp (Sri Chaitanya Katha & Mission)',
+    titleBn: 'গৌরাঙ্গ সভা ক্যাম্প (শ্রীচৈতন্য কথা ও সংকীর্তন মিশন)',
+    categoryEn: 'Third & Fourth Year Camp',
+    categoryBn: '৩য় ও ৪র্থ বর্ষ ক্যাম্প',
+    locationEn: 'Advaita VOICE Sanga Hall',
+    locationBn: 'অদ্বৈত ভয়েস সঙ্গ সভাগৃহ',
+    durationEn: '3 Days Camp',
+    durationBn: '৩ দিনের সম্মেলন',
+    descEn: "Advanced absorption in Sri Chaitanya Mahaprabhu's pastimes, teachings, and expanding the sankirtana mission in universities.",
+    descBn: 'শ্রীচৈতন্য মহাপ্রভুর লীলা, শিক্ষা ও বিশ্ববিদ্যালয়ে সংকীর্তন আন্দোলনের প্রসারে ৩য় ও ৪র্থ বর্ষের ভক্তদের মহাসম্মেলন।',
+    visionEn: 'Spreading the sublime mood of Gauranga Mahaprabhu across youth communities.',
+    visionBn: 'শ্রীচৈতন্য মহাপ্রভুর প্রেমভক্তির বার্তা তরুণদের মাঝে বিস্তার।',
+    highlightsEn: ['Chaitanya Charitamrita Amrita Katha', 'University Preaching Strategic Blueprint', 'Maha Sankirtana Sessions'],
+    highlightsBn: ['চৈতন্য চরিতামৃত সুধা আস্বাদন', 'বিশ্ববিদ্যালয় প্রচারের দীর্ঘমেয়াদী কৌশল', 'মহা সংকীর্তন সম্মেলন'],
+    packingListEn: ['CC Madhya-lila', 'Japa Mala', 'Vaishnava dress'],
+    packingListBn: ['চৈতন্য চরিতামৃত মধ্যলীলা', 'জপমালা', 'পোশাক'],
+    guidelinesEn: ['High standard of Vaishnava etiquette.'],
+    guidelinesBn: ['উচ্চমানের বৈষ্ণব সদাচার ও মর্যাদা বজায় রাখা।'],
+    coordinatorEn: 'Advaita VOICE Executive Council',
+    coordinatorBn: 'অদ্বৈত ভয়েস কার্যনির্বাহী পরিষদ',
+    schedule: [{ dayTitleEn: 'Day 1-3', dayTitleBn: '১ম-৩য় দিন', timeline: [{ time: '06:00 PM', activityEn: 'Gauranga Katha', activityBn: 'গৌরাঙ্গ কথা ও কীর্তন' }] }]
+  },
+  {
+    id: 'camp_nityananda_sabha',
+    titleEn: 'Nityananda Sabha Camp (Compassion & Mercy Outreach)',
+    titleBn: 'নিত্যানন্দ সভা ক্যাম্প (পরম করুণা ও পতিতপাবন সেবা)',
+    categoryEn: 'Third & Fourth Year Camp',
+    categoryBn: '৩য় ও ৪র্থ বর্ষ ক্যাম্প',
+    locationEn: 'Advaita VOICE Preaching Base',
+    locationBn: 'অদ্বৈত ভয়েস প্রচার ঘাঁটি',
+    durationEn: '3 Days Camp',
+    durationBn: '৩ দিনের সেবা সম্মেলন',
+    descEn: 'Imbibing the boundless compassion of Lord Nityananda to distribute mercy to the most fallen souls and organize massive youth outreach.',
+    descBn: 'প্রভু নিত্যানন্দের অপার অহৈতুকী করুণা হৃদয়ে ধারণ করে পতিত মানবকল্যাণে কৃষ্ণনাম বিতরণের বিশেষ প্রশিক্ষণ ও সম্মেলন।',
+    visionEn: 'Fostering deep compassion and selfless mood of preacher-servants.',
+    visionBn: 'নিঃস্বার্থ সেবাপ্রেম ও করুণার মূর্ত প্রতীক হিসেবে প্রচারক তৈরি।',
+    highlightsEn: ['Lord Nityananda Lila & Mercy Study', 'Mass Book Distribution Blitz', 'Street Sankirtan Procession'],
+    highlightsBn: ['শ্রীল নিত্যানন্দ প্রভুর করুণা লীলা পাঠ', 'ব্যাপক গ্রন্থ বিতরণ মহড়া', 'নগর সংকীর্তন শোভাযাত্রা'],
+    packingListEn: ['Book distribution bag', 'Japa mala'],
+    packingListBn: ['গ্রন্থ বিতরণ ব্যাগ', 'জপমালা'],
+    guidelinesEn: ['Active participation in street sankirtana.'],
+    guidelinesBn: ['নগর সংকীর্তনে স্বতঃস্ফূর্ত অংশগ্রহণ।'],
+    coordinatorEn: 'Advaita VOICE Sankirtan Wing',
+    coordinatorBn: 'অদ্বৈত ভয়েস সংকীর্তন বিভাগ',
+    schedule: [{ dayTitleEn: 'Day 1-3', dayTitleBn: '১ম-৩য় দিন', timeline: [{ time: '02:00 PM', activityEn: 'Mercy Outreach', activityBn: 'প্রচার অভিযান' }] }]
+  },
+
+  // --- FOURTH YEAR CAMP ---
+  {
+    id: 'camp_sharanagati',
+    titleEn: 'Sharanagati Camp (Complete Surrender & Diksha Preparation)',
+    titleBn: 'শরণাগতি ক্যাম্প (পূর্ণ আত্মসমর্পণ ও হরিনাম দীক্ষা প্রস্তুতি)',
+    categoryEn: 'Fourth Year Camp',
+    categoryBn: '৪র্থ বর্ষ ক্যাম্প',
+    locationEn: 'Sri Mayapur / Sri Vrindavan Holy Dham',
+    locationBn: 'শ্রীমায়াপুর / শ্রীবৃন্দাবন ধাম',
+    durationEn: '5 Days & 4 Nights (Holy Dham Residential)',
+    durationBn: '৫ দিন ৪ রাত (পবিত্র ধামে আবাসিক)',
+    descEn: 'The supreme fourth-year milestone camp preparing dedicated senior students for Harinama Diksha, lifetime vows of Vaishnava service, and lifelong dedication.',
+    descBn: '৪র্থ বর্ষের শিক্ষার্থীদের জীবনের সর্বোচ্চ মাইলফলক ক্যাম্প, যেখানে হরিনাম দীক্ষার চূড়ান্ত প্রস্তুতি, ৬টি শরণাগতি অঙ্গ অনুশীলন ও আজীবন কৃষ্ণসেবার ব্রত গ্রহণ করা হয়।',
+    visionEn: 'Total surrender (Sharanagati) to the lotus feet of Sri Krishna and lifelong mission dedication.',
+    visionBn: 'শ্রীকৃষ্ণের চরণে পূর্ণ আত্মসমর্পণ ও আজীবন সেবা-সংকল্প।',
     highlightsEn: [
-      'Street Harinama Procession with Mridanga & Karatalas',
-      'Distributing 200+ Bhagavad Gita As It Is in a Single Day',
-      'Free Khichuri Mahaprasadam Distribution to 500+ Students',
-      'Practical Field Training on Approaching Strangers with Courtesy'
+      'The 6 Limbs of Sharanagati (Bhakti-vinoda Thakura)',
+      'Harinama Diksha Examination & Viva Preparation',
+      'Holy Dham Parikrama in Mayapur / Vrindavan',
+      'Sacred Fire Yajna & Lifetime Devotional Dedication'
     ],
     highlightsBn: [
-      'মৃদঙ্গ ও করতাল সহযোগে ক্যাম্পাস পদযাত্রা ও সংকীর্তন',
-      'একদিনেই ২০০+ শ্রীমদ্ভগবদ্গীতা যথার্থ বিতরণ',
-      '৫০০+ শিক্ষার্থীর মাঝে বিনামূল্যে মহাপ্রসাদ বিতরণ',
-      'বিনম্রভাবে গ্রন্থ উপস্থাপনের বাস্তব ফিল্ড প্রশিক্ষণ'
+      'ভক্তিস্তোত্র ও শরণাগতির ৬টি অঙ্গ নিবিড় পাঠ',
+      'হরিনাম দীক্ষা পরীক্ষা ও সাক্ষাৎকার প্রস্তুতি',
+      'শ্রীমায়াপুর/শ্রীবৃন্দাবন ধাম পরিক্রমা',
+      'পবিত্র হোম যজ্ঞ ও আজীবন সেবা সংকল্প'
     ],
-    packingListEn: [
-      'White / Saffron Vaishnava dress',
-      'Book carrying bag / backpack',
-      'Water bottle, notebook for donor contacts'
-    ],
-    packingListBn: [
-      'মার্জিত পোশাক',
-      'বই বহন করার জন্য কাঁধের ব্যাগ',
-      'পানির বোতল ও যোগাযোগ ডায়রি'
-    ],
-    guidelinesEn: [
-      'Always maintain sweetness, humility, and polite respect with every person.',
-      'Never argue disrespectfully; present Bhagavad Gita with love and dignity.'
-    ],
-    guidelinesBn: [
-      'সবার সাথে অত্যন্ত বিনম্র, মার্জিত ও মিষ্ট ব্যবহার বজায় রাখতে হবে।',
-      'কোনো তর্কে না জড়িয়ে শ্রীল প্রভুপাদের গ্রন্থ প্রীতির সাথে উপস্থাপন করা।'
-    ],
-    coordinatorEn: 'Advaita VOICE Sankirtan & Book Marathon Incharge',
-    coordinatorBn: 'অদ্বৈত ভয়েস সংকীর্তন ও গ্রন্থ প্রচার বিভাগ',
+    packingListEn: ['Formal Diksha attire', 'Japa mala & Tulasi Kanthi', 'Scriptures'],
+    packingListBn: ['দীক্ষার নতুন পোশাক', 'জপমালা ও তুলসী কণ্ঠীমালা', 'শাস্ত্রীয় গ্রন্থ'],
+    guidelinesEn: ['Strict observance of all Vaishnava regulative principles in Holy Dham.'],
+    guidelinesBn: ['পবিত্র ধামে বৈষ্ণব সদাচার ও ভক্তির নিয়মনীতি কঠোরভাবে পালনীয়।'],
+    coordinatorEn: 'HG Rasvihari KC Das & Central Leaders',
+    coordinatorBn: 'শ্রীল রাসবিহারী কেসি দাস ও কেন্দ্রীয় নেতৃত্ব',
     schedule: [
       {
-        dayTitleEn: 'Padayatra & Marathon Flow',
-        dayTitleBn: 'পদযাত্রা ও ম্যারাথন কার্যসূচি',
+        dayTitleEn: 'Day 1-5: Holy Dham Surrender Retreat',
+        dayTitleBn: '১ম-৫ম দিন: শ্রীধাম শরণাগতি রিট্রিট ও দীক্ষা যজ্ঞ',
         timeline: [
-          { time: '08:30 AM', activityEn: 'Morning Briefing, Shloka Recitation & Book Bag Distribution', activityBn: 'প্রাতঃকালীন দিকনির্দেশনা ও বইয়ের ব্যাগ প্রস্তুতকরণ' },
-          { time: '09:30 AM', activityEn: 'Campus Harinama & Door-to-Door Book Distribution', activityBn: 'পদযাত্রা সংকীর্তন ও ক্যাম্পাসে বই বিতরণ' },
-          { time: '01:30 PM', activityEn: 'Midday Mahaprasadam at Ashram', activityBn: 'মধ্যাহ্ন প্রসাদ আস্বাদন' },
-          { time: '03:00 PM', activityEn: 'Afternoon Village & Zero-Point Outreach', activityBn: 'জিরো পয়েন্ট ও সংলগ্ন এলাকায় প্রচার' },
-          { time: '06:00 PM', activityEn: 'Sankirtana Marathon Score Calculation & Blissful Celebration', activityBn: 'বই বিতরণের হিসাব গণনা ও কীর্তন আনন্দ' }
+          { time: '04:30 AM', activityEn: 'Mangalarati in Holy Dham', activityBn: 'শ্রীধামে মঙ্গল আরতি ও পরিক্রমা' },
+          { time: '07:30 AM', activityEn: 'Sharanagati Katha & Meditation', activityBn: 'শরণাগতি তত্ত্ব ও জপ সাধনা' },
+          { time: '10:00 AM', activityEn: 'Diksha Readiness Seminars', activityBn: 'দীক্ষা প্রস্তুতি সেমিনার' },
+          { time: '04:00 PM', activityEn: 'Parikrama to Sacred Tirthas', activityBn: 'পবিত্র তীর্থ পরিক্রমা' }
         ]
       }
     ]

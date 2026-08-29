@@ -189,12 +189,12 @@ export const HubHome: React.FC = () => {
     },
     {
       id: 'all_camps',
-      titleEn: 'Sacred 6-Step Camps & Yatras',
-      titleBn: 'পবিত্র ৬-ধাপের ক্যাম্প ও পরিক্রমা',
-      descEn: 'Sankalpa, Sphurti, Utkarsh, Nishtha, Ashroy, Saranagati & Prerana Festival.',
-      descBn: 'সঙ্কল্প, স্ফূর্তি, উৎকর্ষ, নিষ্ঠা, আশ্রয়, শরণাগতি ও প্রেরণা যুব উৎসব।',
-      categoryEn: 'Camps & Yatras',
-      categoryBn: 'ক্যাম্প ও যাত্রা',
+      titleEn: 'Official VOICE Residential Camps',
+      titleBn: 'অফিসিয়াল ভয়েস আবাসিক ক্যাম্পসমূহ',
+      descEn: 'Sankalpa, Sphurti, Utsaha, Utkarsha, SRCGD, Nistha, FTW, FEC, Ashraya, Sharanagati & Sabha Camps.',
+      descBn: 'সংকল্প, স্ফূর্তি, উৎসাহ, উৎকর্ষ, SRCGD, নিষ্ঠা, FTW, FEC, আশ্রয়, শরণাগতি ও সভা ক্যাম্পসমূহ।',
+      categoryEn: 'Camps & Retreats',
+      categoryBn: 'ক্যাম্প ও রিট্রিট',
       categoryType: 'STUDY',
       icon: Tent,
       link: '/camps',
@@ -209,8 +209,8 @@ export const HubHome: React.FC = () => {
         badgeText: 'text-amber-700 dark:text-amber-300',
         glow: 'rgba(245, 158, 11, 0.2)'
       },
-      badgeEn: '6 Step Camps',
-      badgeBn: '৬টি ক্যাম্প',
+      badgeEn: '13 Official Camps',
+      badgeBn: '১৩টি ক্যাম্প',
       isMemberOnly: false
     },
     {

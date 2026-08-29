@@ -14,11 +14,19 @@ export const CampsPage: React.FC = () => {
   const { language } = useLanguage();
   const [selectedCamp, setSelectedCamp] = useState<CampDetailItem>(DETAILED_CAMPS_DATA[0]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedYear, setSelectedYear] = useState<string>('ALL');
 
   const filteredCamps = DETAILED_CAMPS_DATA.filter(camp => {
-    return camp.titleEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesSearch = camp.titleEn.toLowerCase().includes(searchQuery.toLowerCase()) ||
       camp.titleBn.toLowerCase().includes(searchQuery.toLowerCase()) ||
       camp.locationEn.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (selectedYear === 'ALL') return matchesSearch;
+    if (selectedYear === 'Y1') return matchesSearch && (camp.categoryEn.includes('First Year') || camp.id.includes('sankalpa') || camp.id.includes('sphurti') || camp.id.includes('utsaha') || camp.id.includes('utkarsha'));
+    if (selectedYear === 'Y2') return matchesSearch && (camp.categoryEn.includes('Second Year') || camp.id.includes('srcgd') || camp.id.includes('nistha') || camp.id.includes('ftw') || camp.id.includes('fec') || camp.id.includes('dys_pt'));
+    if (selectedYear === 'Y3') return matchesSearch && (camp.categoryEn.includes('Third') || camp.id.includes('ashraya') || camp.id.includes('gauranga') || camp.id.includes('nityananda'));
+    if (selectedYear === 'Y4') return matchesSearch && (camp.categoryEn.includes('Fourth') || camp.id.includes('sharanagati') || camp.id.includes('gauranga') || camp.id.includes('nityananda'));
+    return matchesSearch;
   });
 
   const handleRegisterWhatsApp = (camp: CampDetailItem) => {
@@ -58,12 +66,12 @@ export const CampsPage: React.FC = () => {
               <span>Advaita VOICE • Youth Retreats &amp; Holy Dham Yatras</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
-              {language === 'bn' ? 'বার্ষিক ইয়ুথ ক্যাম্প, রিট্রিট ও ধাম পরিক্রমা' : 'Youth Retreats, Camps & Dham Yatras'}
+              {language === 'bn' ? 'অফিসিয়াল ৪-বর্ষীয় আবাসিক ক্যাম্প ও কর্মশালা' : 'Official 4-Year VOICE Residential Camps'}
             </h1>
             <p className="text-xs sm:text-sm text-amber-100 max-w-2xl leading-relaxed">
               {language === 'bn'
-                ? 'বান্দরবান আবাসিক যুব রিট্রিট, উদ্ঘোষ মেগা ফেস্ট, শ্রীমায়াপুর-বৃন্দাবন পরিক্রমা ও সাপ্তাহিক আশ্রমিক সাধনা ক্যাম্পের বিস্তারিত সূচি।'
-                : 'Full details, day-by-day schedules, packing guidelines, and 1-tap registration for residential retreats and holy pilgrimages.'}
+                ? 'সংকল্প, স্ফূর্তি, উৎসাহ, উৎকর্ষ, SRCGD, নিষ্ঠা, FTW, FEC, আশ্রয়, শরণাগতি ও সভা ক্যাম্পের প্রামাণিক সিলেবাস ও বিস্তারিত সূচি।'
+                : 'Official syllabus guidelines, schedules, prerequisites, and registration for all 13 accredited residential camps.'}
             </p>
           </div>
         </div>
@@ -77,11 +85,34 @@ export const CampsPage: React.FC = () => {
               
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
-                  {language === 'bn' ? 'ক্যাম্প ও রিট্রিট তালিকা' : 'Camps & Retreats'}
+                  {language === 'bn' ? 'অফিসিয়াল ক্যাম্প তালিকা' : 'Official VOICE Camps'}
                 </h3>
-                <span className="text-[10px] font-bold text-slate-400">
-                  6 Sacred Step Camps
+                <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 font-mono px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40">
+                  13 Real Camps
                 </span>
+              </div>
+
+              {/* Year Filter Tabs */}
+              <div className="flex items-center gap-1 overflow-x-auto pb-1 text-[11px] font-bold">
+                {[
+                  { key: 'ALL', label: 'All (13)' },
+                  { key: 'Y1', label: '1st Year' },
+                  { key: 'Y2', label: '2nd Year' },
+                  { key: 'Y3', label: '3rd Year' },
+                  { key: 'Y4', label: '4th Year' },
+                ].map(tab => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setSelectedYear(tab.key)}
+                    className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                      selectedYear === tab.key
+                        ? 'bg-amber-500 text-slate-950 font-black shadow-xs'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
               </div>
 
               <div className="relative">
