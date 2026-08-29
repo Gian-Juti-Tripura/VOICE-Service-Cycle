@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getStoredNotices, type ManagerAnnouncement } from '../utils/noticesStore';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { FeatureCard } from '../components/hub/FeatureCard';
@@ -19,6 +20,13 @@ export const HubHome: React.FC = () => {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<'ALL' | 'SEVA' | 'STUDY' | 'PREACHING' | 'ORG'>('ALL');
   const [showIskconCenters, setShowIskconCenters] = useState(false);
+  const [liveNotices, setLiveNotices] = useState<ManagerAnnouncement[]>(() => getStoredNotices());
+
+  useEffect(() => {
+    const update = () => setLiveNotices(getStoredNotices());
+    window.addEventListener('advaita_notices_updated', update);
+    return () => window.removeEventListener('advaita_notices_updated', update);
+  }, []);
 
   const isLoggedIn = !!user;
 
@@ -410,8 +418,13 @@ export const HubHome: React.FC = () => {
           </div>
           <div className="relative flex-1 overflow-hidden">
             <div className="animate-marquee whitespace-nowrap flex items-center gap-12 text-[11px] sm:text-xs text-slate-200">
-              <span>📢 <strong className="text-rose-200 font-extrabold">{language === 'bn' ? 'সাপ্তাহিক সাধনা অডিট ও কাউন্সেলিং:' : 'Weekly Sadhana Audit & Counseling:'}</strong> <span className="text-slate-300">{language === 'bn' ? 'শুক্রবার রাত ৮:০০ টার মধ্যে সকল শিক্ষার্থীকে সাধনাপত্র জমা দিতে হবে (কাউন্সেলর ডেস্ক সক্রিয়)।' : 'All counsellees must submit their weekly sadhana log by Friday 8:00 PM.'}</span></span>
-              <span>📢 <strong className="text-rose-200 font-extrabold">{language === 'bn' ? 'সাপ্তাহিক সাধনা অডিট ও কাউন্সেলিং:' : 'Weekly Sadhana Audit & Counseling:'}</strong> <span className="text-slate-300">{language === 'bn' ? 'শুক্রবার রাত ৮:০০ টার মধ্যে সকল শিক্ষার্থীকে সাধনাপত্র জমা দিতে হবে (কাউন্সেলর ডেস্ক সক্রিয়)।' : 'All counsellees must submit their weekly sadhana log by Friday 8:00 PM.'}</span></span>
+              {liveNotices.length > 0 ? (
+                liveNotices.map((n: ManagerAnnouncement, i: number) => (
+                  <span key={i}>📢 <strong className="text-rose-200 font-extrabold">{language === 'bn' ? n.titleBn : n.titleEn} ({n.inchargeNameBn}):</strong> <span className="text-slate-300">{language === 'bn' ? n.descBn : n.descEn}</span></span>
+                ))
+              ) : (
+                <span>📢 <strong className="text-rose-200 font-extrabold">{language === 'bn' ? 'অদ্বৈত ভয়েস ইনচার্জ নোটিশ বোর্ড:' : 'Advaita VOICE Notice Board:'}</strong> <span className="text-slate-300">{language === 'bn' ? 'যেকোনো বিভাগীয় ইনচার্জ ও ব্যবস্থাপক নোটিশ বোর্ডে নতুন নির্দেশনা প্রকাশ করতে পারেন।' : 'Department managers can publish operational notices and directives in real time.'}</span></span>
+              )}
             </div>
           </div>
           <Link to="/announcements" title="View All Notices" className="shrink-0 w-6 h-6 rounded-full bg-rose-500/20 hover:bg-rose-500/35 text-rose-200 z-10 flex items-center justify-center transition-all hover:scale-110 shadow-xs cursor-pointer">

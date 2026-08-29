@@ -3,8 +3,9 @@ import { SPIRITUAL_LEADERSHIP, EXECUTIVE_LEADER, DEPARTMENTS_DATA } from '../../
 import { useLanguage } from '../../context/LanguageContext';
 import { 
   Users, Sparkles, 
-  Phone, ArrowLeft, CheckSquare, Plus
+  Phone, ArrowLeft, CheckSquare, Megaphone, Plus
 } from 'lucide-react';
+import { PostNoticeModal } from '../../components/announcements/PostNoticeModal';
 import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 
@@ -14,6 +15,8 @@ export const AdvaitaOrgPage: React.FC = () => {
   const initialTab = searchParams.get('tab');
 
   const [activeTab, setActiveTab] = useState<'ORG' | 'STUDY_CARE' | 'ALL_DEPTS' | 'FESTIVALS'>((initialTab as any) || 'ORG');
+  const [isNoticeModalOpen, setIsNoticeModalOpen] = useState(false);
+  const [targetNoticeRole, setTargetNoticeRole] = useState<string>('COORDINATOR');
 
   // Study Care Activities Data
   const [studyTasks, setStudyTasks] = useState([
@@ -128,15 +131,27 @@ export const AdvaitaOrgPage: React.FC = () => {
                 </p>
               </div>
 
-              {EXECUTIVE_LEADER.phone && (
-                <a 
-                  href={`tel:${EXECUTIVE_LEADER.phone}`} 
-                  className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold inline-flex items-center gap-1.5 shrink-0 shadow-sm"
+              <div className="flex items-center gap-2 flex-wrap shrink-0">
+                {EXECUTIVE_LEADER.phone && (
+                  <a 
+                    href={`tel:${EXECUTIVE_LEADER.phone}`} 
+                    className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-bold inline-flex items-center gap-1.5 shadow-sm"
+                  >
+                    <Phone size={13} />
+                    <span>{EXECUTIVE_LEADER.phone}</span>
+                  </a>
+                )}
+                <button
+                  onClick={() => {
+                    setTargetNoticeRole('COORDINATOR');
+                    setIsNoticeModalOpen(true);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black inline-flex items-center gap-1.5 shadow-md cursor-pointer transition-all"
                 >
-                  <Phone size={13} />
-                  <span>{EXECUTIVE_LEADER.phone}</span>
-                </a>
-              )}
+                  <Megaphone size={14} />
+                  <span>{language === 'bn' ? '📢 সমন্বয়ক নোটিশ পোস্ট করুন' : '📢 Post Coordinator Notice'}</span>
+                </button>
+              </div>
             </div>
 
             {/* Spiritual Guardians Grid */}
@@ -202,6 +217,19 @@ export const AdvaitaOrgPage: React.FC = () => {
                   ? 'বিশ্ববিদ্যালয় পরীক্ষা প্রস্তুতি, সেমিস্টার স্টাডি সার্কেল, বিসিএস ও চাকরির কুইজ এবং দৈনিক ২ ঘণ্টার পাঠ্যাভ্যাস নিশ্চিতকরণ।'
                   : 'Coordinating university exam schedules, BCS & job preparation quizzes, daily study commitments, and academic tutoring.'}
               </p>
+
+              <div className="pt-2">
+                <button
+                  onClick={() => {
+                    setTargetNoticeRole('STUDY_CARE');
+                    setIsNoticeModalOpen(true);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black inline-flex items-center gap-1.5 shadow-md cursor-pointer transition-all"
+                >
+                  <Megaphone size={14} />
+                  <span>{language === 'bn' ? '📢 স্টাডি কেয়ার নোটিশ পোস্ট করুন (জ্ঞান ও প্রান্ত)' : '📢 Post Study Care Notice'}</span>
+                </button>
+              </div>
             </div>
 
             {/* Study Care 4 Key Pillars */}
@@ -306,7 +334,7 @@ export const AdvaitaOrgPage: React.FC = () => {
                   key={dept.id}
                   className="rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-2 flex flex-col justify-between"
                 >
-                  <div>
+                  <div className="space-y-2">
                     <span className="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                       {dept.category}
                     </span>
@@ -320,6 +348,28 @@ export const AdvaitaOrgPage: React.FC = () => {
                       {language === 'bn' ? dept.descriptionBn : dept.descriptionEn}
                     </p>
                   </div>
+
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <button
+                      onClick={() => {
+                        const roleMap: Record<string, string> = {
+                          study_care: 'STUDY_CARE',
+                          internal_manager: 'INTERNAL_MGR',
+                          security: 'SECURITY_MGR',
+                          morning_program: 'MORNING_PROG',
+                          kitchen: 'KITCHEN_MGR',
+                          preaching: 'PREACHING',
+                          library: 'LIBRARY'
+                        };
+                        setTargetNoticeRole(roleMap[dept.id] || 'GENERAL');
+                        setIsNoticeModalOpen(true);
+                      }}
+                      className="w-full py-1.5 px-3 rounded-xl bg-slate-100 hover:bg-rose-600 hover:text-white dark:bg-slate-800 dark:hover:bg-rose-600 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Megaphone size={13} />
+                      <span>{language === 'bn' ? '📢 নোটিশ পোস্ট করুন' : '📢 Post Notice'}</span>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -327,6 +377,13 @@ export const AdvaitaOrgPage: React.FC = () => {
         )}
 
       </div>
+
+      {/* Department Notice Modal */}
+      <PostNoticeModal
+        isOpen={isNoticeModalOpen}
+        onClose={() => setIsNoticeModalOpen(false)}
+        initialRoleKey={targetNoticeRole}
+      />
     </div>
   );
 };

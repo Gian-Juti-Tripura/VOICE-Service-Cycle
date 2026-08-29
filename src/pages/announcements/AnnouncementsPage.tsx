@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { MANAGER_ANNOUNCEMENTS, type ManagerAnnouncement } from '../../data/announcementsData';
+import { 
+  getStoredNotices, deleteStoredNotice, clearAllStoredNotices,
+  type ManagerAnnouncement 
+} from '../../utils/noticesStore';
+import { PostNoticeModal } from '../../components/announcements/PostNoticeModal';
 import { 
   Bell, Clock, Share2, ArrowLeft, 
-  AlertTriangle, UserCheck, 
-  Search
+  AlertTriangle, UserCheck, Plus, Trash2,
+  Search, ShieldAlert
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
@@ -13,8 +17,37 @@ export const AnnouncementsPage: React.FC = () => {
   const { language } = useLanguage();
   const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [notices, setNotices] = useState<ManagerAnnouncement[]>([]);
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+  const [activePostRole, setActivePostRole] = useState<string>('COORDINATOR');
 
-  const filteredAnnouncements = MANAGER_ANNOUNCEMENTS.filter(item => {
+  const loadNotices = () => {
+    setNotices(getStoredNotices());
+  };
+
+  useEffect(() => {
+    loadNotices();
+    window.addEventListener('advaita_notices_updated', loadNotices);
+    return () => window.removeEventListener('advaita_notices_updated', loadNotices);
+  }, []);
+
+  const handleDelete = (id: string, title: string) => {
+    if (window.confirm(language === 'bn' ? `আপনি কি "${title}" নোটিশটি মুছে ফেলতে চান?` : `Are you sure you want to delete "${title}"?`)) {
+      deleteStoredNotice(id);
+      loadNotices();
+      toast.success(language === 'bn' ? 'নোটিশ মুছে ফেলা হয়েছে' : 'Notice deleted');
+    }
+  };
+
+  const handleClearAll = () => {
+    if (window.confirm(language === 'bn' ? 'আপনি কি সকল নোটিশ মুছে ফেলতে চান?' : 'Are you sure you want to clear all notices?')) {
+      clearAllStoredNotices();
+      loadNotices();
+      toast.success(language === 'bn' ? 'সকল নোটিশ মুছে ফেলা হয়েছে' : 'All notices cleared');
+    }
+  };
+
+  const filteredAnnouncements = notices.filter(item => {
     const matchesRole = selectedRoleFilter === 'ALL' || item.roleKey === selectedRoleFilter;
     const q = searchQuery.toLowerCase();
     const matchesSearch = item.titleEn.toLowerCase().includes(q) ||
@@ -27,12 +60,21 @@ export const AnnouncementsPage: React.FC = () => {
   });
 
   const handleShareAnnouncementWhatsApp = (item: ManagerAnnouncement) => {
-    const msg = `*📢 আশ্রম নোটিশ — Advaita VOICE*\n` +
-      `📌 *ভূমিকা:* ${item.roleTitleBn} (${item.roleTitleEn})\n` +
-      `👤 *ইনচার্জ:* ${item.inchargeNameBn}\n` +
-      `🔖 *বিষয়:* ${item.titleBn}\n\n` +
-      `📝 ${item.descBn}\n\n` +
-      `⚠️ *করণীয়:* ${item.actionRequiredBn || item.actionRequiredEn}\n\n` +
+    const msg = `*📢 আশ্রম নোটিশ — Advaita VOICE*
+` +
+      `📌 *ভূমিকা:* ${item.roleTitleBn} (${item.roleTitleEn})
+` +
+      `👤 *ইনচার্জ:* ${item.inchargeNameBn}
+` +
+      `🔖 *বিষয়:* ${item.titleBn}
+
+` +
+      `📝 ${item.descBn}
+
+` +
+      (item.actionRequiredBn ? `⚠️ *করণীয়:* ${item.actionRequiredBn}
+
+` : '') +
       `অদ্বৈত ভয়েস, চট্টগ্রাম বিশ্ববিদ্যালয়। 🙏`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
     toast.success(language === 'bn' ? 'নোটিশ হোয়াটসঅ্যাপে শেয়ার করা হয়েছে' : 'Notice shared to WhatsApp');
@@ -41,11 +83,12 @@ export const AnnouncementsPage: React.FC = () => {
   const roles = [
     { key: 'ALL', labelEn: 'All Notices', labelBn: 'সকল নোটিশ' },
     { key: 'COORDINATOR', labelEn: 'Coordinator', labelBn: 'প্রধান সমন্বয়ক' },
+    { key: 'STUDY_CARE', labelEn: 'Study Care', labelBn: 'স্টাডি কেয়ার' },
     { key: 'INTERNAL_MGR', labelEn: 'Internal Manager', labelBn: 'অভ্যন্তরীণ ব্যবস্থাপক' },
     { key: 'MORNING_PROG', labelEn: 'Morning Program', labelBn: 'মর্নিং প্রোগ্রাম' },
     { key: 'SECURITY_MGR', labelEn: 'Security Manager', labelBn: 'নিরাপত্তা ব্যবস্থাপক' },
-    { key: 'STUDY_CARE', labelEn: 'Study Care', labelBn: 'স্টাডি কেয়ার' },
-    { key: 'KITCHEN_MGR', labelEn: 'Kitchen Incharge', labelBn: 'রান্না ও প্রসাদম' }
+    { key: 'KITCHEN_MGR', labelEn: 'Kitchen Incharge', labelBn: 'রান্না ও প্রসাদম' },
+    { key: 'PREACHING', labelEn: 'Preaching', labelBn: 'প্রচার ও যুব উন্নয়ন' },
   ];
 
   return (
@@ -53,7 +96,7 @@ export const AnnouncementsPage: React.FC = () => {
       <div className="max-w-5xl mx-auto space-y-6">
         
         {/* Navigation Bar */}
-        <div className="flex items-center justify-between pb-1">
+        <div className="flex items-center justify-between pb-1 flex-wrap gap-2">
           <Link 
             to="/" 
             className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-rose-600 dark:hover:text-rose-400 shadow-xs hover:shadow-md transition-all duration-200 group shrink-0"
@@ -61,23 +104,40 @@ export const AnnouncementsPage: React.FC = () => {
             <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform text-rose-600 dark:text-rose-400" />
             <span>{language === 'bn' ? 'হাব হোমে ফিরে যান' : 'Back to Hub Home'}</span>
           </Link>
+          
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-2.5 py-1 rounded-full border border-rose-200 dark:border-rose-900">
-              {language === 'bn' ? 'আশ্রম নোটিশ ও ব্যবস্থাপনা পোর্টাল' : 'Ashram Management Notice Board'}
-            </span>
+            {notices.length > 0 && (
+              <button
+                onClick={handleClearAll}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 transition-all flex items-center gap-1 cursor-pointer"
+              >
+                <Trash2 size={13} />
+                <span>{language === 'bn' ? 'সব নোটিশ মুছুন' : 'Clear All'}</span>
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setActivePostRole('COORDINATOR');
+                setIsPostModalOpen(true);
+              }}
+              className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-black shadow-md flex items-center gap-1.5 transition-all cursor-pointer"
+            >
+              <Plus size={15} />
+              <span>{language === 'bn' ? '📢 নতুন নোটিশ পোস্ট করুন' : '📢 Post Notice'}</span>
+            </button>
           </div>
         </div>
 
         {/* Hero Header */}
         <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-rose-900 via-slate-900 to-indigo-950 text-white shadow-xl">
           <div className="relative z-10 space-y-3">
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap justify-between">
               <span className="px-3 py-1 rounded-full bg-white/20 text-xs font-bold backdrop-blur-md inline-flex items-center gap-1.5">
                 <Bell size={13} />
-                <span>অফিসিয়াল ইনচার্জ ও ব্যবস্থাপনা নোটিশ</span>
+                <span>{language === 'bn' ? 'অফিসিয়াল ইনচার্জ ও ব্যবস্থাপনা নোটিশ' : 'Official Management Directives'}</span>
               </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-900 text-[10px] font-extrabold uppercase">
-                Active Directives
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black uppercase tracking-wider">
+                {notices.length} {language === 'bn' ? 'টি সক্রিয় নোটিশ' : 'Live Notices'}
               </span>
             </div>
 
@@ -86,8 +146,8 @@ export const AnnouncementsPage: React.FC = () => {
             </h1>
             <p className="text-xs sm:text-sm text-rose-100 max-w-2xl leading-relaxed">
               {language === 'bn'
-                ? 'অভ্যন্তরীণ ব্যবস্থাপক, নিরাপত্তা ব্যবস্থাপক, প্রধান সমন্বয়ক, মর্নিং প্রোগ্রাম ইনচার্জ, স্টাডি কেয়ার ও রান্নাঘরের দৈনন্দিন নিয়ম ও নোটিশসমূহ।'
-                : 'Directives and daily standard operating procedures for Internal Manager, Security, Morning Program, Study Care, and Coordinators.'}
+                ? 'অভ্যন্তরীণ ব্যবস্থাপক, নিরাপত্তা, প্রধান সমন্বয়ক, মর্নিং প্রোগ্রাম, স্টাডি কেয়ার ও রান্নাঘরের প্রামাণিক নোটিশ ও নির্দেশনা পোস্ট ও পর্যবেক্ষণ প্ল্যাটফর্ম।'
+                : 'Directives and daily standard operating procedures posted in real-time by coordinators, managers, and in-charges.'}
             </p>
           </div>
         </div>
@@ -132,59 +192,102 @@ export const AnnouncementsPage: React.FC = () => {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredAnnouncements.map((item) => (
-              <div
-                key={item.id}
-                className="rounded-3xl p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs hover:shadow-lg hover:border-rose-500/50 transition-all flex flex-col justify-between space-y-4 group"
+          {filteredAnnouncements.length === 0 ? (
+            <div className="p-12 text-center rounded-3xl bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-800 space-y-3">
+              <ShieldAlert size={36} className="mx-auto text-slate-400" />
+              <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
+                {language === 'bn' ? 'বর্তমানে কোনো নোটিশ নেই' : 'No active notices right now'}
+              </h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                {language === 'bn' ? 'যেকোনো বিভাগীয় ইনচার্জ উপরের বোতামে ক্লিক করে নতুন নোটিশ পোস্ট করতে পারেন।' : 'Department managers can post a directive using the button below.'}
+              </p>
+              <button
+                onClick={() => {
+                  setActivePostRole('COORDINATOR');
+                  setIsPostModalOpen(true);
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 text-white text-xs font-black shadow-md hover:bg-rose-500 cursor-pointer"
               >
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between flex-wrap gap-2">
-                    <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900 font-mono">
-                      {language === 'bn' ? item.roleTitleBn : item.roleTitleEn}
-                    </span>
-                    <span className="text-[11px] font-bold text-slate-400 flex items-center gap-1">
-                      <Clock size={12} />
-                      <span>{item.date}</span>
-                    </span>
+                <Plus size={14} />
+                <span>{language === 'bn' ? '📢 প্রথম নোটিশ পোস্ট করুন' : '📢 Post First Notice'}</span>
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredAnnouncements.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-3xl p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs hover:shadow-lg hover:border-rose-500/50 transition-all flex flex-col justify-between space-y-4 group"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <span className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full font-mono ${
+                        item.priority === 'HIGH' ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300' :
+                        item.priority === 'MEDIUM' ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300' :
+                        'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                      }`}>
+                        {language === 'bn' ? item.roleTitleBn : item.roleTitleEn}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-slate-400 font-bold flex items-center gap-1">
+                          <Clock size={12} />
+                          <span>{item.date}</span>
+                        </span>
+                        <button
+                          onClick={() => handleDelete(item.id, item.titleBn)}
+                          title="Delete Notice"
+                          className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+
+                    <h3 className="text-base font-black text-slate-900 dark:text-white leading-snug group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
+                      {language === 'bn' ? item.titleBn : item.titleEn}
+                    </h3>
+
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
+                      <UserCheck size={14} className="text-rose-500 shrink-0" />
+                      <span>{language === 'bn' ? item.inchargeNameBn : item.inchargeNameEn}</span>
+                    </div>
+
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+                      {language === 'bn' ? item.descBn : item.descEn}
+                    </p>
                   </div>
 
-                  <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white group-hover:text-rose-600 transition-colors leading-snug">
-                    {language === 'bn' ? item.titleBn : item.titleEn}
-                  </h3>
+                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                    {item.actionRequiredBn || item.actionRequiredEn ? (
+                      <div className="flex items-center gap-1.5 text-[11px] font-extrabold text-amber-600 dark:text-amber-400 min-w-0">
+                        <AlertTriangle size={13} className="shrink-0" />
+                        <span className="truncate">{language === 'bn' ? item.actionRequiredBn : item.actionRequiredEn}</span>
+                      </div>
+                    ) : <div />}
 
-                  <p className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                    <UserCheck size={13} />
-                    <span>{language === 'bn' ? item.inchargeNameBn : item.inchargeNameEn}</span>
-                  </p>
-
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
-                    {language === 'bn' ? item.descBn : item.descEn}
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
-                  <div className="text-[11px] font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1">
-                    <AlertTriangle size={13} className="shrink-0" />
-                    <span>{language === 'bn' ? item.actionRequiredBn : item.actionRequiredEn}</span>
+                    <button
+                      onClick={() => handleShareAnnouncementWhatsApp(item)}
+                      className="p-2 rounded-xl bg-slate-100 hover:bg-emerald-500 hover:text-white dark:bg-slate-800 dark:hover:bg-emerald-600 text-slate-600 dark:text-slate-300 transition-all cursor-pointer shrink-0"
+                      title="Share to WhatsApp"
+                    >
+                      <Share2 size={14} />
+                    </button>
                   </div>
-
-                  <button
-                    onClick={() => handleShareAnnouncementWhatsApp(item)}
-                    title="Share Notice to WhatsApp"
-                    className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 transition-all cursor-pointer shrink-0"
-                  >
-                    <Share2 size={14} />
-                  </button>
                 </div>
-
-              </div>
-            ))}
-          </div>
-
+              ))}
+            </div>
+          )}
         </div>
 
       </div>
+
+      {/* Post Notice Modal */}
+      <PostNoticeModal
+        isOpen={isPostModalOpen}
+        onClose={() => setIsPostModalOpen(false)}
+        initialRoleKey={activePostRole}
+        onNoticePosted={() => loadNotices()}
+      />
     </div>
   );
 };
