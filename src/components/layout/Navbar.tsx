@@ -6,6 +6,8 @@ import {
   Sparkles, CheckCircle2, User, Flame
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import NotificationSettingsModal from '../notifications/NotificationSettingsModal';
+import { Settings } from 'lucide-react';
 
 export interface NotificationItem {
   id: string;
@@ -61,6 +63,7 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
 
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -171,17 +174,29 @@ const Navbar: React.FC = () => {
                     <div className="flex items-center gap-1.5">
                       <Sparkles size={14} className="text-amber-500" />
                       <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">
-                        {language === 'bn' ? 'বিজ্ঞপ্তি' : 'Notifications'}
+                        {language === 'bn' ? 'বিজ্ঞপ্তি ও অ্যালার্ট' : 'Notifications & Alerts'}
                       </h4>
                     </div>
-                    {unreadCount > 0 && (
-                      <button 
-                        onClick={markAllAsRead} 
-                        className="text-[10px] font-bold text-primary-600 hover:underline dark:text-primary-400"
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setNotifOpen(false);
+                          setSettingsOpen(true);
+                        }}
+                        title="Notification Settings"
+                        className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-amber-500 transition-colors"
                       >
-                        {language === 'bn' ? 'পঠিত চিহ্নিত করুন' : 'Mark all read'}
+                        <Settings size={13} />
                       </button>
-                    )}
+                      {unreadCount > 0 && (
+                        <button 
+                          onClick={markAllAsRead} 
+                          className="text-[10px] font-bold text-amber-600 hover:underline dark:text-amber-400"
+                        >
+                          {language === 'bn' ? 'পঠিত চিহ্নিত করুন' : 'Mark read'}
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <div className="mt-2.5 space-y-2 max-h-72 overflow-y-auto pr-1">
@@ -316,6 +331,7 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       )}
+      <NotificationSettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </nav>
   );
 };
