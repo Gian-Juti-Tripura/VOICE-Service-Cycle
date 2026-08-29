@@ -5,7 +5,7 @@ import {
   ArrowLeft, Calendar, Check, Copy, 
   Sparkles, ChevronLeft, ChevronRight, 
   CheckCircle2, UserPlus, Trash2, ArrowRightLeft,
-  Moon, Sun, Clock, AlertCircle, Edit, Save, X
+  Moon, Sun, Clock, AlertCircle, Edit, Save, X, Send
 } from 'lucide-react';
 import { 
   type GroupType, 
@@ -14,6 +14,8 @@ import {
   EMERGENCY_REASONS, 
   INITIAL_DISCIPLINE_STUDENTS 
 } from '../../data/groupDisciplineData';
+import { shareToWhatsAppOrSystem } from '../../utils/shareUtils';
+import { triggerHaptic } from '../../utils/haptics';
 import toast from 'react-hot-toast';
 
 const STORAGE_STUDENTS_KEY = 'advaita_discipline_students_v2';
@@ -489,7 +491,10 @@ export const AshramDisciplineAudit: React.FC = () => {
             {activeTab === 'VOICE' && (
               <>
                 <button
-                  onClick={() => handleMarkAllOnTime('VOICE')}
+                  onClick={() => {
+                    triggerHaptic('light');
+                    handleMarkAllOnTime('VOICE');
+                  }}
                   className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold hover:bg-emerald-100 transition-all cursor-pointer"
                 >
                   <CheckCircle2 size={14} />
@@ -497,11 +502,30 @@ export const AshramDisciplineAudit: React.FC = () => {
                 </button>
 
                 <button
-                  onClick={() => copyToClipboard(generateVoiceReport(), 'VOICE')}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-sm transition-all cursor-pointer"
+                  onClick={() => {
+                    const report = generateVoiceReport();
+                    shareToWhatsAppOrSystem({
+                      title: 'VOICE Group Discipline Report',
+                      text: report,
+                      successMessage: 'Opening WhatsApp...'
+                    });
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
+                  title="Send via WhatsApp"
+                >
+                  <Send size={14} />
+                  <span>WhatsApp Report</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    triggerHaptic('selection');
+                    copyToClipboard(generateVoiceReport(), 'VOICE');
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-xs font-bold transition-all cursor-pointer"
                 >
                   {copiedVoice ? <Check size={14} /> : <Copy size={14} />}
-                  <span>{copiedVoice ? 'Copied VOICE Report!' : 'Copy VOICE Report (WhatsApp)'}</span>
+                  <span>{copiedVoice ? 'Copied!' : 'Copy'}</span>
                 </button>
               </>
             )}
@@ -509,7 +533,10 @@ export const AshramDisciplineAudit: React.FC = () => {
             {activeTab === 'LOTUS' && (
               <>
                 <button
-                  onClick={() => handleMarkAllOnTime('LOTUS')}
+                  onClick={() => {
+                    triggerHaptic('light');
+                    handleMarkAllOnTime('LOTUS');
+                  }}
                   className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold hover:bg-emerald-100 transition-all cursor-pointer"
                 >
                   <CheckCircle2 size={14} />
@@ -517,26 +544,63 @@ export const AshramDisciplineAudit: React.FC = () => {
                 </button>
 
                 <button
-                  onClick={() => copyToClipboard(generateLotusReport(), 'LOTUS')}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-black text-xs shadow-sm transition-all cursor-pointer"
+                  onClick={() => {
+                    const report = generateLotusReport();
+                    shareToWhatsAppOrSystem({
+                      title: 'Lotus Group Discipline Report',
+                      text: report,
+                      successMessage: 'Opening WhatsApp...'
+                    });
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
+                  title="Send via WhatsApp"
+                >
+                  <Send size={14} />
+                  <span>WhatsApp Report</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    triggerHaptic('selection');
+                    copyToClipboard(generateLotusReport(), 'LOTUS');
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 border border-indigo-500/30 text-xs font-bold transition-all cursor-pointer"
                 >
                   {copiedLotus ? <Check size={14} /> : <Copy size={14} />}
-                  <span>{copiedLotus ? 'Copied Lotus Report!' : 'Copy Lotus Report (WhatsApp)'}</span>
+                  <span>{copiedLotus ? 'Copied!' : 'Copy'}</span>
                 </button>
               </>
             )}
 
             {activeTab === 'ALL' && (
-              <button
-                onClick={() => {
-                  const fullReport = `${generateVoiceReport()}\n-----------------------------\n\n${generateLotusReport()}`;
-                  copyToClipboard(fullReport, 'ALL');
-                }}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white font-black text-xs shadow-sm transition-all cursor-pointer"
-              >
-                {copiedAll ? <Check size={14} /> : <Copy size={14} />}
-                <span>{copiedAll ? 'Copied All Reports!' : 'Copy Combined Report'}</span>
-              </button>
+              <>
+                <button
+                  onClick={() => {
+                    const fullReport = `${generateVoiceReport()}\n-----------------------------\n\n${generateLotusReport()}`;
+                    shareToWhatsAppOrSystem({
+                      title: 'Advaita VOICE Discipline Report',
+                      text: fullReport,
+                      successMessage: 'Opening WhatsApp...'
+                    });
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
+                >
+                  <Send size={14} />
+                  <span>Send All Reports</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    triggerHaptic('selection');
+                    const fullReport = `${generateVoiceReport()}\n-----------------------------\n\n${generateLotusReport()}`;
+                    copyToClipboard(fullReport, 'ALL');
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
+                >
+                  {copiedAll ? <Check size={14} /> : <Copy size={14} />}
+                  <span>{copiedAll ? 'Copied!' : 'Copy All'}</span>
+                </button>
+              </>
             )}
 
             <button

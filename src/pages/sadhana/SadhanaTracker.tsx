@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import { shareToWhatsAppOrSystem } from '../../utils/shareUtils';
+import { triggerHaptic } from '../../utils/haptics';
 
 export const ASHRAM_MEMBERS = [
   'Raghav Kirtan Das',
@@ -281,25 +283,33 @@ export const SadhanaTracker: React.FC = () => {
     toast.success(language === 'bn' ? 'রিপোর্ট কপি হয়েছে! হোয়াটসঅ্যাপে পেস্ট করুন।' : 'Report copied! Ready to paste in WhatsApp.');
   };
 
-  const shareViaWhatsApp = (type: 'DAILY' | 'WEEKLY' | 'MONTHLY') => {
+  const shareViaWhatsApp = async (type: 'DAILY' | 'WEEKLY' | 'MONTHLY') => {
     let report = '';
     if (type === 'DAILY') report = generateDailyReportText();
     else if (type === 'WEEKLY') report = generateWeeklyReportText();
     else report = generateMonthlyReportText();
 
-    const encoded = encodeURIComponent(report);
-    window.open(`https://api.whatsapp.com/send?text=${encoded}`, '_blank');
+    await shareToWhatsAppOrSystem({
+      title: `Advaita VOICE - Sadhana Report (${type})`,
+      text: report,
+      successMessage: 'Opening WhatsApp...'
+    });
   };
 
   // Counselor Actions
   const handleSaveCounselorRemark = () => {
+    triggerHaptic('success');
     localStorage.setItem('voice_counselor_remark', counselorRemarkText);
     toast.success(language === 'bn' ? 'কাউন্সেলর মন্তব্য ও আশীর্বাদ সংরক্ষিত হয়েছে!' : 'Counselor Remark & Blessing saved!');
   };
 
-  const handleBroadcastReminder = () => {
+  const handleBroadcastReminder = async () => {
     const msg = `Hare Krishna Dandavat Pranam to all Counsellees!\nThis is a gentle reminder from ${effectiveCounselorName} to submit today's Sadhana Card (${todayFormatted}). Let us maintain steady 16 rounds and morning Mangalarati. 🙏`;
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+    await shareToWhatsAppOrSystem({
+      title: 'Sadhana Card Reminder',
+      text: msg,
+      successMessage: 'Broadcast reminder opened!'
+    });
   };
 
   return (

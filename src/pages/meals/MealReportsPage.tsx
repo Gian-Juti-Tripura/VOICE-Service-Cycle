@@ -3,8 +3,8 @@ import { useLanguage } from '../../context/LanguageContext';
 import { MealHeader } from '../../components/meals/MealHeader';
 import { ExportPdfButton } from '../../components/meals/ExportPdfButton';
 import { 
-  Copy, Check, MessageSquare, 
-  Printer, Download
+  Copy, Check, 
+  Printer, Download, Send
 } from 'lucide-react';
 import { 
   getStoredMealMembers, 
@@ -15,6 +15,8 @@ import {
 } from '../../data/mealStore';
 import { computeMonthlyReport, getTodayInDhaka } from '../../lib/mealReportingEngine';
 import { type MonthlyRow } from '../../types/mealTypes';
+import { shareToWhatsAppOrSystem } from '../../utils/shareUtils';
+import { triggerHaptic } from '../../utils/haptics';
 import toast from 'react-hot-toast';
 
 export const MealReportsPage: React.FC = () => {
@@ -92,7 +94,29 @@ export const MealReportsPage: React.FC = () => {
     return msg;
   };
 
+  const handleSendGroupReport = async () => {
+    const text = generateGroupReport();
+    await shareToWhatsAppOrSystem({
+      title: `Advaita VOICE - Monthly Prasad Summary (${selectedMonth})`,
+      text,
+      successMessage: 'Opening WhatsApp...'
+    });
+  };
+
+  const handleSendPersonalBill = async (row: MonthlyRow) => {
+    const text = generatePersonalBill(row);
+    setCopiedDevoteeId(row.memberId);
+    setTimeout(() => setCopiedDevoteeId(null), 2000);
+    await shareToWhatsAppOrSystem({
+      title: `${row.name} - Meal Statement`,
+      text,
+      whatsappNumber: row.phone,
+      successMessage: `Statement opened for ${row.name}`
+    });
+  };
+
   const copyToClipboard = async (text: string, devoteeId?: string) => {
+    triggerHaptic('selection');
     try {
       await navigator.clipboard.writeText(text);
       if (devoteeId) {
@@ -111,6 +135,7 @@ export const MealReportsPage: React.FC = () => {
 
   // Export CSV
   const handleExportCSV = () => {
+    triggerHaptic('light');
     let csv = 'Devotee,Phone,PreviousBalance,Meals,MealRate,MealCost,Deposits,FinalBalance,Status\n';
     report.rows.forEach(r => {
       csv += `"${r.name}","${r.phone || ''}",${r.previousBalance},${r.meals},${report.mealRate},${r.mealCost},${r.deposits},${r.finalBalance},"${r.status}"\n`;
@@ -158,11 +183,19 @@ export const MealReportsPage: React.FC = () => {
               />
 
               <button
+                onClick={handleSendGroupReport}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
+              >
+                <Send size={14} />
+                <span>Send WhatsApp Summary</span>
+              </button>
+
+              <button
                 onClick={() => copyToClipboard(generateGroupReport())}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-sm transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 font-bold text-xs transition-all cursor-pointer"
               >
                 {copiedGroupReport ? <Check size={14} /> : <Copy size={14} />}
-                <span>{copiedGroupReport ? 'Copied Summary!' : 'Copy Group Summary (WhatsApp)'}</span>
+                <span>{copiedGroupReport ? 'Copied!' : 'Copy'}</span>
               </button>
 
               <button
@@ -276,16 +309,16 @@ export const MealReportsPage: React.FC = () => {
 
                       <td className="py-3 px-4 text-center">
                         <button
-                          onClick={() => copyToClipboard(generatePersonalBill(row), row.memberId)}
+                          onClick={() => handleSendPersonalBill(row)}
                           className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                             isCopied
                               ? 'bg-emerald-500 text-white shadow-xs'
-                              : 'bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950 text-slate-700 dark:text-slate-300 hover:text-emerald-600 border border-slate-200 dark:border-slate-700'
+                              : 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700'
                           }`}
-                          title="Generate & Copy Personal WhatsApp Bill"
+                          title="Share Personal Bill via WhatsApp"
                         >
-                          {isCopied ? <Check size={13} /> : <MessageSquare size={13} />}
-                          <span>{isCopied ? 'Copied!' : 'Send WhatsApp'}</span>
+                          {isCopied ? <Check size={13} /> : <Send size={13} />}
+                          <span>{isCopied ? 'Sent!' : 'WhatsApp Bill'}</span>
                         </button>
                       </td>
                     </tr>

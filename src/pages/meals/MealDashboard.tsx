@@ -19,6 +19,8 @@ import {
 } from '../../data/mealStore';
 import { computeMonthlyReport, getTodayInDhaka } from '../../lib/mealReportingEngine';
 import { type MonthlyRow } from '../../types/mealTypes';
+import { shareToWhatsAppOrSystem } from '../../utils/shareUtils';
+import { triggerHaptic } from '../../utils/haptics';
 import toast from 'react-hot-toast';
 
 const STORAGE_MONTH_MANAGERS = 'advaita_month_managers_v1';
@@ -142,6 +144,7 @@ export const MealDashboard: React.FC = () => {
   const totalBalance = report.rows.reduce((sum, r) => sum + r.finalBalance, 0);
 
   const toggleMonthLock = () => {
+    triggerHaptic('heavy');
     const nextState = !isLocked;
     setMonthLocks(prev => ({ ...prev, [selectedMonth]: nextState }));
     toast.success(nextState ? `Month ${selectedMonth} is now LOCKED 🔒` : `Month ${selectedMonth} is now UNLOCKED 🔓`);
@@ -150,6 +153,7 @@ export const MealDashboard: React.FC = () => {
   const handleSaveMealOverride = (memberId: string, value: string) => {
     const num = parseFloat(value);
     if (isNaN(num) || num < 0) return;
+    triggerHaptic('light');
     setMonthlyMealOverrides(prev => ({ ...prev, [`${memberId}_${selectedMonth}`]: num }));
     toast.success('Updated member total meals');
   };
@@ -179,14 +183,14 @@ export const MealDashboard: React.FC = () => {
     }
     msg += `\n🙏 Haribol! Please contact Kitchen Incharge for any queries.\n`;
 
-    try {
-      await navigator.clipboard.writeText(msg);
-      setCopiedDevoteeId(row.memberId);
-      setTimeout(() => setCopiedDevoteeId(null), 2000);
-      toast.success(`Personal bill copied for ${row.name}`);
-    } catch {
-      toast.error('Failed to copy');
-    }
+    setCopiedDevoteeId(row.memberId);
+    setTimeout(() => setCopiedDevoteeId(null), 2000);
+
+    await shareToWhatsAppOrSystem({
+      title: `${row.name} - Meal Statement`,
+      text: msg,
+      successMessage: `Statement opened for ${row.name}`
+    });
   };
 
   return (

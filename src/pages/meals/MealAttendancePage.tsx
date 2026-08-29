@@ -12,6 +12,7 @@ import {
   saveStoredMealOverrides 
 } from '../../data/mealStore';
 import { type MealMember, type MealOverride } from '../../types/mealTypes';
+import { triggerHaptic } from '../../utils/haptics';
 import toast from 'react-hot-toast';
 
 export const MealAttendancePage: React.FC = () => {
@@ -34,6 +35,7 @@ export const MealAttendancePage: React.FC = () => {
   });
 
   const changeDate = (days: number) => {
+    triggerHaptic('light');
     const next = new Date(selectedDate);
     next.setDate(next.getDate() + days);
     setSelectedDate(next);
@@ -54,6 +56,7 @@ export const MealAttendancePage: React.FC = () => {
 
   // Update specific meal for a devotee
   const toggleMeal = (memberId: string, mealKey: 'breakfast' | 'lunch' | 'dinner') => {
+    triggerHaptic('light');
     const current = getMemberMeal(memberId);
     const updated: MealOverride = {
       ...current,
@@ -68,6 +71,7 @@ export const MealAttendancePage: React.FC = () => {
 
   // Bulk actions for today
   const handleBulkToggle = (action: 'ALL_ON' | 'ALL_OFF' | 'LUNCH_OFF' | 'DINNER_OFF') => {
+    triggerHaptic('medium');
     const activeMembers = members.filter(m => m.status === 'ACTIVE');
     
     setOverrides(prev => {

@@ -3,7 +3,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { MealHeader } from '../../components/meals/MealHeader';
 import { 
   ShoppingCart, Plus, Trash2, Search, 
-  X
+  X, Camera, Image as ImageIcon, Eye
 } from 'lucide-react';
 import { 
   getStoredBazar, 
@@ -13,6 +13,7 @@ import {
 } from '../../data/mealStore';
 import { type BazarEntry, type BazarCategory } from '../../types/mealTypes';
 import { getTodayInDhaka } from '../../lib/mealReportingEngine';
+import { triggerHaptic } from '../../utils/haptics';
 import toast from 'react-hot-toast';
 
 export const BazarTrackerPage: React.FC = () => {
@@ -31,6 +32,8 @@ export const BazarTrackerPage: React.FC = () => {
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(today.dateStr);
   const [notes, setNotes] = useState('');
+  const [receiptImage, setReceiptImage] = useState<string | null>(null);
+  const [previewReceiptUrl, setPreviewReceiptUrl] = useState<string | null>(null);
 
   // Search & Category Filter
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,6 +61,52 @@ export const BazarTrackerPage: React.FC = () => {
       .reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
   }, [bazarList, selectedMonth]);
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxDim = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          }
+        } else {
+          if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+          setReceiptImage(compressedBase64);
+          triggerHaptic('light');
+          toast.success('Receipt photo attached!', { icon: '📸' });
+        }
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleAddBazar = (e: React.FormEvent) => {
     e.preventDefault();
     const numAmount = parseFloat(amount);
@@ -80,6 +129,7 @@ export const BazarTrackerPage: React.FC = () => {
       category,
       items: items.trim(),
       amount: numAmount,
+      receiptImage: receiptImage || undefined,
       notes: notes.trim() || undefined,
       createdAt: new Date().toISOString()
     };
@@ -88,11 +138,14 @@ export const BazarTrackerPage: React.FC = () => {
     setItems('');
     setAmount('');
     setNotes('');
+    setReceiptImage(null);
     setIsAddModalOpen(false);
+    triggerHaptic('success');
     toast.success(language === 'bn' ? 'বাজার খরচ সংরক্ষিত হয়েছে!' : 'Bazar entry recorded!');
   };
 
   const handleDeleteBazar = (id: string) => {
+    triggerHaptic('warning');
     if (!window.confirm('Delete this bazar entry?')) return;
     setBazarList(prev => prev.filter(b => b.id !== id));
     toast.success('Deleted entry');
@@ -216,6 +269,19 @@ export const BazarTrackerPage: React.FC = () => {
                       <p className="text-[11px] text-slate-400 italic">
                         Note: {item.notes}
                       </p>
+                    )}
+
+                    {item.receiptImage && (
+                      <button
+                        onClick={() => {
+                          triggerHaptic('light');
+                          setPreviewReceiptUrl(item.receiptImage!);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-[11px] font-bold transition-all w-fit cursor-pointer"
+                      >
+                        <Eye size={13} className="text-indigo-500" />
+                        <span>{language === 'bn' ? 'রসিদের ছবি দেখুন' : 'View Receipt Photo'}</span>
+                      </button>
                     )}
                   </div>
 
@@ -353,6 +419,58 @@ export const BazarTrackerPage: React.FC = () => {
                 />
               </div>
 
+              {/* Receipt Photo Attachment (Android Camera & Gallery) */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  {language === 'bn' ? 'রসিদের ছবি (Camera / Gallery)' : 'Receipt Photo (Camera / Gallery)'}
+                </label>
+                
+                {receiptImage ? (
+                  <div className="relative rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/30 p-2.5 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <img src={receiptImage} alt="Receipt preview" className="w-11 h-11 rounded-xl object-cover border border-emerald-400" />
+                      <div>
+                        <div className="text-xs font-bold text-emerald-800 dark:text-emerald-300">Photo Attached ✓</div>
+                        <div className="text-[10px] text-slate-400">Compressed & ready to save</div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setReceiptImage(null)}
+                      className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-950/50 transition-colors"
+                      title="Remove Photo"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="flex items-center justify-center gap-2 p-2.5 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-amber-500 bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 text-xs font-bold cursor-pointer transition-colors">
+                      <Camera size={15} className="text-amber-500" />
+                      <span>{language === 'bn' ? 'ক্যামেরা ছবি' : 'Take Photo'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                    </label>
+
+                    <label className="flex items-center justify-center gap-2 p-2.5 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-indigo-500 bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 text-xs font-bold cursor-pointer transition-colors">
+                      <ImageIcon size={15} className="text-indigo-500" />
+                      <span>{language === 'bn' ? 'গ্যালারি আপলোড' : 'From Gallery'}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                )}
+              </div>
+
               <div className="flex items-center gap-2 pt-2">
                 <button
                   type="button"
@@ -370,6 +488,46 @@ export const BazarTrackerPage: React.FC = () => {
               </div>
 
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen Receipt Image Viewer Modal */}
+      {previewReceiptUrl && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+          onClick={() => setPreviewReceiptUrl(null)}
+        >
+          <div className="relative max-w-lg w-full bg-slate-900 rounded-3xl p-4 border border-slate-800 shadow-2xl space-y-3" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between text-white pb-2 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <Camera size={18} className="text-amber-400" />
+                <span className="font-bold text-sm">Receipt Snapshot</span>
+              </div>
+              <button 
+                onClick={() => setPreviewReceiptUrl(null)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div className="rounded-2xl overflow-hidden bg-black flex items-center justify-center max-h-[70vh]">
+              <img 
+                src={previewReceiptUrl} 
+                alt="Bazar Receipt full" 
+                className="w-full h-full object-contain max-h-[70vh]" 
+              />
+            </div>
+
+            <div className="text-center pt-1">
+              <button
+                onClick={() => setPreviewReceiptUrl(null)}
+                className="px-6 py-2 rounded-xl bg-slate-800 text-white font-bold text-xs hover:bg-slate-700 cursor-pointer"
+              >
+                Close Viewer
+              </button>
+            </div>
           </div>
         </div>
       )}
