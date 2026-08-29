@@ -211,7 +211,6 @@ export const AshramDisciplineAudit: React.FC = () => {
 
     let report = `🌟 *ADVAITA VOICE — MORNING PROGRAM & DISCIPLINE REPORT* 🌟\n`;
     report += `📅 *Date:* ${dateFormatted}\n`;
-    report += `👤 *To Counselor:* HG Rasavihari Krishna Chandra Das\n`;
     report += `📋 *Group:* VOICE Group (Bed: <10:00 PM | Wake: 4:00 AM | MP: <4:30 AM)\n\n`;
 
     report += `✅ *All Rules Followed (On Time - ${compliant.length}/${voiceStudents.length}):*\n`;
@@ -263,7 +262,6 @@ export const AshramDisciplineAudit: React.FC = () => {
 
     let report = `🪷 *ADVAITA VOICE — LOTUS GROUP DISCIPLINE REPORT* 🪷\n`;
     report += `📅 *Date:* ${dateFormatted}\n`;
-    report += `👤 *To Counselor:* HG Rasavihari Krishna Chandra Das\n`;
     report += `📋 *Group:* Lotus Group (Bed: <11:00 PM | MP: <5:00 AM)\n\n`;
 
     report += `✅ *All Rules Followed (On Time - ${compliant.length}/${lotusStudents.length}):*\n`;
