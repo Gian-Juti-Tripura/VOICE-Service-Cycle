@@ -486,13 +486,13 @@ export const HubHome: React.FC = () => {
               </div>
             </div>
 
-            {/* Symmetrical 2-Column Action Grid (Clear, Fully Readable, Unclipped Labels) */}
+            {/* Symmetrical 2-Column Action Grid with Harmonized Luxury Gold & Glass Styling */}
             <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-2">
               
               {/* 1. Counselor Desk */}
               <button
                 onClick={() => navigate('/counselor')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
+                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
                 <ShieldCheck size={15} className="shrink-0 text-slate-950" />
                 <span className="text-[10.5px] xs:text-[11.5px] sm:text-xs font-black tracking-tight whitespace-nowrap">
@@ -503,9 +503,9 @@ export const HubHome: React.FC = () => {
               {/* 2. Digital Sadhana */}
               <button
                 onClick={() => navigate('/sadhana')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
+                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
-                <HeartHandshake size={15} className="shrink-0 text-indigo-200" />
+                <HeartHandshake size={15} className="shrink-0 text-amber-300" />
                 <span className="text-[10.5px] xs:text-[11.5px] sm:text-xs font-bold tracking-tight whitespace-nowrap">
                   {language === 'bn' ? 'ডিজিটাল সাধনা' : 'Digital Sadhana'}
                 </span>
@@ -514,9 +514,9 @@ export const HubHome: React.FC = () => {
               {/* 3. Sebananda Library */}
               <button
                 onClick={() => navigate('/library')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
+                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
-                <BookOpen size={15} className="shrink-0 text-emerald-200" />
+                <BookOpen size={15} className="shrink-0 text-amber-300" />
                 <span className="text-[10.5px] xs:text-[11.5px] sm:text-xs font-bold tracking-tight whitespace-nowrap">
                   {language === 'bn' ? 'সেবানন্দ লাইব্রেরি' : 'Sebananda Library'}
                 </span>
@@ -525,9 +525,9 @@ export const HubHome: React.FC = () => {
               {/* 4. Daily Service Duty */}
               <button
                 onClick={() => navigate(isLoggedIn ? '/member' : '/login')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-teal-600 hover:bg-teal-500 text-white font-bold flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
+                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
-                <RefreshCw size={15} className="shrink-0 text-teal-200" />
+                <RefreshCw size={15} className="shrink-0 text-amber-300" />
                 <span className="text-[10.5px] xs:text-[11.5px] sm:text-xs font-bold tracking-tight whitespace-nowrap">
                   {language === 'bn' ? 'আমার দৈনিক সেবা' : 'My Daily Seva'}
                 </span>
@@ -536,9 +536,9 @@ export const HubHome: React.FC = () => {
               {/* 5. Full VOICE Syllabus & Lectures */}
               <button
                 onClick={() => navigate('/syllabus')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-bold flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
+                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
-                <Compass size={15} className="shrink-0 text-rose-200" />
+                <Compass size={15} className="shrink-0 text-amber-300" />
                 <span className="text-[10.5px] xs:text-[11.5px] sm:text-xs font-bold tracking-tight whitespace-nowrap">
                   {language === 'bn' ? 'ভয়েস সিলেবাস' : 'Voice Syllabus'}
                 </span>
@@ -547,9 +547,9 @@ export const HubHome: React.FC = () => {
               {/* 6. Announcements & Notices */}
               <button
                 onClick={() => navigate('/announcements')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-bold flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
+                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
-                <Bell size={15} className="shrink-0 text-purple-200" />
+                <Bell size={15} className="shrink-0 text-amber-300" />
                 <span className="text-[10.5px] xs:text-[11.5px] sm:text-xs font-bold tracking-tight whitespace-nowrap">
                   {language === 'bn' ? 'ইনচার্জ নোটিশ' : 'Incharge Notices'}
                 </span>

@@ -32,13 +32,13 @@ export const FloatingActionBar: React.FC = () => {
   };
 
   return (
-    <aside aria-label="Quick Actions" className="fixed bottom-5 right-5 z-50 flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-900/90 dark:bg-slate-800/90 text-white backdrop-blur-xl border border-white/20 shadow-2xl transition-all duration-300 hover:scale-102">
+    <aside aria-label="Quick Actions" className="fixed bottom-5 right-5 z-50 flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-950/90 dark:bg-slate-900/90 text-white backdrop-blur-2xl border border-amber-500/30 shadow-[0_10px_35px_rgba(0,0,0,0.5)] transition-all duration-300">
       {/* Back Button (shown if not home) */}
       {location.pathname !== '/' && (
         <button
           onClick={handleBack}
           title="Go Back"
-          className="flex items-center gap-1 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition-all cursor-pointer"
+          className="flex items-center gap-1 px-3 py-2 rounded-xl bg-white/10 hover:bg-amber-500/20 text-xs font-bold text-amber-300 hover:text-amber-200 border border-white/10 transition-all cursor-pointer"
         >
           <ArrowLeft size={14} className="text-amber-400" />
           <span className="hidden sm:inline">Back</span>
@@ -50,9 +50,9 @@ export const FloatingActionBar: React.FC = () => {
         <button
           onClick={() => navigate('/')}
           title="Hub Home"
-          className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition-all cursor-pointer"
+          className="p-2 rounded-xl bg-white/10 hover:bg-amber-500/20 text-xs font-bold text-amber-300 hover:text-amber-200 border border-white/10 transition-all cursor-pointer"
         >
-          <Home size={15} className="text-emerald-400" />
+          <Home size={15} className="text-amber-300" />
         </button>
       )}
 
@@ -61,9 +61,9 @@ export const FloatingActionBar: React.FC = () => {
         <button
           onClick={() => navigate('/library')}
           title="Sebananda E-Library"
-          className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition-all cursor-pointer"
+          className="p-2 rounded-xl bg-white/10 hover:bg-amber-500/20 text-xs font-bold text-amber-300 hover:text-amber-200 border border-white/10 transition-all cursor-pointer"
         >
-          <BookOpen size={15} className="text-indigo-400" />
+          <BookOpen size={15} className="text-amber-300" />
         </button>
       )}
 
@@ -72,9 +72,9 @@ export const FloatingActionBar: React.FC = () => {
         <button
           onClick={() => navigate('/sadhana')}
           title="Digital Sadhana Sheet"
-          className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold transition-all cursor-pointer"
+          className="p-2 rounded-xl bg-white/10 hover:bg-amber-500/20 text-xs font-bold text-amber-300 hover:text-amber-200 border border-white/10 transition-all cursor-pointer"
         >
-          <HeartHandshake size={15} className="text-rose-400" />
+          <HeartHandshake size={15} className="text-amber-300" />
         </button>
       )}
 
@@ -83,7 +83,7 @@ export const FloatingActionBar: React.FC = () => {
         <button
           onClick={scrollToTop}
           title="Scroll to Top"
-          className="p-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black transition-all cursor-pointer animate-bounce"
+          className="p-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black shadow-md transition-all cursor-pointer"
         >
           <ArrowUp size={15} />
         </button>
