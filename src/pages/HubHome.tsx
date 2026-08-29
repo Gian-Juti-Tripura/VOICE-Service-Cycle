@@ -499,20 +499,33 @@ export const HubHome: React.FC = () => {
                 </div>
               </div>
 
-              {/* Restyled Names & Sacred Motto */}
-              <div className="space-y-1 text-center sm:text-left flex-1 min-w-0">
-                <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/10 text-amber-300 font-mono text-[10.5px] sm:text-[11.5px] font-extrabold uppercase tracking-wider border border-white/15 backdrop-blur-md">
-                  <Sparkles size={12} className="text-amber-400 shrink-0" />
-                  <span>{language === 'bn' ? 'অদ্বৈত ভয়েস, চট্টগ্রাম বিশ্ববিদ্যালয়' : 'ADVAITA VOICE, University of Chittagong'}</span>
+              {/* Restyled Names & Sacred Motto (Prestigious, Non-redundant Hierarchy) */}
+              <div className="space-y-2 text-center sm:text-left flex-1 min-w-0">
+                
+                {/* Prestigious Eyebrow: Full Meaning of VOICE */}
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 font-mono text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest border border-amber-400/25 backdrop-blur-md">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  <span>{language === 'bn' ? 'বৈদিক ওয়েসিস ফর ইন্সপায়ারেশন, কালচার অ্যান্ড এডুকেশন' : 'Vedic Oasis for Inspiration, Culture & Education'}</span>
                 </div>
                 
-                <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none bg-gradient-to-r from-amber-200 via-orange-100 to-white bg-clip-text text-transparent drop-shadow-sm whitespace-nowrap">
-                  {language === 'bn' ? 'অদ্বৈত ভয়েস হাব' : 'Advaita VOICE Hub'}
-                </h1>
-                
-                <p className="text-xs sm:text-sm text-amber-200 font-serif italic tracking-wide pt-0.5">
-                  "{language === 'bn' ? VOICE_HANDBOOK_DATA.mottoBn : VOICE_HANDBOOK_DATA.mottoEn}"
-                </p>
+                {/* Main Heading & Chapter Subtitle */}
+                <div className="space-y-1">
+                  <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight bg-gradient-to-r from-amber-100 via-amber-50 to-white bg-clip-text text-transparent drop-shadow-md">
+                    {language === 'bn' ? 'অদ্বৈত ভয়েস হাব' : 'Advaita VOICE Hub'}
+                  </h1>
+                  
+                  {/* University Affiliation & Sacred Motto Bar */}
+                  <div className="flex items-center justify-center sm:justify-start flex-wrap gap-2 text-xs sm:text-sm font-semibold text-amber-300/90 font-mono">
+                    <span className="inline-flex items-center gap-1 text-amber-300 font-bold bg-white/5 px-2.5 py-0.5 rounded-lg border border-white/10">
+                      <MapPin size={12} className="text-amber-400" />
+                      {language === 'bn' ? 'চট্টগ্রাম বিশ্ববিদ্যালয় শাখা' : 'University of Chittagong'}
+                    </span>
+                    <span className="text-white/30 hidden sm:inline">•</span>
+                    <span className="text-amber-200/90 font-serif italic text-xs sm:text-sm">
+                      "{language === 'bn' ? VOICE_HANDBOOK_DATA.mottoBn : VOICE_HANDBOOK_DATA.mottoEn}"
+                    </span>
+                  </div>
+                </div>
               </div>
 
             </div>
