@@ -379,42 +379,44 @@ export const HubHome: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50/40 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
       
-      {/* ================= TOP TWO-ROW MOVING NOTICES & UPCOMING FESTIVAL MARQUEE ================= */}
-      <div className="w-full shadow-sm text-white text-xs font-bold divide-y divide-white/10 select-none">
+      {/* ================= ULTRA-STYLISH TWO-ROW GLASSMARQUEE TICKER ================= */}
+      <div className="w-full shadow-md text-white text-xs font-bold divide-y divide-white/10 select-none backdrop-blur-xl">
         
-        {/* Row 1: ONLY Most Recent Upcoming Festival Marquee */}
-        <div className="bg-gradient-to-r from-amber-700 via-orange-600 to-amber-800 py-1.5 px-3 sm:px-4 flex items-center gap-2.5 overflow-hidden">
-          <div className="flex items-center gap-1 shrink-0 z-10 bg-amber-950/50 px-2 py-0.5 rounded-md border border-amber-400/30">
-            <span className="text-[10px] uppercase tracking-wider font-mono font-black text-amber-200">
+        {/* Row 1: Royal Saffron & Rose Gold Festival Marquee */}
+        <div className="bg-gradient-to-r from-amber-600/95 via-orange-600/95 to-amber-700/95 py-2 px-3.5 sm:px-6 flex items-center gap-3 overflow-hidden border-b border-amber-500/20">
+          <div className="flex items-center gap-1.5 shrink-0 z-10 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md border border-white/40 shadow-xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-300 animate-pulse" />
+            <span className="text-[10px] uppercase tracking-wider font-mono font-black text-white">
               {language === 'bn' ? '🌸 উৎসব' : '🌸 FEAST'}
             </span>
           </div>
           <div className="relative flex-1 overflow-hidden">
             <div className="animate-marquee whitespace-nowrap flex items-center gap-12 text-[11px] sm:text-xs">
-              <span>🌸 <strong>{language === 'bn' ? 'শ্রীকৃষ্ণ জন্মাষ্টমী (৪ সেপ্টেম্বর ২০২৬):' : 'Sri Krishna Janmastami (04 Sep 2026):'}</strong> {language === 'bn' ? 'মধ্যরাত ১২:০০ পর্যন্ত নির্জলা/সজল উপবাস ও রাত ১২টায় মহাভিষেক এবং আনন্দ উৎসব।' : 'Fasting till midnight 12:00 AM • Mahabhisheka & Feast!'}</span>
-              <span>🌸 <strong>{language === 'bn' ? 'শ্রীকৃষ্ণ জন্মাষ্টমী (৪ সেপ্টেম্বর ২০২৬):' : 'Sri Krishna Janmastami (04 Sep 2026):'}</strong> {language === 'bn' ? 'মধ্যরাত ১২:০০ পর্যন্ত নির্জলা/সজল উপবাস ও রাত ১২টায় মহাভিষেক এবং আনন্দ উৎসব।' : 'Fasting till midnight 12:00 AM • Mahabhisheka & Feast!'}</span>
+              <span>🌸 <strong className="text-amber-100 font-extrabold">{language === 'bn' ? 'শ্রীকৃষ্ণ জন্মাষ্টমী (৪ সেপ্টেম্বর ২০২৬):' : 'Sri Krishna Janmastami (04 Sep 2026):'}</strong> <span className="text-white/90">{language === 'bn' ? 'মধ্যরাত ১২:০০ পর্যন্ত নির্জলা/সজল উপবাস ও রাত ১২টায় মহাভিষেক এবং আনন্দ উৎসব।' : 'Fasting till midnight 12:00 AM • Mahabhisheka & Feast!'}</span></span>
+              <span>🌸 <strong className="text-amber-100 font-extrabold">{language === 'bn' ? 'শ্রীকৃষ্ণ জন্মাষ্টমী (৪ সেপ্টেম্বর ২০২৬):' : 'Sri Krishna Janmastami (04 Sep 2026):'}</strong> <span className="text-white/90">{language === 'bn' ? 'মধ্যরাত ১২:০০ পর্যন্ত নির্জলা/সজল উপবাস ও রাত ১২টায় মহাভিষেক এবং আনন্দ উৎসব।' : 'Fasting till midnight 12:00 AM • Mahabhisheka & Feast!'}</span></span>
             </div>
           </div>
-          <Link to="/calendar" title="View Calendar" className="shrink-0 p-1 hover:bg-white/20 rounded-md text-amber-200 z-10 flex items-center justify-center transition-colors">
-            <ArrowRight size={15} />
+          <Link to="/calendar" title="View Full Calendar" className="shrink-0 w-6 h-6 rounded-full bg-white/20 hover:bg-white/35 text-white z-10 flex items-center justify-center transition-all hover:scale-110 shadow-xs cursor-pointer">
+            <ArrowRight size={13} />
           </Link>
         </div>
 
-        {/* Row 2: ONLY Most Recent Active Incharge & Admin Announcement Marquee */}
-        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 py-1.5 px-3 sm:px-4 flex items-center gap-2.5 overflow-hidden">
-          <div className="flex items-center gap-1 shrink-0 z-10 bg-rose-950/60 px-2 py-0.5 rounded-md border border-rose-400/30">
-            <span className="text-[10px] uppercase tracking-wider font-mono font-black text-rose-300">
+        {/* Row 2: Deep Indigo & Ruby Incharge Announcement Marquee */}
+        <div className="bg-gradient-to-r from-slate-950/95 via-indigo-950/95 to-slate-950/95 py-2 px-3.5 sm:px-6 flex items-center gap-3 overflow-hidden border-b border-indigo-500/20">
+          <div className="flex items-center gap-1.5 shrink-0 z-10 px-2.5 py-0.5 rounded-full bg-rose-500/25 backdrop-blur-md border border-rose-400/40 shadow-xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+            <span className="text-[10px] uppercase tracking-wider font-mono font-black text-rose-200">
               {language === 'bn' ? '📢 নোটিশ' : '📢 NOTICE'}
             </span>
           </div>
           <div className="relative flex-1 overflow-hidden">
             <div className="animate-marquee whitespace-nowrap flex items-center gap-12 text-[11px] sm:text-xs text-slate-200">
-              <span>📢 <strong>{language === 'bn' ? 'সাপ্তাহিক সাধনা অডিট ও কাউন্সেলিং:' : 'Weekly Sadhana Audit & Counseling:'}</strong> {language === 'bn' ? 'শুক্রবার রাত ৮:০০ টার মধ্যে সকল শিক্ষার্থীকে সাধনাপত্র জমা দিতে হবে (কাউন্সেলর ডেস্ক সক্রিয়)।' : 'All counsellees must submit their weekly sadhana log by Friday 8:00 PM.'}</span>
-              <span>📢 <strong>{language === 'bn' ? 'সাপ্তাহিক সাধনা অডিট ও কাউন্সেলিং:' : 'Weekly Sadhana Audit & Counseling:'}</strong> {language === 'bn' ? 'শুক্রবার রাত ৮:০০ টার মধ্যে সকল শিক্ষার্থীকে সাধনাপত্র জমা দিতে হবে (কাউন্সেলর ডেস্ক সক্রিয়)।' : 'All counsellees must submit their weekly sadhana log by Friday 8:00 PM.'}</span>
+              <span>📢 <strong className="text-rose-200 font-extrabold">{language === 'bn' ? 'সাপ্তাহিক সাধনা অডিট ও কাউন্সেলিং:' : 'Weekly Sadhana Audit & Counseling:'}</strong> <span className="text-slate-300">{language === 'bn' ? 'শুক্রবার রাত ৮:০০ টার মধ্যে সকল শিক্ষার্থীকে সাধনাপত্র জমা দিতে হবে (কাউন্সেলর ডেস্ক সক্রিয়)।' : 'All counsellees must submit their weekly sadhana log by Friday 8:00 PM.'}</span></span>
+              <span>📢 <strong className="text-rose-200 font-extrabold">{language === 'bn' ? 'সাপ্তাহিক সাধনা অডিট ও কাউন্সেলিং:' : 'Weekly Sadhana Audit & Counseling:'}</strong> <span className="text-slate-300">{language === 'bn' ? 'শুক্রবার রাত ৮:০০ টার মধ্যে সকল শিক্ষার্থীকে সাধনাপত্র জমা দিতে হবে (কাউন্সেলর ডেস্ক সক্রিয়)।' : 'All counsellees must submit their weekly sadhana log by Friday 8:00 PM.'}</span></span>
             </div>
           </div>
-          <Link to="/announcements" title="View All Notices" className="shrink-0 p-1 hover:bg-white/20 rounded-md text-rose-300 z-10 flex items-center justify-center transition-colors">
-            <ArrowRight size={15} />
+          <Link to="/announcements" title="View All Notices" className="shrink-0 w-6 h-6 rounded-full bg-rose-500/20 hover:bg-rose-500/35 text-rose-200 z-10 flex items-center justify-center transition-all hover:scale-110 shadow-xs cursor-pointer">
+            <ArrowRight size={13} />
           </Link>
         </div>
 
@@ -423,25 +425,33 @@ export const HubHome: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
         {/* ================= 1. MAJESTIC HERO SECTION WITH 5 CORE BUTTONS ================= */}
-        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 bg-gradient-to-br from-indigo-900 via-slate-900 to-amber-950 text-white shadow-2xl border border-white/10">
-          <div className="absolute -right-16 -bottom-16 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative overflow-hidden rounded-[32px] p-6 sm:p-10 bg-gradient-to-br from-indigo-950 via-slate-900 to-amber-950 text-white shadow-[0_20px_50px_rgba(0,0,0,0.35)] border border-white/15">
+          <div className="absolute -right-16 -bottom-16 w-80 h-80 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -left-16 -top-16 w-80 h-80 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
+          
           <div className="relative z-10 space-y-4">
             
+            {/* Aesthetic Pill Badges */}
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30 backdrop-blur-md">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 text-xs font-bold border border-amber-400/35 shadow-[0_0_15px_rgba(245,158,11,0.15)] backdrop-blur-md">
+                <MapPin size={11} className="text-amber-400" />
                 Advaita VOICE • University of Chittagong
               </span>
-              <span className="px-3 py-1 rounded-full bg-white/10 text-slate-200 text-xs font-mono font-bold backdrop-blur-md">
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-200 text-xs font-mono font-black uppercase tracking-wider border border-indigo-400/30 shadow-[0_0_15px_rgba(99,102,241,0.15)] backdrop-blur-md">
+                <Sparkles size={11} className="text-indigo-300" />
                 Dare to be Rare
               </span>
             </div>
 
-            <div className="space-y-1">
-              <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-none whitespace-nowrap">
+            {/* Glowing Gradient Title & Elegant Divider Subtitle */}
+            <div className="space-y-1.5">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none bg-gradient-to-r from-white via-amber-100 to-amber-300 bg-clip-text text-transparent drop-shadow-sm whitespace-nowrap">
                 {language === 'bn' ? 'অদ্বৈত ভয়েস হাব' : 'Advaita VOICE Hub'}
               </h1>
-              <p className="text-sm sm:text-base text-amber-300 font-serif italic tracking-wide">
-                "{language === 'bn' ? VOICE_HANDBOOK_DATA.mottoBn : VOICE_HANDBOOK_DATA.mottoEn}"
+              <p className="text-xs sm:text-sm text-amber-300/90 font-serif italic tracking-wide flex items-center gap-2">
+                <span className="h-[1px] w-6 bg-gradient-to-r from-transparent to-amber-400/60" />
+                <span>"{language === 'bn' ? VOICE_HANDBOOK_DATA.mottoBn : VOICE_HANDBOOK_DATA.mottoEn}"</span>
+                <span className="h-[1px] w-6 bg-gradient-to-l from-transparent to-amber-400/60" />
               </p>
             </div>
 
