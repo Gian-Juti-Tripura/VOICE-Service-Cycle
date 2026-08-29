@@ -11,7 +11,7 @@ import {
   Sparkles, PlayCircle,
   Flame, Landmark, MapPin, ChevronDown, ChevronUp,
   Bell, ArrowRight
-} from 'lucide-react';
+, Zap} from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 
 export const HubHome: React.FC = () => {
@@ -701,50 +701,105 @@ export const HubHome: React.FC = () => {
           </div>
         </div>
 
-        {/* ================= 4. THE 6 PILLARS & 8 CORE OBJECTIVES ================= */}
-        <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md space-y-6">
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-bold border border-indigo-200 dark:border-indigo-900">
-              <Sparkles size={13} />
-              <span>Pillars &amp; Objectives</span>
+        {/* ================= 4. THE 6 PILLARS & 8 CORE OBJECTIVES (MAGNIFICENT DESKTOP & MOBILE REDESIGN) ================= */}
+        <div className="rounded-[32px] p-6 sm:p-8 lg:p-10 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-xl space-y-8 relative overflow-hidden">
+          
+          {/* Subtle Ambient Light Glows */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 dark:bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 pb-2 border-b border-slate-100 dark:border-slate-800/80">
+            <div className="space-y-1.5">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/10 to-indigo-500/10 text-amber-700 dark:text-amber-300 text-xs font-black uppercase tracking-wider border border-amber-400/20 shadow-2xs">
+                <Sparkles size={13} className="text-amber-500" />
+                <span>{language === 'bn' ? 'মৌলিক নীতিমালা ও লক্ষ্য' : 'Foundational Framework'}</span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                {language === 'bn' ? 'ভয়েসের ৬টি স্তম্ভ ও ৮টি মূল উদ্দেশ্য' : 'The 6 Pillars & 8 Core Objectives of VOICE'}
+              </h3>
             </div>
-            <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-              {language === 'bn' ? 'ভয়েসের ৬টি স্তম্ভ ও ৮টি মূল উদ্দেশ্য' : 'The 6 Pillars & 8 Core Objectives of VOICE'}
-            </h3>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-serif italic max-w-md">
+              "{language === 'bn' ? 'চরিত্র গঠন, আধ্যাত্মিক একাগ্রতা ও আত্মউন্নয়নের সার্বিক পরিকল্পনা।' : 'A systematic spiritual framework for youth character, competence and love of God.'}"
+            </p>
           </div>
 
-          {/* 6 Pillars Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {VOICE_HANDBOOK_DATA.sixPillars.map((p, i) => (
-              <div key={i} className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-center space-y-1">
-                <span className="text-xs font-black text-indigo-600 dark:text-indigo-400 block">
-                  {language === 'bn' ? p.titleBn : p.titleEn}
-                </span>
-                <p className="text-[10px] text-slate-500 leading-tight">
-                  {language === 'bn' ? p.descBn : p.descEn}
-                </p>
-              </div>
-            ))}
+          {/* Section 1: 6 Pillars Horizontal Grid with Vibrant Icons & Badges */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 font-mono">
+                {language === 'bn' ? 'ভয়েসের ৬টি স্তম্ভ (The 6 Pillars):' : 'The 6 Core Pillars:'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-3.5">
+              {VOICE_HANDBOOK_DATA.sixPillars.map((p, i) => {
+                const pillarThemes = [
+                  { icon: Flame, color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' },
+                  { icon: Sparkles, color: 'text-rose-500 bg-rose-500/10 border-rose-500/20' },
+                  { icon: Users, color: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/20' },
+                  { icon: Zap, color: 'text-purple-500 bg-purple-500/10 border-purple-500/20' },
+                  { icon: GraduationCap, color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' },
+                  { icon: BookOpen, color: 'text-cyan-500 bg-cyan-500/10 border-cyan-500/20' },
+                ];
+                const theme = pillarThemes[i % pillarThemes.length];
+                const Icon = theme.icon;
+
+                return (
+                  <div 
+                    key={i} 
+                    className="group relative p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/70 hover:border-amber-400/40 dark:hover:border-amber-500/40 shadow-xs hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between"
+                  >
+                    <div className="space-y-2.5">
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center border shadow-xs group-hover:scale-110 transition-transform ${theme.color}`}>
+                        <Icon size={16} />
+                      </div>
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white leading-tight group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                          {language === 'bn' ? p.titleBn : p.titleEn}
+                        </h4>
+                        <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed font-normal">
+                          {language === 'bn' ? p.descBn : p.descEn}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          {/* 8 Objectives List */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-            {VOICE_HANDBOOK_DATA.objectives.map(obj => (
-              <div key={obj.number} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-start gap-3">
-                <span className="w-6 h-6 rounded-full bg-indigo-600 text-white font-mono text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
-                  {obj.number}
-                </span>
-                <div className="space-y-0.5 text-xs">
-                  <h4 className="font-bold text-slate-900 dark:text-white">
-                    {language === 'bn' ? obj.titleBn : obj.titleEn}
-                  </h4>
-                  <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
-                    {language === 'bn' ? obj.descBn : obj.descEn}
-                  </p>
+          {/* Section 2: 8 Core Objectives in Balanced 4-Column Desktop Grid */}
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 font-mono">
+                {language === 'bn' ? '৮টি মূল উদ্দেশ্য (8 Objectives):' : '8 Core Mission Objectives:'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3.5 sm:gap-4">
+              {VOICE_HANDBOOK_DATA.objectives.map(obj => (
+                <div 
+                  key={obj.number} 
+                  className="group relative p-4.5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 hover:bg-white dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 hover:border-indigo-400/40 dark:hover:border-indigo-500/40 shadow-xs hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex items-start gap-3.5"
+                >
+                  <span className="w-7 h-7 rounded-xl bg-gradient-to-br from-indigo-600 to-amber-600 text-white font-mono text-xs font-black flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform mt-0.5">
+                    {obj.number.toString().padStart(2, '0')}
+                  </span>
+                  
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-snug group-hover:text-indigo-600 dark:group-hover:text-amber-400 transition-colors">
+                      {language === 'bn' ? obj.titleBn : obj.titleEn}
+                    </h4>
+                    <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-normal">
+                      {language === 'bn' ? obj.descBn : obj.descEn}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+
         </div>
 
         {/* ================= 5. AUTHENTIC 4-YEAR VOICE SYLLABUS & CAMPS MATRIX (IMAGE 2 REPLICA) ================= */}
