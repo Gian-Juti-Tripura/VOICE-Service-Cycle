@@ -18,6 +18,7 @@ const VaishnavaCalendarPage = lazy(() => import('./pages/calendar/VaishnavaCalen
 const CoursesPage = lazy(() => import('./pages/camps/CoursesPage'));
 const CampsPage = lazy(() => import('./pages/camps/CampsPage'));
 const SebanandaLibrary = lazy(() => import('./pages/library/SebanandaLibrary'));
+const AnnouncementsPage = lazy(() => import('./pages/announcements/AnnouncementsPage'));
 const CounselorDesk = lazy(() => import('./pages/counselor/CounselorDesk'));
 const Login = lazy(() => import('./pages/auth/Login'));
 const ManagerDashboard = lazy(() => import('./pages/manager/ManagerDashboard'));
@@ -101,6 +102,7 @@ const AppContent = () => {
             <Route path="/courses" element={<CoursesPage />} />
             <Route path="/camps" element={<CampsPage />} />
             <Route path="/library" element={<SebanandaLibrary />} />
+            <Route path="/announcements" element={<AnnouncementsPage />} />
             
             {/* Auth */}
             <Route path="/login" element={<Login />} />

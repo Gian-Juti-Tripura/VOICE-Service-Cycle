@@ -4,13 +4,12 @@ import { useLanguage } from '../context/LanguageContext';
 import { FeatureCard } from '../components/hub/FeatureCard';
 import { Footer } from '../components/layout/Footer';
 import { VOICE_HANDBOOK_DATA } from '../data/voiceHandbookData';
-import { UPCOMING_FESTIVALS_2026, MANAGER_ANNOUNCEMENTS, type ManagerAnnouncement } from '../data/announcementsData';
 import { 
   BookOpen, HeartHandshake, RefreshCw, ShieldCheck,
   GraduationCap, Tent, Calendar, Compass, Phone,
   Sparkles, CheckCircle2,
   Flame, Landmark, MapPin, ChevronDown, ChevronUp,
-  Bell, Clock, ExternalLink, Share2
+  Bell, ArrowRight
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -21,23 +20,42 @@ export const HubHome: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<'ALL' | 'SEVA' | 'STUDY' | 'PREACHING' | 'ORG'>('ALL');
   const [showIskconCenters, setShowIskconCenters] = useState(false);
   const [selectedYearTab, setSelectedYearTab] = useState<number>(0);
-  
-  // Festivals State
-  const [showAllFestivals, setShowAllFestivals] = useState(false);
-
-  // Managers Announcements State
-  const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>('ALL');
 
   const isLoggedIn = !!user;
 
-  const displayedFestivals = showAllFestivals 
-    ? UPCOMING_FESTIVALS_2026 
-    : UPCOMING_FESTIVALS_2026.slice(0, 3);
-
-  const filteredAnnouncements = MANAGER_ANNOUNCEMENTS.filter(a => {
-    if (selectedRoleFilter === 'ALL') return true;
-    return a.roleKey === selectedRoleFilter;
-  });
+  // Closest 3 Upcoming Festivals from August 2026 onwards in compact format
+  const CLOSEST_UPCOMING_FESTIVALS = [
+    {
+      id: 'f_janmastami',
+      nameEn: 'Sri Krishna Janmastami (Appearance Day of Supreme Lord)',
+      nameBn: 'শ্রীকৃষ্ণ জন্মাষ্টমী (ভগবান শ্রীকৃষ্ণের আবির্ভাব মহোৎসব)',
+      dateEn: '04 Sep 2026',
+      dateBn: '৪ সেপ্টেম্বর ২০২৬',
+      fastingEn: 'Fasting till Midnight 12:00 AM • Mahabhisheka',
+      fastingBn: 'মধ্যরাত পর্যন্ত নির্জলা/সজল উপবাস • রাত ১২টায় অভিষেক',
+      badgeColor: 'bg-amber-500 text-slate-950 font-black'
+    },
+    {
+      id: 'f_radhastami',
+      nameEn: 'Srimati Radhastami (Appearance of Srimati Radharani)',
+      nameBn: 'শ্রীমতী রাধাষ্টমী (শ্রীমতী রাধারাণীর শুভ আবির্ভাব তিথি)',
+      dateEn: '19 Sep 2026',
+      dateBn: '১৯ সেপ্টেম্বর ২০২৬',
+      fastingEn: 'Fasting till Noon 12:00 PM • Radha Kripa Kataksha',
+      fastingBn: 'দুপুর ১২:০০ পর্যন্ত উপবাস ও শ্রীরাধা কৃপাকটাক্ষ স্তোত্র পাঠ',
+      badgeColor: 'bg-rose-500 text-white font-bold'
+    },
+    {
+      id: 'f_govardhana',
+      nameEn: 'Sri Govardhana Puja & Annakut Mahotsav',
+      nameBn: 'শ্রী গোবর্ধন পূজা ও অন্নকূট মহোৎসব (দীপাবলির পরদিন)',
+      dateEn: '10 Nov 2026',
+      dateBn: '১০ নভেম্বর ২০২৬',
+      fastingEn: 'Grand Feast & 108 Offering Darshan',
+      fastingBn: 'গিরিরাজ পূজা, গো-সেবা ও শত ব্যঞ্জনের মহাপ্রসাদ বিতরণ',
+      badgeColor: 'bg-indigo-600 text-white font-bold'
+    }
+  ];
 
   const CARDS_DATA = [
     {
@@ -90,6 +108,32 @@ export const HubHome: React.FC = () => {
       },
       badgeEn: 'Scales 1–4',
       badgeBn: 'স্কেল ১–৪',
+      isMemberOnly: false
+    },
+    {
+      id: 'announcements_board',
+      titleEn: 'Announcements & Incharge Notices',
+      titleBn: 'বিজ্ঞপ্তি ও ইনচার্জ নির্দেশিকা',
+      descEn: 'Internal Manager, Security, Morning Program & Coordinator directives.',
+      descBn: 'অভ্যন্তরীণ ব্যবস্থাপক, নিরাপত্তা ও সমন্বয়কদের জরুরি নোটিশ বোর্ড।',
+      categoryEn: 'Notices & Admin',
+      categoryBn: 'বিজ্ঞপ্তি ও প্রশাসন',
+      categoryType: 'ORG',
+      icon: Bell,
+      link: '/announcements',
+      colorScheme: {
+        bgLight: 'bg-rose-50',
+        bgDark: 'bg-rose-950/20',
+        borderLight: 'border-rose-200',
+        borderDark: 'border-rose-900/40',
+        iconBg: 'bg-rose-600',
+        iconText: 'text-white',
+        badgeBg: 'bg-rose-50 dark:bg-rose-950/50',
+        badgeText: 'text-rose-700 dark:text-rose-300',
+        glow: 'rgba(244, 63, 94, 0.2)'
+      },
+      badgeEn: 'Role Notices',
+      badgeBn: 'ইনচার্জ নোটিশ',
       isMemberOnly: false
     },
     {
@@ -306,17 +350,6 @@ export const HubHome: React.FC = () => {
     return activeFilter === 'ALL' || card.categoryType === activeFilter;
   });
 
-  const handleShareAnnouncementWhatsApp = (item: ManagerAnnouncement) => {
-    const msg = `*📢 আশ্রম নোটিশ — Advaita VOICE*\n` +
-      `📌 *ভূমিকা:* ${item.roleTitleBn} (${item.roleTitleEn})\n` +
-      `👤 *ইনচার্জ:* ${item.inchargeNameBn}\n` +
-      `🔖 *বিষয়:* ${item.titleBn}\n\n` +
-      `📝 ${item.descBn}\n\n` +
-      `⚠️ *করণীয়:* ${item.actionRequiredBn || item.actionRequiredEn}\n\n` +
-      `অদ্বৈত ভয়েস, চট্টগ্রাম বিশ্ববিদ্যালয়। 🙏`;
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
-  };
-
   return (
     <div className="min-h-screen bg-slate-50/40 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
       
@@ -325,11 +358,11 @@ export const HubHome: React.FC = () => {
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4 overflow-hidden">
           <div className="flex items-center gap-2 shrink-0">
             <span className="px-2 py-0.5 rounded bg-black/30 text-[10px] uppercase tracking-wider font-mono font-black">
-              2026 Notice
+              Upcoming Feast
             </span>
           </div>
           <p className="truncate text-[11px] sm:text-xs">
-            🌸 <strong>Upcoming Major Festival:</strong> Sri Gaura Purnima (3 March 2026) • All students are requested to attend Mangalarati &amp; Abhishek!
+            🌸 <strong>Sri Krishna Janmastami (04 September 2026):</strong> Fasting till midnight 12:00 AM • Mahabhisheka &amp; Prasadam!
           </p>
           <Link to="/calendar" className="shrink-0 underline text-[11px] hover:text-amber-200">
             View Calendar →
@@ -337,7 +370,7 @@ export const HubHome: React.FC = () => {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
         {/* ================= 1. MAJESTIC HERO SECTION WITH 5 CORE BUTTONS ================= */}
         <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 bg-gradient-to-br from-indigo-900 via-slate-900 to-amber-950 text-white shadow-2xl border border-white/10">
@@ -372,7 +405,7 @@ export const HubHome: React.FC = () => {
               </div>
             </div>
 
-            {/* 5 Core Action Navigation Buttons (As Requested) */}
+            {/* 5 Core Action Navigation Buttons */}
             <div className="flex items-center gap-2.5 pt-2 flex-wrap text-xs font-bold">
               
               {/* 1. Counselor Desk */}
@@ -402,7 +435,7 @@ export const HubHome: React.FC = () => {
                 <span>{language === 'bn' ? 'সেবানন্দ গ্রন্থাগার' : 'Sebananda Library'}</span>
               </button>
 
-              {/* 4. Daily Service Duty (NEW) */}
+              {/* 4. Daily Service Duty */}
               <button
                 onClick={() => navigate(isLoggedIn ? '/member' : '/login')}
                 className="px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white flex items-center gap-1.5 shadow-lg hover:scale-102 transition-all cursor-pointer"
@@ -411,7 +444,7 @@ export const HubHome: React.FC = () => {
                 <span>{language === 'bn' ? 'আমার দৈনিক সেবা' : 'My Daily Seva'}</span>
               </button>
 
-              {/* 5. Full VOICE Syllabus & Lectures (NEW) */}
+              {/* 5. Full VOICE Syllabus & Lectures */}
               <button
                 onClick={() => navigate('/syllabus')}
                 className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white flex items-center gap-1.5 shadow-lg hover:scale-102 transition-all cursor-pointer"
@@ -425,189 +458,49 @@ export const HubHome: React.FC = () => {
           </div>
         </div>
 
-        {/* ================= 2. UPCOMING FESTIVALS ANNOUNCEMENTS (NEW WITH SHOW MORE) ================= */}
-        <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-purple-500/10 border border-amber-500/30 shadow-md space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 text-xs font-bold font-mono">
-                <Calendar size={13} />
-                <span>Upcoming 2026 Festivals</span>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                {language === 'bn' ? 'আসন্ন বৈষ্ণবীয় মহোৎসব ও তিথি ঘোষণা' : 'Upcoming Major Vaishnava Festivals & Announcements'}
-              </h3>
-            </div>
-
+        {/* ================= 2. COMPACT UPCOMING FESTIVALS & EKADASHI (SMALL LINES) ================= */}
+        <div className="rounded-2xl p-4 sm:p-5 bg-gradient-to-r from-amber-500/10 via-rose-500/5 to-indigo-500/10 border border-amber-500/20 shadow-xs space-y-3">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowAllFestivals(!showAllFestivals)}
-                className="px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-amber-600 flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
-              >
-                {showAllFestivals ? (
-                  <>
-                    <span>{language === 'bn' ? 'সংক্ষিপ্ত করুন' : 'Show Less'}</span>
-                    <ChevronUp size={14} />
-                  </>
-                ) : (
-                  <>
-                    <span>{language === 'bn' ? 'সকল ১২টি উৎসব দেখুন (Show More)' : 'Explore All 12 Festivals'}</span>
-                    <ChevronDown size={14} />
-                  </>
-                )}
-              </button>
-
-              <Link
-                to="/calendar"
-                className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold flex items-center gap-1 shadow-xs transition-all"
-              >
-                <span>{language === 'bn' ? 'পঞ্জিকা' : 'Calendar'}</span>
-                <ExternalLink size={13} />
-              </Link>
-            </div>
-          </div>
-
-          {/* Festivals Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {displayedFestivals.map((fest) => (
-              <div
-                key={fest.id}
-                className="rounded-2xl p-4 bg-white dark:bg-slate-900 border border-amber-200/70 dark:border-slate-800 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-3"
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-mono">
-                      📅 {language === 'bn' ? fest.dateBn : fest.dateEn}
-                    </span>
-                    <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded-md">
-                      {language === 'bn' ? fest.fastingBn : fest.fastingEn}
-                    </span>
-                  </div>
-
-                  <h4 className="text-sm font-black text-slate-900 dark:text-white leading-snug">
-                    {language === 'bn' ? fest.nameBn : fest.nameEn}
-                  </h4>
-
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
-                    {language === 'bn' ? fest.descBn : fest.descEn}
-                  </p>
-                </div>
-
-                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
-                  <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-bold">
-                    <Sparkles size={12} />
-                    <span>Advaita VOICE Feast</span>
-                  </span>
-                  <Link to="/calendar" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
-                    Parana Time →
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ================= 3. MANAGERS & ADMINS ANNOUNCEMENTS BOARD (NEW) ================= */}
-        <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs font-bold font-mono">
-                <Bell size={13} />
-                <span>Admin &amp; Incharge Notices</span>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                {language === 'bn' ? 'ব্যবস্থাপক ও ইনচার্জ নোটিশ বোর্ড' : 'Managers & Operational Incharge Notice Board'}
+              <Sparkles size={16} className="text-amber-500" />
+              <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                {language === 'bn' ? 'আসন্ন মহোৎসব ও তিথি (Upcoming Festivals)' : 'Upcoming Sacred Festivals & Timings'}
               </h3>
-              <p className="text-xs text-slate-500">
-                {language === 'bn' ? 'অভ্যন্তরীণ ব্যবস্থাপক, নিরাপত্তা, মর্নিং প্রোগ্রাম ও সমন্বয়কদের বিশেষ দায়িত্ব ও ঘোষণা' : 'Directives for Internal Manager, Security, Morning Program & Coordinators'}
-              </p>
             </div>
-
             <Link
-              to="/management"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline shrink-0"
+              to="/calendar"
+              className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline"
             >
-              <Landmark size={14} />
-              <span>{language === 'bn' ? 'সকল ৯টি বিভাগ দেখুন' : 'View All 9 Depts'}</span>
+              <span>{language === 'bn' ? 'সম্পূর্ণ বৈষ্ণব পঞ্জিকা' : 'Full Calendar'}</span>
+              <ArrowRight size={12} />
             </Link>
           </div>
 
-          {/* Role Filter Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-bold">
-            {[
-              { key: 'ALL', labelEn: 'All Notices', labelBn: 'সকল নোটিশ' },
-              { key: 'COORDINATOR', labelEn: 'Coordinator', labelBn: 'প্রধান সমন্বয়ক' },
-              { key: 'INTERNAL_MGR', labelEn: 'Internal Manager', labelBn: 'অভ্যন্তরীণ ব্যবস্থাপক' },
-              { key: 'MORNING_PROG', labelEn: 'Morning Program', labelBn: 'মর্নিং প্রোগ্রাম' },
-              { key: 'SECURITY_MGR', labelEn: 'Security Manager', labelBn: 'নিরাপত্তা ব্যবস্থাপক' },
-              { key: 'STUDY_CARE', labelEn: 'Study Care Incharge', labelBn: 'স্টাডি কেয়ার' },
-              { key: 'KITCHEN_MGR', labelEn: 'Kitchen Incharge', labelBn: 'রান্না ও প্রসাদম' }
-            ].map(tab => (
-              <button
-                key={tab.key}
-                onClick={() => setSelectedRoleFilter(tab.key)}
-                className={`px-3 py-1.5 rounded-xl transition-all shrink-0 cursor-pointer ${
-                  selectedRoleFilter === tab.key
-                    ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-                }`}
-              >
-                {language === 'bn' ? tab.labelBn : tab.labelEn}
-              </button>
-            ))}
-          </div>
-
-          {/* Announcements Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredAnnouncements.map((item) => (
+          {/* Compact 3-Line Rows */}
+          <div className="space-y-2">
+            {CLOSEST_UPCOMING_FESTIVALS.map((fest) => (
               <div
-                key={item.id}
-                className="rounded-2xl p-5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex flex-col justify-between space-y-3"
+                key={fest.id}
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-4 p-2.5 sm:py-2 sm:px-3 rounded-xl bg-white dark:bg-slate-900 border border-amber-100 dark:border-slate-800/80 text-xs shadow-xs hover:border-amber-400/60 transition-all"
               >
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between flex-wrap gap-2">
-                    <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-mono">
-                      {language === 'bn' ? item.roleTitleBn : item.roleTitleEn}
-                    </span>
-                    <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">
-                      <Clock size={12} />
-                      <span>{item.date}</span>
-                    </span>
-                  </div>
-
-                  <h4 className="text-sm font-black text-slate-900 dark:text-white leading-snug">
-                    {language === 'bn' ? item.titleBn : item.titleEn}
-                  </h4>
-
-                  <p className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                    👤 {language === 'bn' ? item.inchargeNameBn : item.inchargeNameEn}
-                  </p>
-
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
-                    {language === 'bn' ? item.descBn : item.descEn}
-                  </p>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-mono shrink-0 ${fest.badgeColor}`}>
+                    {language === 'bn' ? fest.dateBn : fest.dateEn}
+                  </span>
+                  <span className="font-bold text-slate-900 dark:text-white truncate">
+                    {language === 'bn' ? fest.nameBn : fest.nameEn}
+                  </span>
                 </div>
 
-                <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between gap-2">
-                  <div className="text-[11px] font-bold text-amber-700 dark:text-amber-400">
-                    ⚠️ {language === 'bn' ? item.actionRequiredBn : item.actionRequiredEn}
-                  </div>
-
-                  <button
-                    onClick={() => handleShareAnnouncementWhatsApp(item)}
-                    title="Share Notice to WhatsApp"
-                    className="p-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 transition-all cursor-pointer shrink-0"
-                  >
-                    <Share2 size={13} />
-                  </button>
+                <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium sm:text-right shrink-0 pl-7 sm:pl-0">
+                  {language === 'bn' ? fest.fastingBn : fest.fastingEn}
                 </div>
-
               </div>
             ))}
           </div>
-
         </div>
 
-        {/* ================= 4. SEARCH & MODULES CARD GRID ================= */}
+        {/* ================= 3. SEARCH & MODULES CARD GRID (NOW INCLUDES ANNOUNCEMENTS CARD) ================= */}
         <div className="space-y-5">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
@@ -626,7 +519,7 @@ export const HubHome: React.FC = () => {
                 { key: 'SEVA', label: 'Seva & Care' },
                 { key: 'STUDY', label: 'Courses & Wisdom' },
                 { key: 'PREACHING', label: 'Preaching' },
-                { key: 'ORG', label: 'Org & Dates' }
+                { key: 'ORG', label: 'Org & Admin' }
               ].map(f => (
                 <button
                   key={f.key}
@@ -652,7 +545,7 @@ export const HubHome: React.FC = () => {
           </div>
         </div>
 
-        {/* ================= 5. THE 6 PILLARS & 8 CORE OBJECTIVES ================= */}
+        {/* ================= 4. THE 6 PILLARS & 8 CORE OBJECTIVES ================= */}
         <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md space-y-6">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-bold border border-indigo-200 dark:border-indigo-900">
@@ -698,7 +591,7 @@ export const HubHome: React.FC = () => {
           </div>
         </div>
 
-        {/* ================= 6. 4-YEAR ACADEMIC & CAMP PROGRESSION ROADMAP ================= */}
+        {/* ================= 5. 4-YEAR ACADEMIC & CAMP PROGRESSION ROADMAP ================= */}
         <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 text-white shadow-xl space-y-6 border border-purple-500/20">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
             <div>
@@ -766,7 +659,7 @@ export const HubHome: React.FC = () => {
           </div>
         </div>
 
-        {/* ================= 7. 2026 NIGHT STAY FESTIVALS & HOST ASHRAMS ================= */}
+        {/* ================= 6. 2026 NIGHT STAY FESTIVALS & HOST ASHRAMS ================= */}
         <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 flex-wrap gap-2">
             <div>
@@ -810,7 +703,7 @@ export const HubHome: React.FC = () => {
           </div>
         </div>
 
-        {/* ================= 8. BLESSINGS & CENTRAL LEADERSHIP ================= */}
+        {/* ================= 7. BLESSINGS & CENTRAL LEADERSHIP ================= */}
         <div className="rounded-3xl p-6 sm:p-8 bg-amber-500/10 border border-amber-500/30 space-y-4">
           <div className="space-y-2">
             <span className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 font-mono">
@@ -825,7 +718,7 @@ export const HubHome: React.FC = () => {
           </div>
         </div>
 
-        {/* ================= 9. ISKCON BANGLADESH CENTRES DIRECTORY ================= */}
+        {/* ================= 8. ISKCON BANGLADESH CENTRES DIRECTORY ================= */}
         <div className="rounded-3xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
           <div 
             onClick={() => setShowIskconCenters(!showIskconCenters)}
