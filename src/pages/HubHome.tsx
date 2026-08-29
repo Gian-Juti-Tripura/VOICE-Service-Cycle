@@ -553,8 +553,8 @@ export const HubHome: React.FC = () => {
                     />
                   </div>
                 </div>
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[8.5px] uppercase font-mono shadow-md whitespace-nowrap">
-                  OFFICIAL LOGO
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[9px] uppercase font-mono shadow-md whitespace-nowrap tracking-wider">
+                  VOICE
                 </div>
               </div>
 
