@@ -360,7 +360,7 @@ export const HubHome: React.FC = () => {
         <div className="bg-gradient-to-r from-amber-700 via-orange-600 to-amber-800 py-1.5 px-3 sm:px-4 flex items-center gap-2.5 overflow-hidden">
           <div className="flex items-center gap-1 shrink-0 z-10 bg-amber-950/50 px-2 py-0.5 rounded-md border border-amber-400/30">
             <span className="text-[10px] uppercase tracking-wider font-mono font-black text-amber-200">
-              {language === 'bn' ? '🌸 আসন্ন মহোৎসব' : '🌸 UPCOMING FEAST'}
+              {language === 'bn' ? '🌸 উৎসব' : '🌸 FEAST'}
             </span>
           </div>
           <div className="relative flex-1 overflow-hidden">
@@ -378,7 +378,7 @@ export const HubHome: React.FC = () => {
         <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 py-1.5 px-3 sm:px-4 flex items-center gap-2.5 overflow-hidden">
           <div className="flex items-center gap-1 shrink-0 z-10 bg-rose-950/60 px-2 py-0.5 rounded-md border border-rose-400/30">
             <span className="text-[10px] uppercase tracking-wider font-mono font-black text-rose-300">
-              {language === 'bn' ? '📢 জরুরি নোটিশ' : '📢 LATEST NOTICE'}
+              {language === 'bn' ? '📢 নোটিশ' : '📢 NOTICE'}
             </span>
           </div>
           <div className="relative flex-1 overflow-hidden">
@@ -411,7 +411,7 @@ export const HubHome: React.FC = () => {
             </div>
 
             <div className="space-y-1">
-              <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+              <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-none whitespace-nowrap">
                 {language === 'bn' ? 'অদ্বৈত ভয়েস হাব' : 'Advaita VOICE Hub'}
               </h1>
               <p className="text-sm sm:text-base text-amber-300 font-serif italic tracking-wide">
