@@ -592,72 +592,94 @@ export const HubHome: React.FC = () => {
               </div>
             </div>
 
-            {/* Symmetrical Action Grid: 2 cols mobile, 3 tablet, 6 desktop */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3 pt-2">
+            {/* Symmetrical 8-Tab Action Grid: 2 cols mobile, 4 tablet, 8 desktop */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-2.5 pt-2">
               
               {/* 1. Counselor Desk */}
               <button
                 onClick={() => navigate('/counselor')}
                 className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
-                <ShieldCheck size={15} className="shrink-0 text-slate-950" />
-                <span className="text-[10.5px] xs:text-[11.5px] sm:text-xs font-black tracking-tight whitespace-nowrap">
-                  {language === 'bn' ? 'কাউন্সেলর ডেস্ক' : 'Counselor Desk'}
+                <ShieldCheck size={14} className="shrink-0 text-slate-950" />
+                <span className="text-[10px] xs:text-[11px] sm:text-xs font-black tracking-tight truncate">
+                  {language === 'bn' ? 'কাউন্সেলর' : 'Counselor'}
                 </span>
               </button>
 
-              {/* 2. Digital Sadhana */}
+              {/* 2. Discipline Audit */}
+              <button
+                onClick={() => navigate('/discipline-audit')}
+                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-black flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
+              >
+                <Clock size={14} className="shrink-0 text-white" />
+                <span className="text-[10px] xs:text-[11px] sm:text-xs font-black tracking-tight truncate">
+                  {language === 'bn' ? 'শৃঙ্খলা অডিট' : 'Discipline'}
+                </span>
+              </button>
+
+              {/* 3. Prasad & Meals */}
+              <button
+                onClick={() => navigate('/meals')}
+                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-black flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
+              >
+                <Utensils size={14} className="shrink-0 text-white" />
+                <span className="text-[10px] xs:text-[11px] sm:text-xs font-black tracking-tight truncate">
+                  {language === 'bn' ? 'মিল ও প্রসাদ' : 'Prasad & Meal'}
+                </span>
+              </button>
+
+              {/* 4. Digital Sadhana */}
               <button
                 onClick={() => navigate('/sadhana')}
                 className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
-                <HeartHandshake size={15} className="shrink-0 text-amber-300" />
-                <span className="text-[10.5px] xs:text-[11.5px] sm:text-xs font-bold tracking-tight whitespace-nowrap">
-                  {language === 'bn' ? 'ডিজিটাল সাধনা' : 'Digital Sadhana'}
+                <HeartHandshake size={14} className="shrink-0 text-amber-300" />
+                <span className="text-[10px] xs:text-[11px] sm:text-xs font-bold tracking-tight truncate">
+                  {language === 'bn' ? 'সাধনাপত্র' : 'Sadhana'}
                 </span>
               </button>
 
-              {/* 3. Sebananda Library */}
+              {/* 5. Service Cycle Duty */}
               <button
-                onClick={() => navigate('/library')}
+                onClick={() => navigate('/service-cycle')}
                 className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
-                <BookOpen size={15} className="shrink-0 text-amber-300" />
-                <span className="text-[10.5px] xs:text-[11.5px] sm:text-xs font-bold tracking-tight whitespace-nowrap">
-                  {language === 'bn' ? 'সেবানন্দ লাইব্রেরি' : 'Sebananda Library'}
+                <RefreshCw size={14} className="shrink-0 text-amber-300" />
+                <span className="text-[10px] xs:text-[11px] sm:text-xs font-bold tracking-tight truncate">
+                  {language === 'bn' ? 'সেবাক্রম' : 'Seva Cycle'}
                 </span>
               </button>
 
-              {/* 4. Daily Service Duty */}
-              <button
-                onClick={() => navigate(isLoggedIn ? '/member' : '/login')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
-              >
-                <RefreshCw size={15} className="shrink-0 text-amber-300" />
-                <span className="text-[10.5px] xs:text-[11.5px] sm:text-xs font-bold tracking-tight whitespace-nowrap">
-                  {language === 'bn' ? 'আমার দৈনিক সেবা' : 'My Daily Seva'}
-                </span>
-              </button>
-
-              {/* 5. Full VOICE Syllabus & Lectures */}
+              {/* 6. Full VOICE Syllabus */}
               <button
                 onClick={() => navigate('/syllabus')}
                 className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
-                <Compass size={15} className="shrink-0 text-amber-300" />
-                <span className="text-[10.5px] xs:text-[11.5px] sm:text-xs font-bold tracking-tight whitespace-nowrap">
-                  {language === 'bn' ? 'ভয়েস সিলেবাস' : 'Voice Syllabus'}
+                <Compass size={14} className="shrink-0 text-amber-300" />
+                <span className="text-[10px] xs:text-[11px] sm:text-xs font-bold tracking-tight truncate">
+                  {language === 'bn' ? 'সিলেবাস' : 'Syllabus'}
                 </span>
               </button>
 
-              {/* 6. Announcements & Notices */}
+              {/* 7. Sebananda Library */}
+              <button
+                onClick={() => navigate('/library')}
+                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
+              >
+                <BookOpen size={14} className="shrink-0 text-amber-300" />
+                <span className="text-[10px] xs:text-[11px] sm:text-xs font-bold tracking-tight truncate">
+                  {language === 'bn' ? 'লাইব্রেরি' : 'Library'}
+                </span>
+              </button>
+
+              {/* 8. Announcements & Notices */}
               <button
                 onClick={() => navigate('/announcements')}
                 className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
               >
-                <Bell size={15} className="shrink-0 text-amber-300" />
-                <span className="text-[10.5px] xs:text-[11.5px] sm:text-xs font-bold tracking-tight whitespace-nowrap">
-                  {language === 'bn' ? 'ইনচার্জ নোটিশ' : 'Incharge Notices'}
+                <Bell size={14} className="shrink-0 text-amber-300" />
+                <span className="text-[10px] xs:text-[11px] sm:text-xs font-bold tracking-tight truncate">
+                  {language === 'bn' ? 'নোটিশ' : 'Notices'}
                 </span>
               </button>
 
