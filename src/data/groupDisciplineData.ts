@@ -5,6 +5,7 @@ export interface StudentDisciplineRecord {
   name: string;
   group: GroupType;
   phone?: string;
+  cycleOrder?: number;
   monthlyStrikes: number; // 0 to 3
   status: 'ACTIVE' | 'WARNED' | 'DEMOTION_DUE' | 'DISMISSED';
 }
@@ -32,19 +33,19 @@ export const EMERGENCY_REASONS = [
 ];
 
 export const INITIAL_DISCIPLINE_STUDENTS: StudentDisciplineRecord[] = [
-  // VOICE Group (Bed: <10:00 PM, Wake: 4:00 AM, MP: <4:30 AM)
-  { id: 'std_1', name: 'Utpol P.', group: 'VOICE', monthlyStrikes: 0, status: 'ACTIVE' },
-  { id: 'std_2', name: 'Chaitanya P.', group: 'VOICE', monthlyStrikes: 0, status: 'ACTIVE' },
-  { id: 'std_3', name: 'Bishwajit P.', group: 'VOICE', monthlyStrikes: 0, status: 'ACTIVE' },
-  { id: 'std_4', name: 'Joy P.', group: 'VOICE', monthlyStrikes: 0, status: 'ACTIVE' },
-  { id: 'std_5', name: 'Joydev P.', group: 'VOICE', monthlyStrikes: 0, status: 'ACTIVE' },
-  { id: 'std_6', name: 'Sagar P.', group: 'VOICE', monthlyStrikes: 0, status: 'ACTIVE' },
+  // VOICE Group (10 devotees)
+  { id: 'member_0', name: 'UTPOL P.', group: 'VOICE', phone: '+880 1790-839891', cycleOrder: 1, monthlyStrikes: 0, status: 'ACTIVE' },
+  { id: 'member_1', name: 'CHAITANYA P.', group: 'VOICE', phone: '+880 1331-982443', cycleOrder: 2, monthlyStrikes: 0, status: 'ACTIVE' },
+  { id: 'member_2', name: 'GIAN P.', group: 'VOICE', phone: '+8801571328549', cycleOrder: 3, monthlyStrikes: 0, status: 'ACTIVE' },
+  { id: 'member_5', name: 'DIPEN P.', group: 'VOICE', phone: '01571422381', cycleOrder: 6, monthlyStrikes: 0, status: 'ACTIVE' },
+  { id: 'member_6', name: 'ANKON P.', group: 'VOICE', phone: '01933503979', cycleOrder: 7, monthlyStrikes: 0, status: 'ACTIVE' },
+  { id: 'member_7', name: 'ANTOR P.', group: 'VOICE', phone: '+880 1704-370139', cycleOrder: 8, monthlyStrikes: 0, status: 'ACTIVE' },
+  { id: 'member_8', name: 'ROTON P.', group: 'VOICE', phone: '+880 1750-504601', cycleOrder: 9, monthlyStrikes: 0, status: 'ACTIVE' },
+  { id: 'member_9', name: 'JOY S. P.', group: 'VOICE', phone: '+880 1734-550288', cycleOrder: 10, monthlyStrikes: 0, status: 'ACTIVE' },
+  { id: 'member_10', name: 'JOYKANT P.', group: 'VOICE', phone: '+880 1754-034183', cycleOrder: 11, monthlyStrikes: 0, status: 'ACTIVE' },
+  { id: 'member_11', name: 'BAPPI C. P.', group: 'VOICE', cycleOrder: 12, monthlyStrikes: 0, status: 'ACTIVE' },
 
-  // Lotus Group (Bed: <11:00 PM, MP: <5:00 AM)
-  { id: 'std_7', name: 'Alok P.', group: 'LOTUS', monthlyStrikes: 0, status: 'ACTIVE' },
-  { id: 'std_8', name: 'Deep P.', group: 'LOTUS', monthlyStrikes: 0, status: 'ACTIVE' },
-  { id: 'std_9', name: 'Ripon P.', group: 'LOTUS', monthlyStrikes: 0, status: 'ACTIVE' },
-  { id: 'std_10', name: 'Tushar P.', group: 'LOTUS', monthlyStrikes: 0, status: 'ACTIVE' },
-  { id: 'std_11', name: 'Proloy P.', group: 'LOTUS', monthlyStrikes: 0, status: 'ACTIVE' },
-  { id: 'std_12', name: 'Gouranga P.', group: 'LOTUS', monthlyStrikes: 0, status: 'ACTIVE' },
+  // Lotus Group (Only Sangakara Das and Pranto C Das)
+  { id: 'member_3', name: 'PRANTO P. (Pranto C Das)', group: 'LOTUS', phone: '+880 1609-302008', cycleOrder: 4, monthlyStrikes: 0, status: 'ACTIVE' },
+  { id: 'member_4', name: 'SANGA P. (Sangakara Das)', group: 'LOTUS', phone: '+880 1722-711849', cycleOrder: 5, monthlyStrikes: 0, status: 'ACTIVE' },
 ];

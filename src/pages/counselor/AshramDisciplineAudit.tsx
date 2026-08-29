@@ -5,7 +5,7 @@ import {
   ArrowLeft, Calendar, Check, Copy, 
   Sparkles, ChevronLeft, ChevronRight, 
   CheckCircle2, UserPlus, Trash2, ArrowRightLeft,
-  Moon, Sun, Clock, AlertCircle
+  Moon, Sun, Clock, AlertCircle, Edit, Save, X
 } from 'lucide-react';
 import { 
   type GroupType, 
@@ -16,8 +16,8 @@ import {
 } from '../../data/groupDisciplineData';
 import toast from 'react-hot-toast';
 
-const STORAGE_STUDENTS_KEY = 'advaita_discipline_students_v1';
-const STORAGE_DAILY_KEY = 'advaita_discipline_daily_v1';
+const STORAGE_STUDENTS_KEY = 'advaita_discipline_students_v2';
+const STORAGE_DAILY_KEY = 'advaita_discipline_daily_v2';
 
 export const AshramDisciplineAudit: React.FC = () => {
   const { language } = useLanguage();
@@ -48,10 +48,14 @@ export const AshramDisciplineAudit: React.FC = () => {
   const [copiedLotus, setCopiedLotus] = useState(false);
   const [copiedAll, setCopiedAll] = useState(false);
 
-  // New Student Modal State
+  // Add Student Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newStudentName, setNewStudentName] = useState('');
+  const [newStudentPhone, setNewStudentPhone] = useState('');
   const [newStudentGroup, setNewStudentGroup] = useState<GroupType>('VOICE');
+
+  // Edit Student Modal State
+  const [editingStudent, setEditingStudent] = useState<StudentDisciplineRecord | null>(null);
 
   // Save changes to localStorage
   useEffect(() => {
@@ -158,24 +162,44 @@ export const AshramDisciplineAudit: React.FC = () => {
     if (!newStudentName.trim()) return;
 
     const newStudent: StudentDisciplineRecord = {
-      id: `std_${Date.now()}`,
-      name: newStudentName.trim(),
+      id: `manual_${Date.now()}`,
+      name: newStudentName.trim().toUpperCase(),
+      phone: newStudentPhone.trim(),
       group: newStudentGroup,
+      cycleOrder: students.length + 1,
       monthlyStrikes: 0,
       status: 'ACTIVE'
     };
 
     setStudents(prev => [...prev, newStudent]);
     setNewStudentName('');
+    setNewStudentPhone('');
     setIsAddModalOpen(false);
-    toast.success(language === 'bn' ? 'নতুন শিক্ষার্থী যুক্ত হয়েছে' : 'Added student successfully');
+    toast.success(language === 'bn' ? 'নতুন ভক্ত যুক্ত হয়েছে' : 'Added devotee successfully');
+  };
+
+  // Save Edit Student
+  const handleSaveEditStudent = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingStudent || !editingStudent.name.trim()) return;
+
+    setStudents(prev => prev.map(s => s.id === editingStudent.id ? editingStudent : s));
+    setEditingStudent(null);
+    toast.success(language === 'bn' ? 'ভক্তের তথ্য আপডেট হয়েছে' : 'Devotee details updated');
   };
 
   // Delete student
   const handleDeleteStudent = (studentId: string, name: string) => {
     if (!window.confirm(`Remove ${name} from discipline list?`)) return;
     setStudents(prev => prev.filter(s => s.id !== studentId));
-    toast.success('Student removed');
+    toast.success('Devotee removed');
+  };
+
+  // Reset to default 12 devotees
+  const handleResetToDefault = () => {
+    if (!window.confirm('Reset student list to default 12 active ashram devotees?')) return;
+    setStudents(INITIAL_DISCIPLINE_STUDENTS);
+    toast.success('Reset to 12 active devotees list');
   };
 
   // Change Date
@@ -320,12 +344,20 @@ export const AshramDisciplineAudit: React.FC = () => {
             <ArrowLeft size={15} className="text-amber-500" />
             <span>{language === 'bn' ? 'হাব হোমে ফিরে যান' : 'Back to Hub Home'}</span>
           </Link>
-          <span className="text-[11px] font-black tracking-widest uppercase text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
-            Counselor Audit Portal
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleResetToDefault}
+              className="text-[10px] text-slate-400 hover:text-slate-600 underline font-bold"
+            >
+              Reset 12 Devotees
+            </button>
+            <span className="text-[11px] font-black tracking-widest uppercase text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
+              Discipline Portal
+            </span>
+          </div>
         </div>
 
-        {/* Hero Card with Counselor Salutation & Date Navigator */}
+        {/* Hero Card with Date Navigator */}
         <div className="relative overflow-hidden rounded-[32px] p-6 sm:p-8 bg-gradient-to-br from-indigo-950 via-slate-900 to-amber-950 text-white shadow-xl border border-white/15">
           <div className="relative z-10 space-y-4">
             
@@ -340,8 +372,8 @@ export const AshramDisciplineAudit: React.FC = () => {
                 </h1>
                 <p className="text-xs sm:text-sm text-amber-200/90 font-serif italic">
                   {language === 'bn' 
-                    ? 'প্রতিবেদক: মর্নিং প্রোগ্রাম ইনচার্জ ও সিকিউরিটি ম্যানেজার • প্রতিপালক: শ্রীমান রসবিহারী কৃষ্ণচন্দ্র দাস প্রভু'
-                    : 'Reporting to Counselor: HG Rasavihari Krishna Chandra Das'}
+                    ? 'মর্নিং প্রোগ্রাম ইনচার্জ (ভয়েস গ্রুপ) ও সিকিউরিটি ম্যানেজার (লোটাস গ্রুপ) দৈনিক উপস্থিতি অডিট'
+                    : 'Morning Program Incharge & Security Manager Daily Abidance Monitor'}
                 </p>
               </div>
 
@@ -399,12 +431,12 @@ export const AshramDisciplineAudit: React.FC = () => {
                     🪷 Lotus Group (Security Manager)
                   </span>
                   <span className="text-[10px] font-bold bg-indigo-400/20 text-indigo-200 px-2 py-0.5 rounded-full">
-                    {lotusCount} Devotees
+                    {lotusCount} Devotees (Sangakara Das & Pranto C Das)
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-300 leading-relaxed font-normal">
                   • <strong>Bed:</strong> &lt; 11:00 PM &nbsp;|&nbsp; <strong>MP:</strong> &lt; 5:00 AM<br/>
-                  • <em>Rule Breach:</em> Repeated violation leads to ashram removal.
+                  • <em>Rule Breach:</em> Repeated violation leads to ashram action.
                 </p>
               </div>
             </div>
@@ -447,7 +479,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
-              <span>All Students</span>
+              <span>All Students ({students.length})</span>
             </button>
           </div>
 
@@ -509,23 +541,24 @@ export const AshramDisciplineAudit: React.FC = () => {
 
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-bold transition-all cursor-pointer"
-              title="Add New Student"
+              className="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-bold hover:bg-amber-500/20 transition-all cursor-pointer"
+              title="Add New Devotee"
             >
-              <UserPlus size={16} />
+              <UserPlus size={14} />
+              <span>Add Devotee</span>
             </button>
           </div>
 
         </div>
 
-        {/* Student Checklist Cards */}
+        {/* Student Checklist Cards with Edit Option */}
         <div className="space-y-3">
           {displayedStudents.length === 0 ? (
             <div className="p-12 text-center text-slate-500 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
-              No students found in this group. Click "+" above to add students.
+              No devotees found in this group. Click "Add Devotee" above to add names.
             </div>
           ) : (
-            displayedStudents.map(student => {
+            displayedStudents.map((student, idx) => {
               const entry = getEntry(student.id);
               const isVoice = student.group === 'VOICE';
               const hasFailure = !entry.sleptOnTime || !entry.wokeUpOnTime || !entry.morningProgramOnTime;
@@ -541,19 +574,19 @@ export const AshramDisciplineAudit: React.FC = () => {
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     
-                    {/* Student Identity + Strikes */}
-                    <div className="flex items-center gap-3 min-w-[200px]">
+                    {/* Devotee Identity + Strikes + Edit trigger */}
+                    <div className="flex items-center gap-3 min-w-[220px]">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shrink-0 ${
                         isVoice 
                           ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30' 
                           : 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30'
                       }`}>
-                        {student.name.charAt(0)}
+                        {student.cycleOrder ? student.cycleOrder : idx + 1}
                       </div>
 
                       <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-black text-sm sm:text-base text-slate-900 dark:text-white">
                             {student.name}
                           </h3>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
@@ -565,15 +598,21 @@ export const AshramDisciplineAudit: React.FC = () => {
                           </span>
                         </div>
 
-                        {/* Strikes Status */}
-                        <div className="flex items-center gap-1.5 mt-1">
-                          <span className="text-[10.5px] text-slate-500 font-medium">Monthly Strikes:</span>
+                        {/* Strikes Status & Phone */}
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          {student.phone && (
+                            <span className="text-[10px] font-mono text-slate-400">
+                              {student.phone}
+                            </span>
+                          )}
+
                           <div className="flex items-center gap-1">
+                            <span className="text-[10px] text-slate-500 font-medium">Strikes:</span>
                             {[1, 2, 3].map(st => (
                               <button
                                 key={st}
                                 onClick={() => handleAdjustStrikes(student.id, student.monthlyStrikes === st ? -1 : (st - student.monthlyStrikes))}
-                                className={`w-4.5 h-4.5 rounded text-[9.5px] font-black flex items-center justify-center transition-all cursor-pointer ${
+                                className={`w-4 h-4 rounded text-[9px] font-black flex items-center justify-center transition-all cursor-pointer ${
                                   student.monthlyStrikes >= st
                                     ? 'bg-rose-600 text-white shadow-xs'
                                     : 'bg-slate-200 dark:bg-slate-800 text-slate-400 hover:bg-slate-300'
@@ -585,8 +624,8 @@ export const AshramDisciplineAudit: React.FC = () => {
                             ))}
                           </div>
                           {student.monthlyStrikes >= 3 && (
-                            <span className="text-[10px] font-black text-rose-600 animate-pulse ml-1">
-                              {isVoice ? '⚠️ Move to Lotus' : '⚠️ Action Required'}
+                            <span className="text-[10px] font-black text-rose-600 animate-pulse">
+                              {isVoice ? '⚠️ Move to Lotus' : '⚠️ Action Due'}
                             </span>
                           )}
                         </div>
@@ -658,8 +697,20 @@ export const AshramDisciplineAudit: React.FC = () => {
 
                     </div>
 
-                    {/* Quick Management Actions */}
+                    {/* Management Edit Actions */}
                     <div className="flex items-center gap-1.5 justify-end shrink-0">
+                      
+                      {/* Edit Details Button */}
+                      <button
+                        onClick={() => setEditingStudent({ ...student })}
+                        className="p-2 rounded-xl text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors cursor-pointer text-xs font-bold flex items-center gap-1"
+                        title="Edit Devotee Details"
+                      >
+                        <Edit size={14} />
+                        <span className="hidden sm:inline">Edit</span>
+                      </button>
+
+                      {/* Switch Group Button */}
                       <button
                         onClick={() => handleSwitchGroup(student.id)}
                         className="p-2 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer text-xs font-bold flex items-center gap-1"
@@ -669,10 +720,11 @@ export const AshramDisciplineAudit: React.FC = () => {
                         <span className="hidden sm:inline">{isVoice ? 'To Lotus' : 'To VOICE'}</span>
                       </button>
 
+                      {/* Delete */}
                       <button
                         onClick={() => handleDeleteStudent(student.id, student.name)}
                         className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
-                        title="Delete Student"
+                        title="Delete Devotee"
                       >
                         <Trash2 size={15} />
                       </button>
@@ -709,6 +761,99 @@ export const AshramDisciplineAudit: React.FC = () => {
 
       </div>
 
+      {/* Edit Devotee Modal */}
+      {editingStudent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 animate-scale-in">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-base font-black text-slate-900 dark:text-white">
+                Edit Devotee: {editingStudent.name}
+              </h3>
+              <button 
+                onClick={() => setEditingStudent(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditStudent} className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Devotee Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editingStudent.name}
+                  onChange={e => setEditingStudent({ ...editingStudent, name: e.target.value })}
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs text-slate-900 dark:text-white font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="text"
+                  value={editingStudent.phone || ''}
+                  onChange={e => setEditingStudent({ ...editingStudent, phone: e.target.value })}
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs text-slate-900 dark:text-white font-mono"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Group *
+                  </label>
+                  <select
+                    value={editingStudent.group}
+                    onChange={e => setEditingStudent({ ...editingStudent, group: e.target.value as GroupType })}
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs text-slate-900 dark:text-white font-bold"
+                  >
+                    <option value="VOICE">🌟 VOICE Group</option>
+                    <option value="LOTUS">🪷 Lotus Group</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Monthly Strikes (0-3)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="3"
+                    value={editingStudent.monthlyStrikes}
+                    onChange={e => setEditingStudent({ ...editingStudent, monthlyStrikes: parseInt(e.target.value) || 0 })}
+                    className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs text-slate-900 dark:text-white font-bold"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setEditingStudent(null)}
+                  className="flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl text-xs font-black text-slate-950 bg-amber-500 hover:bg-amber-400 shadow-md flex items-center justify-center gap-1.5"
+                >
+                  <Save size={14} />
+                  <span>Save Changes</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Add Student Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
@@ -729,6 +874,19 @@ export const AshramDisciplineAudit: React.FC = () => {
                   value={newStudentName}
                   onChange={e => setNewStudentName(e.target.value)}
                   className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs text-slate-900 dark:text-white font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="text"
+                  placeholder="+880 1..."
+                  value={newStudentPhone}
+                  onChange={e => setNewStudentPhone(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs text-slate-900 dark:text-white font-mono"
                 />
               </div>
 
