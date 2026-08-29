@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { SPIRITUAL_LEADERSHIP, EXECUTIVE_LEADER, DEPARTMENTS_DATA } from '../../data/advaitaOrgData';
 import { useLanguage } from '../../context/LanguageContext';
 import { 
-  Users, Sparkles, 
+  Users, 
   Phone, ArrowLeft, CheckSquare, Megaphone, Plus
 } from 'lucide-react';
 import { PostNoticeModal } from '../../components/announcements/PostNoticeModal';
@@ -14,7 +14,7 @@ export const AdvaitaOrgPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const initialTab = searchParams.get('tab');
 
-  const [activeTab, setActiveTab] = useState<'ORG' | 'STUDY_CARE' | 'ALL_DEPTS' | 'FESTIVALS'>((initialTab as any) || 'ORG');
+  const [activeTab, setActiveTab] = useState<'ORG_TREE' | 'STUDY_CARE' | 'ALL_DEPTS'>((initialTab as any) || 'ORG_TREE');
   const [isNoticeModalOpen, setIsNoticeModalOpen] = useState(false);
   const [targetNoticeRole, setTargetNoticeRole] = useState<string>('COORDINATOR');
 
@@ -41,9 +41,37 @@ export const AdvaitaOrgPage: React.FC = () => {
     toast.success(language === 'bn' ? 'স্টাডি কেয়ার বোর্ডে নতুন দায়িত্ব যুক্ত হয়েছে!' : 'Task added to Study Care Board!');
   };
 
+  const col1Depts = DEPARTMENTS_DATA.filter(d => d.branch === 1);
+  const col2Depts = DEPARTMENTS_DATA.filter(d => d.branch === 2);
+  const col3Depts = DEPARTMENTS_DATA.filter(d => d.branch === 3);
+
+  const getRoleKeyFromDeptId = (id: string): string => {
+    const map: Record<string, string> = {
+      internal_manager: 'INTERNAL_MGR',
+      morning_program: 'MORNING_PROG',
+      kitchen_incharge: 'KITCHEN_INCHARGE',
+      study_care: 'STUDY_CARE',
+      medical_guest: 'MEDICAL_GUEST',
+      security_energy: 'SECURITY_ENERGY',
+      accounts: 'ACCOUNTS',
+      deity_care: 'DEITY_CARE',
+      easy_memberships: 'EASY_MEMBERSHIPS',
+      cleanliness_water: 'CLEANLINESS_WATER',
+      tulasi_care: 'TULASI_CARE',
+      sadhana_resources: 'SADHANA_RESOURCES',
+      preaching_coordinator: 'PREACHING_COORD',
+      monthly_report: 'MONTHLY_REPORT',
+      course_camps: 'COURSE_CAMPS',
+      btg_cs: 'BTG_CS',
+      course_camp_assistant: 'COURSE_CAMP_ASST',
+      programme_festivals: 'PROGRAMME_FESTIVALS'
+    };
+    return map[id] || 'GENERAL';
+  };
+
   return (
     <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300 font-sans">
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         
         {/* Back Button */}
         <div className="flex items-center justify-between pb-1">
@@ -55,7 +83,7 @@ export const AdvaitaOrgPage: React.FC = () => {
             <span>{language === 'bn' ? 'হাব হোমে ফিরে যান' : 'Back to Hub Home'}</span>
           </Link>
           <span className="text-[11px] font-bold text-slate-400 hidden sm:inline">
-            {language === 'bn' ? 'অদ্বৈত পরিচালনা ও সকল বিভাগ' : 'Advaita VOICE Org (All Depts)'}
+            ADVAITA VOICE Management System • University of Chittagong
           </span>
         </div>
 
@@ -64,15 +92,15 @@ export const AdvaitaOrgPage: React.FC = () => {
           <div className="relative z-10 space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-xs font-bold backdrop-blur-md">
               <Users size={13} />
-              <span>Advaita VOICE Management System • University of Chittagong</span>
+              <span>Advaita VOICE Official Hierarchy &amp; Management Board</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
-              {language === 'bn' ? 'অদ্বৈত ভয়েস পরিচালনা পরিষদ ও সকল বিভাগ' : 'Advaita VOICE Org (All Depts)'}
+              {language === 'bn' ? 'অদ্বৈত ভয়েস পরিচালনা পরিষদ ও সকল বিভাগ' : 'ADVAITA VOICE Management System'}
             </h1>
-            <p className="text-xs sm:text-sm text-rose-100 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-rose-100 max-w-3xl leading-relaxed">
               {language === 'bn'
-                ? 'চট্টগ্রাম বিশ্ববিদ্যালয় শাখার আধ্যাত্মিক নেতৃত্ব, সার্বিক সমন্বয়ক ও বিভাগীয় দায়িত্বপ্রাপ্ত ভক্তদের পরিচালনা প্ল্যাটফর্ম।'
-                : 'Spiritual leadership council, executive coordination, Study Care board, and all active department action trees.'}
+                ? 'চট্টগ্রাম বিশ্ববিদ্যালয় শাখার আধ্যাত্মিক নেতৃত্ব, সার্বিক সমন্বয়ক ও ১৮টি বিভাগীয় দায়িত্বপ্রাপ্ত সেবকদের পূর্ণাঙ্গ পরিচালনা চার্ট।'
+                : 'Spiritual leadership, overall coordinator, and the authentic 3-branch operational hierarchy of all 18 departments.'}
             </p>
           </div>
         </div>
@@ -80,107 +108,74 @@ export const AdvaitaOrgPage: React.FC = () => {
         {/* Navigation Tabs */}
         <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 flex-wrap">
           <button
-            onClick={() => setActiveTab('ORG')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-              activeTab === 'ORG' 
+            onClick={() => setActiveTab('ORG_TREE')}
+            className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+              activeTab === 'ORG_TREE' 
                 ? 'bg-rose-600 text-white shadow-md' 
                 : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 border border-slate-200 dark:border-slate-800'
             }`}
           >
-            {language === 'bn' ? '🏛️ পরিচালনা পরিষদ' : '🏛️ Leadership Council'}
+            {language === 'bn' ? '🌳 সম্পূর্ণ পরিচালনা চার্ট (Org Tree)' : '🌳 Full Management Chart (Org Tree)'}
           </button>
 
           <button
             onClick={() => setActiveTab('STUDY_CARE')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
               activeTab === 'STUDY_CARE' 
                 ? 'bg-blue-600 text-white shadow-md' 
                 : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 border border-slate-200 dark:border-slate-800'
             }`}
           >
-            {language === 'bn' ? '🎓 স্টাডি কেয়ার বোর্ড (জ্ঞান জ্যোতি ও প্রান্ত)' : '🎓 Study Care Board (Gian & Pranto)'}
+            {language === 'bn' ? '🎓 স্টাডি কেয়ার বোর্ড (জ্ঞান ও প্রান্ত)' : '🎓 Study Care Board (Gian & Pranto)'}
           </button>
 
           <button
             onClick={() => setActiveTab('ALL_DEPTS')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
               activeTab === 'ALL_DEPTS' 
                 ? 'bg-emerald-600 text-white shadow-md' 
                 : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 border border-slate-200 dark:border-slate-800'
             }`}
           >
-            {language === 'bn' ? '📋 সকল বিভাগসমূহ (All Depts)' : '📋 All Departments'}
+            {language === 'bn' ? '📋 ১৮টি বিভাগীয় তালিকা (18 Depts)' : '📋 All 18 Department Cards'}
           </button>
         </div>
 
-        {/* TAB 1: Leadership Council */}
-        {activeTab === 'ORG' && (
+        {/* TAB 1: Authentic Organizational Tree matching the PDF Diagram */}
+        {activeTab === 'ORG_TREE' && (
           <div className="space-y-6">
             
-            {/* Overall Coordinator Banner */}
-            <div className="rounded-2xl p-5 bg-gradient-to-r from-rose-500/10 via-pink-500/10 to-transparent border border-rose-200 dark:border-rose-900/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-rose-600 text-white">
-                  Executive Leadership
+            {/* Top Spiritual Leadership Section */}
+            <div className="rounded-3xl p-5 sm:p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+              <div className="text-center space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400 font-mono">
+                  SPIRITUAL ADVISERS &amp; GUARDIANS
                 </span>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                  {EXECUTIVE_LEADER.name}
+                <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                  {language === 'bn' ? 'আধ্যাত্মিক অভিভাবক ও উপদেষ্টা পরিষদ' : 'Spiritual Leadership & Project Advisers'}
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-300">
-                  {language === 'bn' ? EXECUTIVE_LEADER.roleBn : EXECUTIVE_LEADER.roleEn} • {language === 'bn' ? EXECUTIVE_LEADER.descriptionBn : EXECUTIVE_LEADER.descriptionEn}
-                </p>
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap shrink-0">
-                {EXECUTIVE_LEADER.phone && (
-                  <a 
-                    href={`tel:${EXECUTIVE_LEADER.phone}`} 
-                    className="px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-bold inline-flex items-center gap-1.5 shadow-sm"
-                  >
-                    <Phone size={13} />
-                    <span>{EXECUTIVE_LEADER.phone}</span>
-                  </a>
-                )}
-                <button
-                  onClick={() => {
-                    setTargetNoticeRole('COORDINATOR');
-                    setIsNoticeModalOpen(true);
-                  }}
-                  className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black inline-flex items-center gap-1.5 shadow-md cursor-pointer transition-all"
-                >
-                  <Megaphone size={14} />
-                  <span>{language === 'bn' ? '📢 সমন্বয়ক নোটিশ পোস্ট করুন' : '📢 Post Coordinator Notice'}</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Spiritual Guardians Grid */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                <Sparkles size={14} className="text-amber-500" />
-                <span>{language === 'bn' ? 'আধ্যাত্মিক অভিভাবক ও উপদেষ্টা পরিষদ' : 'Spiritual Guardians & Advisers'}</span>
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {SPIRITUAL_LEADERSHIP.map(leader => (
                   <div 
                     key={leader.id}
-                    className="rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-2 flex flex-col justify-between"
+                    className="rounded-2xl p-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 text-xs flex flex-col justify-between"
                   >
                     <div>
-                      <span className="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
+                      <span className="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-mono">
                         {leader.level}
                       </span>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white mt-1.5">
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white mt-1.5">
                         {leader.name}
                       </h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
                         {language === 'bn' ? leader.roleBn : leader.roleEn}
                       </p>
                     </div>
 
                     {leader.phone && (
-                      <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
+                      <div className="pt-2 mt-2 border-t border-slate-200/60 dark:border-slate-700/60 text-[11px]">
                         <a href={`tel:${leader.phone}`} className="font-mono text-emerald-600 dark:text-emerald-400 font-bold hover:underline flex items-center gap-1">
                           <Phone size={11} />
                           <span>{leader.phone}</span>
@@ -192,10 +187,175 @@ export const AdvaitaOrgPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Central Connector: Overall Co-Ordinator (OC) */}
+            <div className="flex flex-col items-center">
+              <div className="w-0.5 h-6 bg-rose-400 dark:bg-rose-600" />
+              
+              <div className="w-full max-w-md rounded-3xl p-5 bg-gradient-to-r from-rose-600 via-pink-600 to-rose-700 text-white text-center shadow-xl border-2 border-rose-400/40 space-y-2">
+                <span className="text-[10px] font-black uppercase px-3 py-0.5 rounded-full bg-white/20 tracking-wider">
+                  CENTRAL EXECUTIVE LEADER
+                </span>
+                <h3 className="text-lg sm:text-xl font-black">
+                  {EXECUTIVE_LEADER.name}
+                </h3>
+                <p className="text-xs text-rose-100 font-bold">
+                  {language === 'bn' ? EXECUTIVE_LEADER.roleBn : EXECUTIVE_LEADER.roleEn}
+                </p>
+                <div className="pt-2 flex items-center justify-center gap-2">
+                  {EXECUTIVE_LEADER.phone && (
+                    <a 
+                      href={`tel:${EXECUTIVE_LEADER.phone}`} 
+                      className="px-3 py-1 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold inline-flex items-center gap-1.5"
+                    >
+                      <Phone size={12} />
+                      <span>{EXECUTIVE_LEADER.phone}</span>
+                    </a>
+                  )}
+                  <button
+                    onClick={() => {
+                      setTargetNoticeRole('COORDINATOR');
+                      setIsNoticeModalOpen(true);
+                    }}
+                    className="px-3.5 py-1 rounded-xl bg-white text-slate-950 text-xs font-black inline-flex items-center gap-1.5 shadow-md cursor-pointer hover:bg-rose-50"
+                  >
+                    <Megaphone size={12} className="text-rose-600" />
+                    <span>{language === 'bn' ? '📢 নোটিশ দিন' : '📢 Post Notice'}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="w-0.5 h-6 bg-rose-400 dark:bg-rose-600" />
+            </div>
+
+            {/* 3 Operational Branches (Replica of the 3-Column Diagram) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              
+              {/* Column 1: Ashram & Daily Operations */}
+              <div className="rounded-3xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+                <div className="pb-2 border-b border-slate-100 dark:border-slate-800 text-center">
+                  <span className="text-[10px] font-black uppercase text-rose-600 dark:text-rose-400 tracking-wider font-mono">
+                    BRANCH 1
+                  </span>
+                  <h4 className="text-xs font-black uppercase text-slate-800 dark:text-slate-200">
+                    Ashram Operations
+                  </h4>
+                </div>
+
+                <div className="space-y-2.5">
+                  {col1Depts.map(d => (
+                    <div 
+                      key={d.id}
+                      className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 flex items-center justify-between gap-2"
+                    >
+                      <div className="min-w-0">
+                        <h5 className="text-xs font-black text-slate-900 dark:text-white truncate">
+                          {d.nameEn}
+                        </h5>
+                        <p className="text-[11px] font-bold text-rose-600 dark:text-rose-400 truncate">
+                          {d.incharge}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setTargetNoticeRole(getRoleKeyFromDeptId(d.id));
+                          setIsNoticeModalOpen(true);
+                        }}
+                        title={`Post notice for ${d.nameEn}`}
+                        className="p-1.5 rounded-xl bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-rose-600 hover:bg-rose-50 shadow-2xs cursor-pointer shrink-0"
+                      >
+                        <Megaphone size={13} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Column 2: Ashram Services & Maintenance */}
+              <div className="rounded-3xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+                <div className="pb-2 border-b border-slate-100 dark:border-slate-800 text-center">
+                  <span className="text-[10px] font-black uppercase text-amber-600 dark:text-amber-400 tracking-wider font-mono">
+                    BRANCH 2
+                  </span>
+                  <h4 className="text-xs font-black uppercase text-slate-800 dark:text-slate-200">
+                    Services &amp; Maintenance
+                  </h4>
+                </div>
+
+                <div className="space-y-2.5">
+                  {col2Depts.map(d => (
+                    <div 
+                      key={d.id}
+                      className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 flex items-center justify-between gap-2"
+                    >
+                      <div className="min-w-0">
+                        <h5 className="text-xs font-black text-slate-900 dark:text-white truncate">
+                          {d.nameEn}
+                        </h5>
+                        <p className="text-[11px] font-bold text-amber-600 dark:text-amber-400 truncate">
+                          {d.incharge}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setTargetNoticeRole(getRoleKeyFromDeptId(d.id));
+                          setIsNoticeModalOpen(true);
+                        }}
+                        title={`Post notice for ${d.nameEn}`}
+                        className="p-1.5 rounded-xl bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-amber-600 hover:bg-amber-50 shadow-2xs cursor-pointer shrink-0"
+                      >
+                        <Megaphone size={13} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Column 3: Preaching, Courses & Festivals */}
+              <div className="rounded-3xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+                <div className="pb-2 border-b border-slate-100 dark:border-slate-800 text-center">
+                  <span className="text-[10px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider font-mono">
+                    BRANCH 3
+                  </span>
+                  <h4 className="text-xs font-black uppercase text-slate-800 dark:text-slate-200">
+                    Preaching &amp; Festivals
+                  </h4>
+                </div>
+
+                <div className="space-y-2.5">
+                  {col3Depts.map(d => (
+                    <div 
+                      key={d.id}
+                      className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 flex items-center justify-between gap-2"
+                    >
+                      <div className="min-w-0">
+                        <h5 className="text-xs font-black text-slate-900 dark:text-white truncate">
+                          {d.nameEn}
+                        </h5>
+                        <p className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 truncate">
+                          {d.incharge}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setTargetNoticeRole(getRoleKeyFromDeptId(d.id));
+                          setIsNoticeModalOpen(true);
+                        }}
+                        title={`Post notice for ${d.nameEn}`}
+                        className="p-1.5 rounded-xl bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 shadow-2xs cursor-pointer shrink-0"
+                      >
+                        <Megaphone size={13} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+
           </div>
         )}
 
-        {/* TAB 2: Study Care Board (Gian Juti Tripura & Pranto C Das) */}
+        {/* TAB 2: Study Care Board */}
         {activeTab === 'STUDY_CARE' && (
           <div className="space-y-6">
             
@@ -277,24 +437,24 @@ export const AdvaitaOrgPage: React.FC = () => {
                   placeholder={language === 'bn' ? 'নতুন স্টাডি কেয়ার দায়িত্ব লিখুন...' : 'Add new study care activity/task...'}
                   className="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <button
+                <button 
                   onClick={addStudyTask}
-                  className="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs flex items-center gap-1 hover:bg-blue-700 shadow-xs"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm shrink-0 flex items-center gap-1 cursor-pointer"
                 >
                   <Plus size={14} />
-                  <span>{language === 'bn' ? 'যুক্ত করুন' : 'Add'}</span>
+                  <span>{language === 'bn' ? 'যুক্ত করুন' : 'Add Task'}</span>
                 </button>
               </div>
 
               {/* Task Items */}
-              <div className="space-y-2 pt-1">
+              <div className="space-y-2">
                 {studyTasks.map(task => (
                   <div 
                     key={task.id}
                     onClick={() => toggleStudyTask(task.id)}
-                    className={`p-3 rounded-xl border text-xs flex items-center justify-between cursor-pointer transition-all ${
+                    className={`p-3 rounded-xl border text-xs flex items-center justify-between gap-3 cursor-pointer transition-all ${
                       task.done 
-                        ? 'bg-blue-50/50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-900/40 text-slate-700 dark:text-slate-300' 
+                        ? 'bg-blue-50/50 border-blue-100 text-slate-400 dark:bg-slate-800/40 dark:border-slate-800' 
                         : 'bg-slate-50 border-slate-200 dark:bg-slate-800 dark:border-slate-700 text-slate-800 dark:text-slate-200'
                     }`}
                   >
@@ -321,30 +481,30 @@ export const AdvaitaOrgPage: React.FC = () => {
           </div>
         )}
 
-        {/* TAB 3: All Departments */}
+        {/* TAB 3: All 18 Departments Grid */}
         {activeTab === 'ALL_DEPTS' && (
           <div className="space-y-4">
             <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-              {language === 'bn' ? 'সকল বিভাগীয় দায়িত্বপ্রাপ্ত ভক্তদের তালিকা' : 'All Department Heads & Boards'}
+              {language === 'bn' ? '১৮টি বিভাগীয় দায়িত্বপ্রাপ্ত ভক্তদের পূর্ণাঙ্গ তালিকা' : 'All 18 Department In-Charges'}
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
               {DEPARTMENTS_DATA.map(dept => (
                 <div 
                   key={dept.id}
-                  className="rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-2 flex flex-col justify-between"
+                  className="rounded-3xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 flex flex-col justify-between"
                 >
-                  <div className="space-y-2">
-                    <span className="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                      {dept.category}
+                  <div className="space-y-1.5">
+                    <span className="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-mono">
+                      Branch {dept.branch} • {dept.category}
                     </span>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white mt-1.5">
-                      {language === 'bn' ? dept.nameBn : dept.nameEn}
+                    <h4 className="text-sm font-black text-slate-900 dark:text-white mt-1">
+                      {dept.nameEn}
                     </h4>
-                    <p className="text-xs font-bold text-rose-600 dark:text-rose-400">
+                    <p className="text-xs font-extrabold text-rose-600 dark:text-rose-400">
                       In-Charge: {dept.incharge}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       {language === 'bn' ? dept.descriptionBn : dept.descriptionEn}
                     </p>
                   </div>
@@ -352,16 +512,7 @@ export const AdvaitaOrgPage: React.FC = () => {
                   <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
                     <button
                       onClick={() => {
-                        const roleMap: Record<string, string> = {
-                          study_care: 'STUDY_CARE',
-                          internal_manager: 'INTERNAL_MGR',
-                          security: 'SECURITY_MGR',
-                          morning_program: 'MORNING_PROG',
-                          kitchen: 'KITCHEN_MGR',
-                          preaching: 'PREACHING',
-                          library: 'LIBRARY'
-                        };
-                        setTargetNoticeRole(roleMap[dept.id] || 'GENERAL');
+                        setTargetNoticeRole(getRoleKeyFromDeptId(dept.id));
                         setIsNoticeModalOpen(true);
                       }}
                       className="w-full py-1.5 px-3 rounded-xl bg-slate-100 hover:bg-rose-600 hover:text-white dark:bg-slate-800 dark:hover:bg-rose-600 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"

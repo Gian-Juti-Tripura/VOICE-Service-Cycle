@@ -7,15 +7,35 @@ import {
 import { toast } from 'react-hot-toast';
 
 export const ROLE_OPTIONS = [
-  { key: 'COORDINATOR', titleEn: 'Central Coordinator', titleBn: 'সার্বিক সমন্বয়ক (ওসি)', inchargeEn: 'Utpol Das Khocon', inchargeBn: 'উৎপল দাস খোকন' },
-  { key: 'STUDY_CARE', titleEn: 'Study Care (Academic & Career)', titleBn: 'স্টাডি কেয়ার (শিক্ষা ও ক্যারিয়ার)', inchargeEn: 'Gian Juti Tripura + Pranto C Das', inchargeBn: 'জ্ঞান জ্যোতি ত্রিপুরা ও প্রান্ত চন্দ্র দাস' },
+  // Executive
+  { key: 'COORDINATOR', titleEn: 'Overall Co-Ordinator (OC)', titleBn: 'সার্বিক সমন্বয়ক (ওসি)', inchargeEn: 'Utpol Das Khocon', inchargeBn: 'উৎপল দাস খোকন' },
+  
+  // Column 1: Ashram Operations
   { key: 'INTERNAL_MGR', titleEn: 'Internal Manager', titleBn: 'অভ্যন্তরীণ ব্যবস্থাপক', inchargeEn: 'Dipendranath Roy', inchargeBn: 'দীপেন্দ্রনাথ রায়' },
-  { key: 'MORNING_PROG', titleEn: 'Morning Program Incharge', titleBn: 'মর্নিং প্রোগ্রাম ইনচার্জ', inchargeEn: 'Jaydev Sebamoy Das', inchargeBn: 'জয়দেব সেবাময় দাস' },
-  { key: 'SECURITY_MGR', titleEn: 'Security Manager', titleBn: 'নিরাপত্তা ব্যবস্থাপক', inchargeEn: 'Bappa Mohury', inchargeBn: 'বাপ্পা মহুরী' },
-  { key: 'KITCHEN_MGR', titleEn: 'Kitchen & Prasadam Incharge', titleBn: 'রান্না ও প্রসাদম ইনচার্জ', inchargeEn: 'Ramanath Shyam Das', inchargeBn: 'রমানাথ শ্যাম দাস' },
-  { key: 'PREACHING', titleEn: 'Preaching & Youth Outreach', titleBn: 'প্রচার ও যুব উন্নয়ন', inchargeEn: 'Preaching Council', inchargeBn: 'প্রচার পরিষদ' },
-  { key: 'LIBRARY', titleEn: 'Sebananda Library & Books', titleBn: 'সেবানন্দ গ্রন্থাগার ও গ্রন্থ বিতরণ', inchargeEn: 'Library Incharge', inchargeBn: 'গ্রন্থাগার ইনচার্জ' },
-  { key: 'GENERAL', titleEn: 'General Management Notice', titleBn: 'সাধারণ ব্যবস্থাপনা নোটিশ', inchargeEn: 'Advaita VOICE Admin', inchargeBn: 'অদ্বৈত ভয়েস প্রশাসন' },
+  { key: 'MORNING_PROG', titleEn: 'Morning Programme', titleBn: 'মর্নিং প্রোগ্রাম', inchargeEn: 'Joykanto Roy', inchargeBn: 'জয়কান্ত রায়' },
+  { key: 'KITCHEN_INCHARGE', titleEn: 'Kitchen Incharge', titleBn: 'রান্নাঘর ইনচার্জ', inchargeEn: 'Antor Mohonto', inchargeBn: 'অন্তর মহন্ত' },
+  { key: 'STUDY_CARE', titleEn: 'Study Care (Academic & Career)', titleBn: 'স্টাডি কেয়ার (শিক্ষা ও ক্যারিয়ার)', inchargeEn: 'Gian Juti Tripura + Pranto C Das', inchargeBn: 'জ্ঞান জ্যোতি ত্রিপুরা ও প্রান্ত চন্দ্র দাস' },
+  { key: 'MEDICAL_GUEST', titleEn: 'Medical & Guest Care', titleBn: 'চিকিৎসা ও অতিথি সেবা', inchargeEn: 'Bappy C Sarkar', inchargeBn: 'বাপ্পী চন্দ্র সরকার' },
+  { key: 'SECURITY_ENERGY', titleEn: 'Security & Energy Manager', titleBn: 'নিরাপত্তা ও বিদ্যুৎ ব্যবস্থাপক', inchargeEn: 'Sangakara Das', inchargeBn: 'সাঙ্গাকারা দাস' },
+  
+  // Column 2: Maintenance & Services
+  { key: 'ACCOUNTS', titleEn: 'Accounts', titleBn: 'হিসাব বিভাগ', inchargeEn: 'Ankon Nath', inchargeBn: 'অঙ্কন নাথ' },
+  { key: 'DEITY_CARE', titleEn: 'Deity Care', titleBn: 'শ্রীবিগ্রহ সেবা', inchargeEn: 'Antor Mohonto', inchargeBn: 'অন্তর মহন্ত' },
+  { key: 'EASY_MEMBERSHIPS', titleEn: 'Easy Memberships', titleBn: 'সহজ সদস্যপদ ব্যবস্থাপনা', inchargeEn: 'Ankon Nath', inchargeBn: 'অঙ্কন নাথ' },
+  { key: 'CLEANLINESS_WATER', titleEn: 'Cleanliness & Water', titleBn: 'পরিচ্ছন্নতা ও পানি ব্যবস্থাপনা', inchargeEn: 'Sangakara Das', inchargeBn: 'সাঙ্গাকারা দাস' },
+  { key: 'TULASI_CARE', titleEn: 'Tulasi Care', titleBn: 'শ্রীতুলসী সেবা ও পরিচর্যা', inchargeEn: 'Antor Kumar Mohonta', inchargeBn: 'অন্তর কুমার মহন্ত' },
+  { key: 'SADHANA_RESOURCES', titleEn: 'Sadhana Resources', titleBn: 'সাধনা সামগ্রী ব্যবস্থাপনা', inchargeEn: 'Akash Paul', inchargeBn: 'আকাশ পাল' },
+
+  // Column 3: Preaching & Festivals
+  { key: 'PREACHING_COORD', titleEn: 'Preaching Co-Ordinator', titleBn: 'প্রচার সমন্বয়ক', inchargeEn: 'US Joy + Roton C Roy', inchargeBn: 'ইউএস জয় ও রতন চন্দ্র রায়' },
+  { key: 'MONTHLY_REPORT', titleEn: 'Monthly-Report Manager', titleBn: 'মাসিক প্রতিবেদন ব্যবস্থাপক', inchargeEn: 'Ankon Nath', inchargeBn: 'অঙ্কন নাথ' },
+  { key: 'COURSE_CAMPS', titleEn: 'Course-Camps', titleBn: 'কোর্স ও ক্যাম্প পরিচালনা', inchargeEn: 'Preaching Co-ordinators', inchargeBn: 'প্রচার সমন্বয়কবৃন্দ' },
+  { key: 'BTG_CS', titleEn: 'BTG-CS (Literature Distribution)', titleBn: 'বিটিজি-সিএস ও পারমার্থিক সাহিত্য', inchargeEn: 'Dipendranath Roy', inchargeBn: 'দীপেন্দ্রনাথ রায়' },
+  { key: 'COURSE_CAMP_ASST', titleEn: 'Course-Camp-Assistant', titleBn: 'কোর্স ও ক্যাম্প সহকারী', inchargeEn: 'Roton Roy', inchargeBn: 'রতন রায়' },
+  { key: 'PROGRAMME_FESTIVALS', titleEn: 'Programme & Festivals', titleBn: 'অনুষ্ঠান ও মহোৎসব পরিচালনা', inchargeEn: 'Akash Paul + Ankon Nath', inchargeBn: 'আকাশ পাল ও অঙ্কন নাথ' },
+  
+  // General
+  { key: 'GENERAL', titleEn: 'General Ashram Notice', titleBn: 'সাধারণ আশ্রম নোটিশ', inchargeEn: 'Advaita VOICE Admin', inchargeBn: 'অদ্বৈত ভয়েস প্রশাসন' }
 ] as const;
 
 export interface NoticeTemplate {
@@ -33,9 +53,9 @@ export interface NoticeTemplate {
 }
 
 export const NOTICE_TEMPLATES: NoticeTemplate[] = [
-  // 1. COORDINATOR
+  // 1. Overall Coordinator
   {
-    id: 't_coord_1',
+    id: 't_oc_1',
     roleKey: 'COORDINATOR',
     nameBn: 'সাপ্তাহিক সাধনা অডিট ডেডলাইন',
     nameEn: 'Weekly Sadhana Audit Deadline',
@@ -48,7 +68,7 @@ export const NOTICE_TEMPLATES: NoticeTemplate[] = [
     actionRequiredEn: 'Submit weekly sadhana log by Friday 8:00 PM'
   },
   {
-    id: 't_coord_2',
+    id: 't_oc_2',
     roleKey: 'COORDINATOR',
     nameBn: 'মাসিক সাধারণ সভা (ইস্টগোষ্ঠী)',
     nameEn: 'Monthly General Meeting (Ishtagosthi)',
@@ -61,7 +81,52 @@ export const NOTICE_TEMPLATES: NoticeTemplate[] = [
     actionRequiredEn: 'Attend Sunday 8:30 PM meeting'
   },
 
-  // 2. STUDY CARE (Gian Juti Tripura & Pranto C Das)
+  // 2. Internal Manager (Dipendranath Roy)
+  {
+    id: 't_int_1',
+    roleKey: 'INTERNAL_MGR',
+    nameBn: 'সকাল ৬:৩০ টায় কক্ষ পরিচ্ছন্নতা ও বিছানা চেকিং',
+    nameEn: 'Morning Room Cleanliness & Bed Inspection',
+    priority: 'HIGH',
+    titleBn: 'আশ্রম শৃঙ্খলা, বিছানা গোছানো ও কক্ষ পরিচ্ছন্নতা পরিদর্শন',
+    titleEn: 'Daily Room Cleanliness & Bed Folding Inspection (6:30 AM)',
+    descBn: 'প্রতিদিন সকাল ৬:৩০ টায় জপ সমাপ্তির পর প্রতিটি কক্ষ পরিদর্শন করা হবে। বিছানা সুন্দরভাবে ভাঁজ করা, পড়ার টেবিল গোছানো এবং জুতো নির্দিষ্ট র‍্যাকে রাখা বাধ্যতামূলক।',
+    descEn: 'Daily morning room inspection takes place at 6:30 AM right after Japa. Bed sheets must be folded and rooms kept spotless.',
+    actionRequiredBn: 'সকাল ৬:৩০ এর আগে কক্ষ পরিষ্কার রাখুন',
+    actionRequiredEn: 'Ensure room is spotless by 6:30 AM'
+  },
+
+  // 3. Morning Programme (Joykanto Roy)
+  {
+    id: 't_mp_1',
+    roleKey: 'MORNING_PROG',
+    nameBn: 'ভোর ৪:১৫ টায় মঙ্গল আরতি ও নিবিড় ১৬ মালা জপ',
+    nameEn: 'Mangalarati Timing & Attentive Japa Protocol',
+    priority: 'HIGH',
+    titleBn: 'মঙ্গল আরতি সময়সূচি (৪:১৫ AM) ও গভীর মনোযোগে জপ নিয়মাবলী',
+    titleEn: 'Morning Mangalarati (4:15 AM) & Focused Japa Protocol',
+    descBn: 'ভোরে জাগ্রত হওয়া: ৩:৩০ AM। ঠিক ৪:১৫ টায় মঙ্গল আরতি, তুলসী পূজা, নৃসিংহ প্রার্থনা ও ৫:০০ থেকে ৭:০০ পর্যন্ত মন্দির হলে একাসনে বসে মনোযোগ সহকারে ১৬ মালা জপ সম্পন্ন করতে হবে।',
+    descEn: 'Waking time: 3:30 AM. Mangalarati begins at 4:15 AM sharp followed by focused 16 rounds Japa in the temple hall.',
+    actionRequiredBn: '৪:১০ AM এর মধ্যে মন্দির হলে উপস্থিত হোন',
+    actionRequiredEn: 'Be in Temple Hall by 4:10 AM'
+  },
+
+  // 4. Kitchen Incharge (Antor Mohonto)
+  {
+    id: 't_kitch_1',
+    roleKey: 'KITCHEN_INCHARGE',
+    nameBn: 'দুপুর ১২:০০ টায় রাজভোগ নিবেদন ও শুচিতা',
+    nameEn: 'Midday Bhoga Offering & Kitchen Sanctity',
+    priority: 'HIGH',
+    titleBn: 'দুপুর ১২:০০ টায় রাজভোগ নিবেদন ও রান্নাঘরের শুচিতা রক্ষা',
+    titleEn: 'Midday Bhoga Offering Protocol & Kitchen Sanctity',
+    descBn: 'রান্নাঘরে সম্পূর্ণ বৈষ্ণব শুচিতা বজায় রাখতে হবে। স্নান করে ধৌত পোশাকে রান্না সম্পন্ন করতে হবে। দুপুর ১২:০০ টায় ঠিক সময়ে ভোগ নিবেদন নিশ্চিত করুন।',
+    descEn: 'Maintain strict Vaishnava purity in kitchen. Cook after bath with fresh clothes. Midday offering at 12:00 PM sharp.',
+    actionRequiredBn: '১২:০০ PM এর মধ্যে ভোগ নিবেদন সম্পন্ন করুন',
+    actionRequiredEn: 'Complete offering by 12:00 PM sharp'
+  },
+
+  // 5. Study Care (Gian Juti Tripura + Pranto C Das)
   {
     id: 't_sc_1',
     roleKey: 'STUDY_CARE',
@@ -88,127 +153,105 @@ export const NOTICE_TEMPLATES: NoticeTemplate[] = [
     actionRequiredBn: 'শুক্রবার রাত ৮:১৫ টায় মক টেস্টে অংশগ্রহণ করুন',
     actionRequiredEn: 'Attend mock test on Friday 8:15 PM'
   },
+
+  // 6. Medical & Guest Care (Bappy C Sarkar)
   {
-    id: 't_sc_3',
-    roleKey: 'STUDY_CARE',
-    nameBn: 'দৈনিক ২ ঘণ্টার বাধ্যতামূলক পড়াশোনা',
-    nameEn: 'Daily 2-Hour Mandatory Academic Study',
+    id: 't_med_1',
+    roleKey: 'MEDICAL_GUEST',
+    nameBn: 'অতিথি আগমন এন্ট্রি ও স্বাস্থ্য সেবা',
+    nameEn: 'Guest Welcome & Medical Care Notice',
     priority: 'NORMAL',
-    titleBn: 'দৈনিক ২ ঘণ্টার নিয়মিত পড়াশোনা ও লাইব্রেরি ঘণ্টা নিশ্চিতকরণ',
-    titleEn: 'Daily 2-Hour Academic Study Commitment',
-    descBn: 'আশ্রমের সকল শিক্ষার্থীকে দৈনিক কমপক্ষে ২ ঘণ্টা বিশ্ববিদ্যালয়ের পড়ালেখায় মনোনিবেশ করার নির্দেশ দেওয়া হলো। পড়াশোনার সময় মোবাইল ফোন সাইলেন্ট রাখতে হবে।',
-    descEn: 'All student residents must maintain a minimum of 2 hours daily focused academic study with digital distractions turned off.',
-    actionRequiredBn: 'পড়ার টেবিলে মোবাইল সাইলেন্ট রাখুন',
-    actionRequiredEn: 'Keep phones silent during study hours'
+    titleBn: 'আগত অতিথিদের আপ্যায়ন ও অসুস্থ ভক্তদের সেবা প্রটোকল',
+    titleEn: 'Ashram Guest Hospitality & Medical Assistance Protocol',
+    descBn: 'আশ্রমে আগত যেকোনো অতিথি ও অবিভাবকদের জন্য স্বাস্থ্যকর প্রসাদ ও পরিচ্ছন্ন আবাসন নিশ্চিত করা হবে। কোনো ভক্ত অসুস্থ হলে অবিলম্বে মেডিকেল ইনচার্জকে অবহিত করুন।',
+    descEn: 'Ensure warm hospitality and clean lodging for all visiting devotees and guardians. Report any sickness to the medical incharge immediately.',
+    actionRequiredBn: 'অসুস্থতায় অবিলম্বে মেডিকেল ইনচার্জকে জানান',
+    actionRequiredEn: 'Report illness to Medical Incharge'
   },
 
-  // 3. INTERNAL MANAGER (Dipendranath Roy)
-  {
-    id: 't_int_1',
-    roleKey: 'INTERNAL_MGR',
-    nameBn: 'সকাল ৬:৩০ টায় কক্ষ পরিচ্ছন্নতা ও বিছানা চেকিং',
-    nameEn: 'Morning Room Cleanliness & Bed Inspection',
-    priority: 'HIGH',
-    titleBn: 'আশ্রম শৃঙ্খলা, বিছানা গোছানো ও কক্ষ পরিচ্ছন্নতা পরিদর্শন',
-    titleEn: 'Daily Room Cleanliness & Bed Folding Inspection (6:30 AM)',
-    descBn: 'প্রতিদিন সকাল ৬:৩০ টায় জপ সমাপ্তির পর প্রতিটি কক্ষ পরিদর্শন করা হবে। বিছানা সুন্দরভাবে ভাঁজ করা, পড়ার টেবিল গোছানো এবং জুতো নির্দিষ্ট র‍্যাকে রাখা বাধ্যতামূলক।',
-    descEn: 'Daily morning room inspection takes place at 6:30 AM right after Japa. Bed sheets must be folded and rooms kept spotless.',
-    actionRequiredBn: 'সকাল ৬:৩০ এর আগে কক্ষ পরিষ্কার রাখুন',
-    actionRequiredEn: 'Ensure room is spotless by 6:30 AM'
-  },
-  {
-    id: 't_int_2',
-    roleKey: 'INTERNAL_MGR',
-    nameBn: 'বিদ্যুৎ ও পানির অপচয় রোধ সংক্রান্ত নোটিশ',
-    nameEn: 'Electricity & Water Conservation Notice',
-    priority: 'MEDIUM',
-    titleBn: 'কক্ষ ত্যাগকালে লাইট-ফ্যান বন্ধ ও পানির অপচয় রোধের নির্দেশ',
-    titleEn: 'Switch Off Lights/Fans When Leaving & Save Water',
-    descBn: 'কক্ষ থেকে বের হওয়ার সময় অবশ্যই লাইট, ফ্যান ও চার্জার সুইচ বন্ধ করুন। পানির ট্যাপ ব্যবহারের পর ভালোভাবে বন্ধ করুন। আশ্রমের সম্পদ রক্ষা আমাদের সকলের বৈষ্ণবীয় সেবা।',
-    descEn: 'Always switch off lights and fans before leaving the room. Turn off water taps properly. Conserving ashram resources is devotional service.',
-    actionRequiredBn: 'রুম ত্যাগের সময় সকল সুইচ বন্ধ করুন',
-    actionRequiredEn: 'Switch off all electrical appliances before leaving'
-  },
-
-  // 4. MORNING PROGRAM (Jaydev Sebamoy Das)
-  {
-    id: 't_mp_1',
-    roleKey: 'MORNING_PROG',
-    nameBn: 'ভোর ৪:১৫ টায় মঙ্গল আরতি ও নিবিড় ১৬ মালা জপ',
-    nameEn: 'Mangalarati Timing & Attentive Japa Protocol',
-    priority: 'HIGH',
-    titleBn: 'মঙ্গল আরতি সময়সূচি (৪:১৫ AM) ও গভীর মনোযোগে জপ নিয়মাবলী',
-    titleEn: 'Morning Mangalarati (4:15 AM) & Focused Japa Protocol',
-    descBn: 'ভোরে জাগ্রত হওয়া: ৩:৩০ AM। ঠিক ৪:১৫ টায় মঙ্গল আরতি, তুলসী পূজা, নৃসিংহ প্রার্থনা ও ৫:০০ থেকে ৭:০০ পর্যন্ত মন্দির হলে একাসনে বসে মনোযোগ সহকারে ১৬ মালা জপ সম্পন্ন করতে হবে।',
-    descEn: 'Waking time: 3:30 AM. Mangalarati begins at 4:15 AM sharp followed by focused 16 rounds Japa in the temple hall.',
-    actionRequiredBn: '৪:১০ AM এর মধ্যে মন্দির হলে উপস্থিত হোন',
-    actionRequiredEn: 'Be in Temple Hall by 4:10 AM'
-  },
-  {
-    id: 't_mp_2',
-    roleKey: 'MORNING_PROG',
-    nameBn: 'সাপ্তাহিক ভাগবত প্রবচন ও শ্লোক পাঠ',
-    nameEn: 'Daily Srimad Bhagavatam Discourse & Verses',
-    priority: 'NORMAL',
-    titleBn: 'প্রাতঃকালীন শ্রীমদ্ভাগবত প্রবচন ও শ্লোক আবৃত্তি সেশন',
-    titleEn: 'Daily Srimad Bhagavatam Class & Verse Memorization',
-    descBn: 'প্রতিদিন সকাল ৭:৩০ টায় শ্রীমদ্ভাগবত প্রবচন অনুষ্ঠিত হয়। সকল শিক্ষার্থীকে নির্ধারিত শ্লোক মুখস্থ করে ক্লাসে যোগ দেওয়ার অনুরোধ করা হচ্ছে।',
-    descEn: 'Daily Srimad Bhagavatam discourse starts at 7:30 AM. Students are encouraged to memorize the daily verse.',
-    actionRequiredBn: 'সকাল ৭:৩০ টায় ভাগবত ক্লাসে উপস্থিত হোন',
-    actionRequiredEn: 'Attend 7:30 AM Bhagavatam Class'
-  },
-
-  // 5. SECURITY MANAGER (Bappa Mohury)
+  // 7. Security & Energy (Sangakara Das)
   {
     id: 't_sec_1',
-    roleKey: 'SECURITY_MGR',
-    nameBn: 'রাত ১০:০০ টায় প্রধান ফটক বন্ধ ও গেস্ট এন্ট্রি',
-    nameEn: 'Night Gate Locking Protocol (10:00 PM)',
+    roleKey: 'SECURITY_ENERGY',
+    nameBn: 'রাত ১০:০০ টায় প্রধান ফটক বন্ধ ও বিদ্যুৎ সাশ্রয়',
+    nameEn: 'Gate Lock 10 PM & Energy Conservation',
     priority: 'HIGH',
-    titleBn: 'রাত্রিকালীন প্রধান ফটক বন্ধের নিয়ম (১০:০০ PM) ও গেস্ট রেজিস্ট্রি',
-    titleEn: 'Main Entrance Gate Locking (10:00 PM) & Visitor Registry',
-    descBn: 'রাত ১০:০০ টায় আশ্রমের প্রধান ফটক তালাবদ্ধ করা হয়। ক্যাম্পাস ল্যাব বা বিশেষ প্রয়োজনে দেরিতে প্রবেশের জন্য আগেই ইনচার্জকে জানাতে হবে। বহিরাগত সকল অতিথির রেজিস্টারে এন্ট্রি বাধ্যতামূলক।',
-    descEn: 'Main entrance is locked strictly at 10:00 PM. Prior permission is required for late entry due to university lab/exams. Visitors must sign the logbook.',
+    titleBn: 'রাত্রিকালীন প্রধান ফটক বন্ধের নিয়ম (১০:০০ PM) ও বিদ্যুৎ সাশ্রয়',
+    titleEn: 'Main Gate Locking Protocol (10:00 PM) & Energy Saving',
+    descBn: 'রাত ১০:০০ টায় আশ্রমের প্রধান ফটক বন্ধ করা হয়। ক্যাম্পাস ল্যাব বা পরীক্ষার কারণে দেরি হলে আগে অনুমতি নিতে হবে। অপ্রয়োজনে ফ্যান-লাইট জ্বালিয়ে রাখবেন না।',
+    descEn: 'Main entrance is locked strictly at 10:00 PM. Prior permission is required for late entry. Switch off unused appliances.',
     actionRequiredBn: 'রাত ১০:০০ টার পূর্বে আশ্রমে প্রবেশ করুন',
     actionRequiredEn: 'Return to ashram before 10:00 PM'
   },
 
-  // 6. KITCHEN & PRASADAM (Ramanath Shyam Das)
+  // 8. Accounts (Ankon Nath)
   {
-    id: 't_kitch_1',
-    roleKey: 'KITCHEN_MGR',
-    nameBn: 'দুপুর ১২:০০ টায় রাজভোগ নিবেদন ও শুচিতা',
-    nameEn: 'Midday Bhoga Offering & Kitchen Sanctity',
-    priority: 'HIGH',
-    titleBn: 'দুপুর ১২:০০ টায় রাজভোগ নিবেদন ও রান্নাঘরের শুচিতা রক্ষা',
-    titleEn: 'Midday Bhoga Offering Protocol & Kitchen Sanctity',
-    descBn: 'রান্নাঘরে সম্পূর্ণ বৈষ্ণব শুচিতা বজায় রাখতে হবে। স্নান করে ধৌত পোশাকে রান্না সম্পন্ন করতে হবে। দুপুর ১২:০০ টায় ঠিক সময়ে ভোগ নিবেদন নিশ্চিত করুন।',
-    descEn: 'Maintain strict Vaishnava purity in kitchen. Cook after bath with fresh clothes. Midday offering at 12:00 PM sharp.',
-    actionRequiredBn: '১২:০০ PM এর মধ্যে ভোগ নিবেদন সম্পন্ন করুন',
-    actionRequiredEn: 'Complete offering by 12:00 PM sharp'
-  },
-  {
-    id: 't_kitch_2',
-    roleKey: 'KITCHEN_MGR',
-    nameBn: 'রবিবাসরীয় যুব ফিস্ট সবজি কাটা ও রান্না প্রস্তুতি',
-    nameEn: 'Sunday Youth Feast Veg Prep & Cooking',
-    priority: 'HIGH',
-    titleBn: 'রবিবার সাপ্তাহিক যুব ফিস্ট সবজি কাটা ও রন্ধন সেবা',
-    titleEn: 'Sunday Youth Feast Vegetable Prep & Seva Call',
-    descBn: 'রবিবাসরীয় বৃহৎ যুব উৎসবের জন্য সকাল ৮:০০ টায় সবজি কাটা ও রন্ধন সেবা শুরু হবে। নির্ধারিত সেবকদের যথাসময়ে রান্নাঘরে উপস্থিত থাকার জন্য অনুরোধ করা হচ্ছে।',
-    descEn: 'Vegetable prep for Sunday Youth Feast starts at 8:00 AM. Assigned devotees are requested to report on time.',
-    actionRequiredBn: 'সকাল ৮:০০ টায় রান্নাঘরে উপস্থিত থাকুন',
-    actionRequiredEn: 'Report to kitchen at 8:00 AM'
+    id: 't_acc_1',
+    roleKey: 'ACCOUNTS',
+    nameBn: 'মাসিক আশ্রম হিসাব ও সেবা বিল সমন্বয়',
+    nameEn: 'Monthly Accounts & Expense Settlement',
+    priority: 'MEDIUM',
+    titleBn: 'চলতি মাসের আশ্রম ব্যয় ভাউচার ও সেবা বিল জমাদানের নোটিশ',
+    titleEn: 'Monthly Ashram Expense Vouchers & Bill Submission',
+    descBn: 'বাজার, গ্যাস, বিদ্যুৎ বা যেকোনো সেবামূলক খরচের ভাউচার প্রতি মাসের ২৫ তারিখের মধ্যে হিসাব ইনচার্জের নিকট জমা দেওয়ার অনুরোধ করা হচ্ছে।',
+    descEn: 'All department expense vouchers and bills must be submitted to the accounts incharge by the 25th of this month.',
+    actionRequiredBn: '২৫ তারিখের মধ্যে সকল ভাউচার জমা দিন',
+    actionRequiredEn: 'Submit all expense vouchers by 25th'
   },
 
-  // 7. PREACHING (Preaching Council)
+  // 9. Deity Care (Antor Mohonto)
+  {
+    id: 't_deity_1',
+    roleKey: 'DEITY_CARE',
+    nameBn: 'বিগ্রহের অভিষেক ও পূজার পবিত্রতা প্রটোকল',
+    nameEn: 'Deity Seva Sanctity & Abhisheka Schedule',
+    priority: 'HIGH',
+    titleBn: 'শ্রীশ্রী রাধামাধব ও গৌর-নিতাই বিগ্রহ সেবার শুচিতা বিধান',
+    titleEn: 'Deity Altar Purity & Scheduled Puja Protocol',
+    descBn: 'বেদীতে প্রবেশের পূর্বে অবশ্যই স্নান ও শুদ্ধ বস্ত্র পরিধান করতে হবে। সন্ধ্যারতির পূর্বে কর্পূর, চন্দন ও পুষ্পমাল্য প্রস্তুত রাখতে হবে।',
+    descEn: 'Devotees entering the altar must take bath and wear fresh Vaishnava attire. Fresh garlands and incense must be ready before Arati.',
+    actionRequiredBn: 'আরতির ৩০ মিনিট পূর্বে পুষ্পমাল্য প্রস্তুত রাখুন',
+    actionRequiredEn: 'Keep flower garlands ready 30 min before arati'
+  },
+
+  // 10. Cleanliness & Water (Sangakara Das)
+  {
+    id: 't_cw_1',
+    roleKey: 'CLEANLINESS_WATER',
+    nameBn: 'পানির রিজার্ভ ট্যাংক পরিষ্কার ও পাম্প শিডিউল',
+    nameEn: 'Water Tank Cleaning & Pump Schedule',
+    priority: 'MEDIUM',
+    titleBn: 'আশ্রমের পানির ফিল্টার ও ট্যাংক পরিচ্ছন্নতা অভিযান',
+    titleEn: 'Ashram Water Filtration & Tank Maintenance Drive',
+    descBn: 'পানির নিরবচ্ছিন্ন সরবরাহ ও বিশুদ্ধতা বজায় রাখতে নির্ধারিত সময়ে পাম্প চালু ও বন্ধ করা হয়। কোনো পানির ট্যাপ নষ্ট হলে অবিলম্বে মেরামত সেলে জানান।',
+    descEn: 'Maintaining pure drinking water and pump schedule. Report any leaking taps immediately.',
+    actionRequiredBn: 'পানির অপচয় রোধ করুন ও ট্যাপ বন্ধ রাখুন',
+    actionRequiredEn: 'Conserve water & close taps tightly'
+  },
+
+  // 11. Tulasi Care (Antor Kumar Mohonta)
+  {
+    id: 't_tc_1',
+    roleKey: 'TULASI_CARE',
+    nameBn: 'শ্রীতুলসী সেবা, জলদান ও মঞ্জরী চয়ন বিধি',
+    nameEn: 'Tulasi Care, Watering & Manjari Plucking',
+    priority: 'NORMAL',
+    titleBn: 'শ্রীতুলসী মহারানীর দৈনিক জলসেচন ও স্বাস্থ্য পরিচর্যা',
+    titleEn: 'Daily Tulasi Maharani Watering & Manjari Offering',
+    descBn: 'প্রতিদিন সকাল ৭:০০ টার পূর্বে তুলসী মহারানীকে জলদান করতে হবে। শুকিয়ে যাওয়া মঞ্জরী নিয়মিত চয়ন করে শ্রীভগবানের চরণে নিবেদন করুন।',
+    descEn: 'Water Tulasi Maharani daily before 7:00 AM. Pluck dry manjaris with devotion and offer to the Lord.',
+    actionRequiredBn: 'সকাল ৭:০০ টার পূর্বে তুলসী সেবা সম্পন্ন করুন',
+    actionRequiredEn: 'Complete Tulasi seva before 7:00 AM'
+  },
+
+  // 12. Preaching Coordinator (US Joy + Roton C Roy)
   {
     id: 't_pr_1',
-    roleKey: 'PREACHING',
-    nameBn: 'ক্যাম্পাসে ডিওয়াইএস (DYS) কোর্স বুথ',
+    roleKey: 'PREACHING_COORD',
+    nameBn: 'ক্যাম্পাসে ডিওয়াইএস (DYS) কোর্স বুথ ও সেমিনার',
     nameEn: 'DYS Campus Outreach & Seminar Booth',
     priority: 'HIGH',
-    titleBn: 'চট্টগ্রাম বিশ্ববিদ্যালয় ক্যাম্পাসে Discover Your Self (DYS) কোর্স বুথ',
+    titleBn: 'চট্টগ্রাম বিশ্ববিদ্যালয় ক্যাম্পাসে Discover Your Self (DYS) প্রচার বুথ',
     titleEn: 'DYS Course Registration & Campus Preaching Booth',
     descBn: 'বিশ্ববিদ্যালয়ের বিভিন্ন অনুষদে নতুন শিক্ষার্থীদের মাঝে ডিওয়াইএস কোর্সের প্রচার ও রেজিস্ট্রেশন বুথ পরিচালিত হবে। সকল প্রচারককে নির্ধারিত শিফটে অংশ নেওয়ার অনুরোধ করা হলো।',
     descEn: 'DYS course registration booths will be active across university faculties. Preachers are requested to attend their assigned shifts.',
@@ -216,19 +259,19 @@ export const NOTICE_TEMPLATES: NoticeTemplate[] = [
     actionRequiredEn: 'Report to preaching booth on time'
   },
 
-  // 8. LIBRARY (Sebananda Library)
+  // 13. Programme & Festivals (Akash Paul + Ankon Nath)
   {
-    id: 't_lib_1',
-    roleKey: 'LIBRARY',
-    nameBn: 'গ্রন্থাগার থেকে বই ইস্যু ও ৭ দিনের মধ্যে ফেরত',
-    nameEn: 'Library Book Return & Borrowing Policy',
-    priority: 'MEDIUM',
-    titleBn: 'সেবানন্দ গ্রন্থাগারের বই ইস্যু ও সময়মত ফেরত সংক্রান্ত নির্দেশিকা',
-    titleEn: 'Sebananda Library Borrowing & 7-Day Return Policy',
-    descBn: 'গ্রন্থাগার থেকে গৃহীত যেকোনো শাস্ত্রীয় বা একাডেমিক বই সর্বোচ্চ ৭ দিনের জন্য রাখা যাবে। বই ব্যবহারের পর রেজিস্টারে ফেরত এন্ট্রি নিশ্চিত করুন।',
-    descEn: 'Books borrowed from Sebananda Library can be retained for maximum 7 days. Return entries must be recorded.',
-    actionRequiredBn: '৭ দিনের মধ্যে বই ফেরত প্রদান করুন',
-    actionRequiredEn: 'Return borrowed books within 7 days'
+    id: 't_fest_1',
+    roleKey: 'PROGRAMME_FESTIVALS',
+    nameBn: 'রবিবাসরীয় যুব মহোৎসব ও বিশেষ সংকীর্তন',
+    nameEn: 'Sunday Youth Fest & Special Sankirtan',
+    priority: 'HIGH',
+    titleBn: 'রবিবার সাপ্তাহিক যুব মহোৎসব ও আনন্দভোজের প্রস্তুতি',
+    titleEn: 'Sunday Mega Youth Festival & Feast Arrangements',
+    descBn: 'আগামী রবিবার দুপুর ৩:০০ টা থেকে চবি ক্যাম্পাসের শিক্ষার্থীদের অংশগ্রহণে যুব উৎসব ও মহা সংকীর্তন অনুষ্ঠিত হবে। সংশ্লিষ্ট সকল সেবকদের দায়িত্ব পালনের জন্য অনুরোধ জানানো হচ্ছে।',
+    descEn: 'Sunday Youth Festival begins at 3:00 PM for university students. All assigned seva teams are requested to complete setup on time.',
+    actionRequiredBn: 'দুপুর ১:০০ টার মধ্যে স্টেজ ও সাউন্ড প্রস্তুত রাখুন',
+    actionRequiredEn: 'Ensure stage & sound ready by 1:00 PM'
   }
 ];
 
@@ -374,11 +417,36 @@ export const PostNoticeModal: React.FC<PostNoticeModalProps> = ({
               onChange={(e) => handleRoleChange(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500"
             >
-              {ROLE_OPTIONS.map(opt => (
-                <option key={opt.key} value={opt.key}>
-                  {language === 'bn' ? `${opt.titleBn} (${opt.inchargeBn})` : `${opt.titleEn} (${opt.inchargeEn})`}
-                </option>
-              ))}
+              <optgroup label="Executive Leadership">
+                <option value="COORDINATOR">Overall Co-Ordinator (Utpol Das Khocon)</option>
+              </optgroup>
+              <optgroup label="Column 1: Ashram & Daily Operations">
+                <option value="INTERNAL_MGR">Internal Manager (Dipendranath Roy)</option>
+                <option value="MORNING_PROG">Morning Programme (Joykanto Roy)</option>
+                <option value="KITCHEN_INCHARGE">Kitchen Incharge (Antor Mohonto)</option>
+                <option value="STUDY_CARE">Study Care (Gian Juti Tripura + Pranto C Das)</option>
+                <option value="MEDICAL_GUEST">Medical & Guest Care (Bappy C Sarkar)</option>
+                <option value="SECURITY_ENERGY">Security & Energy Manager (Sangakara Das)</option>
+              </optgroup>
+              <optgroup label="Column 2: Maintenance & Services">
+                <option value="ACCOUNTS">Accounts (Ankon Nath)</option>
+                <option value="DEITY_CARE">Deity Care (Antor Mohonto)</option>
+                <option value="EASY_MEMBERSHIPS">Easy Memberships (Ankon Nath)</option>
+                <option value="CLEANLINESS_WATER">Cleanliness & Water (Sangakara Das)</option>
+                <option value="TULASI_CARE">Tulasi Care (Antor Kumar Mohonta)</option>
+                <option value="SADHANA_RESOURCES">Sadhana Resources (Akash Paul)</option>
+              </optgroup>
+              <optgroup label="Column 3: Preaching, Courses & Festivals">
+                <option value="PREACHING_COORD">Preaching Co-Ordinator (US Joy + Roton C Roy)</option>
+                <option value="MONTHLY_REPORT">Monthly-Report Manager (Ankon Nath)</option>
+                <option value="COURSE_CAMPS">Course-Camps (Preaching Co-ordinators)</option>
+                <option value="BTG_CS">BTG-CS (Dipendranath Roy)</option>
+                <option value="COURSE_CAMP_ASST">Course-Camp-Assistant (Roton Roy)</option>
+                <option value="PROGRAMME_FESTIVALS">Programme & Festivals (Akash Paul + Ankon Nath)</option>
+              </optgroup>
+              <optgroup label="General">
+                <option value="GENERAL">General Ashram Notice (Advaita VOICE Admin)</option>
+              </optgroup>
             </select>
           </div>
 
