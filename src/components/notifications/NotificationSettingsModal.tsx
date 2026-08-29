@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { 
-  Bell, ShieldCheck, Calendar, MessageSquare, 
+  Bell, ShieldCheck, Moon, Calendar, MessageSquare, 
   Sparkles, X, Smartphone
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -10,6 +10,7 @@ import { Capacitor } from '@capacitor/core';
 
 export interface NotificationSettingsState {
   dailySeva: boolean;
+  tomorrowSeva: boolean;
   ekadashi: boolean;
   announcements: boolean;
   sadhanaAudit: boolean;
@@ -19,6 +20,7 @@ export interface NotificationSettingsState {
 
 const DEFAULT_SETTINGS: NotificationSettingsState = {
   dailySeva: true,
+  tomorrowSeva: true,
   ekadashi: true,
   announcements: true,
   sadhanaAudit: true,
@@ -158,16 +160,16 @@ export const NotificationSettingsModal: React.FC<{
         {/* Toggle List */}
         <div className="space-y-3">
           
-          {/* 1. Daily Seva Duty */}
+          {/* 1. Daily Seva Duty (Morning 6:00 AM) */}
           <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-2.5">
               <ShieldCheck size={16} className="text-amber-500 shrink-0" />
               <div>
                 <h4 className="text-xs font-bold text-slate-900 dark:text-white">
-                  {language === 'bn' ? 'দৈনিক সেবা অ্যালার্ট (সকাল ৬:০০)' : 'Daily Seva Duty Alert (6:00 AM)'}
+                  {language === 'bn' ? 'আজকের দৈনিক সেবা অ্যালার্ট (সকাল ৬:০০)' : 'Today\'s Seva Duty Alert (Morning 6:00 AM)'}
                 </h4>
                 <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                  {language === 'bn' ? 'আজকের নির্ধারিত সেবার বিবরণ' : 'Notifies your specific duty & timing for today'}
+                  {language === 'bn' ? 'আজকের নির্ধারিত সেবার বিবরণ ও সময়সূচি' : 'Morning 6:00 AM notification with duty details'}
                 </p>
               </div>
             </div>
@@ -176,6 +178,27 @@ export const NotificationSettingsModal: React.FC<{
               className={`w-10 h-6 rounded-full transition-colors p-0.5 cursor-pointer ${settings.dailySeva ? 'bg-amber-500' : 'bg-slate-300 dark:bg-slate-700'}`}
             >
               <div className={`w-5 h-5 rounded-full bg-white transition-transform ${settings.dailySeva ? 'translate-x-4' : 'translate-x-0'}`} />
+            </button>
+          </div>
+
+          {/* 2. Tomorrow's Seva Advance Reminder (Night 9:00 PM) */}
+          <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2.5">
+              <Moon size={16} className="text-indigo-400 shrink-0" />
+              <div>
+                <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                  {language === 'bn' ? 'আগামীকালের সেবা আগাম অ্যালার্ট (রাত ৯:০০)' : 'Tomorrow\'s Seva Advance Alert (Night 9:00 PM)'}
+                </h4>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                  {language === 'bn' ? 'রাতেই জেনে নিন আগামীকালের সেবা ও প্রস্তুতির তথ্য' : 'Night 9:00 PM reminder to prepare for tomorrow\'s duty'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => toggleKey('tomorrowSeva')}
+              className={`w-10 h-6 rounded-full transition-colors p-0.5 cursor-pointer ${settings.tomorrowSeva ? 'bg-amber-500' : 'bg-slate-300 dark:bg-slate-700'}`}
+            >
+              <div className={`w-5 h-5 rounded-full bg-white transition-transform ${settings.tomorrowSeva ? 'translate-x-4' : 'translate-x-0'}`} />
             </button>
           </div>
 
