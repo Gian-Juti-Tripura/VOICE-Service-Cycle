@@ -5,7 +5,7 @@ import { FeatureCard } from '../components/hub/FeatureCard';
 import { Footer } from '../components/layout/Footer';
 import { VOICE_HANDBOOK_DATA } from '../data/voiceHandbookData';
 import { 
-  BookOpen, HeartHandshake, RefreshCw, ShieldCheck,
+  Users, BookOpen, HeartHandshake, RefreshCw, ShieldCheck,
   GraduationCap, Tent, Calendar, Compass, Phone,
   Sparkles, CheckCircle2,
   Flame, Landmark, MapPin, ChevronDown, ChevronUp,
@@ -316,6 +316,32 @@ export const HubHome: React.FC = () => {
       },
       badgeEn: 'Central Org',
       badgeBn: 'কেন্দ্রীয় পর্ষদ',
+      isMemberOnly: false
+    },
+    {
+      id: 'devotee_profiles',
+      titleEn: 'Devotee Profiles & Nectar Drops',
+      titleBn: 'ভক্ত প্রোফাইল ও সদ্গুণাবলী ডিরেক্টরি',
+      descEn: 'Photos, birthday, gmail, blood group & mutual Vaishnava appreciations.',
+      descBn: 'ভক্তের ছবি, জন্মদিন, রক্তের গ্রুপ ও অমৃতবিন্দু সদ্গুণাবলী ডিরেক্টরি।',
+      categoryEn: 'Vaishnava Profiles',
+      categoryBn: 'ভক্তবৃন্দ',
+      categoryType: 'ORG',
+      icon: Users,
+      link: '/profiles',
+      colorScheme: {
+        bgLight: 'bg-amber-50',
+        bgDark: 'bg-amber-950/20',
+        borderLight: 'border-amber-200',
+        borderDark: 'border-amber-900/40',
+        iconBg: 'bg-amber-600',
+        iconText: 'text-white',
+        badgeBg: 'bg-amber-50 dark:bg-amber-950/50',
+        badgeText: 'text-amber-700 dark:text-amber-300',
+        glow: 'rgba(245, 158, 11, 0.2)'
+      },
+      badgeEn: 'All Profiles',
+      badgeBn: 'সকল ভক্তবৃন্দ',
       isMemberOnly: false
     },
     {

@@ -20,6 +20,7 @@ const CampsPage = lazy(() => import('./pages/camps/CampsPage'));
 const SebanandaLibrary = lazy(() => import('./pages/library/SebanandaLibrary'));
 const AnnouncementsPage = lazy(() => import('./pages/announcements/AnnouncementsPage'));
 const CounselorDesk = lazy(() => import('./pages/counselor/CounselorDesk'));
+const DevoteeProfilesPage = lazy(() => import('./pages/profiles/DevoteeProfilesPage'));
 const Login = lazy(() => import('./pages/auth/Login'));
 const ManagerDashboard = lazy(() => import('./pages/manager/ManagerDashboard'));
 const MembersList = lazy(() => import('./pages/manager/MembersList'));
@@ -103,6 +104,7 @@ const AppContent = () => {
             <Route path="/camps" element={<CampsPage />} />
             <Route path="/library" element={<SebanandaLibrary />} />
             <Route path="/announcements" element={<AnnouncementsPage />} />
+            <Route path="/profiles" element={<DevoteeProfilesPage />} />
             
             {/* Auth */}
             <Route path="/login" element={<Login />} />
