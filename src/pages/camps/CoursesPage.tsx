@@ -110,7 +110,7 @@ export const CoursesPage: React.FC = () => {
                   {language === 'bn' ? 'কোর্স তালিকা' : 'Available Courses'}
                 </h3>
                 <span className="text-[10px] font-bold text-slate-400">
-                  {filteredCourses.length} Courses
+                  Advaita VOICE CU
                 </span>
               </div>
 

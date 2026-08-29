@@ -16,6 +16,7 @@ const PreachersToolkit = lazy(() => import('./pages/preaching/PreachersToolkit')
 const VaishnavaCalendarPage = lazy(() => import('./pages/calendar/VaishnavaCalendarPage'));
 const CoursesPage = lazy(() => import('./pages/camps/CoursesPage'));
 const CampsPage = lazy(() => import('./pages/camps/CampsPage'));
+const SebanandaLibrary = lazy(() => import('./pages/library/SebanandaLibrary'));
 const CounselorDesk = lazy(() => import('./pages/counselor/CounselorDesk'));
 const Login = lazy(() => import('./pages/auth/Login'));
 const ManagerDashboard = lazy(() => import('./pages/manager/ManagerDashboard'));
@@ -97,6 +98,7 @@ const AppContent = () => {
             <Route path="/calendar" element={<VaishnavaCalendarPage />} />
             <Route path="/courses" element={<CoursesPage />} />
             <Route path="/camps" element={<CampsPage />} />
+            <Route path="/library" element={<SebanandaLibrary />} />
             
             {/* Auth */}
             <Route path="/login" element={<Login />} />

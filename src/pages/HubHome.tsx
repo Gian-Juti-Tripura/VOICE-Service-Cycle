@@ -151,6 +151,32 @@ export const HubHome: React.FC = () => {
       isMemberOnly: false
     },
     {
+      id: 'sebananda_library',
+      titleEn: 'Sebananda Library (সেবানন্দ গ্রন্থাগার)',
+      titleBn: 'সেবানন্দ গ্রন্থাগার ও ই-রিসোর্স',
+      descEn: 'Srila Prabhupada E-books, DYS slides, camp guides, BCS notes & songbooks.',
+      descBn: 'শ্রীল প্রভুপাদের মূল গ্রন্থ, ডিওয়াইএস স্লাইড, ক্যাম্প বুকলেট ও বিসিএস নোটস।',
+      categoryEn: 'Digital Library',
+      categoryBn: 'ডিজিটাল গ্রন্থাগার',
+      categoryType: 'STUDY',
+      icon: BookOpen,
+      link: '/library',
+      colorScheme: {
+        bgLight: 'bg-emerald-50',
+        bgDark: 'bg-emerald-950/20',
+        borderLight: 'border-emerald-200',
+        borderDark: 'border-emerald-900/40',
+        iconBg: 'bg-emerald-600',
+        iconText: 'text-white',
+        badgeBg: 'bg-emerald-50 dark:bg-emerald-950/50',
+        badgeText: 'text-emerald-700 dark:text-emerald-300',
+        glow: 'rgba(16, 185, 129, 0.2)'
+      },
+      badgeEn: 'E-Books & PDFs',
+      badgeBn: 'ই-বুক ও পিডিএফ',
+      isMemberOnly: false
+    },
+    {
       id: 'all_camps',
       titleEn: 'Youth Retreats & Camps',
       titleBn: 'যুব রিট্রিট ও মহা শিবির',

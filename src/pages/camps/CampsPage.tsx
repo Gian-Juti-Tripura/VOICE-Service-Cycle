@@ -80,7 +80,7 @@ export const CampsPage: React.FC = () => {
                   {language === 'bn' ? 'ক্যাম্প ও রিট্রিট তালিকা' : 'Camps & Retreats'}
                 </h3>
                 <span className="text-[10px] font-bold text-slate-400">
-                  {filteredCamps.length} Camps
+                  6 Sacred Step Camps
                 </span>
               </div>
 
