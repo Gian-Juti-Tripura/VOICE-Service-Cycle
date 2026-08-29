@@ -202,7 +202,7 @@ export const UnifiedLectureLibrary: React.FC = () => {
                               <Headphones size={16} />
                             </a>
                             <a 
-                              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(topic + ' Srila Prabhupada ISKCON Desire Tree Hare Krishna TV')}`}
+                              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(topic + ' Srila Prabhupada Hare Krishna TV')}`}
                               target="_blank"
                               rel="noreferrer"
                               className="p-1.5 rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 opacity-70 hover:opacity-100 transition-opacity"
@@ -223,7 +223,7 @@ export const UnifiedLectureLibrary: React.FC = () => {
                               <Headphones size={16} />
                             </a>
                             <a 
-                              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(topic + ' Radheshyam das ISKCON Desire Tree Hare Krishna TV')}`}
+                              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(topic + ' Radheshyam das Hare Krishna TV')}`}
                               target="_blank"
                               rel="noreferrer"
                               className="p-1.5 rounded-lg bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400 opacity-70 hover:opacity-100 transition-opacity"
