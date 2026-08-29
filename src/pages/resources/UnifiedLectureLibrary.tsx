@@ -16,7 +16,7 @@ export const UnifiedLectureLibrary: React.FC = () => {
   const sections = UNIFIED_LECTURES_DATA[activeSpeaker];
 
   return (
-    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-300 font-sans">
+    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 pt-6 pb-28 px-3 sm:px-6 lg:px-8 transition-colors duration-300 font-sans">
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Back Button */}
@@ -168,46 +168,49 @@ export const UnifiedLectureLibrary: React.FC = () => {
                 {/* Topics List */}
                 <ul className="p-0 m-0 list-none divide-y divide-slate-100 dark:divide-slate-800">
                   {filteredTopics.map((topic: string, tIdx: number) => (
-                    <li key={tIdx} className="flex items-start gap-3 p-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+                    <li key={tIdx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 sm:p-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
                       
-                      {/* Checkbox (visual only) */}
-                      <div className="mt-1 shrink-0">
-                        <input type="checkbox" className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-[#2e7d32] focus:ring-[#2e7d32] cursor-pointer" />
+                      {/* Checkbox & Topic Title */}
+                      <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                        <div className="mt-0.5 shrink-0">
+                          <input type="checkbox" className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-[#2e7d32] focus:ring-[#2e7d32] cursor-pointer" />
+                        </div>
+                        <span className="text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200 leading-snug break-words">
+                          {topic}
+                        </span>
                       </div>
 
-                      {/* Topic Title */}
-                      <span className="flex-1 text-sm font-medium text-slate-800 dark:text-slate-200 leading-snug">
-                        {topic}
-                      </span>
-
-                      {/* Action Icons */}
-                      <div className="flex items-center gap-1.5 shrink-0">
+                      {/* Responsive Action Buttons */}
+                      <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center pl-6 sm:pl-0">
                         {activeSpeaker === 'PRABHUPADA' ? (
                           <>
                             <a 
                               href={`https://vanipedia.org/w/index.php?search=${encodeURIComponent(topic)}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="p-1.5 rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 opacity-70 hover:opacity-100 transition-opacity"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-100/90 hover:bg-amber-200 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300 text-[11px] font-bold transition-all shadow-2xs"
                               title="Search on Vanipedia"
                             >
-                              <BookOpen size={16} />
+                              <BookOpen size={13} className="shrink-0 text-amber-700 dark:text-amber-400" />
+                              <span className="text-[10px] sm:text-[11px]">Vani</span>
                             </a>
                             <a 
                               href={`https://audio.iskcondesiretree.com/?s=${encodeURIComponent(topic)}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="p-1.5 rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 opacity-70 hover:opacity-100 transition-opacity"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-100/90 hover:bg-amber-200 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300 text-[11px] font-bold transition-all shadow-2xs"
                               title="Search on ISKCON Desire Tree Audio"
                             >
-                              <Headphones size={16} />
+                              <Headphones size={13} className="shrink-0 text-amber-700 dark:text-amber-400" />
+                              <span className="text-[10px] sm:text-[11px]">Audio</span>
                             </a>
                             <button 
                               onClick={(e) => { e.preventDefault(); setSelectedVideoTopic({ topic, speaker: 'PRABHUPADA' }); }}
-                              className="p-1.5 rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 opacity-70 hover:opacity-100 transition-opacity"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-100/90 hover:bg-amber-200 text-amber-900 dark:bg-amber-950/60 dark:text-amber-300 text-[11px] font-bold transition-all shadow-2xs cursor-pointer"
                               title="Search on YouTube"
                             >
-                              <Video size={16} />
+                              <Video size={13} className="shrink-0 text-amber-700 dark:text-amber-400" />
+                              <span className="text-[10px] sm:text-[11px]">Video</span>
                             </button>
                           </>
                         ) : (
@@ -216,17 +219,19 @@ export const UnifiedLectureLibrary: React.FC = () => {
                               href={`https://audio.iskcondesiretree.com/?s=${encodeURIComponent(topic + ' Radheshyam das')}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="p-1.5 rounded-lg bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400 opacity-70 hover:opacity-100 transition-opacity"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-100/90 hover:bg-indigo-200 text-indigo-900 dark:bg-indigo-950/60 dark:text-indigo-300 text-[11px] font-bold transition-all shadow-2xs"
                               title="Search on ISKCON Desire Tree Audio"
                             >
-                              <Headphones size={16} />
+                              <Headphones size={13} className="shrink-0 text-indigo-700 dark:text-indigo-400" />
+                              <span className="text-[10px] sm:text-[11px]">Audio</span>
                             </a>
                             <button 
                               onClick={(e) => { e.preventDefault(); setSelectedVideoTopic({ topic, speaker: 'RADHESHYAM' }); }}
-                              className="p-1.5 rounded-lg bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400 opacity-70 hover:opacity-100 transition-opacity"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-100/90 hover:bg-indigo-200 text-indigo-900 dark:bg-indigo-950/60 dark:text-indigo-300 text-[11px] font-bold transition-all shadow-2xs cursor-pointer"
                               title="Search on YouTube"
                             >
-                              <Video size={16} />
+                              <Video size={13} className="shrink-0 text-indigo-700 dark:text-indigo-400" />
+                              <span className="text-[10px] sm:text-[11px]">Video</span>
                             </button>
                           </>
                         )}
