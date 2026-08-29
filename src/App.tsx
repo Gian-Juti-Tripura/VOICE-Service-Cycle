@@ -18,6 +18,8 @@ const VaishnavaCalendarPage = lazy(() => import('./pages/calendar/VaishnavaCalen
 const CoursesPage = lazy(() => import('./pages/camps/CoursesPage'));
 const CampsPage = lazy(() => import('./pages/camps/CampsPage'));
 const SebanandaLibrary = lazy(() => import('./pages/library/SebanandaLibrary'));
+const PrabhupadaVaniPage = lazy(() => import('./pages/resources/PrabhupadaVaniPage'));
+const RadheshyamLecturesPage = lazy(() => import('./pages/resources/RadheshyamLecturesPage'));
 const AnnouncementsPage = lazy(() => import('./pages/announcements/AnnouncementsPage'));
 const CounselorDesk = lazy(() => import('./pages/counselor/CounselorDesk'));
 const DevoteeProfilesPage = lazy(() => import('./pages/profiles/DevoteeProfilesPage'));
@@ -102,7 +104,9 @@ const AppContent = () => {
             <Route path="/calendar" element={<VaishnavaCalendarPage />} />
             <Route path="/courses" element={<CoursesPage />} />
             <Route path="/camps" element={<CampsPage />} />
-            <Route path="/library" element={<SebanandaLibrary />} />
+                        <Route path="/library" element={<SebanandaLibrary />} />
+            <Route path="/prabhupada-vani" element={<PrabhupadaVaniPage />} />
+            <Route path="/radheshyam-lectures" element={<RadheshyamLecturesPage />} />
             <Route path="/announcements" element={<AnnouncementsPage />} />
             <Route path="/profiles" element={<DevoteeProfilesPage />} />
             

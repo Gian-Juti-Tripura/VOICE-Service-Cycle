@@ -8,7 +8,7 @@ import { VOICE_HANDBOOK_DATA } from '../data/voiceHandbookData';
 import { 
   Users, BookOpen, HeartHandshake, RefreshCw, ShieldCheck,
   GraduationCap, Tent, Calendar, Compass, Phone,
-  Sparkles,
+  Sparkles, Headphones, Video,
   Flame, Landmark, MapPin, ChevronDown, ChevronUp,
   Bell, ArrowRight
 } from 'lucide-react';
@@ -167,6 +167,58 @@ export const HubHome: React.FC = () => {
       },
       badgeEn: 'E-Books & PDFs',
       badgeBn: 'ই-বুক ও পিডিএফ',
+      isMemberOnly: false
+    },
+    {
+      id: 'prabhupada_vani',
+      titleEn: 'Srila Prabhupada Vani & Audio Archive',
+      titleBn: 'শ্রীল প্রভুপাদ বাণী ও অডিও আর্কাইভ',
+      descEn: 'Year & Category-wise BG, SB, CC, Upadesamrita & Morning Walk audio classes.',
+      descBn: 'বর্ষভিত্তিক শ্রীমদ্ভগবদ্গীতা, ভাগবতম, চৈতন্য চরিতামৃত ও উপদেশামৃত অডিও ক্লাস।',
+      categoryEn: 'Vedic Wisdom',
+      categoryBn: 'বৈদিক প্রজ্ঞা',
+      categoryType: 'STUDY',
+      icon: Headphones,
+      link: '/prabhupada-vani',
+      colorScheme: {
+        bgLight: 'bg-amber-50',
+        bgDark: 'bg-amber-950/20',
+        borderLight: 'border-amber-200',
+        borderDark: 'border-amber-900/40',
+        iconBg: 'bg-amber-600',
+        iconText: 'text-white',
+        badgeBg: 'bg-amber-50 dark:bg-amber-950/50',
+        badgeText: 'text-amber-700 dark:text-amber-300',
+        glow: 'rgba(245, 158, 11, 0.2)'
+      },
+      badgeEn: 'All 4 Years',
+      badgeBn: '৪ বছরের বাণী',
+      isMemberOnly: false
+    },
+    {
+      id: 'radheshyam_lectures',
+      titleEn: 'HG Radheshyam Prabhu Video Lectures',
+      titleBn: 'শ্রীপাদ রাধেশ্যাম প্রভুর ভিডিও লেকচার',
+      descEn: '60+ official syllabus video classes on Character, Relationships & Leadership.',
+      descBn: 'সিলেবাসের ৬০+ প্রামাণ্য ভিডিও ক্লাস: চরিত্র গঠন, সম্পর্ক ও আধ্যাত্মিক নেতৃত্ব।',
+      categoryEn: 'VOICE Video Series',
+      categoryBn: 'ভয়েস ভিডিও সিরিজ',
+      categoryType: 'STUDY',
+      icon: Video,
+      link: '/radheshyam-lectures',
+      colorScheme: {
+        bgLight: 'bg-indigo-50',
+        bgDark: 'bg-indigo-950/20',
+        borderLight: 'border-indigo-200',
+        borderDark: 'border-indigo-900/40',
+        iconBg: 'bg-indigo-600',
+        iconText: 'text-white',
+        badgeBg: 'bg-indigo-50 dark:bg-indigo-950/50',
+        badgeText: 'text-indigo-700 dark:text-indigo-300',
+        glow: 'rgba(99, 102, 241, 0.2)'
+      },
+      badgeEn: '60+ Video Series',
+      badgeBn: '৬০+ ভিডিও সিরিজ',
       isMemberOnly: false
     },
     {
