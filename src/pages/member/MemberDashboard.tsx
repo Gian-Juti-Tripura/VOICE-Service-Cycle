@@ -1,6 +1,7 @@
+import { ServiceCycleHeader } from '../../components/layout/ServiceCycleHeader';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Calendar, Bell, ShieldCheck, Clock, Sparkles } from 'lucide-react';
+import { Calendar, Bell, ShieldCheck, Clock, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { localDb } from '../../utils/localDb';
@@ -243,19 +244,7 @@ const MemberDashboard: React.FC = () => {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-6 sm:py-8 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
         
-        {/* Navigation Bar */}
-        <div className="flex items-center justify-between">
-          <Link 
-            to="/" 
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 hover:border-amber-500/40 shadow-xs hover:shadow-sm transition-all group shrink-0"
-          >
-            <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform text-amber-500" />
-            <span>{language === 'bn' ? 'হাব হোমে ফিরে যান' : 'Back to Hub Home'}</span>
-          </Link>
-          <span className="text-xs font-black text-amber-600 dark:text-amber-400 uppercase font-mono tracking-wider">
-            {language === 'bn' ? 'দৈনিক সেবা পোর্টাল' : 'Daily Seva Portal'}
-          </span>
-        </div>
+        <ServiceCycleHeader />
         
         {/* Hero Greeting Box (Unified Royal Saffron & Slate Luxury Theme) */}
         <div className="relative overflow-hidden rounded-[32px] p-6 sm:p-8 bg-gradient-to-br from-indigo-950 via-slate-900 to-amber-950 text-white shadow-xl border border-white/15">

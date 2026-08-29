@@ -11,6 +11,7 @@ export const UnifiedLectureLibrary: React.FC = () => {
   const [activeSpeaker, setActiveSpeaker] = useState<'PRABHUPADA' | 'RADHESHYAM'>('PRABHUPADA');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSectionIndex, setSelectedSectionIndex] = useState<number | 'ALL'>('ALL');
+  const [selectedVideoTopic, setSelectedVideoTopic] = useState<{ topic: string, speaker: 'PRABHUPADA' | 'RADHESHYAM' } | null>(null);
 
   const sections = UNIFIED_LECTURES_DATA[activeSpeaker];
 
@@ -201,15 +202,13 @@ export const UnifiedLectureLibrary: React.FC = () => {
                             >
                               <Headphones size={16} />
                             </a>
-                            <a 
-                              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(topic + ' Srila Prabhupada Hare Krishna TV')}`}
-                              target="_blank"
-                              rel="noreferrer"
+                            <button 
+                              onClick={(e) => { e.preventDefault(); setSelectedVideoTopic({ topic, speaker: 'PRABHUPADA' }); }}
                               className="p-1.5 rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 opacity-70 hover:opacity-100 transition-opacity"
                               title="Search on YouTube"
                             >
                               <Video size={16} />
-                            </a>
+                            </button>
                           </>
                         ) : (
                           <>
@@ -222,15 +221,13 @@ export const UnifiedLectureLibrary: React.FC = () => {
                             >
                               <Headphones size={16} />
                             </a>
-                            <a 
-                              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(topic + ' Radheshyam das Hare Krishna TV')}`}
-                              target="_blank"
-                              rel="noreferrer"
+                            <button 
+                              onClick={(e) => { e.preventDefault(); setSelectedVideoTopic({ topic, speaker: 'RADHESHYAM' }); }}
                               className="p-1.5 rounded-lg bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400 opacity-70 hover:opacity-100 transition-opacity"
                               title="Search on YouTube"
                             >
                               <Video size={16} />
-                            </a>
+                            </button>
                           </>
                         )}
                       </div>
@@ -250,6 +247,71 @@ export const UnifiedLectureLibrary: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* YouTube Channel Selection Modal */}
+      {selectedVideoTopic && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedVideoTopic(null)}>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Search YouTube</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+              Select which channel to search for <br/><strong>"{selectedVideoTopic.topic}"</strong>:
+            </p>
+
+            <div className="space-y-3">
+              {selectedVideoTopic.speaker === 'RADHESHYAM' && (
+                <a
+                  href={`https://www.youtube.com/results?search_query=${encodeURIComponent(selectedVideoTopic.topic + ' Radheshyam Das Devotional Video')}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => setSelectedVideoTopic(null)}
+                  className="flex items-center gap-3 w-full p-3 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:border-indigo-900/50 dark:bg-indigo-900/20 dark:hover:bg-indigo-900/40 dark:text-indigo-300 font-semibold transition-colors"
+                >
+                  <Video size={18} />
+                  <div className="text-left">
+                    <div className="text-sm">Official Channel</div>
+                    <div className="text-xs opacity-70 font-normal">Radheshyam Das Devotional Video</div>
+                  </div>
+                </a>
+              )}
+
+              <a
+                href={`https://www.youtube.com/results?search_query=${encodeURIComponent(selectedVideoTopic.topic + (selectedVideoTopic.speaker === 'PRABHUPADA' ? ' Srila Prabhupada Hare Krishna TV' : ' Radheshyam das Hare Krishna TV'))}`}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setSelectedVideoTopic(null)}
+                className="flex items-center gap-3 w-full p-3 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-700 dark:border-amber-900/50 dark:bg-amber-900/20 dark:hover:bg-amber-900/40 dark:text-amber-300 font-semibold transition-colors"
+              >
+                <Video size={18} />
+                <div className="text-left">
+                  <div className="text-sm">Hare Krishna TV</div>
+                  <div className="text-xs opacity-70 font-normal">Search on Hare Krishna TV</div>
+                </div>
+              </a>
+              
+              <a
+                href={`https://www.youtube.com/results?search_query=${encodeURIComponent(selectedVideoTopic.topic + (selectedVideoTopic.speaker === 'PRABHUPADA' ? ' Srila Prabhupada' : ' Radheshyam das'))}`}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setSelectedVideoTopic(null)}
+                className="flex items-center gap-3 w-full p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 dark:border-slate-800 dark:bg-slate-800/50 dark:hover:bg-slate-800 dark:text-slate-300 font-semibold transition-colors"
+              >
+                <Search size={18} />
+                <div className="text-left">
+                  <div className="text-sm">All of YouTube</div>
+                  <div className="text-xs opacity-70 font-normal">General search across all channels</div>
+                </div>
+              </a>
+            </div>
+
+            <button
+              onClick={() => setSelectedVideoTopic(null)}
+              className="mt-6 w-full py-2.5 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

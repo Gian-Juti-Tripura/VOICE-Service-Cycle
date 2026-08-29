@@ -457,7 +457,7 @@ export const Navbar: React.FC = () => {
             {user ? (
               <div className="flex items-center justify-between w-full">
                 <Link 
-                  to="/member" 
+                  to={role === 'ADMIN' || role === 'INTERNAL_MANAGER' ? '/manager' : '/service-cycle'} 
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs font-bold text-emerald-700 dark:text-emerald-300"
                 >

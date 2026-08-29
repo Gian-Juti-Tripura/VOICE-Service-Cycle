@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { ServiceCycleHeader } from '../../components/layout/ServiceCycleHeader';
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
@@ -7,7 +7,7 @@ import { useSupabaseSync } from '../../hooks/useSupabaseSync';
 import type { Member, DailyAssignment, AssignmentOverride } from '../../types';
 import { calculateDailyAssignments } from '../../utils/cycleEngine';
 import { seedInitialData } from '../../utils/seedData';
-import { ArrowLeft, ChevronLeft, ChevronRight, Calendar, Edit2, X, Copy, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Edit2, X, Copy, Check } from 'lucide-react';
 
 import { createPortal } from 'react-dom';
 
@@ -232,23 +232,16 @@ const ManagerDashboard: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 animate-fade-in">
-      {/* Prominent Back Button */}
-      <div className="mb-4 flex items-center justify-between">
-        <Link 
-          to="/" 
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-teal-600 dark:hover:text-teal-400 hover:border-teal-500/40 shadow-xs hover:shadow-sm transition-all group shrink-0"
-        >
-          <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform text-teal-600 dark:text-teal-400" />
-          <span>{language === 'bn' ? 'হাব হোমে ফিরে যান' : 'Back to Hub Home'}</span>
-        </Link>
-        <span className="text-[11px] font-bold text-slate-400 hidden sm:inline">
-          {language === 'bn' ? '১২ দিনের সেবাক্রম রোস্টার' : '12-Day Service Cycle Roster'}
-        </span>
-      </div>
+      <ServiceCycleHeader 
+        title={language === 'bn' ? 'ম্যানেজার ড্যাশবোর্ড ও সেবাক্রম' : 'Manager Dashboard — Service Cycle'} 
+        subtitle={language === 'bn' ? 'দৈনিক ১২ দিনের সেবাক্রম রোস্টার ও অনুপস্থিতি প্রতিস্থাপন' : '12-Day Service Cycle Daily Roster, Absences & Replacement Engine'}
+      />
+
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{t('manager.dashboard')}</h1>
-          <p className="mt-2 text-lg text-primary-600 font-medium">Daily Schedule &amp; Overrides</p>
+        <div className="hidden md:block">
+          <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
+            {language === 'bn' ? 'তারিখ ও সেবার বিবরণ নির্বাচন করুন' : 'Select Date & View Dynamic Assignments'}
+          </p>
         </div>
         <div className="flex items-center gap-1 sm:gap-2 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md p-1 sm:p-1.5 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm w-full md:w-auto justify-between md:justify-start overflow-hidden">
           <div className="flex items-center">

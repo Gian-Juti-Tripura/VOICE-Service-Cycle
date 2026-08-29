@@ -144,10 +144,10 @@ const AppContent = () => {
                 </ProtectedRoute>
               } 
             />
-            <Route path="/manager/members" element={<ProtectedRoute allowedRole="INTERNAL_MANAGER"><MembersList /></ProtectedRoute>} />
-            <Route path="/manager/members/:id" element={<ProtectedRoute allowedRole="INTERNAL_MANAGER"><MemberEdit /></ProtectedRoute>} />
-            <Route path="/manager/services" element={<ProtectedRoute allowedRole="INTERNAL_MANAGER"><ServicesList /></ProtectedRoute>} />
-            <Route path="/manager/services/:id" element={<ProtectedRoute allowedRole="INTERNAL_MANAGER"><ServiceEdit /></ProtectedRoute>} />
+            <Route path="/manager/members" element={<ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN']}><MembersList /></ProtectedRoute>} />
+            <Route path="/manager/members/:id" element={<ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN']}><MemberEdit /></ProtectedRoute>} />
+            <Route path="/manager/services" element={<ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN']}><ServicesList /></ProtectedRoute>} />
+            <Route path="/manager/services/:id" element={<ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN']}><ServiceEdit /></ProtectedRoute>} />
             <Route path="/manager/settings" element={<ProtectedRoute allowedRole="ADMIN"><SettingsDashboard /></ProtectedRoute>} />
 
             {/* Catch-all redirect to Hub */}

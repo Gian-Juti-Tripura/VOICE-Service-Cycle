@@ -1,15 +1,15 @@
+import { ServiceCycleHeader } from '../../components/layout/ServiceCycleHeader';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { localDb } from '../../utils/localDb';
 import type { Member } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
-import { ArrowLeft, Save, Loader2, Trash2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Save, Loader2, Trash2 } from 'lucide-react';
 
 export default function MemberEdit() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const isNew = id === 'new';
 
   const [loading, setLoading] = useState(!isNew);
@@ -104,14 +104,10 @@ export default function MemberEdit() {
 
   return (
     <div className="max-w-2xl mx-auto p-4 md:p-6 lg:p-8 animate-fade-in">
-      <div className="flex items-center gap-4 mb-8">
-        <Link to="/manager/members" className="p-2 text-gray-400 hover:bg-gray-100 rounded-full transition-colors">
-          <ArrowLeft size={20} />
-        </Link>
-        <h1 className="text-2xl font-bold text-gray-900">
-          {isNew ? t('addMember') : t('editMember')}
-        </h1>
-      </div>
+      <ServiceCycleHeader 
+        title={isNew ? (language === 'bn' ? 'নতুন ভক্ত যোগ করুন' : 'Add New Devotee') : (language === 'bn' ? 'ভক্তের তথ্য সম্পাদনা' : 'Edit Devotee Details')}
+        subtitle={language === 'bn' ? 'সেবাক্রমের সদস্য তথ্য ও ফোন পিন সেট করুন' : 'Configure devotee member name, sequence, phone PIN and status'}
+      />
 
       {error && (
         <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg text-sm">

@@ -1,8 +1,9 @@
+import { ServiceCycleHeader } from '../../components/layout/ServiceCycleHeader';
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabase/supabaseClient';
 import toast from 'react-hot-toast';
 import { useAuth, type UserRole } from '../../context/AuthContext';
-import { Shield, ShieldAlert, User as UserIcon, Trash2, Unlink } from 'lucide-react';
+import { ShieldAlert, User as UserIcon, Trash2, Unlink } from 'lucide-react';
 import { localDb } from '../../utils/localDb';
 import type { Member } from '../../types';
 
@@ -156,16 +157,11 @@ const SettingsDashboard: React.FC = () => {
   }
 
   return (
-    <div className="container py-8 animate-fade-in max-w-4xl">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
-            <Shield className="text-primary-600" size={28} />
-            System Settings
-          </h1>
-          <p className="text-slate-500 mt-1">Manage user roles and system access.</p>
-        </div>
-      </div>
+    <div className="container py-8 animate-fade-in max-w-6xl">
+      <ServiceCycleHeader 
+        title="Admin Settings & User Roles" 
+        subtitle="Manage App User Roles (Admin / Manager / Member), Claimed Profiles & Access"
+      />
 
       <div className="glass-card p-6 md:p-8">
         <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
