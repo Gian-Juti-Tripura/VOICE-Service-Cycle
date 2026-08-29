@@ -6,7 +6,7 @@ import { FeatureCard } from '../components/hub/FeatureCard';
 import { Footer } from '../components/layout/Footer';
 import { VOICE_HANDBOOK_DATA } from '../data/voiceHandbookData';
 import { 
-  Users, BookOpen, HeartHandshake, RefreshCw, ShieldCheck,
+  Users, BookOpen, Clock, HeartHandshake, RefreshCw, ShieldCheck,
   GraduationCap, Tent, Calendar, Compass, Phone,
   Sparkles, PlayCircle,
   Flame, Landmark, MapPin, ChevronDown, ChevronUp,
@@ -65,6 +65,32 @@ export const HubHome: React.FC = () => {
   ];
 
   const CARDS_DATA = [
+    {
+      id: 'discipline_audit',
+      titleEn: "VOICE & Lotus Discipline Audit",
+      titleBn: 'ভয়েস ও লোটাস গ্রুপ শৃঙ্খলা অডিট',
+      descEn: "Daily bed, wake & MP abidance audit with 1-tap WhatsApp reports to Counselor.",
+      descBn: 'ঘুম, জাগরণ ও মর্নিং প্রোগ্রাম অডিট এবং কাউন্সেলর প্রভুকে হোয়াটসঅ্যাপ রিপোর্ট।',
+      categoryEn: 'Discipline & Rules',
+      categoryBn: 'শৃঙ্খলা ও অডিট',
+      categoryType: 'SEVA',
+      icon: Clock,
+      link: '/discipline-audit',
+      colorScheme: {
+        bgLight: 'bg-rose-50',
+        bgDark: 'bg-rose-950/20',
+        borderLight: 'border-rose-200',
+        borderDark: 'border-rose-900/40',
+        iconBg: 'bg-rose-600',
+        iconText: 'text-white',
+        badgeBg: 'bg-rose-50 dark:bg-rose-950/50',
+        badgeText: 'text-rose-700 dark:text-rose-300',
+        glow: 'rgba(244, 63, 94, 0.2)'
+      },
+      badgeEn: 'Daily MP Report',
+      badgeBn: 'দৈনিক রিপোর্ট',
+      isMemberOnly: false
+    },
     {
       id: 'counselor_desk',
       titleEn: "Counselor's Desk & Sadhana Audit",

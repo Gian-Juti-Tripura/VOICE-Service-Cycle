@@ -21,6 +21,7 @@ const SebanandaLibrary = lazy(() => import('./pages/library/SebanandaLibrary'));
 const UnifiedLectureLibrary = lazy(() => import('./pages/resources/UnifiedLectureLibrary'));
 const AnnouncementsPage = lazy(() => import('./pages/announcements/AnnouncementsPage'));
 const CounselorDesk = lazy(() => import('./pages/counselor/CounselorDesk'));
+const AshramDisciplineAudit = lazy(() => import('./pages/counselor/AshramDisciplineAudit'));
 const DevoteeProfilesPage = lazy(() => import('./pages/profiles/DevoteeProfilesPage'));
 const Login = lazy(() => import('./pages/auth/Login'));
 const ManagerDashboard = lazy(() => import('./pages/manager/ManagerDashboard'));
@@ -113,7 +114,8 @@ const AppContent = () => {
             
             {/* Sadhana Module */}
             <Route path="/sadhana" element={<SadhanaTracker />} />
-            <Route path="/counselor" element={<CounselorDesk />} />
+                        <Route path="/counselor" element={<CounselorDesk />} />
+            <Route path="/discipline-audit" element={<AshramDisciplineAudit />} />
 
             {/* Service Cycle Seva Roster */}
             <Route 
