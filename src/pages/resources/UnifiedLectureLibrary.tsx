@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { UNIFIED_LECTURES_DATA } from '../../data/unifiedLectureData';
 import { useLanguage } from '../../context/LanguageContext';
 import { 
-  ArrowLeft, Headphones, Video, Search, X
+  ArrowLeft, Headphones, Video, Search, X, BookOpen
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -179,20 +179,50 @@ export const UnifiedLectureLibrary: React.FC = () => {
                         {topic}
                       </span>
 
-                      {/* Action Icon */}
-                      <a 
-                        href={`https://www.youtube.com/results?search_query=${encodeURIComponent(topic)}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={`shrink-0 p-1.5 rounded-lg opacity-60 hover:opacity-100 transition-opacity ${
-                          activeSpeaker === 'PRABHUPADA' 
-                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400' 
-                            : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400'
-                        }`}
-                        title="Search on YouTube"
-                      >
-                        {activeSpeaker === 'PRABHUPADA' ? <Headphones size={16} /> : <Video size={16} />}
-                      </a>
+                      {/* Action Icons */}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {activeSpeaker === 'PRABHUPADA' ? (
+                          <>
+                            <a 
+                              href={`https://vanipedia.org/w/index.php?search=${encodeURIComponent(topic)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="p-1.5 rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 opacity-70 hover:opacity-100 transition-opacity"
+                              title="Search on Vanipedia"
+                            >
+                              <BookOpen size={16} />
+                            </a>
+                            <a 
+                              href={`https://prabhupadavani.org/search/?q=${encodeURIComponent(topic)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="p-1.5 rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 opacity-70 hover:opacity-100 transition-opacity"
+                              title="Search Audio on PrabhupadaVani"
+                            >
+                              <Headphones size={16} />
+                            </a>
+                            <a 
+                              href={`https://www.youtube.com/results?search_query=${encodeURIComponent(topic + ' Srila Prabhupada')}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="p-1.5 rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 opacity-70 hover:opacity-100 transition-opacity"
+                              title="Search on YouTube"
+                            >
+                              <Video size={16} />
+                            </a>
+                          </>
+                        ) : (
+                          <a 
+                            href={`https://www.youtube.com/results?search_query=${encodeURIComponent(topic + ' Radheshyam das ISKCON Desire tree Hare Krishna TV')}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-1.5 rounded-lg bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-400 opacity-70 hover:opacity-100 transition-opacity"
+                            title="Search on YouTube"
+                          >
+                            <Video size={16} />
+                          </a>
+                        )}
+                      </div>
                     </li>
                   ))}
                 </ul>
