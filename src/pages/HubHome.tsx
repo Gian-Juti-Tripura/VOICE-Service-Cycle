@@ -3,19 +3,23 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { FeatureCard } from '../components/hub/FeatureCard';
 import { Footer } from '../components/layout/Footer';
+import { VOICE_HANDBOOK_DATA } from '../data/voiceHandbookData';
 import { 
-  BookOpen, HeartHandshake, RefreshCw, ShieldCheck, Users, Headphones, 
-  Sparkles, Calendar, HelpCircle, Search, 
-  GraduationCap, Tent, X
+  BookOpen, HeartHandshake, RefreshCw, ShieldCheck,
+  GraduationCap, Tent, Calendar, Compass, Phone,
+  Sparkles, CheckCircle2,
+  Flame, Landmark, MapPin, ChevronDown, ChevronUp
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export const HubHome: React.FC = () => {
   const { user } = useAuth();
   const { language } = useLanguage();
   const navigate = useNavigate();
+  const [searchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'ALL' | 'SEVA' | 'STUDY' | 'PREACHING' | 'ORG'>('ALL');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [showIskconCenters, setShowIskconCenters] = useState(false);
+  const [selectedYearTab, setSelectedYearTab] = useState<number>(0);
 
   const isLoggedIn = !!user;
 
@@ -47,32 +51,6 @@ export const HubHome: React.FC = () => {
       isMemberOnly: false
     },
     {
-      id: 'service_cycle_member',
-      titleEn: 'My Daily Seva Dashboard',
-      titleBn: 'আমার দৈনিক সেবা',
-      descEn: 'Today\'s seva duty, timing & upcoming 7-day schedule.',
-      descBn: 'আজকের সেবা দায়িত্ব, সময়সূচি ও আগামী ৭ দিনের শিডিউল।',
-      categoryEn: 'Ashram Seva',
-      categoryBn: 'আশ্রম সেবা',
-      categoryType: 'SEVA',
-      icon: RefreshCw,
-      link: isLoggedIn ? '/member' : '/login',
-      colorScheme: {
-        bgLight: 'bg-emerald-50',
-        bgDark: 'bg-emerald-950/20',
-        borderLight: 'border-emerald-200',
-        borderDark: 'border-emerald-900/40',
-        iconBg: 'bg-emerald-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-emerald-50 dark:bg-emerald-950/50',
-        badgeText: 'text-emerald-700 dark:text-emerald-300',
-        glow: 'rgba(16, 185, 129, 0.2)'
-      },
-      badgeEn: 'Daily Duty',
-      badgeBn: 'দৈনিক সেবা',
-      isMemberOnly: true
-    },
-    {
       id: 'sadhana',
       titleEn: 'Digital Sadhana Sheet',
       titleBn: 'ডিজিটাল সাধনাপত্র',
@@ -96,58 +74,6 @@ export const HubHome: React.FC = () => {
       },
       badgeEn: 'Scales 1–4',
       badgeBn: 'স্কেল ১–৪',
-      isMemberOnly: true
-    },
-    {
-      id: 'syllabus',
-      titleEn: 'Full VOICE Syllabus',
-      titleBn: 'সম্পূর্ণ ভয়েস সিলেবাস',
-      descEn: '854 topics from DYS to SP Books with personal study notes.',
-      descBn: 'ডিওয়াইএস থেকে শুরু করে গ্রন্থ অধ্যয়নের ৮৫৪ বিষয় ও নোট।',
-      categoryEn: 'Study & Wisdom',
-      categoryBn: 'শিক্ষা ও প্রজ্ঞা',
-      categoryType: 'STUDY',
-      icon: BookOpen,
-      link: '/syllabus',
-      colorScheme: {
-        bgLight: 'bg-amber-50',
-        bgDark: 'bg-amber-950/20',
-        borderLight: 'border-amber-200',
-        borderDark: 'border-amber-900/40',
-        iconBg: 'bg-amber-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-amber-50 dark:bg-amber-950/50',
-        badgeText: 'text-amber-700 dark:text-amber-300',
-        glow: 'rgba(245, 158, 11, 0.2)'
-      },
-      badgeEn: '854 Topics',
-      badgeBn: '৮৫৪ বিষয়',
-      isMemberOnly: false
-    },
-        {
-      id: 'all_courses',
-      titleEn: 'All Courses & Diplomas',
-      titleBn: 'সকল কোর্স ও ডিপ্লোমা',
-      descEn: 'DYS, EBG, VVS, Bhakti Shastri & Preacher Training curriculum with session breakdowns.',
-      descBn: 'ডিওয়াইএস, ইবিজি, ভিভিএস, ভক্তি শাস্ত্রী ও প্রচারক প্রশিক্ষণ সেশন ও সনদপত্র।',
-      categoryEn: 'Vedic Courses',
-      categoryBn: 'বৈদিক কোর্স',
-      categoryType: 'STUDY',
-      icon: GraduationCap,
-      link: '/courses',
-      colorScheme: {
-        bgLight: 'bg-indigo-50',
-        bgDark: 'bg-indigo-950/20',
-        borderLight: 'border-indigo-200',
-        borderDark: 'border-indigo-900/40',
-        iconBg: 'bg-indigo-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-indigo-50 dark:bg-indigo-950/50',
-        badgeText: 'text-indigo-700 dark:text-indigo-300',
-        glow: 'rgba(99, 102, 241, 0.2)'
-      },
-      badgeEn: '6 Courses',
-      badgeBn: '৬টি কোর্স',
       isMemberOnly: false
     },
     {
@@ -177,11 +103,37 @@ export const HubHome: React.FC = () => {
       isMemberOnly: false
     },
     {
+      id: 'all_courses',
+      titleEn: 'All Courses & Diplomas',
+      titleBn: 'সকল কোর্স ও ডিপ্লোমা',
+      descEn: 'DYS (6 Sessions), SS, PT, SM, PL & Bhakti Shastri with session breakdowns.',
+      descBn: 'ডিওয়াইএস (৬ সেশন), এসএস, পিটি, এসএম, পিএল ও ভক্তি শাস্ত্রী পাঠ্যক্রম।',
+      categoryEn: 'Vedic Courses',
+      categoryBn: 'বৈদিক কোর্স',
+      categoryType: 'STUDY',
+      icon: GraduationCap,
+      link: '/courses',
+      colorScheme: {
+        bgLight: 'bg-purple-50',
+        bgDark: 'bg-purple-950/20',
+        borderLight: 'border-purple-200',
+        borderDark: 'border-purple-900/40',
+        iconBg: 'bg-purple-600',
+        iconText: 'text-white',
+        badgeBg: 'bg-purple-50 dark:bg-purple-950/50',
+        badgeText: 'text-purple-700 dark:text-purple-300',
+        glow: 'rgba(168, 85, 247, 0.2)'
+      },
+      badgeEn: '6 Courses',
+      badgeBn: '৬টি কোর্স',
+      isMemberOnly: false
+    },
+    {
       id: 'all_camps',
-      titleEn: 'Youth Retreats & Camps',
-      titleBn: 'যুব রিট্রিট ও মহা শিবির',
-      descEn: 'Annual Residential Retreat, Mega Fest UDGOSH, Holy Dham Pilgrimage & Weekend Immersion.',
-      descBn: 'বার্ষিক আবাসিক রিট্রিট, উদ্ঘোষ ফেস্ট, মায়াপুর-বৃন্দাবন পরিক্রমা ও সাপ্তাহিক সাধনা ক্যাম্প।',
+      titleEn: 'Sacred 6-Step Camps & Yatras',
+      titleBn: 'পবিত্র ৬-ধাপের ক্যাম্প ও পরিক্রমা',
+      descEn: 'Sankalpa, Sphurti, Utkarsh, Nishtha, Ashroy, Saranagati & Prerana Festival.',
+      descBn: 'সঙ্কল্প, স্ফূর্তি, উৎকর্ষ, নিষ্ঠা, আশ্রয়, শরণাগতি ও প্রেরণা যুব উৎসব।',
       categoryEn: 'Camps & Yatras',
       categoryBn: 'ক্যাম্প ও যাত্রা',
       categoryType: 'STUDY',
@@ -198,99 +150,21 @@ export const HubHome: React.FC = () => {
         badgeText: 'text-amber-700 dark:text-amber-300',
         glow: 'rgba(245, 158, 11, 0.2)'
       },
-      badgeEn: '5 Retreats',
-      badgeBn: '৫টি ক্যাম্প',
+      badgeEn: '6 Step Camps',
+      badgeBn: '৬টি ক্যাম্প',
       isMemberOnly: false
     },
     {
-      id: 'study_care_board',
-      titleEn: 'Study Care & Academic Board',
-      titleBn: 'স্টাডি কেয়ার ও বিসিএস বোর্ড',
-      descEn: 'Gian Juti & Pranto: Exam revision circles, BCS quizzes & study routine.',
-      descBn: 'জ্ঞান জ্যোতি ও প্রান্ত: চবি পরীক্ষা রিভিশন, বিসিএস কুইজ ও পড়ার ট্র্যাকার।',
-      categoryEn: 'Academic Care',
-      categoryBn: 'স্টাডি ও ক্যারিয়ার',
-      categoryType: 'STUDY',
-      icon: GraduationCap,
-      link: '/management?tab=STUDY_CARE',
-      colorScheme: {
-        bgLight: 'bg-blue-50',
-        bgDark: 'bg-blue-950/20',
-        borderLight: 'border-blue-200',
-        borderDark: 'border-blue-900/40',
-        iconBg: 'bg-blue-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-blue-50 dark:bg-blue-950/50',
-        badgeText: 'text-blue-700 dark:text-blue-300',
-        glow: 'rgba(37, 99, 235, 0.2)'
-      },
-      badgeEn: 'Gian + Pranto',
-      badgeBn: 'জ্ঞান + প্রান্ত',
-      isMemberOnly: false
-    },
-    {
-      id: 'vani_lectures',
-      titleEn: 'Prabhupada Vani Series (Audio & Video)',
-      titleBn: 'প্রভুপাদ বাণী সিরিজ (অডিও ও ভিডিও)',
-      descEn: '240+ Srimad Bhagavatam lectures, Hare Krsna TV & IDT.',
-      descBn: '২৪০+ ভাগবতম লেকচার, হরেকৃষ্ণ টিভি ও ডিজায়ার ট্রি।',
+      id: 'syllabus',
+      titleEn: 'Full VOICE Syllabus',
+      titleBn: 'সম্পূর্ণ ভয়েস সিলেবাস',
+      descEn: '854 topics from DYS to SP Books with personal study notes.',
+      descBn: 'ডিওয়াইএস থেকে শুরু করে গ্রন্থ অধ্যয়নের ৮৫৪ বিষয় ও নোট।',
       categoryEn: 'Study & Wisdom',
       categoryBn: 'শিক্ষা ও প্রজ্ঞা',
       categoryType: 'STUDY',
-      icon: Headphones,
-      link: '/syllabus?tab=vani',
-      colorScheme: {
-        bgLight: 'bg-cyan-50',
-        bgDark: 'bg-cyan-950/20',
-        borderLight: 'border-cyan-200',
-        borderDark: 'border-cyan-900/40',
-        iconBg: 'bg-cyan-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-cyan-50 dark:bg-cyan-950/50',
-        badgeText: 'text-cyan-700 dark:text-cyan-300',
-        glow: 'rgba(6, 182, 212, 0.2)'
-      },
-      badgeEn: '240+ Audio/Video',
-      badgeBn: '২৪০+ অডিও/ভিডিও',
-      isMemberOnly: false
-    },
-    {
-      id: 'preachers_toolkit',
-      titleEn: 'Preacher’s Pocket Toolkit & Shlokas',
-      titleBn: 'প্রচারক টুলকিট ও শ্লোক ভান্ডার',
-      descEn: '150+ answers + authentic Sanskrit shlokas with word-for-word & Bengali translations.',
-      descBn: '১৫০+ প্রশ্নোত্তর এবং পদান্বয় ও বঙ্গানুবাদসহ আসল সংস্কৃত শ্লোক।',
-      categoryEn: 'Preaching',
-      categoryBn: 'প্রচার ও প্রশিক্ষণ',
-      categoryType: 'PREACHING',
-      icon: HelpCircle,
-      link: '/preaching',
-      colorScheme: {
-        bgLight: 'bg-violet-50',
-        bgDark: 'bg-violet-950/20',
-        borderLight: 'border-violet-200',
-        borderDark: 'border-violet-900/40',
-        iconBg: 'bg-violet-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-violet-50 dark:bg-violet-950/50',
-        badgeText: 'text-violet-700 dark:text-violet-300',
-        glow: 'rgba(168, 85, 247, 0.2)'
-      },
-      badgeEn: 'Real Shlokas',
-      badgeBn: 'আসল শ্লোক',
-      isMemberOnly: false
-    },
-        {
-      id: 'advaita_org',
-      titleEn: 'Advaita VOICE Org (All Depts)',
-      titleBn: 'অদ্বৈত পরিচালনা ও সকল বিভাগ',
-      descEn: 'Leadership tree & all department action boards (Kitchen, Festivals, Study Care, Outreach).',
-      descBn: 'পরিচালনা পরিষদ ও সকল বিভাগীয় বোর্ড (রান্নাঘর, উৎসব, প্রচার ও স্টাডি)।',
-      categoryEn: 'Governance',
-      categoryBn: 'পরিচালনা পরিষদ',
-      categoryType: 'ORG',
-      icon: Users,
-      link: '/management',
+      icon: Compass,
+      link: '/syllabus',
       colorScheme: {
         bgLight: 'bg-rose-50',
         bgDark: 'bg-rose-950/20',
@@ -302,34 +176,112 @@ export const HubHome: React.FC = () => {
         badgeText: 'text-rose-700 dark:text-rose-300',
         glow: 'rgba(244, 63, 94, 0.2)'
       },
-      badgeEn: 'All Depts',
-      badgeBn: 'সকল বিভাগ',
+      badgeEn: '854 Topics',
+      badgeBn: '৮৫৪ বিষয়',
       isMemberOnly: false
     },
     {
-      id: 'calendar',
+      id: 'service_cycle_member',
+      titleEn: 'My Daily Seva Dashboard',
+      titleBn: 'আমার দৈনিক সেবা',
+      descEn: "Today's seva duty, timing & upcoming 7-day schedule.",
+      descBn: 'আজকের সেবা দায়িত্ব, সময়সূচি ও আগামী ৭ দিনের শিডিউল।',
+      categoryEn: 'Ashram Seva',
+      categoryBn: 'আশ্রম সেবা',
+      categoryType: 'SEVA',
+      icon: RefreshCw,
+      link: isLoggedIn ? '/member' : '/login',
+      colorScheme: {
+        bgLight: 'bg-emerald-50',
+        bgDark: 'bg-emerald-950/20',
+        borderLight: 'border-emerald-200',
+        borderDark: 'border-emerald-900/40',
+        iconBg: 'bg-emerald-600',
+        iconText: 'text-white',
+        badgeBg: 'bg-emerald-50 dark:bg-emerald-950/50',
+        badgeText: 'text-emerald-700 dark:text-emerald-300',
+        glow: 'rgba(16, 185, 129, 0.2)'
+      },
+      badgeEn: 'Daily Duty',
+      badgeBn: 'দৈনিক সেবা',
+      isMemberOnly: true
+    },
+    {
+      id: 'preaching_toolkit',
+      titleEn: "Preacher's Pocket Toolkit & Shlokas",
+      titleBn: 'প্রচারক পকেট টুলকিট ও শ্লোক',
+      descEn: '108 core Sanskrit verses, debate refutations & outreach strategies.',
+      descBn: '১০৮টি মৌলিক সংস্কৃত শ্লোক, বিজ্ঞানভিত্তিক যুক্তি ও প্রচার কলা।',
+      categoryEn: 'Preaching & Youth',
+      categoryBn: 'প্রচার ও যুবসেবা',
+      categoryType: 'PREACHING',
+      icon: Flame,
+      link: '/preaching',
+      colorScheme: {
+        bgLight: 'bg-orange-50',
+        bgDark: 'bg-orange-950/20',
+        borderLight: 'border-orange-200',
+        borderDark: 'border-orange-900/40',
+        iconBg: 'bg-orange-600',
+        iconText: 'text-white',
+        badgeBg: 'bg-orange-50 dark:bg-orange-950/50',
+        badgeText: 'text-orange-700 dark:text-orange-300',
+        glow: 'rgba(234, 88, 12, 0.2)'
+      },
+      badgeEn: '108 Shlokas',
+      badgeBn: '১০৮ শ্লোক',
+      isMemberOnly: false
+    },
+    {
+      id: 'advaita_org',
+      titleEn: 'Advaita VOICE Org (All Depts)',
+      titleBn: 'অদ্বৈত ভয়েস সাংগঠনিক কাঠামো',
+      descEn: 'Central leadership, 9 departments, 12 members matrix & Study Care.',
+      descBn: 'কেন্দ্রীয় পরিচালনা পর্ষদ, ৯টি বিভাগ ও স্টাডি কেয়ার টিম।',
+      categoryEn: 'Ashram Management',
+      categoryBn: 'আশ্রম ব্যবস্থাপনা',
+      categoryType: 'ORG',
+      icon: Landmark,
+      link: '/management',
+      colorScheme: {
+        bgLight: 'bg-slate-50',
+        bgDark: 'bg-slate-900/40',
+        borderLight: 'border-slate-200',
+        borderDark: 'border-slate-800',
+        iconBg: 'bg-slate-700',
+        iconText: 'text-white',
+        badgeBg: 'bg-slate-100 dark:bg-slate-800',
+        badgeText: 'text-slate-700 dark:text-slate-300',
+        glow: 'rgba(71, 85, 105, 0.2)'
+      },
+      badgeEn: 'Central Org',
+      badgeBn: 'কেন্দ্রীয় পর্ষদ',
+      isMemberOnly: false
+    },
+    {
+      id: 'vaishnava_calendar',
       titleEn: '2026 Vaishnava Calendar & Festivals',
       titleBn: '২০২৬ বৈষ্ণব ক্যালেন্ডার ও উৎসব',
-      descEn: 'Official 2026 Ekadashis, Parana breaking schedule & major ISKCON festivals with seva duties.',
-      descBn: '২০২৬ সালের সকল একাদশী, পারণ সময় ও মহোৎসবের তালিকা ও সেবা দায়িত্ব।',
-      categoryEn: 'Festivals',
-      categoryBn: 'ব্রত ও উৎসব',
-      categoryType: 'PREACHING',
+      descEn: 'Official 2026 Ekadashi fasting, Parana time & Appearance days.',
+      descBn: '২০২৬ সালের সকল একাদশী ব্রত, পারণ সময় ও বৈষ্ণবীয় আবির্ভাব তিথি।',
+      categoryEn: 'Calendar & Feasts',
+      categoryBn: 'পঞ্জিকা ও উৎসব',
+      categoryType: 'ORG',
       icon: Calendar,
       link: '/calendar',
       colorScheme: {
-        bgLight: 'bg-yellow-50',
-        bgDark: 'bg-yellow-950/20',
-        borderLight: 'border-yellow-200',
-        borderDark: 'border-yellow-900/40',
-        iconBg: 'bg-yellow-600',
+        bgLight: 'bg-teal-50',
+        bgDark: 'bg-teal-950/20',
+        borderLight: 'border-teal-200',
+        borderDark: 'border-teal-900/40',
+        iconBg: 'bg-teal-600',
         iconText: 'text-white',
-        badgeBg: 'bg-yellow-50 dark:bg-yellow-950/50',
-        badgeText: 'text-yellow-700 dark:text-yellow-300',
-        glow: 'rgba(234, 179, 8, 0.2)'
+        badgeBg: 'bg-teal-50 dark:bg-teal-950/50',
+        badgeText: 'text-teal-700 dark:text-teal-300',
+        glow: 'rgba(13, 148, 136, 0.2)'
       },
-      badgeEn: '2026 ISKCON',
-      badgeBn: '২০২৬ ক্যালেন্ডার',
+      badgeEn: '2026 Dates',
+      badgeBn: '২০২৬ পঞ্জিকা',
       isMemberOnly: false
     }
   ];
@@ -337,8 +289,7 @@ export const HubHome: React.FC = () => {
   const filteredCards = CARDS_DATA.filter(card => {
     const matchesFilter = activeFilter === 'ALL' || card.categoryType === activeFilter;
     const query = searchQuery.toLowerCase();
-    const matchesSearch = 
-      card.titleEn.toLowerCase().includes(query) ||
+    const matchesSearch = card.titleEn.toLowerCase().includes(query) ||
       card.titleBn.toLowerCase().includes(query) ||
       card.descEn.toLowerCase().includes(query) ||
       card.descBn.toLowerCase().includes(query);
@@ -346,124 +297,354 @@ export const HubHome: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50/80 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 font-sans pb-8">
+    <div className="min-h-screen bg-slate-50/40 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
       
-      {/* Compact Hero Banner */}
-      <section className="relative overflow-hidden pt-4 pb-3 sm:pt-6 sm:pb-5 px-3 sm:px-6 lg:px-8 bg-gradient-to-b from-amber-500/[0.08] via-primary-500/[0.04] to-transparent dark:from-amber-500/[0.05] dark:via-primary-500/[0.05] dark:to-transparent border-b border-slate-200/70 dark:border-slate-800/80">
-        
-        {/* Soft Ambient Light Glow */}
-        <div className="absolute -top-14 left-1/2 -translate-x-1/2 w-full max-w-xl h-36 bg-gradient-to-r from-amber-500/20 via-primary-500/15 to-rose-500/15 blur-3xl pointer-events-none rounded-full" />
+      {/* Live Rotating Announcements Ticker Bar */}
+      <div className="bg-gradient-to-r from-amber-600 via-orange-600 to-indigo-700 text-white text-xs font-bold py-2 px-4 shadow-sm">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4 overflow-hidden">
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="px-2 py-0.5 rounded bg-black/30 text-[10px] uppercase tracking-wider font-mono font-black">
+              2026 Announcement
+            </span>
+          </div>
+          <p className="truncate text-[11px] sm:text-xs">
+            🌸 <strong>Prerana Festival 2026 &amp; Night Stay Festivals:</strong> Next session at Advaita VOICE (University of Chittagong). All students are welcome!
+          </p>
+          <Link to="/calendar" className="shrink-0 underline text-[11px] hover:text-amber-200">
+            View Schedule →
+          </Link>
+        </div>
+      </div>
 
-        <div className="relative max-w-3xl mx-auto text-center space-y-2.5 z-10">
-          
-          {/* Top Tag */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-amber-500/30 text-[10px] sm:text-[11px] font-bold text-amber-700 dark:text-amber-400">
-            <Sparkles size={11} className="text-amber-500" />
-            <span>Advaita VOICE • University of Chittagong</span>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+        
+        {/* ================= 1. MAJESTIC HERO SECTION ================= */}
+        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 bg-gradient-to-br from-indigo-900 via-slate-900 to-amber-950 text-white shadow-2xl border border-white/10">
+          <div className="absolute -right-16 -bottom-16 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative z-10 space-y-4">
+            
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30 backdrop-blur-md">
+                Advaita VOICE • University of Chittagong
+              </span>
+              <span className="px-3 py-1 rounded-full bg-white/10 text-slate-200 text-xs font-mono font-bold backdrop-blur-md">
+                Dare to be Rare
+              </span>
+            </div>
+
+            <div className="space-y-1">
+              <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+                {language === 'bn' ? 'অদ্বৈত ভয়েস যুব প্রচার ও সাধনা পোর্টাল' : 'Advaita VOICE Youth & Sadhana Hub'}
+              </h1>
+              <p className="text-sm sm:text-base text-amber-300 font-serif italic tracking-wide">
+                "{language === 'bn' ? VOICE_HANDBOOK_DATA.mottoBn : VOICE_HANDBOOK_DATA.mottoEn}"
+              </p>
+            </div>
+
+            {/* Srila Prabhupada Oasis Quote Box */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md space-y-2 text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
+              <p className="italic">
+                "{language === 'bn' ? VOICE_HANDBOOK_DATA.oasisQuoteBn : VOICE_HANDBOOK_DATA.oasisQuoteEn}"
+              </p>
+              <div className="text-right text-[11px] font-bold text-amber-400">
+                — {language === 'bn' ? VOICE_HANDBOOK_DATA.oasisSourceBn : VOICE_HANDBOOK_DATA.oasisSourceEn}
+              </div>
+            </div>
+
+            {/* Quick Action Navigation Buttons */}
+            <div className="flex items-center gap-3 pt-2 flex-wrap text-xs font-bold">
+              <button
+                onClick={() => navigate('/counselor')}
+                className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black flex items-center gap-1.5 shadow-lg hover:scale-102 transition-all cursor-pointer"
+              >
+                <ShieldCheck size={15} />
+                <span>{language === 'bn' ? 'কাউন্সেলর ডেস্ক' : 'Counselor Desk'}</span>
+              </button>
+
+              <button
+                onClick={() => navigate('/sadhana')}
+                className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5 shadow-lg hover:scale-102 transition-all cursor-pointer"
+              >
+                <HeartHandshake size={15} />
+                <span>{language === 'bn' ? 'ডিজিটাল সাধনাপত্র' : 'Digital Sadhana'}</span>
+              </button>
+
+              <button
+                onClick={() => navigate('/library')}
+                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 shadow-lg hover:scale-102 transition-all cursor-pointer"
+              >
+                <BookOpen size={15} />
+                <span>{language === 'bn' ? 'সেবানন্দ গ্রন্থাগার' : 'Sebananda Library'}</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        {/* ================= 2. SEARCH & MODULES CARD GRID ================= */}
+        <div className="space-y-5">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                {language === 'bn' ? 'ভয়েস প্রধান মডিউল ও সেবাসমূহ' : 'VOICE Core Modules & Services'}
+              </h2>
+              <p className="text-xs text-slate-500">
+                {language === 'bn' ? 'নিচের যেকোনো কার্ডে ক্লিক করে সরাসরি ড্যাশবোর্ড ব্যবহার করুন' : 'Click any card below to launch its interactive workspace'}
+              </p>
+            </div>
+
+            {/* Category Filters */}
+            <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 p-1 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs font-bold overflow-x-auto">
+              {[
+                { key: 'ALL', label: 'All Modules' },
+                { key: 'SEVA', label: 'Seva & Care' },
+                { key: 'STUDY', label: 'Courses & Wisdom' },
+                { key: 'PREACHING', label: 'Preaching' },
+                { key: 'ORG', label: 'Org & Dates' }
+              ].map(f => (
+                <button
+                  key={f.key}
+                  onClick={() => setActiveFilter(f.key as any)}
+                  className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${activeFilter === f.key ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Main Title */}
-          <h1 className="text-xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight">
-            <span className="bg-gradient-to-r from-slate-900 via-primary-800 to-amber-600 dark:from-white dark:via-primary-200 dark:to-amber-300 bg-clip-text text-transparent">
-              {language === 'bn' ? 'অদ্বৈত ভয়েস ডিজিটাল হাব' : 'Advaita VOICE Digital Hub'}
-            </span>
-          </h1>
+          {/* Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredCards.map(card => (
+              <FeatureCard
+                key={card.id}
+                {...card}
+                lang={language}
+                isLoggedIn={isLoggedIn}
+              />
+            ))}
+          </div>
+        </div>
 
-          {/* Sacred Devotional Motto & Key Feature Box */}
-          <div className="max-w-xl mx-auto px-3 py-1.5 rounded-xl bg-amber-500/[0.05] dark:bg-amber-500/[0.07] border border-amber-500/25 backdrop-blur-xs">
-            <div className="flex items-center justify-center gap-1 text-amber-600 dark:text-amber-400 font-serif italic text-xs sm:text-sm font-bold tracking-wide">
-              <span>✦</span>
-              <span>
-                {language === 'bn' 
-                  ? '“জ্ঞানের পুনরুদ্দীপন, ভালবাসার উৎসরণ”' 
-                  : '“Rekindling Wisdom, Reviving Love”'}
-              </span>
-              <span>✦</span>
+        {/* ================= 3. THE 6 PILLARS & 8 CORE OBJECTIVES ================= */}
+        <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md space-y-6">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-bold border border-indigo-200 dark:border-indigo-900">
+              <Sparkles size={13} />
+              <span>Pillars &amp; Objectives</span>
             </div>
-            <p className="text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-300 font-medium mt-0.5">
-              {language === 'bn' 
-                ? 'সম্পূর্ণ ভয়েস সিলেবাস • ডিজিটাল সাধনা কার্ড ও রিপোর্ট • ২০২৬ বৈষ্ণব ক্যালেন্ডার' 
-                : 'Full VOICE Syllabus (854) • Digital Sadhana Card & Reports • 2026 Calendar'}
+            <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+              {language === 'bn' ? 'ভয়েসের ৬টি স্তম্ভ ও ৮টি মূল উদ্দেশ্য' : 'The 6 Pillars & 8 Core Objectives of VOICE'}
+            </h3>
+          </div>
+
+          {/* 6 Pillars Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {VOICE_HANDBOOK_DATA.sixPillars.map((p, i) => (
+              <div key={i} className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-center space-y-1">
+                <span className="text-xs font-black text-indigo-600 dark:text-indigo-400 block">
+                  {language === 'bn' ? p.titleBn : p.titleEn}
+                </span>
+                <p className="text-[10px] text-slate-500 leading-tight">
+                  {language === 'bn' ? p.descBn : p.descEn}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* 8 Objectives List */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+            {VOICE_HANDBOOK_DATA.objectives.map(obj => (
+              <div key={obj.number} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-start gap-3">
+                <span className="w-6 h-6 rounded-full bg-indigo-600 text-white font-mono text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                  {obj.number}
+                </span>
+                <div className="space-y-0.5 text-xs">
+                  <h4 className="font-bold text-slate-900 dark:text-white">
+                    {language === 'bn' ? obj.titleBn : obj.titleEn}
+                  </h4>
+                  <p className="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
+                    {language === 'bn' ? obj.descBn : obj.descEn}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ================= 4. 4-YEAR ACADEMIC & CAMP PROGRESSION ROADMAP ================= */}
+        <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 text-white shadow-xl space-y-6 border border-purple-500/20">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+            <div>
+              <span className="text-xs font-bold text-purple-400 uppercase tracking-wider font-mono">
+                Official VOICE Curriculum
+              </span>
+              <h3 className="text-xl sm:text-2xl font-black text-white">
+                {language === 'bn' ? '৪-বছর মেয়াদী বৈদিক কোর্স ও ক্যাম্প কারিকুলাম' : '4-Year VOICE Academic & Camp Progression Roadmap'}
+              </h3>
+            </div>
+
+            {/* Year Selector Buttons */}
+            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-white/10 text-xs font-bold">
+              {VOICE_HANDBOOK_DATA.fourYearMatrix.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setSelectedYearTab(idx)}
+                  className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${selectedYearTab === idx ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-300 hover:text-white'}`}
+                >
+                  Year {idx + 1}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Selected Year Display Box */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* Courses Column */}
+            <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+              <div className="flex items-center gap-2">
+                <GraduationCap size={16} className="text-purple-400" />
+                <h4 className="text-sm font-black text-purple-300 uppercase">
+                  {language === 'bn' ? 'অধ্যয়ন কোর্সসমূহ (Courses)' : 'Academic Courses'}
+                </h4>
+              </div>
+              <ul className="space-y-2 text-xs text-slate-200">
+                {VOICE_HANDBOOK_DATA.fourYearMatrix[selectedYearTab].courses.map((c, i) => (
+                  <li key={i} className="flex items-center gap-2 p-2 rounded-xl bg-white/5">
+                    <CheckCircle2 size={13} className="text-emerald-400 shrink-0" />
+                    <span>{c}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Camps Column */}
+            <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+              <div className="flex items-center gap-2">
+                <Tent size={16} className="text-amber-400" />
+                <h4 className="text-sm font-black text-amber-300 uppercase">
+                  {language === 'bn' ? 'আবাসিক ক্যাম্পসমূহ (Camps)' : 'Residential Camps'}
+                </h4>
+              </div>
+              <ul className="space-y-2 text-xs text-slate-200">
+                {VOICE_HANDBOOK_DATA.fourYearMatrix[selectedYearTab].camps.map((camp, i) => (
+                  <li key={i} className="flex items-center gap-2 p-2 rounded-xl bg-white/5">
+                    <Flame size={13} className="text-amber-400 shrink-0" />
+                    <span>{camp}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+          </div>
+        </div>
+
+        {/* ================= 5. 2026 NIGHT STAY FESTIVALS & HOST ASHRAMS ================= */}
+        <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 flex-wrap gap-2">
+            <div>
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 font-mono">
+                Monthly Fellowship
+              </span>
+              <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white mt-1">
+                {language === 'bn' ? '২০২৬ নাইট স্টে ফেস্টিভ্যাল ও হোস্ট আশ্রম তালিকা' : '2026 Night Stay Festivals Calendar'}
+              </h3>
+            </div>
+            <Link to="/calendar" className="text-xs font-bold text-indigo-600 hover:underline">
+              View Vaishnava Calendar →
+            </Link>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 dark:border-slate-800 text-[11px] font-extrabold text-slate-400 uppercase">
+                  <th className="pb-2">Month</th>
+                  <th className="pb-2">Servants / Organizers</th>
+                  <th className="pb-2">Managed By (VOICE Host Ashrams)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
+                {VOICE_HANDBOOK_DATA.nightStayFestivals2026.map((n, i) => (
+                  <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                    <td className="py-2.5 font-bold text-indigo-600 dark:text-indigo-400 font-mono">
+                      {language === 'bn' ? n.monthBn : n.monthEn}
+                    </td>
+                    <td className="py-2.5 text-slate-800 dark:text-slate-200">
+                      {language === 'bn' ? n.servantBn : n.servantEn}
+                    </td>
+                    <td className="py-2.5 font-semibold text-slate-600 dark:text-slate-400">
+                      {language === 'bn' ? n.managedByBn : n.managedByEn}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* ================= 6. BLESSINGS & CENTRAL LEADERSHIP ================= */}
+        <div className="rounded-3xl p-6 sm:p-8 bg-amber-500/10 border border-amber-500/30 space-y-4">
+          <div className="space-y-2">
+            <span className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 font-mono">
+              Invocations &amp; Blessings
+            </span>
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 italic leading-relaxed">
+              "{language === 'bn' ? VOICE_HANDBOOK_DATA.swamiBlessingBn : VOICE_HANDBOOK_DATA.swamiBlessingEn}"
+            </p>
+            <p className="text-xs font-bold text-amber-700 dark:text-amber-400">
+              — {language === 'bn' ? VOICE_HANDBOOK_DATA.swamiTitleBn : VOICE_HANDBOOK_DATA.swamiTitleEn}
             </p>
           </div>
+        </div>
 
-          {/* Search Input */}
-          <div className="pt-1 max-w-md mx-auto">
-            <div className="relative group">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" />
-              <input 
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={language === 'bn' ? 'মডিউল, স্টাডি কেয়ার বা ২০২৬ ক্যালেন্ডার খুঁজুন...' : 'Search modules, camps, calendar...'}
-                className="w-full pl-8 pr-8 py-1.5 sm:py-2 rounded-xl bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 shadow-xs text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all placeholder:text-slate-400"
-              />
-              {searchQuery && (
-                <button 
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600"
-                >
-                  <X size={13} />
-                </button>
-              )}
+        {/* ================= 7. ISKCON BANGLADESH CENTRES DIRECTORY ================= */}
+        <div className="rounded-3xl p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div 
+            onClick={() => setShowIskconCenters(!showIskconCenters)}
+            className="flex items-center justify-between cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <Landmark size={18} className="text-indigo-600" />
+              <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
+                {language === 'bn' ? 'বাংলাদেশে ইসকন কেন্দ্রসমূহের তালিকা (ফোন ও ঠিকানা)' : 'ISKCON Centres in Bangladesh Directory'}
+              </h3>
             </div>
+            <button className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
+              {showIskconCenters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
           </div>
 
-        </div>
-      </section>
-
-      {/* Filter Tabs & Compact Grid */}
-      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3">
-        
-        {/* Filter Pills */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1.5 scrollbar-none justify-start sm:justify-center">
-          {[
-            { id: 'ALL', labelEn: 'All Modules', labelBn: 'সকল' },
-            { id: 'SEVA', labelEn: '🔄 Seva & Sadhana', labelBn: '🔄 সেবা ও সাধনা' },
-            { id: 'STUDY', labelEn: '📖 Study & Camps', labelBn: '📖 স্টাডি ও ক্যাম্প' },
-            { id: 'PREACHING', labelEn: '❓ Preaching & Shlokas', labelBn: '❓ প্রচার ও শ্লোক' },
-            { id: 'ORG', labelEn: '🏛️ Org & All Depts', labelBn: '🏛️ পরিচালনা পরিষদ' }
-          ].map(tab => {
-            const count = tab.id === 'ALL' 
-              ? CARDS_DATA.length 
-              : CARDS_DATA.filter(c => c.categoryType === tab.id).length;
-
-            const isActive = activeFilter === tab.id;
-
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveFilter(tab.id as any)}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all ${
-                  isActive
-                    ? 'bg-gradient-to-r from-primary-600 to-amber-600 text-white shadow-xs'
-                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-800 hover:bg-slate-100'
-                }`}
-              >
-                <span>{language === 'bn' ? tab.labelBn : tab.labelEn}</span>
-                <span className={`text-[9px] font-extrabold px-1 py-0.1 rounded ${
-                  isActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                }`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+          {showIskconCenters && (
+            <div className="space-y-4 pt-2 border-t border-slate-100 dark:border-slate-800 animate-in fade-in duration-200">
+              {VOICE_HANDBOOK_DATA.iskconDivisions.map((div, dIdx) => (
+                <div key={dIdx} className="space-y-2">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                    {language === 'bn' ? div.divisionNameBn : div.divisionNameEn}
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    {div.centers.map((c, cIdx) => (
+                      <div key={cIdx} className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
+                        <div className="font-bold text-slate-900 dark:text-white">{c.name}</div>
+                        <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                          <MapPin size={12} className="text-rose-500 shrink-0" />
+                          <span>{c.address}</span>
+                        </div>
+                        <div className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                          <Phone size={11} />
+                          <span>{c.phones.join(', ')}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Compact 2-Column Mobile / 3-Col Tablet / 4-Col Desktop Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3.5 pt-2.5">
-          {filteredCards.map(card => (
-            <FeatureCard 
-              key={card.id}
-              {...card}
-              isLoggedIn={isLoggedIn}
-              lang={language}
-              onLockedClick={() => navigate('/login')}
-            />
-          ))}
-        </div>
-      </section>
+      </div>
 
       <Footer />
     </div>

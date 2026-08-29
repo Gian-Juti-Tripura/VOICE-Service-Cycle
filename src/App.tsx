@@ -3,6 +3,7 @@ import { useEffect, Suspense, lazy, type ReactNode } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import Navbar from './components/layout/Navbar';
+import FloatingActionBar from './components/layout/FloatingActionBar';
 import { Toaster } from 'react-hot-toast';
 import { initializeOneSignal } from './utils/onesignal';
 import { scheduleDailyNotifications } from './utils/notificationScheduler';
@@ -86,6 +87,7 @@ const AppContent = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
+      <FloatingActionBar />
       <main className="flex-1">
         <Toaster position="top-center" />
         <Suspense fallback={<LoadingFallback />}>
