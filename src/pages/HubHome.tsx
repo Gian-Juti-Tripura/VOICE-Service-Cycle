@@ -421,37 +421,59 @@ export const HubHome: React.FC = () => {
 
       </div>
 
+      {/* ================= DISTINCT STYLISH ITALIC BANNER: DARE TO BE RARE ================= */}
+      <div className="w-full bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-b border-indigo-500/30 py-2 px-4 text-center shadow-xs">
+        <div className="max-w-4xl mx-auto flex items-center justify-center gap-3">
+          <span className="h-[1px] flex-1 max-w-[60px] sm:max-w-[120px] bg-gradient-to-r from-transparent to-amber-400/60" />
+          <span className="text-xs sm:text-sm md:text-base font-serif italic tracking-[0.2em] font-extrabold bg-gradient-to-r from-amber-300 via-orange-200 to-amber-300 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(245,158,11,0.3)] select-none">
+            ✦ Dare to be Rare ✦
+          </span>
+          <span className="h-[1px] flex-1 max-w-[60px] sm:max-w-[120px] bg-gradient-to-l from-transparent to-amber-400/60" />
+        </div>
+      </div>
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
-        {/* ================= 1. MAJESTIC HERO SECTION WITH 5 CORE BUTTONS ================= */}
+        {/* ================= 1. MAJESTIC HERO SECTION WITH IYF LOGO & RESTYLED NAMES ================= */}
         <div className="relative overflow-hidden rounded-[32px] p-6 sm:p-10 bg-gradient-to-br from-indigo-950 via-slate-900 to-amber-950 text-white shadow-[0_20px_50px_rgba(0,0,0,0.35)] border border-white/15">
           <div className="absolute -right-16 -bottom-16 w-80 h-80 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -left-16 -top-16 w-80 h-80 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
           
-          <div className="relative z-10 space-y-4">
+          <div className="relative z-10 space-y-5">
             
-            {/* Aesthetic Pill Badges */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 text-xs font-bold border border-amber-400/35 shadow-[0_0_15px_rgba(245,158,11,0.15)] backdrop-blur-md">
-                <MapPin size={11} className="text-amber-400" />
-                Advaita VOICE • University of Chittagong
-              </span>
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-200 text-xs font-mono font-black uppercase tracking-wider border border-indigo-400/30 shadow-[0_0_15px_rgba(99,102,241,0.15)] backdrop-blur-md">
-                <Sparkles size={11} className="text-indigo-300" />
-                Dare to be Rare
-              </span>
-            </div>
+            {/* Header Identity Row: Official IYF Logo + Restyled Titles */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+              
+              {/* Official IYF Emblem Logo at First */}
+              <div className="relative shrink-0 group">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1 bg-gradient-to-tr from-amber-500 via-orange-500 to-indigo-600 shadow-[0_0_25px_rgba(245,158,11,0.35)] transition-transform duration-300 group-hover:scale-105">
+                  <img 
+                    src="/assets/iyf_logo.png" 
+                    alt="ISKCON Youth Forum (IYF)" 
+                    className="w-full h-full object-cover rounded-full bg-slate-950"
+                  />
+                </div>
+                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full bg-amber-500 text-slate-950 font-black text-[8.5px] uppercase font-mono shadow-md whitespace-nowrap">
+                  IYF • VOICE
+                </div>
+              </div>
 
-            {/* Glowing Gradient Title & Elegant Divider Subtitle */}
-            <div className="space-y-1.5">
-              <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none bg-gradient-to-r from-white via-amber-100 to-amber-300 bg-clip-text text-transparent drop-shadow-sm whitespace-nowrap">
-                {language === 'bn' ? 'অদ্বৈত ভয়েস হাব' : 'Advaita VOICE Hub'}
-              </h1>
-              <p className="text-xs sm:text-sm text-amber-300/90 font-serif italic tracking-wide flex items-center gap-2">
-                <span className="h-[1px] w-6 bg-gradient-to-r from-transparent to-amber-400/60" />
-                <span>"{language === 'bn' ? VOICE_HANDBOOK_DATA.mottoBn : VOICE_HANDBOOK_DATA.mottoEn}"</span>
-                <span className="h-[1px] w-6 bg-gradient-to-l from-transparent to-amber-400/60" />
-              </p>
+              {/* Restyled Names & Sacred Motto */}
+              <div className="space-y-1 text-center sm:text-left flex-1 min-w-0">
+                <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 text-amber-300 font-mono text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest border border-white/15 backdrop-blur-md">
+                  <Sparkles size={11} className="text-amber-400" />
+                  <span>{language === 'bn' ? 'ইসকন যুব ফোরাম • অদ্বৈত ভয়েস' : 'ISKCON Youth Forum • Advaita VOICE'}</span>
+                </div>
+                
+                <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-none bg-gradient-to-r from-amber-200 via-orange-100 to-white bg-clip-text text-transparent drop-shadow-sm whitespace-nowrap">
+                  {language === 'bn' ? 'অদ্বৈত ভয়েস হাব' : 'Advaita VOICE Hub'}
+                </h1>
+                
+                <p className="text-xs sm:text-sm text-amber-200 font-serif italic tracking-wide pt-0.5">
+                  "{language === 'bn' ? VOICE_HANDBOOK_DATA.mottoBn : VOICE_HANDBOOK_DATA.mottoEn}"
+                </p>
+              </div>
+
             </div>
 
             {/* Srila Prabhupada Oasis Quote Box */}
