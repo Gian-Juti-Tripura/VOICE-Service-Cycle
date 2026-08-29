@@ -369,8 +369,8 @@ export const HubHome: React.FC = () => {
               <span>🌸 <strong>{language === 'bn' ? 'শ্রীকৃষ্ণ জন্মাষ্টমী (৪ সেপ্টেম্বর ২০২৬):' : 'Sri Krishna Janmastami (04 Sep 2026):'}</strong> {language === 'bn' ? 'মধ্যরাত ১২:০০ পর্যন্ত নির্জলা/সজল উপবাস ও রাত ১২টায় মহাভিষেক এবং আনন্দ উৎসব।' : 'Fasting till midnight 12:00 AM • Mahabhisheka & Feast!'}</span>
             </div>
           </div>
-          <Link to="/calendar" className="shrink-0 text-[10px] sm:text-[11px] font-mono underline hover:text-amber-200 z-10 pl-1">
-            {language === 'bn' ? 'পঞ্জিকা →' : 'Calendar →'}
+          <Link to="/calendar" title="View Calendar" className="shrink-0 p-1 hover:bg-white/20 rounded-md text-amber-200 z-10 flex items-center justify-center transition-colors">
+            <ArrowRight size={15} />
           </Link>
         </div>
 
@@ -387,8 +387,8 @@ export const HubHome: React.FC = () => {
               <span>📢 <strong>{language === 'bn' ? 'সাপ্তাহিক সাধনা অডিট ও কাউন্সেলিং:' : 'Weekly Sadhana Audit & Counseling:'}</strong> {language === 'bn' ? 'শুক্রবার রাত ৮:০০ টার মধ্যে সকল শিক্ষার্থীকে সাধনাপত্র জমা দিতে হবে (কাউন্সেলর ডেস্ক সক্রিয়)।' : 'All counsellees must submit their weekly sadhana log by Friday 8:00 PM.'}</span>
             </div>
           </div>
-          <Link to="/announcements" className="shrink-0 text-[10px] sm:text-[11px] font-mono underline hover:text-rose-300 z-10 pl-1">
-            {language === 'bn' ? 'সকল নোটিশ →' : 'Notices →'}
+          <Link to="/announcements" title="View All Notices" className="shrink-0 p-1 hover:bg-white/20 rounded-md text-rose-300 z-10 flex items-center justify-center transition-colors">
+            <ArrowRight size={15} />
           </Link>
         </div>
 
@@ -412,7 +412,7 @@ export const HubHome: React.FC = () => {
 
             <div className="space-y-1">
               <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
-                {language === 'bn' ? 'অদ্বৈত ভয়েস যুব হাব' : 'Advaita VOICE Youth Hub'}
+                {language === 'bn' ? 'অদ্বৈত ভয়েস হাব' : 'Advaita VOICE Hub'}
               </h1>
               <p className="text-sm sm:text-base text-amber-300 font-serif italic tracking-wide">
                 "{language === 'bn' ? VOICE_HANDBOOK_DATA.mottoBn : VOICE_HANDBOOK_DATA.mottoEn}"
