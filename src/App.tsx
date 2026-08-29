@@ -22,6 +22,11 @@ const UnifiedLectureLibrary = lazy(() => import('./pages/resources/UnifiedLectur
 const AnnouncementsPage = lazy(() => import('./pages/announcements/AnnouncementsPage'));
 const CounselorDesk = lazy(() => import('./pages/counselor/CounselorDesk'));
 const AshramDisciplineAudit = lazy(() => import('./pages/counselor/AshramDisciplineAudit'));
+const MealDashboard = lazy(() => import('./pages/meals/MealDashboard'));
+const MealAttendancePage = lazy(() => import('./pages/meals/MealAttendancePage'));
+const BazarTrackerPage = lazy(() => import('./pages/meals/BazarTrackerPage'));
+const MealPaymentsPage = lazy(() => import('./pages/meals/MealPaymentsPage'));
+const MealReportsPage = lazy(() => import('./pages/meals/MealReportsPage'));
 const DevoteeProfilesPage = lazy(() => import('./pages/profiles/DevoteeProfilesPage'));
 const Login = lazy(() => import('./pages/auth/Login'));
 const ManagerDashboard = lazy(() => import('./pages/manager/ManagerDashboard'));
@@ -115,7 +120,14 @@ const AppContent = () => {
             {/* Sadhana Module */}
             <Route path="/sadhana" element={<SadhanaTracker />} />
                         <Route path="/counselor" element={<CounselorDesk />} />
-            <Route path="/discipline-audit" element={<AshramDisciplineAudit />} />
+                        <Route path="/discipline-audit" element={<AshramDisciplineAudit />} />
+            
+            {/* Prasad & Meal Management Routes */}
+            <Route path="/meals" element={<MealDashboard />} />
+            <Route path="/meals/attendance" element={<MealAttendancePage />} />
+            <Route path="/meals/bazar" element={<BazarTrackerPage />} />
+            <Route path="/meals/payments" element={<MealPaymentsPage />} />
+            <Route path="/meals/reports" element={<MealReportsPage />} />
 
             {/* Service Cycle Seva Roster */}
             <Route 

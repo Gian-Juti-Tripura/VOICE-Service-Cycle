@@ -6,7 +6,7 @@ import { FeatureCard } from '../components/hub/FeatureCard';
 import { Footer } from '../components/layout/Footer';
 import { VOICE_HANDBOOK_DATA } from '../data/voiceHandbookData';
 import { 
-  Users, BookOpen, Clock, HeartHandshake, RefreshCw, ShieldCheck,
+  Users, BookOpen, Clock, Utensils, HeartHandshake, RefreshCw, ShieldCheck,
   GraduationCap, Tent, Calendar, Compass, Phone,
   Sparkles, PlayCircle,
   Flame, Landmark, MapPin, ChevronDown, ChevronUp,
@@ -65,6 +65,32 @@ export const HubHome: React.FC = () => {
   ];
 
   const CARDS_DATA = [
+    {
+      id: 'meal_system',
+      titleEn: 'Prasad & Meal Manager',
+      titleBn: 'প্রসাদ ও মিল হিসাব',
+      descEn: 'Daily meal toggles, live cook headcount, bazar logs & 1-tap WhatsApp bills.',
+      descBn: 'দৈনিক মিল টগল, বাজার ট্র্যাকার ও ১-ক্লিকে হোয়াটসঅ্যাপ বিলিং।',
+      categoryEn: 'Prasad & Dining',
+      categoryBn: 'প্রসাদ ও ডাইনিং',
+      categoryType: 'SEVA',
+      icon: Utensils,
+      link: '/meals',
+      colorScheme: {
+        bgLight: 'bg-emerald-50',
+        bgDark: 'bg-emerald-950/20',
+        borderLight: 'border-emerald-200',
+        borderDark: 'border-emerald-900/40',
+        iconBg: 'bg-emerald-600',
+        iconText: 'text-white',
+        badgeBg: 'bg-emerald-50 dark:bg-emerald-950/50',
+        badgeText: 'text-emerald-700 dark:text-emerald-300',
+        glow: 'rgba(16, 185, 129, 0.2)'
+      },
+      badgeEn: 'Live Rate & Billing',
+      badgeBn: 'মিল রেট ও বিলিং',
+      isMemberOnly: false
+    },
     {
       id: 'discipline_audit',
       titleEn: "VOICE & Lotus Discipline Audit",
