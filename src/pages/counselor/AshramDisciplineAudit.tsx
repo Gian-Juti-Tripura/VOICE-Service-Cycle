@@ -235,7 +235,7 @@ export const AshramDisciplineAudit: React.FC = () => {
 
     let report = `🌟 *ADVAITA VOICE — MORNING PROGRAM & DISCIPLINE REPORT* 🌟\n`;
     report += `📅 *Date:* ${dateFormatted}\n`;
-    report += `📋 *Group:* VOICE Group (Bed: <10:00 PM | Wake: 4:00 AM | MP: <4:30 AM)\n\n`;
+    report += `📋 *Group:* VOICE Group (Bed: <= 10:00 PM | Wake: 4:00 AM | MP: <= 4:30 AM)\n\n`;
 
     report += `✅ *All Rules Followed (On Time - ${compliant.length}/${voiceStudents.length}):*\n`;
     if (compliant.length > 0) {
@@ -286,7 +286,7 @@ export const AshramDisciplineAudit: React.FC = () => {
 
     let report = `🪷 *ADVAITA VOICE — LOTUS GROUP DISCIPLINE REPORT* 🪷\n`;
     report += `📅 *Date:* ${dateFormatted}\n`;
-    report += `📋 *Group:* Lotus Group (Bed: <11:00 PM | MP: <5:00 AM)\n\n`;
+    report += `📋 *Group:* Lotus Group (Bed: <= 11:00 PM | MP: <= 5:00 AM)\n\n`;
 
     report += `✅ *All Rules Followed (On Time - ${compliant.length}/${lotusStudents.length}):*\n`;
     if (compliant.length > 0) {
@@ -420,7 +420,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-300 leading-relaxed font-normal">
-                  • <strong>Bed:</strong> &lt; 10:00 PM &nbsp;|&nbsp; <strong>Wake:</strong> 4:00 AM &nbsp;|&nbsp; <strong>MP:</strong> &lt; 4:30 AM<br/>
+                  • <strong>Bed:</strong> &le; 10:00 PM &nbsp;|&nbsp; <strong>Wake:</strong> 4:00 AM &nbsp;|&nbsp; <strong>MP:</strong> &le; 4:30 AM<br/>
                   • <em>Rule Breach:</em> 2–3 warning chances per month before demotion to Lotus.
                 </p>
               </div>
@@ -435,7 +435,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-300 leading-relaxed font-normal">
-                  • <strong>Bed:</strong> &lt; 11:00 PM &nbsp;|&nbsp; <strong>MP:</strong> &lt; 5:00 AM<br/>
+                  • <strong>Bed:</strong> &le; 11:00 PM &nbsp;|&nbsp; <strong>MP:</strong> &le; 5:00 AM<br/>
                   • <em>Rule Breach:</em> Repeated violation leads to ashram action.
                 </p>
               </div>
@@ -640,7 +640,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                         <div className="flex items-center gap-1.5">
                           <Moon size={14} className="text-indigo-400" />
                           <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            {isVoice ? '<10:00 PM Bed' : '<11:00 PM Bed'}
+                            {isVoice ? '<= 10:00 PM Bed' : '<= 11:00 PM Bed'}
                           </span>
                         </div>
                         <button
@@ -680,7 +680,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                         <div className="flex items-center gap-1.5">
                           <Clock size={14} className="text-rose-400" />
                           <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            {isVoice ? '<4:30 AM MP' : '<5:00 AM MP'}
+                            {isVoice ? '<= 4:30 AM MP' : '<= 5:00 AM MP'}
                           </span>
                         </div>
                         <button
