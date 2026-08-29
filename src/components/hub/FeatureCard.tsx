@@ -53,7 +53,7 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
 
   const CardContent = (
     <div 
-      className={`group relative flex flex-col justify-between h-full rounded-2xl p-2.5 sm:p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg border ${
+      className={`group relative flex flex-col justify-between h-full rounded-2xl p-3 sm:p-4 lg:p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border ${
         isLocked
           ? 'bg-slate-50/60 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800'
           : 'bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
@@ -84,12 +84,12 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
         </div>
 
         {/* Title */}
-        <h3 className="text-[11px] xs:text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-snug group-hover:text-primary-600 dark:group-hover:text-amber-400 transition-colors line-clamp-2">
+        <h3 className="text-xs sm:text-sm md:text-base font-bold text-slate-900 dark:text-white leading-snug group-hover:text-primary-600 dark:group-hover:text-amber-400 transition-colors line-clamp-2">
           {lang === 'bn' ? (titleBn || titleEn) : titleEn}
         </h3>
 
         {/* Description */}
-        <p className="text-[9.5px] xs:text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-tight font-normal">
+        <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-normal">
           {lang === 'bn' ? (descBn || descEn) : descEn}
         </p>
       </div>

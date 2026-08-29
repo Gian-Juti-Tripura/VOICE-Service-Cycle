@@ -418,33 +418,33 @@ export const HubHome: React.FC = () => {
       <div className="w-full shadow-md text-white text-xs font-bold divide-y divide-white/10 select-none backdrop-blur-xl">
         
         {/* Row 1: Royal Saffron & Rose Gold Festival Marquee */}
-        <div className="bg-gradient-to-r from-amber-600/95 via-orange-600/95 to-amber-700/95 py-2 px-3.5 sm:px-6 flex items-center gap-3 overflow-hidden border-b border-amber-500/20">
-          <div className="flex items-center gap-1.5 shrink-0 z-10 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md border border-white/40 shadow-xs">
+        <div className="bg-gradient-to-r from-amber-600/95 via-orange-600/95 to-amber-700/95 py-2 px-3.5 sm:px-6 flex items-center gap-3 overflow-hidden border-b border-amber-500/20 relative">
+          <div className="flex items-center gap-1.5 shrink-0 z-20 px-2.5 py-0.5 rounded-full bg-amber-900/60 sm:bg-white/20 backdrop-blur-md border border-amber-300/40 sm:border-white/40 shadow-xs">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-300 animate-pulse" />
             <span className="text-[10px] uppercase tracking-wider font-mono font-black text-white">
               {language === 'bn' ? '🌸 উৎসব' : '🌸 FEAST'}
             </span>
           </div>
-          <div className="relative flex-1 overflow-hidden">
+          <div className="relative flex-1 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_24px,black_calc(100%-24px),transparent)]">
             <div className="animate-marquee whitespace-nowrap flex items-center gap-12 text-[11px] sm:text-xs">
               <span>🌸 <strong className="text-amber-100 font-extrabold">{language === 'bn' ? 'শ্রীকৃষ্ণ জন্মাষ্টমী (৪ সেপ্টেম্বর ২০২৬):' : 'Sri Krishna Janmastami (04 Sep 2026):'}</strong> <span className="text-white/90">{language === 'bn' ? 'মধ্যরাত ১২:০০ পর্যন্ত নির্জলা/সজল উপবাস ও রাত ১২টায় মহাভিষেক এবং আনন্দ উৎসব।' : 'Fasting till midnight 12:00 AM • Mahabhisheka & Feast!'}</span></span>
               <span>🌸 <strong className="text-amber-100 font-extrabold">{language === 'bn' ? 'শ্রীকৃষ্ণ জন্মাষ্টমী (৪ সেপ্টেম্বর ২০২৬):' : 'Sri Krishna Janmastami (04 Sep 2026):'}</strong> <span className="text-white/90">{language === 'bn' ? 'মধ্যরাত ১২:০০ পর্যন্ত নির্জলা/সজল উপবাস ও রাত ১২টায় মহাভিষেক এবং আনন্দ উৎসব।' : 'Fasting till midnight 12:00 AM • Mahabhisheka & Feast!'}</span></span>
             </div>
           </div>
-          <Link to="/calendar" title="View Full Calendar" className="shrink-0 w-6 h-6 rounded-full bg-white/20 hover:bg-white/35 text-white z-10 flex items-center justify-center transition-all hover:scale-110 shadow-xs cursor-pointer">
+          <Link to="/calendar" title="View Full Calendar" className="shrink-0 w-6 h-6 rounded-full bg-white/20 hover:bg-white/35 text-white z-20 flex items-center justify-center transition-all hover:scale-110 shadow-xs cursor-pointer">
             <ArrowRight size={13} />
           </Link>
         </div>
 
         {/* Row 2: Deep Indigo & Ruby Incharge Announcement Marquee */}
-        <div className="bg-gradient-to-r from-slate-950/95 via-indigo-950/95 to-slate-950/95 py-2 px-3.5 sm:px-6 flex items-center gap-3 overflow-hidden border-b border-indigo-500/20">
-          <div className="flex items-center gap-1.5 shrink-0 z-10 px-2.5 py-0.5 rounded-full bg-rose-500/25 backdrop-blur-md border border-rose-400/40 shadow-xs">
+        <div className="bg-gradient-to-r from-slate-950/95 via-indigo-950/95 to-slate-950/95 py-2 px-3.5 sm:px-6 flex items-center gap-3 overflow-hidden border-b border-indigo-500/20 relative">
+          <div className="flex items-center gap-1.5 shrink-0 z-20 px-2.5 py-0.5 rounded-full bg-rose-950/80 sm:bg-rose-500/25 backdrop-blur-md border border-rose-400/40 shadow-xs">
             <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
             <span className="text-[10px] uppercase tracking-wider font-mono font-black text-rose-200">
               {language === 'bn' ? '📢 নোটিশ' : '📢 NOTICE'}
             </span>
           </div>
-          <div className="relative flex-1 overflow-hidden">
+          <div className="relative flex-1 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_24px,black_calc(100%-24px),transparent)]">
             <div className="animate-marquee whitespace-nowrap flex items-center gap-12 text-[11px] sm:text-xs text-slate-200">
               {liveNotices.length > 0 ? (
                 liveNotices.map((n: ManagerAnnouncement, i: number) => (
@@ -463,17 +463,17 @@ export const HubHome: React.FC = () => {
       </div>
 
       {/* ================= DISTINCT STYLISH ITALIC BANNER: DARE TO BE RARE ================= */}
-      <div className="w-full bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-b border-indigo-500/30 py-2 px-4 text-center shadow-xs">
-        <div className="max-w-4xl mx-auto flex items-center justify-center gap-3">
-          <span className="h-[1px] flex-1 max-w-[60px] sm:max-w-[120px] bg-gradient-to-r from-transparent to-amber-400/60" />
-          <span className="text-xs sm:text-sm md:text-base font-serif italic tracking-[0.2em] font-extrabold bg-gradient-to-r from-amber-300 via-orange-200 to-amber-300 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(245,158,11,0.3)] select-none">
+      <div className="w-full bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-b border-indigo-500/30 py-2.5 px-4 text-center shadow-xs">
+        <div className="max-w-5xl mx-auto flex items-center justify-center gap-4">
+          <span className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-amber-400/30 to-amber-400/80" />
+          <span className="text-xs sm:text-sm md:text-base font-serif italic tracking-[0.25em] font-extrabold bg-gradient-to-r from-amber-300 via-orange-200 to-amber-300 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(245,158,11,0.3)] select-none">
             ✦ Dare to be Rare ✦
           </span>
-          <span className="h-[1px] flex-1 max-w-[60px] sm:max-w-[120px] bg-gradient-to-l from-transparent to-amber-400/60" />
+          <span className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-amber-400/30 to-amber-400/80" />
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
         {/* ================= 1. MAJESTIC HERO SECTION WITH IYF LOGO & RESTYLED NAMES ================= */}
         <div className="relative overflow-hidden rounded-[32px] p-6 sm:p-10 bg-gradient-to-br from-indigo-950 via-slate-900 to-amber-950 text-white shadow-[0_20px_50px_rgba(0,0,0,0.35)] border border-white/15">
@@ -527,8 +527,8 @@ export const HubHome: React.FC = () => {
               </div>
             </div>
 
-            {/* Symmetrical 2-Column Action Grid with Harmonized Luxury Gold & Glass Styling */}
-            <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-2">
+            {/* Symmetrical Action Grid: 2 cols mobile, 3 tablet, 6 desktop */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3 pt-2">
               
               {/* 1. Counselor Desk */}
               <button
@@ -675,8 +675,8 @@ export const HubHome: React.FC = () => {
             </div>
           </div>
 
-          {/* Cards Grid */}
-          <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
+          {/* Cards Grid: 2 cols on mobile, 3 on md, 4 on xl desktop */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4.5 lg:gap-5">
             {filteredCards.map(card => (
               <FeatureCard
                 key={card.id}
