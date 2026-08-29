@@ -10,6 +10,7 @@ export const UnifiedLectureLibrary: React.FC = () => {
   const { language } = useLanguage();
   const [activeSpeaker, setActiveSpeaker] = useState<'PRABHUPADA' | 'RADHESHYAM'>('PRABHUPADA');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSectionIndex, setSelectedSectionIndex] = useState<number | 'ALL'>('ALL');
 
   const sections = UNIFIED_LECTURES_DATA[activeSpeaker];
 
@@ -48,7 +49,7 @@ export const UnifiedLectureLibrary: React.FC = () => {
         {/* Main Speaker Toggle Tabs */}
         <div className="flex bg-slate-200/50 dark:bg-slate-800/50 p-1.5 rounded-2xl">
           <button
-            onClick={() => { setActiveSpeaker('PRABHUPADA'); setSearchQuery(''); }}
+            onClick={() => { setActiveSpeaker('PRABHUPADA'); setSearchQuery(''); setSelectedSectionIndex('ALL'); }}
             className={`flex-1 py-3 px-4 rounded-xl text-sm font-black flex items-center justify-center gap-2 transition-all ${
               activeSpeaker === 'PRABHUPADA'
                 ? 'bg-white dark:bg-slate-900 text-amber-600 shadow-md border border-amber-500/20'
@@ -59,7 +60,7 @@ export const UnifiedLectureLibrary: React.FC = () => {
             {language === 'bn' ? 'শ্রীল প্রভুপাদ বাণী' : 'Srila Prabhupada Vani'}
           </button>
           <button
-            onClick={() => { setActiveSpeaker('RADHESHYAM'); setSearchQuery(''); }}
+            onClick={() => { setActiveSpeaker('RADHESHYAM'); setSearchQuery(''); setSelectedSectionIndex('ALL'); }}
             className={`flex-1 py-3 px-4 rounded-xl text-sm font-black flex items-center justify-center gap-2 transition-all ${
               activeSpeaker === 'RADHESHYAM'
                 ? 'bg-white dark:bg-slate-900 text-indigo-600 shadow-md border border-indigo-500/20'
@@ -86,7 +87,40 @@ export const UnifiedLectureLibrary: React.FC = () => {
           </div>
         </div>
 
+        
+        {/* Quick Nav / Filter Bar */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <button
+            onClick={() => setSelectedSectionIndex('ALL')}
+            className={`shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all ${
+              selectedSectionIndex === 'ALL'
+                ? (activeSpeaker === 'PRABHUPADA' ? 'bg-amber-600 text-white shadow-md' : 'bg-indigo-600 text-white shadow-md')
+                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800'
+            }`}
+          >
+            {language === 'bn' ? 'সকল' : 'All Sections'}
+          </button>
+          {sections.map((sec: any, idx: number) => {
+            let shortName = sec.sectionTitle.split('(')[0].trim();
+            shortName = shortName.split('-')[0].trim();
+            return (
+              <button
+                key={idx}
+                onClick={() => setSelectedSectionIndex(idx)}
+                className={`shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all ${
+                  selectedSectionIndex === idx
+                    ? (activeSpeaker === 'PRABHUPADA' ? 'bg-amber-600 text-white shadow-md' : 'bg-indigo-600 text-white shadow-md')
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800'
+                }`}
+              >
+                {shortName}
+              </button>
+            );
+          })}
+        </div>
+
         {/* Search Bar */}
+
 
         <div className="relative w-full">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -107,6 +141,8 @@ export const UnifiedLectureLibrary: React.FC = () => {
         {/* Content Rendered Exactly Like the Syllabus */}
         <div className="space-y-6">
           {sections.map((section: any, idx: number) => {
+            if (selectedSectionIndex !== 'ALL' && selectedSectionIndex !== idx) return null;
+
             
             // Filter topics by search query
             const filteredTopics = section.topics.filter((topic: string) => 
@@ -164,7 +200,7 @@ export const UnifiedLectureLibrary: React.FC = () => {
             );
           })}
 
-          {sections.every((s: any) => 
+          {sections.filter((_: any, idx: number) => selectedSectionIndex === 'ALL' || selectedSectionIndex === idx).every((s: any) => 
             s.topics.filter((t: string) => t.toLowerCase().includes(searchQuery.toLowerCase().trim())).length === 0
           ) && (
             <div className="p-12 text-center text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
