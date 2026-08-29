@@ -41,6 +41,20 @@ export interface NightStayEntry {
   managedByBn: string;
 }
 
+export interface DevoteeAdvancementItem {
+  en: string;
+  bn: string;
+}
+
+export interface DevoteeAdvancementStage {
+  stageEn: string;
+  stageBn: string;
+  color: string;
+  borderColor: string;
+  headerBg: string;
+  items: DevoteeAdvancementItem[];
+}
+
 export interface VoiceHandbook {
   mottoEn: string;
   mottoBn: string;
@@ -54,6 +68,7 @@ export interface VoiceHandbook {
   swamiTitleBn: string;
   sixPillars: VoicePillar[];
   objectives: VoiceObjective[];
+  devoteeAdvancementMatrix: DevoteeAdvancementStage[];
   fourYearMatrix: YearProgression[];
   nightStayFestivals2026: NightStayEntry[];
   iskconDivisions: IskconDivision[];
@@ -138,6 +153,70 @@ export const VOICE_HANDBOOK_DATA: VoiceHandbook = {
       titleBn: "বৈদিক বিজ্ঞান, সদাচার ও প্রার্থনা প্রশিক্ষণ",
       descEn: "Training in Vedic Science, etiquettes and behavior, prayer and practices in Service of God.",
       descBn: "আধ্যাত্মিক বিজ্ঞান, বৈষ্ণব সদাচার, প্রার্থনা ও ঈশ্বর আরাধনার বাস্তব প্রশিক্ষণ প্রদান।"
+    }
+  ],
+
+
+  // Official Devotee's Advancement Curriculum Matrix (ভক্তের উন্নতির পাঠ্যক্রম)
+  devoteeAdvancementMatrix: [
+    {
+      stageEn: "Beginner to 3 Years",
+      stageBn: "শুরু থেকে ৩ বছর",
+      color: "from-amber-500/20 to-orange-500/20",
+      borderColor: "border-amber-400/40",
+      headerBg: "bg-amber-600 text-white",
+      items: [
+        { en: "Small Books (Srila Prabhupada)", bn: "ছোট বই (শ্রীল প্রভুপাদ)" },
+        { en: "VOICE Based Activities", bn: "ভয়েস ভিত্তিক কার্যক্রম" },
+        { en: "Siddhanta (Philosophical Tenets)", bn: "সিদ্ধান্ত" },
+        { en: "Vaishnava Lifestyle & Etiquette", bn: "বৈষ্ণব জীবনধারা" },
+        { en: "Personality Development", bn: "ব্যক্তিত্ব উন্নয়ন" }
+      ]
+    },
+    {
+      stageEn: "3 to 5 Years",
+      stageBn: "৩-৫ বছর",
+      color: "from-blue-500/20 to-cyan-500/20",
+      borderColor: "border-blue-400/40",
+      headerBg: "bg-blue-600 text-white",
+      items: [
+        { en: "Big Books (Bhagavad Gita, TLC, NOD)", bn: "বড় বই" },
+        { en: "ICFC ISKCON Brahmacari Courses", bn: "ICFC ইস্কনের ব্রহ্মচর্য ভিত্তিক কোর্সসমূহ" },
+        { en: "Brahmacarya Ashram Training", bn: "ব্রহ্মচর্য" },
+        { en: "Srila Prabhupada Lilamrita Study", bn: "শ্রীল প্রভুপাদ লীলা" },
+        { en: "108 Essential Sanskrit Shlokas", bn: "১০৮টি শ্লোক" },
+        { en: "Acharya Life & Teachings", bn: "আচার্য" },
+        { en: "Gaudiya Vaishnava Sampradaya History", bn: "গৌড়ীয় বৈষ্ণব সম্প্রদায়" }
+      ]
+    },
+    {
+      stageEn: "5 to 7 Years",
+      stageBn: "৫-৭ বছর",
+      color: "from-purple-500/20 to-indigo-500/20",
+      borderColor: "border-purple-400/40",
+      headerBg: "bg-purple-600 text-white",
+      items: [
+        { en: "Srimad Bhagavatam Cantos Study & Discussion", bn: "শ্রীমদ্ভাগবত বিভাগ এবং আলোচনা" },
+        { en: "Engaging Oneself in Preaching Field", bn: "নিজেকে প্রচার কার্যে যুক্ত করা" },
+        { en: "Ashram & Event Management", bn: "ব্যবস্থাপনা" },
+        { en: "Leadership & Team Mentorship", bn: "নেতৃত্ব" },
+        { en: "Deep Japa Meditation (Dhyan)", bn: "ধ্যান" },
+        { en: "Mass Book Distribution (Grantha Pracar)", bn: "গ্রন্থ প্রচার" }
+      ]
+    },
+    {
+      stageEn: "7+ Years",
+      stageBn: "৭ বছর +",
+      color: "from-emerald-500/20 to-teal-500/20",
+      borderColor: "border-emerald-400/40",
+      headerBg: "bg-emerald-600 text-white",
+      items: [
+        { en: "Deep Realization: SB, CC & 6 Goswamis", bn: "গভীর/অভ্যন্তরীণ উপলব্ধি: শ্রীমদ্ভাগবত, চৈতন্য চরিতামৃত ও ষড় গোস্বামীদের জীবনধারা" },
+        { en: "Glories of Holy Dhama (Holy Places)", bn: "পবিত্র ধাম মাহাত্ম্য" },
+        { en: "Internal Devotee Care & Counseling", bn: "অভ্যন্তরীণ যত্নগ্রহণ (কাউন্সেলিং)" },
+        { en: "26 Qualities of a Pure Vaishnava", bn: "বৈষ্ণবের ২৬টি গুণ" },
+        { en: "Vaishnava Aparadha Insights (3 Stages of Seva)", bn: "বৈষ্ণব অপরাধ বিষয়ে গভীর ধারণা (৩ স্তরে ভক্তিমূলক সেবায়)" }
+      ]
     }
   ],
 
