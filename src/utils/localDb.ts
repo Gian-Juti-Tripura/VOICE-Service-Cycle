@@ -62,17 +62,22 @@ export const localDb = {
         
       if (error) throw new Error(error.message);
       
-      const members = data.map((m: any) => ({
-        id: m.id,
-        fullName: m.full_name,
-        phone: m.phone,
-        dob: m.dob,
-        userId: m.user_id,
-        isActive: m.is_active,
-        cycleOrder: m.cycle_order,
-        createdAt: m.created_at,
-        updatedAt: m.updated_at
-      }));
+      // Filter strictly for the 12 active student devotees (excluding Counselor / Mentor)
+      const members = data
+        .filter((m: any) => m.is_active !== false && m.role !== 'ADMIN' && m.id !== 'dev_caretaker' && m.cycle_order >= 0)
+        .map((m: any) => ({
+          id: m.id,
+          fullName: m.full_name,
+          phone: m.phone,
+          dob: m.dob,
+          userId: m.user_id,
+          isActive: m.is_active,
+          cycleOrder: m.cycle_order,
+          createdAt: m.created_at,
+          updatedAt: m.updated_at
+        }))
+        .sort((a: any, b: any) => a.cycleOrder - b.cycleOrder)
+        .slice(0, 12); // Exactly 12 active students
 
       localStorage.setItem('voice_cached_members', JSON.stringify(members));
       return members;
@@ -149,17 +154,19 @@ export const localDb = {
         
       if (error) throw new Error(error.message);
       
-      data.sort((a, b) => parseInt(a.id) - parseInt(b.id));
-      
-      const services = data.map((s: any) => ({
-        id: s.id,
-        nameBn: s.name_bn,
-        nameEn: s.name_en,
-        descBn: s.desc_bn,
-        descEn: s.desc_en,
-        timing: s.timing,
-        isActive: s.is_active
-      }));
+      // Filter strictly for the 12 active physical seva cycle slots (IDs 1 to 12)
+      const services = data
+        .filter((s: any) => s.is_active !== false && parseInt(s.id) >= 1 && parseInt(s.id) <= 12)
+        .map((s: any) => ({
+          id: s.id,
+          nameBn: s.name_bn,
+          nameEn: s.name_en,
+          descBn: s.desc_bn,
+          descEn: s.desc_en,
+          timing: s.timing,
+          isActive: s.is_active
+        }))
+        .sort((a: any, b: any) => parseInt(a.id) - parseInt(b.id));
 
       localStorage.setItem('voice_cached_services', JSON.stringify(services));
       return services;

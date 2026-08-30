@@ -428,21 +428,27 @@ END $$;
 -- INITIAL SEED DATA (Advaita VOICE Chittagong University)
 -- ==============================================================================
 
--- Initial 12 Services
+-- Initial 12 Services (Physical Seva Chart)
 INSERT INTO public.services (id, name_bn, name_en, desc_bn, desc_en, timing) VALUES
-('0', 'মঙ্গল আরতি ও কীর্তন', 'Mangala Arati & Kirtan', 'মঙ্গল আরতি পরিচালনা ও কীর্তন পরিবেশন।', 'Lead Mangala Arati ceremony and Vaishnava kirtan.', '04:30 AM - 05:15 AM'),
-('1', 'তুলসী মহারানী সেবা ও আরতি', 'Tulasi Puja & Circumambulation', 'তুলসী মহারানীকে জলদান, প্রদক্ষিণ ও পূজা।', 'Watering, circumambulation and prayer to Tulasi Devi.', '05:15 AM - 05:30 AM'),
-('2', 'শ্রীবিগ্রহ সেবা ও বেদী সাজসজ্জা', 'Deity Care & Altar Decoration', 'শ্রীবিগ্রহের জন্য পুষ্পমালা গাঁথা ও বেদী সাজানো।', 'Garland making, flower offering and altar cleanliness.', '05:30 AM - 06:15 AM'),
-('3', 'ভোগ রান্না সেবা (সকাল)', 'Morning Bhoga Cooking', 'সকালের বাল্যভোগ ও প্রাতরাশ রান্না প্রস্তুতি।', 'Morning breakfast bhoga preparation and cooking.', '06:00 AM - 08:00 AM'),
-('4', 'ভোগ নিবেদন ও আরতি', 'Bhoga Offering & Arati', 'শ্রীবিগ্রহকে যথাসময়ে ভোগ নিবেদন ও মন্ত্র উচ্চারণ।', 'Punctual offering of bhoga with authorized mantras.', '08:00 AM - 08:30 AM'),
-('5', 'প্রাতরাশ প্রসাদ বিতরণ ও পরিবেশন', 'Breakfast Prasadam Serving', 'সকল ভক্ত ও অতিথিদের সুশৃঙ্খলভাবে প্রসাদ বিতরণ।', 'Orderly serving of spiritual breakfast to all ashramites.', '08:30 AM - 09:15 AM'),
-('6', 'রান্নাঘর ও বাসনপত্র পরিচ্ছন্নতা', 'Kitchen Cleaning & Utensils', 'রান্নাঘর ধৌতকরণ ও ভোগের বাসনপত্র মাজামাজি।', 'Thorough sanitization of kitchen floors and brass pots.', '09:15 AM - 10:00 AM'),
-('7', 'আশ্রম হল ও নাটমন্দির পরিচ্ছন্নতা', 'Temple Hall & Ashram Cleaning', 'মন্দির প্রাঙ্গণ, নাটমন্দির ও পাঠ কক্ষ ঝাড়ু-মোছা।', 'Sweeping and mopping temple hall and study areas.', '10:00 AM - 11:00 AM'),
-('8', 'ভোগ রান্না সেবা (দুপুর)', 'Noon Raj Bhoga Cooking', 'দুপুরের রাজভোগের সুস্বাদু ব্যঞ্জনসমূহ রান্না।', 'Cooking full noon feast items according to Vaishnava standards.', '11:00 AM - 01:00 PM'),
-('9', 'দুপুর প্রসাদ পরিবেশন', 'Lunch Prasadam Serving', 'দুপুরের রাজপ্রসাদ ভক্তদের পরিবেশন।', 'Serving noon feast prasadam with affectionate care.', '01:30 PM - 02:30 PM'),
-('10', 'সন্ধ্যা আরতি ও ধূপ সেবা', 'Sandhya Arati & Incense Seva', 'সন্ধ্যা আরতি ও শ্রীবিগ্রহের চামর-ব্যজন সেবা।', 'Evening Gaura Arati, offering ghee lamp and chamara.', '06:30 PM - 07:15 PM'),
-('11', 'রাত্রিকালীন দুধভোগ ও শয়ন আরতি', 'Night Milk Offering & Rest Arati', 'রাত্রিকালীন উষ্ণ দুধ নিবেদন ও শয়ন আরতি সম্পন্ন।', 'Night hot milk offering and resting ceremonies.', '09:00 PM - 09:30 PM')
-ON CONFLICT (id) DO NOTHING;
+('1', 'আরতি এবং শৃঙ্গার নিবেদন', 'Offering Arati & Sringer', 'আরতি এবং শৃঙ্গার নিবেদন।', 'Offering Arati & Sringer', '6:00 AM'),
+('2', 'ভোগ নিবেদন (+ সেবা ৫ অনুপস্থিত)', 'Offering Bhogo (+ 5th Absent)', 'ভোগ নিবেদন (সেবা ৫ এর অবর্তমানে)', 'Offering Bhogo (Fallback for Service 5)', 'Complete before 8 AM'),
+('3', 'রাতে বাসন মাজা + মঙ্গল আরতি কীর্তন + রুম পরিষ্কার', 'Cleaning utensils at night + Mangal Arati Kirton + Room', 'রাতে বাসন মাজা + মঙ্গল আরতি কীর্তন + রুম পরিষ্কার', 'Cleaning utensils at night + Mangal Arati Kirton + Room cleaning', 'Night'),
+('4', 'আগামী সকালের জন্য রাতে সবজি প্রস্তুত করা (+ সেবা ২ অনুপস্থিত)', 'Preparing veg at night for morning (+ 2nd Absent)', 'আগামী সকালের জন্য রাতে সবজি প্রস্তুত করা (সেবা ২ এর অবর্তমানে)', 'Preparing vegetables at night for next morning (Fallback for Service 2)', 'Night'),
+('5', 'বাসন মাজা + প্রসাদ হল পরিষ্কার + প্রাতরাশ', 'Cleaning utensils + Prasad hall + Breakfast', 'বাসন মাজা + প্রসাদ হল পরিষ্কার + প্রাতরাশ সেবা', 'Cleaning utensils + Prasad hall cleaning + Breakfast service', 'Before 8:00 AM'),
+('6', 'আগামী সকালের জন্য রাতে সবজি কাটা + ধোয়া (+ সেবা ৩ অনুপস্থিত)', 'Making veg at night for morning + Wash (+ 3rd Absent)', 'আগামী সকালের জন্য রাতে সবজি কাটা + সবজি ধোয়া (সেবা ৩ এর অবর্তমানে)', 'Making vegetables at night for next morning + Washing veg (Fallback for Service 3)', 'Night'),
+('7', 'দুপুরের প্রসাদ সেবা + বাসন সংগ্রহ', 'Lunch service + Gather utensils', 'দুপুরের প্রসাদ সেবা + বাসন সংগ্রহ', 'Lunch service + Gather utensils', '8:00 AM - 2:00 PM'),
+('8', 'বারান্দা পরিষ্কার + ঠাকুর ঘর পরিষ্কার (+ সেবা ৬ অনুপস্থিত)', 'Veranda cleaning + Deities room (+ 6th Absent)', 'বারান্দা পরিষ্কার + ঠাকুর ঘর পরিষ্কার (সেবা ৬ এর অবর্তমানে)', 'Veranda cleaning + Deities room cleaning (Fallback for Service 6)', 'Before 10:00 AM'),
+('9', 'সকালে রান্না করা', 'Cooking in the morning', 'সকালে রান্না করা', 'Cooking in the morning', '5:30 AM - 8:30 AM'),
+('10', 'রাতের প্রসাদ সেবা + প্রসাদ হল + বাসন মাজা (+ সেবা ১ অনুপস্থিত)', 'Dinner service + Prasad hall + Utensils (+ 1st Absent)', 'রাতের প্রসাদ সেবা + প্রসাদ হল পরিষ্কার + বাসন মাজা (১ম অনুপস্থিত ব্যক্তির জন্য)', 'Dinner service + Prasad hall cleaning + Utensils cleaning (Fallback for 1st Absent)', 'Night'),
+('11', 'রাতের জন্য সবজি কাটা + ধোয়া (+ সেবা ৪ অনুপস্থিত)', 'Making veg for night + Wash (+ 4th Absent)', 'রাতের জন্য সবজি কাটা + ধোয়া (সেবা ৪ এর অবর্তমানে)', 'Making vegetables for night + Wash (Fallback for Service 4)', 'Evening'),
+('12', 'রাতে রান্না করা + শয়ন + নৃসিংহ আরতি কীর্তন', 'Cooking at night + Shayan + Nrisimha Arati Kirton', 'রাতে রান্না করা + শয়ন + নৃসিংহ আরতি কীর্তন', 'Cooking at night + Shayan + Nrisimha Arati Kirton', 'Enter Before 7:00 PM')
+ON CONFLICT (id) DO UPDATE SET
+    name_bn = EXCLUDED.name_bn,
+    name_en = EXCLUDED.name_en,
+    desc_bn = EXCLUDED.desc_bn,
+    desc_en = EXCLUDED.desc_en,
+    timing = EXCLUDED.timing,
+    is_active = true;
 
 -- Initial Active Announcements
 INSERT INTO public.announcements (title_en, title_bn, desc_en, desc_bn, type, is_pinned) VALUES
@@ -459,21 +465,33 @@ INSERT INTO public.department_tasks (department_id, title, incharge_name, is_don
 ('study_care', 'Provide library passes and quiet study hall schedules for devotees', 'Gian Juti Tripura + Pranto C Das', false)
 ON CONFLICT (id) DO NOTHING;
 
--- Initial Devotee Members (12 Resident Devotees)
+-- 1. Senior Mentor & Counselor (HG Rasvihari KC Das - Not in student daily service cycle)
 INSERT INTO public.members (id, full_name, spiritual_name, phone, email, dob, address, blood_group, department, institute, guardian_number, national_id, service_type, role_badge, cycle_order, role) VALUES
-('dev_caretaker', 'H.G Rasvihari Krishna Chandra Das', 'Rasvihari Krishna Chandra Das', '01875835986', 'rasvihari.voice@gmail.com', '1985-04-14', 'Chittagong', 'O+', 'VOICE Caretaker & Senior Mentor', 'ISKCON Chittagong / University of Chittagong', '01875835986', '1985159823412', 'Caretaker & Spiritual Guide', 'VOICE Caretaker', 0, 'ADMIN'),
-('dev_coordinator', 'Utpol Das Khocon', 'Utpol Das', '01790839891', 'utpol.acce.cu@gmail.com', '2001-09-18', 'Rajshahi', 'A+', 'ACCE', 'University of Chittagong', '01712000000', '2001769823451', 'IYF (VOICE Coordinator)', 'VOICE Coordinator', 1, 'INTERNAL_MANAGER'),
-('dev_akash', 'Akash Paul', 'Akash Das', '01799100306', 'akash.socio.cu@gmail.com', '2001-03-12', 'Feni, Chittagong', 'O+', 'Sociology', 'University of Chittagong', '01799000000', '2001159876543', 'IYF', 'IYF Youth Leader', 2, 'MEMBER'),
-('dev_gianjyoti', 'Gianjyoti Tripura', 'Gianjyoti Das', '01571328549', 'gianjyoti.cse.cu@gmail.com', '2002-11-25', 'Khagrachari', 'B+', 'CSE', 'University of Chittagong', '01550000000', '2002159823009', 'IYF (Digital & IT Incharge)', 'IT & Digital Seva', 3, 'INTERNAL_MANAGER'),
-('dev_dipendra', 'Dipendranath Roy', 'Dipendra Das', '01320903062', 'dipendra.philo.cu@gmail.com', '2002-07-08', 'Thakurgaon', 'O+', 'Philosophy', 'University of Chittagong', '01320000000', '2002159876111', 'IYF', 'Philosophical Study', 4, 'MEMBER'),
-('dev_sangakara', 'Sangakara Das', 'Sangakara Krishna Das', '01722711849', 'sangakara.chem.cu@gmail.com', '2001-12-05', 'Jashor', 'B+', 'Chemistry', 'University of Chittagong', '01722000000', '2001159876222', 'IYF', 'Kitchen & Prasadam Seva', 5, 'MEMBER'),
-('dev_ankan', 'Ankan Nath', 'Ankan Das', '01933503979', 'ankan.socio.cu@gmail.com', '2002-01-20', 'Feni', 'O+', 'Sociology', 'University of Chittagong', '01933000000', '2002159876333', 'IYF', 'IYF Seva Member', 6, 'MEMBER'),
-('dev_antor', 'Antor Kumar Mohanto', 'Antor Das', '01704370139', 'antor.sanskrit.cu@gmail.com', '2003-04-15', 'Gaibandha', 'O+', 'Sanskrit', 'University of Chittagong', '01704000000', '2003159876444', 'IYF', 'Morning Program Seva', 7, 'MEMBER'),
-('dev_utshab', 'Utshab Sarkar Joy', 'Utshab Das', '01734550288', 'utshab.joy.cu@gmail.com', '2002-08-28', 'Mymensingh', 'O+', 'Sanskrit', 'University of Chittagong', '01734000000', '2002159876555', 'IYF', 'Kirtan & Bhajan Seva', 8, 'MEMBER'),
-('dev_roton', 'Roton Roy', 'Roton Das', '01750504601', 'roton.sanskrit.cu@gmail.com', '2002-10-10', 'Rangpur', 'B+', 'Sanskrit', 'University of Chittagong', '01750000000', '2002159876666', 'IYF', 'Study Care Incharge', 9, 'MEMBER'),
-('dev_pranto', 'Pranto Das', 'Pranto Krishna Das', '01609302008', 'pranto.cse.cu@gmail.com', '2003-02-14', 'Gazipur', 'AB+', 'CSE', 'University of Chittagong', '01609000000', '2003159876777', 'IYF', 'Technical Support', 10, 'MEMBER'),
-('dev_joykanto', 'Joykanto Sen', 'Joykanto Das', '01754034183', 'joykanto.sanskrit.cu@gmail.com', '2002-06-18', 'Thakurgaon', 'B+', 'Sanskrit', 'University of Chittagong', '01754000000', '2002159876888', 'IYF', 'Temple Cleanliness Seva', 11, 'MEMBER'),
-('dev_bappi', 'Bappi Chandra Sarkar', 'Bappi Das', '01331982443', 'bappi.sanskrit.cu@gmail.com', '2003-11-02', 'Panchagarh', 'A+', 'Sanskrit', 'University of Chittagong', '01331000000', '2003159876999', 'IYF', 'Youth Member', 12, 'MEMBER')
+('dev_caretaker', 'H.G Rasvihari Krishna Chandra Das', 'Rasvihari Krishna Chandra Das', '01875835986', 'rasvihari.voice@gmail.com', '1985-04-14', 'Chittagong', 'O+', 'VOICE Caretaker & Senior Mentor', 'ISKCON Chittagong / University of Chittagong', '01875835986', '1985159823412', 'Counselor & Senior Mentor', 'VOICE Caretaker', -1, 'ADMIN')
+ON CONFLICT (id) DO UPDATE SET
+    full_name = EXCLUDED.full_name,
+    spiritual_name = EXCLUDED.spiritual_name,
+    phone = EXCLUDED.phone,
+    email = EXCLUDED.email,
+    service_type = EXCLUDED.service_type,
+    role_badge = EXCLUDED.role_badge,
+    cycle_order = -1,
+    role = 'ADMIN';
+
+-- 2. Exactly 12 Active Student Devotees in Daily Service Cycle (cycle_order 0 to 11)
+INSERT INTO public.members (id, full_name, spiritual_name, phone, email, dob, address, blood_group, department, institute, guardian_number, national_id, service_type, role_badge, cycle_order, role) VALUES
+('member_0', 'UTPOL P.', 'Utpol Das', '01790839891', 'utpol.acce.cu@gmail.com', '2001-09-18', 'Rajshahi', 'A+', 'ACCE', 'University of Chittagong', '01712000000', '2001769823451', 'IYF (VOICE Coordinator)', 'VOICE Coordinator', 0, 'INTERNAL_MANAGER'),
+('member_1', 'CHAITANYA P.', 'Chaitanya Das', '01331982443', 'bappi.sanskrit.cu@gmail.com', '2003-11-02', 'Panchagarh', 'A+', 'Sanskrit', 'University of Chittagong', '01331000000', '2003159876999', 'IYF', 'Youth Member', 1, 'MEMBER'),
+('member_2', 'GIAN P.', 'Gianjyoti Das', '01571328549', 'gianjyoti.cse.cu@gmail.com', '2002-11-25', 'Khagrachari', 'B+', 'CSE', 'University of Chittagong', '01550000000', '2002159823009', 'IYF (Digital & IT Incharge)', 'IT & Digital Seva', 2, 'INTERNAL_MANAGER'),
+('member_3', 'PRANTO P.', 'Pranto Krishna Das', '01609302008', 'pranto.cse.cu@gmail.com', '2003-02-14', 'Gazipur', 'AB+', 'CSE', 'University of Chittagong', '01609000000', '2003159876777', 'IYF', 'Technical Support', 3, 'MEMBER'),
+('member_4', 'SANGA P.', 'Sangakara Krishna Das', '01722711849', 'sangakara.chem.cu@gmail.com', '2001-12-05', 'Jashor', 'B+', 'Chemistry', 'University of Chittagong', '01722000000', '2001159876222', 'IYF', 'Kitchen & Prasadam Seva', 4, 'MEMBER'),
+('member_5', 'DIPEN P.', 'Dipendra Das', '01320903062', 'dipendra.philo.cu@gmail.com', '2002-07-08', 'Thakurgaon', 'O+', 'Philosophy', 'University of Chittagong', '01320000000', '2002159876111', 'IYF', 'Philosophical Study', 5, 'MEMBER'),
+('member_6', 'ANKON P.', 'Ankan Das', '01933503979', 'ankan.socio.cu@gmail.com', '2002-01-20', 'Feni', 'O+', 'Sociology', 'University of Chittagong', '01933000000', '2002159876333', 'IYF', 'IYF Seva Member', 6, 'MEMBER'),
+('member_7', 'ANTOR P.', 'Antor Das', '01704370139', 'antor.sanskrit.cu@gmail.com', '2003-04-15', 'Gaibandha', 'O+', 'Sanskrit', 'University of Chittagong', '01704000000', '2003159876444', 'IYF', 'Morning Program Seva', 7, 'MEMBER'),
+('member_8', 'ROTON P.', 'Roton Das', '01750504601', 'roton.sanskrit.cu@gmail.com', '2002-10-10', 'Rangpur', 'B+', 'Sanskrit', 'University of Chittagong', '01750000000', '2002159876666', 'IYF', 'Study Care Incharge', 8, 'MEMBER'),
+('member_9', 'JOY S. P.', 'Utshab Das', '01734550288', 'utshab.joy.cu@gmail.com', '2002-08-28', 'Mymensingh', 'O+', 'Sanskrit', 'University of Chittagong', '01734000000', '2002159876555', 'IYF', 'Kirtan & Bhajan Seva', 9, 'MEMBER'),
+('member_10', 'JOYKANT P.', 'Joykanto Das', '01754034183', 'joykanto.sanskrit.cu@gmail.com', '2002-06-18', 'Thakurgaon', 'B+', 'Sanskrit', 'University of Chittagong', '01754000000', '2002159876888', 'IYF', 'Temple Cleanliness Seva', 10, 'MEMBER'),
+('member_11', 'BAPPI C. P.', 'Akash Das', '01799100306', 'akash.socio.cu@gmail.com', '2001-03-12', 'Feni, Chittagong', 'O+', 'Sociology', 'University of Chittagong', '01799000000', '2001159876543', 'IYF', 'Youth Member', 11, 'MEMBER')
 ON CONFLICT (id) DO UPDATE SET
     full_name = EXCLUDED.full_name,
     spiritual_name = EXCLUDED.spiritual_name,
@@ -491,20 +509,20 @@ ON CONFLICT (id) DO UPDATE SET
     cycle_order = EXCLUDED.cycle_order,
     role = EXCLUDED.role;
 
--- Initial Discipline Students (VOICE & Lotus Groups)
+-- Initial Discipline Students (VOICE & Lotus Groups - Matching the 12 active students)
 INSERT INTO public.discipline_students (id, name, group_type, phone, cycle_order, monthly_strikes, status) VALUES
-('member_0', 'UTPOL P.', 'VOICE', '+880 1790-839891', 1, 0, 'ACTIVE'),
-('member_1', 'CHAITANYA P.', 'VOICE', '+880 1331-982443', 2, 0, 'ACTIVE'),
-('member_2', 'GIAN P.', 'VOICE', '+8801571328549', 3, 0, 'ACTIVE'),
-('member_3', 'PRANTO P. (Pranto C Das)', 'LOTUS', '+880 1609-302008', 4, 0, 'ACTIVE'),
-('member_4', 'SANGA P. (Sangakara Das)', 'LOTUS', '+880 1722-711849', 5, 0, 'ACTIVE'),
-('member_5', 'DIPEN P.', 'VOICE', '01571422381', 6, 0, 'ACTIVE'),
-('member_6', 'ANKON P.', 'VOICE', '01933503979', 7, 0, 'ACTIVE'),
-('member_7', 'ANTOR P.', 'VOICE', '+880 1704-370139', 8, 0, 'ACTIVE'),
-('member_8', 'ROTON P.', 'VOICE', '+880 1750-504601', 9, 0, 'ACTIVE'),
-('member_9', 'JOY S. P.', 'VOICE', '+880 1734-550288', 10, 0, 'ACTIVE'),
-('member_10', 'JOYKANT P.', 'VOICE', '+880 1754-034183', 11, 0, 'ACTIVE'),
-('member_11', 'BAPPI C. P.', 'VOICE', '', 12, 0, 'ACTIVE')
+('member_0', 'UTPOL P.', 'VOICE', '+880 1790-839891', 0, 0, 'ACTIVE'),
+('member_1', 'CHAITANYA P.', 'VOICE', '+880 1331-982443', 1, 0, 'ACTIVE'),
+('member_2', 'GIAN P.', 'VOICE', '+8801571328549', 2, 0, 'ACTIVE'),
+('member_3', 'PRANTO P.', 'LOTUS', '+880 1609-302008', 3, 0, 'ACTIVE'),
+('member_4', 'SANGA P.', 'LOTUS', '+880 1722-711849', 4, 0, 'ACTIVE'),
+('member_5', 'DIPEN P.', 'VOICE', '01571422381', 5, 0, 'ACTIVE'),
+('member_6', 'ANKON P.', 'VOICE', '01933503979', 6, 0, 'ACTIVE'),
+('member_7', 'ANTOR P.', 'VOICE', '+880 1704-370139', 7, 0, 'ACTIVE'),
+('member_8', 'ROTON P.', 'VOICE', '+880 1750-504601', 8, 0, 'ACTIVE'),
+('member_9', 'JOY S. P.', 'VOICE', '+880 1734-550288', 9, 0, 'ACTIVE'),
+('member_10', 'JOYKANT P.', 'VOICE', '+880 1754-034183', 10, 0, 'ACTIVE'),
+('member_11', 'BAPPI C. P.', 'VOICE', '+880 1799-100306', 11, 0, 'ACTIVE')
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     group_type = EXCLUDED.group_type,
