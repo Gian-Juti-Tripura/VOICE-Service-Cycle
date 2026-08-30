@@ -6,12 +6,24 @@
 -- 1. Enable UUID Extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 2. Members Table (Devotees, Managers, Admins)
+-- 2. Members & Devotee Profiles Table
 CREATE TABLE IF NOT EXISTS public.members (
     id TEXT PRIMARY KEY,
     full_name TEXT NOT NULL,
+    spiritual_name TEXT,
     phone TEXT,
+    email TEXT,
     dob TEXT,
+    address TEXT,
+    blood_group TEXT,
+    department TEXT,
+    institute TEXT,
+    guardian_number TEXT,
+    national_id TEXT,
+    service_type TEXT,
+    role_badge TEXT,
+    photo_url TEXT,
+    nectar_drops JSONB DEFAULT '[]'::jsonb,
     user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
     role TEXT NOT NULL DEFAULT 'MEMBER' CHECK (role IN ('MEMBER', 'INTERNAL_MANAGER', 'ADMIN')),
     is_active BOOLEAN NOT NULL DEFAULT true,
@@ -177,6 +189,61 @@ CREATE TABLE IF NOT EXISTS public.balance_adjustments (
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
 
+-- 13. Student Ashram Discipline Registry (VOICE & Lotus Groups)
+CREATE TABLE IF NOT EXISTS public.discipline_students (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    group_type TEXT NOT NULL CHECK (group_type IN ('VOICE', 'LOTUS')),
+    phone TEXT,
+    cycle_order INTEGER DEFAULT 0,
+    monthly_strikes INTEGER NOT NULL DEFAULT 0,
+    status TEXT NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'WARNED', 'DEMOTION_DUE', 'DISMISSED')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+);
+
+-- 14. Daily Morning Wake-up & Program Discipline Logs
+CREATE TABLE IF NOT EXISTS public.daily_discipline_logs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    student_id TEXT NOT NULL REFERENCES public.discipline_students(id) ON DELETE CASCADE,
+    date_str DATE NOT NULL,
+    slept_on_time BOOLEAN NOT NULL DEFAULT true,
+    woke_up_on_time BOOLEAN NOT NULL DEFAULT true,
+    morning_program_on_time BOOLEAN NOT NULL DEFAULT true,
+    reason TEXT,
+    is_emergency BOOLEAN DEFAULT false,
+    reported_by TEXT,
+    notes TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+    UNIQUE(student_id, date_str)
+);
+
+-- 15. DYS Course Enrollments & Certifications
+CREATE TABLE IF NOT EXISTS public.course_enrollments (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    member_id TEXT REFERENCES public.members(id) ON DELETE SET NULL,
+    course_id TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'ENROLLED' CHECK (status IN ('ENROLLED', 'IN_PROGRESS', 'COMPLETED', 'CERTIFIED')),
+    completed_sessions INTEGER DEFAULT 0,
+    total_sessions INTEGER DEFAULT 6,
+    exam_score NUMERIC(5, 2),
+    enrolled_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+    completed_at TIMESTAMPTZ
+);
+
+-- 16. Residential Youth Camps & Retreat Registrations
+CREATE TABLE IF NOT EXISTS public.camp_registrations (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    member_id TEXT REFERENCES public.members(id) ON DELETE SET NULL,
+    camp_id TEXT NOT NULL,
+    devotee_name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    blood_group TEXT,
+    payment_status TEXT NOT NULL DEFAULT 'PENDING' CHECK (payment_status IN ('PENDING', 'PAID', 'SPONSORED')),
+    registered_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+);
+
 -- ==============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- ==============================================================================
@@ -192,6 +259,10 @@ ALTER TABLE public.meal_overrides ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bazar_entries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.meal_payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.balance_adjustments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.discipline_students ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.daily_discipline_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.course_enrollments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.camp_registrations ENABLE ROW LEVEL SECURITY;
 
 -- Read policies: Public read for ashram residents
 CREATE POLICY "Public read for members" ON public.members FOR SELECT USING (true);
@@ -203,12 +274,22 @@ CREATE POLICY "Public read for meal overrides" ON public.meal_overrides FOR SELE
 CREATE POLICY "Public read for bazar entries" ON public.bazar_entries FOR SELECT USING (true);
 CREATE POLICY "Public read for meal payments" ON public.meal_payments FOR SELECT USING (true);
 CREATE POLICY "Public read for balance adjustments" ON public.balance_adjustments FOR SELECT USING (true);
+CREATE POLICY "Public read for discipline students" ON public.discipline_students FOR SELECT USING (true);
+CREATE POLICY "Public read for discipline logs" ON public.daily_discipline_logs FOR SELECT USING (true);
+CREATE POLICY "Public read for course enrollments" ON public.course_enrollments FOR SELECT USING (true);
+CREATE POLICY "Public read for camp registrations" ON public.camp_registrations FOR SELECT USING (true);
 
 -- Authenticated write policies: Members can update their own data
 CREATE POLICY "Users can manage own sadhana logs" ON public.sadhana_logs 
     FOR ALL USING (auth.uid() = user_id);
 
 CREATE POLICY "Users can manage own study notes" ON public.study_notes 
+    FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can manage own course enrollments" ON public.course_enrollments 
+    FOR ALL USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can manage own camp registrations" ON public.camp_registrations 
     FOR ALL USING (auth.uid() = user_id);
 
 -- General authenticated/manager writes
@@ -221,6 +302,8 @@ CREATE POLICY "Manage meal overrides" ON public.meal_overrides FOR ALL USING (tr
 CREATE POLICY "Manage bazar entries" ON public.bazar_entries FOR ALL USING (true);
 CREATE POLICY "Manage meal payments" ON public.meal_payments FOR ALL USING (true);
 CREATE POLICY "Manage balance adjustments" ON public.balance_adjustments FOR ALL USING (true);
+CREATE POLICY "Manage discipline students" ON public.discipline_students FOR ALL USING (true);
+CREATE POLICY "Manage discipline logs" ON public.daily_discipline_logs FOR ALL USING (true);
 
 -- ==============================================================================
 -- REALTIME REPLICATION (Instant WebSocket Push to Devotee Phones)
@@ -235,6 +318,10 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.meal_overrides;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.bazar_entries;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.meal_payments;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.balance_adjustments;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.discipline_students;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.daily_discipline_logs;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.course_enrollments;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.camp_registrations;
 
 -- ==============================================================================
 -- INITIAL SEED DATA (Advaita VOICE Chittagong University)
@@ -267,4 +354,38 @@ INSERT INTO public.department_tasks (department_id, title, incharge_name, is_don
 ('study_care', 'Finalize CU Semester Exam Revision Circles timetable', 'Gian Juti Tripura + Pranto C Das', true),
 ('study_care', 'Arrange BCS & Bank Job GK & Math weekly quiz', 'Gian Juti Tripura + Pranto C Das', false),
 ('study_care', 'Check daily university academic study attendance logs (2 hrs minimum)', 'Gian Juti Tripura + Pranto C Das', true),
-('study_care', 'Provide library passes and quiet study hall schedules for devotees', 'Gian Juti Tripura + Pranto C Das', false);
+('study_care', 'Provide library passes and quiet study hall schedules for devotees', 'Gian Juti Tripura + Pranto C Das', false)
+ON CONFLICT (id) DO NOTHING;
+
+-- Initial Devotee Members (12 Resident Devotees)
+INSERT INTO public.members (id, full_name, spiritual_name, phone, email, dob, address, blood_group, department, institute, guardian_number, national_id, service_type, role_badge, cycle_order, role) VALUES
+('dev_caretaker', 'H.G Rasvihari Krishna Chandra Das', 'Rasvihari Krishna Chandra Das', '01875835986', 'rasvihari.voice@gmail.com', '1985-04-14', 'Chittagong', 'O+', 'VOICE Caretaker & Senior Mentor', 'ISKCON Chittagong / University of Chittagong', '01875835986', '1985159823412', 'Caretaker & Spiritual Guide', 'VOICE Caretaker', 0, 'ADMIN'),
+('dev_coordinator', 'Utpol Das Khocon', 'Utpol Das', '01790839891', 'utpol.acce.cu@gmail.com', '2001-09-18', 'Rajshahi', 'A+', 'ACCE', 'University of Chittagong', '01712000000', '2001769823451', 'IYF (VOICE Coordinator)', 'VOICE Coordinator', 1, 'INTERNAL_MANAGER'),
+('dev_akash', 'Akash Paul', 'Akash Das', '01799100306', 'akash.socio.cu@gmail.com', '2001-03-12', 'Feni, Chittagong', 'O+', 'Sociology', 'University of Chittagong', '01799000000', '2001159876543', 'IYF', 'IYF Youth Leader', 2, 'MEMBER'),
+('dev_gianjyoti', 'Gianjyoti Tripura', 'Gianjyoti Das', '01571328549', 'gianjyoti.cse.cu@gmail.com', '2002-11-25', 'Khagrachari', 'B+', 'CSE', 'University of Chittagong', '01550000000', '2002159823009', 'IYF (Digital & IT Incharge)', 'IT & Digital Seva', 3, 'INTERNAL_MANAGER'),
+('dev_dipendra', 'Dipendranath Roy', 'Dipendra Das', '01320903062', 'dipendra.philo.cu@gmail.com', '2002-07-08', 'Thakurgaon', 'O+', 'Philosophy', 'University of Chittagong', '01320000000', '2002159876111', 'IYF', 'Philosophical Study', 4, 'MEMBER'),
+('dev_sangakara', 'Sangakara Das', 'Sangakara Krishna Das', '01722711849', 'sangakara.chem.cu@gmail.com', '2001-12-05', 'Jashor', 'B+', 'Chemistry', 'University of Chittagong', '01722000000', '2001159876222', 'IYF', 'Kitchen & Prasadam Seva', 5, 'MEMBER'),
+('dev_ankan', 'Ankan Nath', 'Ankan Das', '01933503979', 'ankan.socio.cu@gmail.com', '2002-01-20', 'Feni', 'O+', 'Sociology', 'University of Chittagong', '01933000000', '2002159876333', 'IYF', 'IYF Seva Member', 6, 'MEMBER'),
+('dev_antor', 'Antor Kumar Mohanto', 'Antor Das', '01704370139', 'antor.sanskrit.cu@gmail.com', '2003-04-15', 'Gaibandha', 'O+', 'Sanskrit', 'University of Chittagong', '01704000000', '2003159876444', 'IYF', 'Morning Program Seva', 7, 'MEMBER'),
+('dev_utshab', 'Utshab Sarkar Joy', 'Utshab Das', '01734550288', 'utshab.joy.cu@gmail.com', '2002-08-28', 'Mymensingh', 'O+', 'Sanskrit', 'University of Chittagong', '01734000000', '2002159876555', 'IYF', 'Kirtan & Bhajan Seva', 8, 'MEMBER'),
+('dev_roton', 'Roton Roy', 'Roton Das', '01750504601', 'roton.sanskrit.cu@gmail.com', '2002-10-10', 'Rangpur', 'B+', 'Sanskrit', 'University of Chittagong', '01750000000', '2002159876666', 'IYF', 'Study Care Incharge', 9, 'MEMBER'),
+('dev_pranto', 'Pranto Das', 'Pranto Krishna Das', '01609302008', 'pranto.cse.cu@gmail.com', '2003-02-14', 'Gazipur', 'AB+', 'CSE', 'University of Chittagong', '01609000000', '2003159876777', 'IYF', 'Technical Support', 10, 'MEMBER'),
+('dev_joykanto', 'Joykanto Sen', 'Joykanto Das', '01754034183', 'joykanto.sanskrit.cu@gmail.com', '2002-06-18', 'Thakurgaon', 'B+', 'Sanskrit', 'University of Chittagong', '01754000000', '2002159876888', 'IYF', 'Temple Cleanliness Seva', 11, 'MEMBER'),
+('dev_bappi', 'Bappi Chandra Sarkar', 'Bappi Das', '01331982443', 'bappi.sanskrit.cu@gmail.com', '2003-11-02', 'Panchagarh', 'A+', 'Sanskrit', 'University of Chittagong', '01331000000', '2003159876999', 'IYF', 'Youth Member', 12, 'MEMBER')
+ON CONFLICT (id) DO NOTHING;
+
+-- Initial Discipline Students (VOICE & Lotus Groups)
+INSERT INTO public.discipline_students (id, name, group_type, phone, cycle_order, monthly_strikes, status) VALUES
+('member_0', 'UTPOL P.', 'VOICE', '+880 1790-839891', 1, 0, 'ACTIVE'),
+('member_1', 'CHAITANYA P.', 'VOICE', '+880 1331-982443', 2, 0, 'ACTIVE'),
+('member_2', 'GIAN P.', 'VOICE', '+8801571328549', 3, 0, 'ACTIVE'),
+('member_3', 'PRANTO P. (Pranto C Das)', 'LOTUS', '+880 1609-302008', 4, 0, 'ACTIVE'),
+('member_4', 'SANGA P. (Sangakara Das)', 'LOTUS', '+880 1722-711849', 5, 0, 'ACTIVE'),
+('member_5', 'DIPEN P.', 'VOICE', '01571422381', 6, 0, 'ACTIVE'),
+('member_6', 'ANKON P.', 'VOICE', '01933503979', 7, 0, 'ACTIVE'),
+('member_7', 'ANTOR P.', 'VOICE', '+880 1704-370139', 8, 0, 'ACTIVE'),
+('member_8', 'ROTON P.', 'VOICE', '+880 1750-504601', 9, 0, 'ACTIVE'),
+('member_9', 'JOY S. P.', 'VOICE', '+880 1734-550288', 10, 0, 'ACTIVE'),
+('member_10', 'JOYKANT P.', 'VOICE', '+880 1754-034183', 11, 0, 'ACTIVE'),
+('member_11', 'BAPPI C. P.', 'VOICE', '', 12, 0, 'ACTIVE')
+ON CONFLICT (id) DO NOTHING;
