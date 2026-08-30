@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">VOICE Service Cycle</string>
-    <string name="title_activity_main">VOICE Service Cycle</string>
+    <string name="app_name">Advaita VOICE Hub</string>
+    <string name="title_activity_main">Advaita VOICE Hub</string>
     <string name="package_name">org.voice.app</string>
     <string name="custom_url_scheme">org.voice.app</string>
 </resources>

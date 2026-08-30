@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'org.voice.app',
-  appName: 'VOICE Service Cycle',
+  appName: 'Advaita VOICE Hub',
   webDir: 'dist',
   bundledWebRuntime: false,
   plugins: {
