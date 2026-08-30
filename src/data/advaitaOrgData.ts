@@ -6,6 +6,7 @@ export interface LeadershipMember {
   level: 'GBC' | 'DIRECTOR' | 'ADVISER' | 'OC' | 'DEPARTMENT_HEAD' | 'CARETAKER';
   phone?: string;
   email?: string;
+  photo?: string;
   descriptionEn?: string;
   descriptionBn?: string;
 }
@@ -26,16 +27,26 @@ export const SPIRITUAL_LEADERSHIP: LeadershipMember[] = [
   {
     id: 'jps',
     name: 'HH Jayapataka Swami Gurumaharaja',
-    roleEn: 'GBC, ISKCON',
-    roleBn: 'জিবিসি, ইসকন',
-    level: 'GBC'
+    roleEn: 'GBC, ISKCON • Spiritual Master',
+    roleBn: 'জিবিসি, ইসকন • পরম পূজ্যপাদ গুরুমহারাজ',
+    level: 'GBC',
+    photo: '/assets/hh_jayapataka_swami.jpg'
   },
   {
     id: 'bps',
     name: 'HH Bhakti Purusottam Swami Maharaja',
-    roleEn: 'GBC, ISKCON',
-    roleBn: 'জিবিসি, ইসকন',
-    level: 'GBC'
+    roleEn: 'GBC, ISKCON • Co-Director Mayapur',
+    roleBn: 'জিবিসি, ইসকন • সহ-পরিচালক, মায়াপুর ধাম',
+    level: 'GBC',
+    photo: '/assets/hh_bhaktipurusottam_swami.png'
+  },
+  {
+    id: 'rsp',
+    name: 'HG Radheshyam Das Prabhu',
+    roleEn: 'Founder & Director, VOICE System (IIT Bombay / NVCC Pune)',
+    roleBn: 'প্রতিষ্ঠাতা ও পরিচালক, ভয়েস সিস্টেম (পুনে NVCC)',
+    level: 'DIRECTOR',
+    photo: '/assets/hg_radheshyam_prabhu.png'
   },
   {
     id: 'jgd',

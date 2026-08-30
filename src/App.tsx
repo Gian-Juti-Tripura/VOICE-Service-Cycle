@@ -4,6 +4,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import Navbar from './components/layout/Navbar';
 import FloatingActionBar from './components/layout/FloatingActionBar';
+import { BottomNavBar } from './components/layout/BottomNavBar';
+import { FallingFlowers } from './components/effects/FallingFlowers';
 import { InstallPromptBanner } from './components/pwa/InstallPromptBanner';
 import { Toaster } from 'react-hot-toast';
 import { initializeOneSignal } from './utils/onesignal';
@@ -95,11 +97,26 @@ const AppContent = () => {
   }, [user]);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen relative">
+      {/* Divine Sri Krishna & Vrindavan Peacock Background Atmosphere */}
+      <div 
+        aria-hidden="true"
+        className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
+      >
+        <img 
+          src="/krishna_vrindavan_bg.jpg" 
+          alt="Sri Krishna Background" 
+          className="w-full h-full object-cover object-center opacity-45 dark:opacity-55 transition-opacity duration-700 fixed inset-0"
+        />
+        <div className="fixed inset-0 bg-slate-900/30 dark:bg-slate-950/50 pointer-events-none" />
+      </div>
+
+      <FallingFlowers />
       <Navbar />
       <FloatingActionBar />
+      <BottomNavBar />
       <InstallPromptBanner />
-      <main className="flex-1">
+      <main className="flex-1 pb-16 relative z-10">
         <Toaster position="top-center" />
         <Suspense fallback={<LoadingFallback />}>
           <Routes>

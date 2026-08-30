@@ -75,16 +75,35 @@ export const UnifiedLectureLibrary: React.FC = () => {
 
         
         {/* Chapter Header */}
-        <div className="bg-gradient-to-r from-[#2c1a0e] to-[#4a2812] text-[#fff6ee] p-4 sm:p-5 rounded-xl shadow-md border-l-[5px] border-[#c28834]">
-          <h2 className="font-serif text-lg sm:text-xl font-bold tracking-wide">
-            {activeSpeaker === 'PRABHUPADA' 
-              ? '8. Vani Syllabus — Morning Program Series'
-              : '3. HG Radheshyam Prabhu\'s Video Lecture Series'}
-          </h2>
-          <div className="font-bengali text-sm text-[#e2a850] mt-1.5">
-            {activeSpeaker === 'PRABHUPADA'
-              ? 'বাণী সিলেবাস — শ্রীল প্রভুপাদের প্রাতঃকালীন ভাগবতম লেকচার সংকলন'
-              : 'শ্রীল রাধেশ্যাম প্রভুর ভিডিও লেকচার সিরিজ'}
+        <div className="bg-gradient-to-r from-[#2c1a0e] to-[#4a2812] text-[#fff6ee] p-4 sm:p-5 rounded-2xl shadow-md border-l-[5px] border-[#c28834] flex items-center gap-4">
+          {activeSpeaker === 'PRABHUPADA' ? (
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 border-amber-400/80 shadow-md shrink-0 ring-2 ring-amber-500/20">
+              <img
+                src="/assets/srila_prabhupada.jpg"
+                alt="Srila Prabhupada"
+                className="w-full h-full object-cover object-top"
+              />
+            </div>
+          ) : (
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 border-amber-400/80 shadow-md shrink-0 ring-2 ring-amber-500/20">
+              <img
+                src="/assets/hg_radheshyam_prabhu.png"
+                alt="HG Radheshyam Das Prabhu"
+                className="w-full h-full object-cover object-top"
+              />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <h2 className="font-serif text-lg sm:text-xl font-bold tracking-wide">
+              {activeSpeaker === 'PRABHUPADA' 
+                ? '8. Vani Syllabus — Morning Program Series'
+                : '3. HG Radheshyam Prabhu\'s Video Lecture Series'}
+            </h2>
+            <div className="font-bengali text-sm text-[#e2a850] mt-1">
+              {activeSpeaker === 'PRABHUPADA'
+                ? 'বাণী সিলেবাস — শ্রীল প্রভুপাদের প্রাতঃকালীন ভাগবতম লেকচার সংকলন'
+                : 'শ্রীল রাধেশ্যাম প্রভুর ভিডিও লেকচার সিরিজ'}
+            </div>
           </div>
         </div>
 

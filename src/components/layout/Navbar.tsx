@@ -204,10 +204,10 @@ export const Navbar: React.FC = () => {
             />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="font-black text-xs sm:text-base bg-gradient-to-r from-slate-900 via-rose-700 to-amber-600 dark:from-white dark:via-rose-300 dark:to-amber-400 bg-clip-text text-transparent truncate tracking-tight">
-              ADVAITA VOICE
+            <span className="font-bold text-xs sm:text-base text-slate-900 dark:text-white truncate tracking-tight">
+              ADVAITA <span className="text-amber-600 dark:text-amber-400 font-black">VOICE</span>
             </span>
-            <span className="hidden sm:block text-[9px] text-slate-400 dark:text-slate-500 font-bold tracking-widest uppercase -mt-0.5 truncate">
+            <span className="hidden sm:block text-[9.5px] text-slate-500 dark:text-slate-400 font-semibold tracking-wider uppercase -mt-0.5 truncate">
               {language === 'bn' ? 'চট্টগ্রাম বিশ্ববিদ্যালয়' : 'Chittagong University'}
             </span>
           </div>

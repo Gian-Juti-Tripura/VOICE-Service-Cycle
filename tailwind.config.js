@@ -8,8 +8,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', '"Outfit"', '"Hind Siliguri"', 'system-ui', 'sans-serif'],
-        outfit: ['"Outfit"', 'sans-serif'],
+        sans: ['"Inter"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Hind Siliguri"', 'sans-serif'],
+        inter: ['"Inter"', 'sans-serif'],
         bengali: ['"Hind Siliguri"', '"Noto Serif Bengali"', 'sans-serif'],
         serifBengali: ['"Noto Serif Bengali"', 'serif'],
         cinzel: ['"Cinzel"', 'serif'],

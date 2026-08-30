@@ -332,22 +332,38 @@ export const SadhanaTracker: React.FC = () => {
           </div>
         </div>
 
-        {/* Hero Header with Animated Gradient Accent */}
+        {/* Hero Header with Animated Gradient Accent & Srila Prabhupada Portrait */}
         <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-indigo-700 via-purple-700 to-indigo-900 text-white shadow-xl">
           <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none animate-pulse" />
-          <div className="relative z-10 space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-xs font-bold backdrop-blur-md">
-              <HeartHandshake size={13} className="animate-bounce" />
-              <span>Counselor Sadhana &amp; Student Care System</span>
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 justify-between">
+            <div className="space-y-2 flex-1 text-center md:text-left">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-xs font-bold backdrop-blur-md">
+                <HeartHandshake size={13} className="animate-bounce" />
+                <span>Counselor Sadhana &amp; Student Care System</span>
+              </div>
+              <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
+                {language === 'bn' ? 'ডিজিটাল সাধনাপত্র ও কাউন্সেলর পোর্টাল' : 'Digital Sadhana & Counselor Portal'}
+              </h1>
+              <p className="text-xs sm:text-sm text-indigo-100 max-w-2xl leading-relaxed">
+                {language === 'bn'
+                  ? '১৬ মালা জপ, মঙ্গল আরতি, প্রাতঃকালীন গ্রন্থ অধ্যয়ন ও ভক্ত সেবার পূর্ণাঙ্গ সাধনা মূল্যায়ন ও কাউন্সেলর আশীর্বাদ।'
+                  : 'Daily 16 rounds chanting, Mangala Arati, hearing & reading evaluation with direct counselor remarks and blessings.'}
+              </p>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
-              {language === 'bn' ? 'ডিজিটাল সাধনাপত্র ও কাউন্সেলর পোর্টাল' : 'Digital Sadhana & Counselor Portal'}
-            </h1>
-            <p className="text-xs sm:text-sm text-indigo-100 max-w-2xl leading-relaxed">
-              {language === 'bn'
-                ? 'শিক্ষার্থীদের দৈনিক সাধনা এন্ট্রি, হোয়াটসঅ্যাপ রিপোর্ট এবং কাউন্সেলর প্রভুদের সরাসরি মনিটরিং ও রিভিউ ড্যাশবোর্ড।'
-                : 'Student daily sadhana logging, WhatsApp reports, and live Counselor review, notifications & guidance dashboard.'}
-            </p>
+
+            {/* Srila Prabhupada Divine Darshan Box */}
+            <div className="relative shrink-0 flex flex-col items-center">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-amber-300 shadow-2xl ring-4 ring-amber-400/25">
+                <img
+                  src="/assets/srila_prabhupada_white.png"
+                  alt="His Divine Grace A.C. Bhaktivedanta Swami Srila Prabhupada"
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+              <div className="mt-1 px-2 py-0.5 rounded-md bg-amber-400 text-slate-950 text-[8.5px] font-black uppercase tracking-wider shadow-md">
+                16 Rounds Daily
+              </div>
+            </div>
           </div>
         </div>
 

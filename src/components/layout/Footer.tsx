@@ -238,86 +238,190 @@ export const Footer: React.FC = () => {
                   ? 'যাঁর অহৈতুকী করুণা, অক্লান্ত সাধনা ও দিব্য গ্রন্থাবলীর ওপর ভিত্তি করে বিশ্বজুড়ে কোটি কোটি আত্মা কৃষ্ণপ্রেমের সন্ধান পেয়েছে এবং যাঁর অপ্রাকৃত নির্দেশনায় যুবসমাজকে চরিত্রবান ও আধ্যাত্মিক জ্ঞানে আলোকিত করার উদ্দেশ্যে ভয়েস (VOICE) প্রতিষ্ঠিত — তাঁরই শ্রীচরণকমলে অদ্বৈত ভয়েসের এই সমগ্র ডিজিটাল প্ল্যাটফর্ম সশ্রদ্ধ ভক্তি ও অনন্ত কৃতজ্ঞতা সহযোগে উৎসর্গীকৃত।'
                   : 'Humbly and eternally dedicated at the divine lotus feet of Srila Prabhupada — the visionary world preceptor who brought Vedic wisdom to humanity and inspired the spiritual youth movement of VOICE to cultivate character, wisdom, and selfless devotion across the globe.'}
               </p>
+
+              {/* 4 Foundational Pillars of ISKCON & Youth Outreach */}
+              <div className="pt-2 flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/10 border border-amber-500/25 text-[10px] sm:text-[11px] font-bold text-amber-800 dark:text-amber-300 font-mono">
+                  📖 {language === 'bn' ? 'গ্রন্থসমূহ ভিত্তি' : 'Books are the Basis'}
+                </span>
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/10 border border-amber-500/25 text-[10px] sm:text-[11px] font-bold text-amber-800 dark:text-amber-300 font-mono">
+                  🗣️ {language === 'bn' ? 'প্রচারই সারবস্তু' : 'Preaching is the Essence'}
+                </span>
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/10 border border-amber-500/25 text-[10px] sm:text-[11px] font-bold text-amber-800 dark:text-amber-300 font-mono">
+                  ⚙️ {language === 'bn' ? 'উপযোগিতাই নীতি' : 'Utility is the Principle'}
+                </span>
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/10 border border-amber-500/25 text-[10px] sm:text-[11px] font-bold text-amber-800 dark:text-amber-300 font-mono">
+                  🤍 {language === 'bn' ? 'শুদ্ধতাই পরম শক্তি' : 'Purity is the Force'}
+                </span>
+              </div>
             </div>
 
           </div>
         </div>
 
-        {/* 3. Sleek Unified Quick-Action Directory & Contact Bar */}
-        <div className="mt-8 pt-6 border-t border-slate-200/80 dark:border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+        {/* 3. Comprehensive Organized Directory */}
+        <div className="mt-8 pt-8 border-t border-slate-200/80 dark:border-slate-800/80 space-y-6">
           
-          {/* Brand Tag */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1 flex items-center justify-center shadow-sm shrink-0">
-              <img 
-                src="/voice-logo-transparent.png" 
-                className="w-full h-full object-contain dark:hidden" 
-                alt="VOICE Logo" 
-              />
-              <img 
-                src="/voice-logo-white.png" 
-                className="w-full h-full object-contain hidden dark:block" 
-                alt="VOICE Logo" 
-              />
+          {/* Top Brand & Identity Card (Mobile & Desktop) */}
+          <div className="rounded-2xl bg-gradient-to-r from-amber-500/[0.06] via-indigo-500/[0.04] to-amber-500/[0.06] border border-amber-500/20 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2 flex items-center justify-center shadow-xs shrink-0">
+                <img 
+                  src="/voice-logo-transparent.png" 
+                  className="w-full h-full object-contain dark:hidden" 
+                  alt="Advaita VOICE Logo" 
+                />
+                <img 
+                  src="/voice-logo-white.png" 
+                  className="w-full h-full object-contain hidden dark:block" 
+                  alt="Advaita VOICE Logo" 
+                />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">
+                    ADVAITA VOICE
+                  </span>
+                  <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300 font-extrabold text-[9px] uppercase tracking-wider border border-amber-500/20">
+                    CU Chapter
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-serif italic">
+                  "Rekindling Wisdom, Reviving Love" • ISKCON Youth Forum
+                </p>
+              </div>
             </div>
-            <div>
-              <span className="font-extrabold text-slate-900 dark:text-white block">
-                Advaita VOICE Hub
-              </span>
-              <span className="text-[10px] text-slate-400">
-                Chittagong University &amp; ISKCON Nandankanan
-              </span>
+
+            <div className="text-[11px] text-slate-600 dark:text-slate-300 sm:text-right space-y-0.5">
+              <div className="font-semibold flex sm:justify-end items-center gap-1">
+                <span>📍</span>
+                <span>Radhamadhav Mandir &amp; Gour Nitai Ashram, CU Campus</span>
+              </div>
+              <div className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+                Affiliated: ISKCON Nandankanan, Chittagong
+              </div>
             </div>
           </div>
 
-          {/* Quick Module Links */}
-          <div className="flex items-center gap-2 flex-wrap justify-center font-bold text-slate-600 dark:text-slate-300">
-            <Link to="/syllabus" className="hover:text-primary-600 dark:hover:text-amber-400 transition-colors">
-              {language === 'bn' ? 'সিলেবাস' : 'Syllabus'}
-            </Link>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <Link to="/sadhana" className="hover:text-primary-600 dark:hover:text-amber-400 transition-colors">
-              {language === 'bn' ? 'সাধনাপত্র' : 'Sadhana'}
-            </Link>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <Link to="/service-cycle" className="hover:text-primary-600 dark:hover:text-amber-400 transition-colors">
-              {language === 'bn' ? 'সেবাক্রম' : 'Seva Cycle'}
-            </Link>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <Link to="/management" className="hover:text-primary-600 dark:hover:text-amber-400 transition-colors">
-              {language === 'bn' ? 'পরিচালনা' : 'Advaita Org'}
-            </Link>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <Link to="/preaching" className="hover:text-primary-600 dark:hover:text-amber-400 transition-colors">
-              {language === 'bn' ? 'প্রচারক' : 'Preachers'}
-            </Link>
-          </div>
+          {/* Quick Links & Devotee Care Grid: 2 columns on Mobile, 3 columns on Desktop */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6 text-xs">
+            
+            {/* Box 1: Ashram Daily Operations */}
+            <div className="rounded-2xl p-3 sm:p-4 bg-white/60 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 space-y-2">
+              <h5 className="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-[10px] sm:text-[11px] flex items-center gap-1.5 border-b border-slate-200/60 dark:border-slate-800/60 pb-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                <span>{language === 'bn' ? 'দৈনিক সেবা ও টুলস' : 'Ashram Utilities'}</span>
+              </h5>
+              <div className="grid grid-cols-1 gap-1 text-slate-700 dark:text-slate-300">
+                <Link to="/meals" className="p-1 rounded-lg hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 transition-all flex items-center gap-1.5 text-[11px]">
+                  <span>🍛</span>
+                  <span className="truncate">{language === 'bn' ? 'প্রসাদ বুকিং' : 'Prasad Booking'}</span>
+                </Link>
+                <Link to="/bazar-tracker" className="p-1 rounded-lg hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 transition-all flex items-center gap-1.5 text-[11px]">
+                  <span>🛒</span>
+                  <span className="truncate">{language === 'bn' ? 'বাজার লেজার' : 'Bazar Tracker'}</span>
+                </Link>
+                <Link to="/sadhana" className="p-1 rounded-lg hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 transition-all flex items-center gap-1.5 text-[11px]">
+                  <span>📿</span>
+                  <span className="truncate">{language === 'bn' ? 'সাধনাপত্র' : 'Daily Sadhana'}</span>
+                </Link>
+                <Link to="/discipline-audit" className="p-1 rounded-lg hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 transition-all flex items-center gap-1.5 text-[11px]">
+                  <span>⏰</span>
+                  <span className="truncate">{language === 'bn' ? 'শৃঙ্খলা অডিট' : 'Discipline Audit'}</span>
+                </Link>
+                <Link to="/service-cycle" className="p-1 rounded-lg hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 transition-all flex items-center gap-1.5 text-[11px]">
+                  <span>🔄</span>
+                  <span className="truncate">{language === 'bn' ? 'সেবাক্রম রোস্টার' : 'Seva Cycle'}</span>
+                </Link>
+              </div>
+            </div>
 
-          {/* Direct Phone & Mail Buttons */}
-          <div className="flex items-center gap-2 flex-wrap justify-center">
-            <a 
-              href="tel:01845812889"
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-700 dark:text-slate-300 hover:text-emerald-600"
-            >
-              <Phone size={11} className="text-emerald-500" />
-              <span>01845-812889</span>
-            </a>
+            {/* Box 2: Vedic Curriculum & Training */}
+            <div className="rounded-2xl p-3 sm:p-4 bg-white/60 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 space-y-2">
+              <h5 className="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-[10px] sm:text-[11px] flex items-center gap-1.5 border-b border-slate-200/60 dark:border-slate-800/60 pb-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                <span>{language === 'bn' ? 'শিক্ষা ও ক্যাম্প' : 'Curriculum & Camps'}</span>
+              </h5>
+              <div className="grid grid-cols-1 gap-1 text-slate-700 dark:text-slate-300">
+                <Link to="/syllabus" className="p-1 rounded-lg hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all flex items-center gap-1.5 text-[11px]">
+                  <span>🧭</span>
+                  <span className="truncate">{language === 'bn' ? 'সিলেবাস (৮৫৪)' : 'VOICE Syllabus'}</span>
+                </Link>
+                <Link to="/courses" className="p-1 rounded-lg hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all flex items-center gap-1.5 text-[11px]">
+                  <span>🎓</span>
+                  <span className="truncate">{language === 'bn' ? 'DYS কোর্স' : 'DYS Courses'}</span>
+                </Link>
+                <Link to="/camps" className="p-1 rounded-lg hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all flex items-center gap-1.5 text-[11px]">
+                  <span>🏕️</span>
+                  <span className="truncate">{language === 'bn' ? 'যুব ক্যাম্প' : 'Youth Retreats'}</span>
+                </Link>
+                <Link to="/library" className="p-1 rounded-lg hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all flex items-center gap-1.5 text-[11px]">
+                  <span>📚</span>
+                  <span className="truncate">{language === 'bn' ? 'সেবানন্দ লাইব্রেরি' : 'Audio Library'}</span>
+                </Link>
+                <Link to="/preaching" className="p-1 rounded-lg hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all flex items-center gap-1.5 text-[11px]">
+                  <span>🔥</span>
+                  <span className="truncate">{language === 'bn' ? 'প্রচারক টুলকিট' : 'Preacher Toolkit'}</span>
+                </Link>
+              </div>
+            </div>
 
-            <a 
-              href="mailto:Pandit.Gadadhar.JPS@pamho.net"
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-700 dark:text-slate-300 hover:text-sky-600"
-            >
-              <Mail size={11} className="text-sky-500" />
-              <span>Email</span>
-            </a>
+            {/* Box 3: Devotee Care & Emergency Helpline (Spans full width on mobile) */}
+            <div className="col-span-2 md:col-span-1 rounded-2xl p-3 sm:p-4 bg-white/60 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 space-y-2.5">
+              <h5 className="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-[10px] sm:text-[11px] flex items-center gap-1.5 border-b border-slate-200/60 dark:border-slate-800/60 pb-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span>{language === 'bn' ? 'ভক্ত যত্ন ও যোগাযোগ' : 'Contacts & Care'}</span>
+              </h5>
+              
+              <div className="space-y-2 text-[11px] text-slate-600 dark:text-slate-400">
+                <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-xl border border-slate-100 dark:border-slate-800">
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 text-[10.5px]">
+                    {language === 'bn' ? 'তত্ত্ববধায়ক:' : 'Caretaker:'}
+                  </span>
+                  <span className="font-bold text-amber-700 dark:text-amber-300 text-[10.5px] truncate">
+                    HG Rasvihari Das
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-0.5">
+                  <a 
+                    href="tel:01845812889"
+                    className="inline-flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all text-center"
+                  >
+                    <Phone size={11} />
+                    <span>01845-812889</span>
+                  </a>
+
+                  <a 
+                    href="mailto:Pandit.Gadadhar.JPS@pamho.net"
+                    className="inline-flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-xl bg-sky-500/10 border border-sky-500/25 text-[11px] font-bold text-sky-700 dark:text-sky-400 hover:bg-sky-500/20 transition-all text-center"
+                  >
+                    <Mail size={11} />
+                    <span>Email Desk</span>
+                  </a>
+                </div>
+
+                <Link 
+                  to="/profiles" 
+                  className="w-full py-1.5 px-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-400 font-bold hover:bg-rose-500/15 transition-all flex items-center justify-center gap-1.5 text-[10px]"
+                >
+                  <span>🩸</span>
+                  <span>{language === 'bn' ? 'জরুরি রক্তের গ্রুপ তালিকা' : 'Emergency Blood Registry'}</span>
+                </Link>
+              </div>
+            </div>
+
           </div>
 
         </div>
 
-        {/* 4. Copyright & Maha-Mantra */}
-        <div className="mt-6 pt-4 border-t border-slate-200/60 dark:border-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left text-[11px] text-slate-400 dark:text-slate-500">
-          <p>© 2026 Advaita VOICE Management System. All rights reserved.</p>
-          <p className="font-medium text-amber-600/80 dark:text-amber-400/80">
+        {/* 4. Copyright, System Version & Maha-Mantra with safe bottom padding for Mobile Navigation */}
+        <div className="mt-8 pt-4 pb-24 sm:pb-4 border-t border-slate-200/60 dark:border-slate-800/60 flex flex-col md:flex-row items-center justify-between gap-2 text-center md:text-left text-[11px] text-slate-400 dark:text-slate-500">
+          <div>
+            <span>© 2026 Advaita VOICE Management System (v2.4).</span>
+            <span className="hidden sm:inline"> • All rights dedicated to ISKCON.</span>
+          </div>
+          <p className="font-serif italic font-medium text-amber-600/90 dark:text-amber-400/90">
             Hare Krishna Hare Krishna Krishna Krishna Hare Hare • Hare Rama Hare Rama Rama Rama Hare Hare
           </p>
         </div>

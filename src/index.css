@@ -4,21 +4,20 @@
 
 @layer base {
   html {
-    font-family: 'Plus Jakarta Sans', 'Outfit', 'Hind Siliguri', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hind Siliguri', sans-serif;
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   body {
-    @apply bg-slate-50 text-slate-900 transition-colors duration-500 selection:bg-amber-500 selection:text-white;
+    @apply bg-slate-50 text-slate-900 transition-colors duration-300 selection:bg-amber-500 selection:text-white font-sans;
     background-color: #f8fafc;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.04) 0, transparent 45%),
-      radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.03) 0, transparent 45%),
-      radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.03) 0, transparent 50%);
-    background-attachment: fixed;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   .dark body {
@@ -104,3 +103,123 @@
 .animate-marquee:hover {
   animation-play-state: paused;
 }
+
+/* Radiant IYF Glowing Halo & Aura Animation */
+@keyframes aura-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { 
+    opacity: 0.7;
+    transform: scale(0.98);
+    filter: blur(20px);
+  }
+  50% { 
+    opacity: 1;
+    transform: scale(1.12);
+    filter: blur(28px);
+  }
+}
+
+.animate-glow-aura {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.animate-aura-spin {
+  animation: aura-spin 10s linear infinite;
+}
+
+/* Sacred Falling Flowers (Pushpa Vrishti) Animation */
+@keyframes flower-fall {
+  0% {
+    transform: translate3d(0, -60px, 0) rotate(0deg) scale(0.85);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.9;
+  }
+  85% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(var(--drift-x, 25px), 108vh, 0) rotate(var(--rot-end, 360deg)) scale(1.1);
+    opacity: 0;
+  }
+}
+
+.flower-petal {
+  position: absolute;
+  top: -30px;
+  pointer-events: none;
+  user-select: none;
+  animation-name: flower-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+/* Divine Sunbeam & Radiating Light Rays (Surya Prabha) */
+@keyframes rays-spin-forward {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes rays-spin-backward {
+  from {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+}
+
+.divine-sunrays-layer1 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1400px;
+  height: 1400px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(251, 191, 36, 0.32) 0deg 8deg,
+    transparent 8deg 24deg,
+    rgba(245, 158, 11, 0.25) 24deg 32deg,
+    transparent 32deg 48deg
+  );
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 22%, rgba(0,0,0,0.15) 52%, transparent 75%);
+  mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 22%, rgba(0,0,0,0.15) 52%, transparent 75%);
+  animation: rays-spin-forward 32s linear infinite;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.divine-sunrays-layer2 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1100px;
+  height: 1100px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 15deg,
+    rgba(254, 240, 138, 0.35) 0deg 6deg,
+    transparent 6deg 20deg,
+    rgba(249, 115, 22, 0.22) 20deg 26deg,
+    transparent 26deg 40deg
+  );
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0.65) 18%, rgba(0,0,0,0.1) 46%, transparent 68%);
+  mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0.65) 18%, rgba(0,0,0,0.1) 46%, transparent 68%);
+  animation: rays-spin-backward 22s linear infinite;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+
+

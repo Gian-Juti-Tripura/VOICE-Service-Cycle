@@ -1,34 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { getStoredNotices, type ManagerAnnouncement } from '../utils/noticesStore';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { FeatureCard } from '../components/hub/FeatureCard';
+import { GlobalSearchBar } from '../components/hub/GlobalSearchBar';
 import { Footer } from '../components/layout/Footer';
 import { VOICE_HANDBOOK_DATA } from '../data/voiceHandbookData';
+import { triggerHaptic } from '../utils/haptics';
 import { 
   Users, BookOpen, Clock, Utensils, HeartHandshake, RefreshCw, ShieldCheck,
   GraduationCap, Tent, Calendar, Compass, Phone,
   Sparkles, PlayCircle,
   Flame, Landmark, MapPin, ChevronDown, ChevronUp,
-  Bell, ArrowRight
-, Zap} from 'lucide-react';
+  Bell, ArrowRight, Zap, X
+} from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 
 export const HubHome: React.FC = () => {
-  const { user } = useAuth();
   const { language } = useLanguage();
   const navigate = useNavigate();
-  const [activeFilter, setActiveFilter] = useState<'ALL' | 'SEVA' | 'STUDY' | 'PREACHING' | 'ORG'>('ALL');
   const [showIskconCenters, setShowIskconCenters] = useState(false);
-  const [liveNotices, setLiveNotices] = useState<ManagerAnnouncement[]>(() => getStoredNotices());
-
-  useEffect(() => {
-    const update = () => setLiveNotices(getStoredNotices());
-    window.addEventListener('advaita_notices_updated', update);
-    return () => window.removeEventListener('advaita_notices_updated', update);
-  }, []);
-
-  const isLoggedIn = !!user;
+  const [selectedDeityModal, setSelectedDeityModal] = useState<'RADHA_MADHAV' | 'GAURA_NITAI' | 'BOTH' | null>(null);
 
   // Closest 3 Upcoming Festivals from August 2026 onwards in compact format
   const CLOSEST_UPCOMING_FESTIVALS = [
@@ -64,736 +53,756 @@ export const HubHome: React.FC = () => {
     }
   ];
 
-  const CARDS_DATA = [
-    {
-      id: 'meal_system',
-      titleEn: 'Prasad & Meal Manager',
-      titleBn: 'প্রসাদ ও মিল হিসাব',
-      descEn: 'Daily meal toggles, live cook headcount, bazar logs & 1-tap WhatsApp bills.',
-      descBn: 'দৈনিক মিল টগল, বাজার ট্র্যাকার ও ১-ক্লিকে হোয়াটসঅ্যাপ বিলিং।',
-      categoryEn: 'Prasad & Dining',
-      categoryBn: 'প্রসাদ ও ডাইনিং',
-      categoryType: 'SEVA',
-      icon: Utensils,
-      link: '/meals',
-      colorScheme: {
-        bgLight: 'bg-emerald-50',
-        bgDark: 'bg-emerald-950/20',
-        borderLight: 'border-emerald-200',
-        borderDark: 'border-emerald-900/40',
-        iconBg: 'bg-emerald-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-emerald-50 dark:bg-emerald-950/50',
-        badgeText: 'text-emerald-700 dark:text-emerald-300',
-        glow: 'rgba(16, 185, 129, 0.2)'
-      },
-      badgeEn: 'Live Rate & Billing',
-      badgeBn: 'মিল রেট ও বিলিং',
-      isMemberOnly: false
-    },
-    {
-      id: 'discipline_audit',
-      titleEn: "VOICE & Lotus Discipline Audit",
-      titleBn: 'ভয়েস ও লোটাস গ্রুপ শৃঙ্খলা অডিট',
-      descEn: "Daily bed, wake & MP abidance audit with 1-tap WhatsApp reports to Counselor.",
-      descBn: 'ঘুম, জাগরণ ও মর্নিং প্রোগ্রাম অডিট এবং কাউন্সেলর প্রভুকে হোয়াটসঅ্যাপ রিপোর্ট।',
-      categoryEn: 'Discipline & Rules',
-      categoryBn: 'শৃঙ্খলা ও অডিট',
-      categoryType: 'SEVA',
-      icon: Clock,
-      link: '/discipline-audit',
-      colorScheme: {
-        bgLight: 'bg-rose-50',
-        bgDark: 'bg-rose-950/20',
-        borderLight: 'border-rose-200',
-        borderDark: 'border-rose-900/40',
-        iconBg: 'bg-rose-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-rose-50 dark:bg-rose-950/50',
-        badgeText: 'text-rose-700 dark:text-rose-300',
-        glow: 'rgba(244, 63, 94, 0.2)'
-      },
-      badgeEn: 'Daily MP Report',
-      badgeBn: 'দৈনিক রিপোর্ট',
-      isMemberOnly: false
-    },
-    {
-      id: 'counselor_desk',
-      titleEn: "Counselor's Desk & Sadhana Audit",
-      titleBn: 'কাউন্সেলর সাধনা অডিট ও কেয়ার',
-      descEn: "Inspect 12 counsellees' daily sadhana, write comments & send WhatsApp blessings.",
-      descBn: '১২ জন শিক্ষার্থীর সাধনা যাচাই, মন্তব্য প্রদান ও হোয়াটসঅ্যাপ আশীর্বাদ।',
-      categoryEn: 'Mentorship & Audit',
-      categoryBn: 'কাউন্সেলিং ও অডিট',
-      categoryType: 'SEVA',
-      icon: ShieldCheck,
-      link: '/counselor',
-      colorScheme: {
-        bgLight: 'bg-amber-50',
-        bgDark: 'bg-amber-950/20',
-        borderLight: 'border-amber-200',
-        borderDark: 'border-amber-900/40',
-        iconBg: 'bg-amber-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-amber-50 dark:bg-amber-950/50',
-        badgeText: 'text-amber-700 dark:text-amber-300',
-        glow: 'rgba(245, 158, 11, 0.2)'
-      },
-      badgeEn: 'Counselor Portal',
-      badgeBn: 'কাউন্সেলর ডেস্ক',
-      isMemberOnly: false
-    },
-    {
-      id: 'sadhana',
-      titleEn: 'Digital Sadhana Sheet',
-      titleBn: 'ডিজিটাল সাধনাপত্র',
-      descEn: 'Body, Soul & Seva scoring (Scales 1–4) + 1-tap WhatsApp report.',
-      descBn: 'দেহ, আত্মা ও সেবার অটো মার্কস ও হোয়াটসঅ্যাপ রিপোর্ট।',
-      categoryEn: 'Sadhana & Care',
-      categoryBn: 'সাধনা ও কেয়ার',
-      categoryType: 'SEVA',
-      icon: HeartHandshake,
-      link: '/sadhana',
-      colorScheme: {
-        bgLight: 'bg-indigo-50',
-        bgDark: 'bg-indigo-950/20',
-        borderLight: 'border-indigo-200',
-        borderDark: 'border-indigo-900/40',
-        iconBg: 'bg-indigo-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-indigo-50 dark:bg-indigo-950/50',
-        badgeText: 'text-indigo-700 dark:text-indigo-300',
-        glow: 'rgba(99, 102, 241, 0.2)'
-      },
-      badgeEn: 'Scales 1–4',
-      badgeBn: 'স্কেল ১–৪',
-      isMemberOnly: false
-    },
-    {
-      id: 'announcements_board',
-      titleEn: 'Announcements & Incharge Notices',
-      titleBn: 'বিজ্ঞপ্তি ও ইনচার্জ নির্দেশিকা',
-      descEn: 'Internal Manager, Security, Morning Program & Coordinator directives.',
-      descBn: 'অভ্যন্তরীণ ব্যবস্থাপক, নিরাপত্তা ও সমন্বয়কদের জরুরি নোটিশ বোর্ড।',
-      categoryEn: 'Notices & Admin',
-      categoryBn: 'বিজ্ঞপ্তি ও প্রশাসন',
-      categoryType: 'ORG',
-      icon: Bell,
-      link: '/announcements',
-      colorScheme: {
-        bgLight: 'bg-rose-50',
-        bgDark: 'bg-rose-950/20',
-        borderLight: 'border-rose-200',
-        borderDark: 'border-rose-900/40',
-        iconBg: 'bg-rose-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-rose-50 dark:bg-rose-950/50',
-        badgeText: 'text-rose-700 dark:text-rose-300',
-        glow: 'rgba(244, 63, 94, 0.2)'
-      },
-      badgeEn: 'Role Notices',
-      badgeBn: 'ইনচার্জ নোটিশ',
-      isMemberOnly: false
-    },
-    {
-      id: 'sebananda_library',
-      titleEn: 'Sebananda Library (সেবানন্দ গ্রন্থাগার)',
-      titleBn: 'সেবানন্দ গ্রন্থাগার ও ই-রিসোর্স',
-      descEn: 'Srila Prabhupada E-books, DYS slides, camp guides, BCS notes & songbooks.',
-      descBn: 'শ্রীল প্রভুপাদের মূল গ্রন্থ, ডিওয়াইএস স্লাইড, ক্যাম্প বুকলেট ও বিসিএস নোটস।',
-      categoryEn: 'Digital Library',
-      categoryBn: 'ডিজিটাল গ্রন্থাগার',
-      categoryType: 'STUDY',
-      icon: BookOpen,
-      link: '/library',
-      colorScheme: {
-        bgLight: 'bg-emerald-50',
-        bgDark: 'bg-emerald-950/20',
-        borderLight: 'border-emerald-200',
-        borderDark: 'border-emerald-900/40',
-        iconBg: 'bg-emerald-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-emerald-50 dark:bg-emerald-950/50',
-        badgeText: 'text-emerald-700 dark:text-emerald-300',
-        glow: 'rgba(16, 185, 129, 0.2)'
-      },
-      badgeEn: 'E-Books & PDFs',
-      badgeBn: 'ই-বুক ও পিডিএফ',
-      isMemberOnly: false
-    },
-    
-    
-{
-      id: 'unified_library',
-      titleEn: 'VOICE Audio & Video Library',
-      titleBn: 'ভয়েস অডিও ও ভিডিও লাইব্রেরি',
-      descEn: 'Complete collection of Srila Prabhupada Vani and HG Radheshyam Prabhu video classes as per syllabus.',
-      descBn: 'শ্রীল প্রভুপাদের অডিও এবং শ্রীপাদ রাধেশ্যাম প্রভুর ভিডিও লেকচার সমূহ (সিলেবাস অনুযায়ী)।',
-      categoryEn: 'Media Archive',
-      categoryBn: 'মিডিয়া আর্কাইভ',
-      categoryType: 'STUDY',
-      icon: PlayCircle,
-      link: '/lectures-library',
-      colorScheme: {
-        bgLight: 'bg-rose-50',
-        bgDark: 'bg-rose-950/20',
-        borderLight: 'border-rose-200',
-        borderDark: 'border-rose-900/40',
-        iconBg: 'bg-rose-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-rose-50 dark:bg-rose-950/50',
-        badgeText: 'text-rose-700 dark:text-rose-300',
-        glow: 'rgba(225, 29, 72, 0.2)'
-      },
-      badgeEn: 'SP Vani + RSP Videos',
-      badgeBn: 'প্রভুপাদ বাণী + রাধেশ্যাম প্রভু',
-      isMemberOnly: false
-    },
-    {
-      id: 'all_courses',
-      titleEn: 'All Courses & Diplomas',
-      titleBn: 'সকল কোর্স ও ডিপ্লোমা',
-      descEn: 'DYS (6 Sessions), SS, PT, SM, PL & Bhakti Shastri with session breakdowns.',
-      descBn: 'ডিওয়াইএস (৬ সেশন), এসএস, পিটি, এসএম, পিএল ও ভক্তি শাস্ত্রী পাঠ্যক্রম।',
-      categoryEn: 'Vedic Courses',
-      categoryBn: 'বৈদিক কোর্স',
-      categoryType: 'STUDY',
-      icon: GraduationCap,
-      link: '/courses',
-      colorScheme: {
-        bgLight: 'bg-purple-50',
-        bgDark: 'bg-purple-950/20',
-        borderLight: 'border-purple-200',
-        borderDark: 'border-purple-900/40',
-        iconBg: 'bg-purple-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-purple-50 dark:bg-purple-950/50',
-        badgeText: 'text-purple-700 dark:text-purple-300',
-        glow: 'rgba(168, 85, 247, 0.2)'
-      },
-      badgeEn: '6 Courses',
-      badgeBn: '৬টি কোর্স',
-      isMemberOnly: false
-    },
-    {
-      id: 'all_camps',
-      titleEn: 'Official VOICE Residential Camps',
-      titleBn: 'অফিসিয়াল ভয়েস আবাসিক ক্যাম্পসমূহ',
-      descEn: 'Sankalpa, Sphurti, Utsaha, Utkarsha, SRCGD, Nistha, FTW, FEC, Ashraya, Sharanagati & Sabha Camps.',
-      descBn: 'সংকল্প, স্ফূর্তি, উৎসাহ, উৎকর্ষ, SRCGD, নিষ্ঠা, FTW, FEC, আশ্রয়, শরণাগতি ও সভা ক্যাম্পসমূহ।',
-      categoryEn: 'Camps & Retreats',
-      categoryBn: 'ক্যাম্প ও রিট্রিট',
-      categoryType: 'STUDY',
-      icon: Tent,
-      link: '/camps',
-      colorScheme: {
-        bgLight: 'bg-amber-50',
-        bgDark: 'bg-amber-950/20',
-        borderLight: 'border-amber-200',
-        borderDark: 'border-amber-900/40',
-        iconBg: 'bg-amber-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-amber-50 dark:bg-amber-950/50',
-        badgeText: 'text-amber-700 dark:text-amber-300',
-        glow: 'rgba(245, 158, 11, 0.2)'
-      },
-      badgeEn: '13 Official Camps',
-      badgeBn: '১৩টি ক্যাম্প',
-      isMemberOnly: false
-    },
-    {
-      id: 'syllabus',
-      titleEn: 'Full VOICE Syllabus & Lectures',
-      titleBn: 'সম্পূর্ণ ভয়েস সিলেবাস ও লেকচার',
-      descEn: '854 topics from DYS to SP Books with personal study notes & lectures.',
-      descBn: 'ডিওয়াইএস থেকে শুরু করে গ্রন্থ অধ্যয়নের ৮৫৪ বিষয় ও অডিও নোট।',
-      categoryEn: 'Study & Wisdom',
-      categoryBn: 'শিক্ষা ও প্রজ্ঞা',
-      categoryType: 'STUDY',
-      icon: Compass,
-      link: '/syllabus',
-      colorScheme: {
-        bgLight: 'bg-rose-50',
-        bgDark: 'bg-rose-950/20',
-        borderLight: 'border-rose-200',
-        borderDark: 'border-rose-900/40',
-        iconBg: 'bg-rose-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-rose-50 dark:bg-rose-950/50',
-        badgeText: 'text-rose-700 dark:text-rose-300',
-        glow: 'rgba(244, 63, 94, 0.2)'
-      },
-      badgeEn: '854 Topics',
-      badgeBn: '৮৫৪ বিষয়',
-      isMemberOnly: false
-    },
-    {
-      id: 'service_cycle_member',
-      titleEn: 'My Daily Seva Dashboard',
-      titleBn: 'আমার দৈনিক সেবা',
-      descEn: "Today's seva duty, timing & upcoming 7-day schedule.",
-      descBn: 'আজকের সেবা দায়িত্ব, সময়সূচি ও আগামী ৭ দিনের শিডিউল।',
-      categoryEn: 'Ashram Seva',
-      categoryBn: 'আশ্রম সেবা',
-      categoryType: 'SEVA',
-      icon: RefreshCw,
-      link: isLoggedIn ? '/member' : '/login',
-      colorScheme: {
-        bgLight: 'bg-emerald-50',
-        bgDark: 'bg-emerald-950/20',
-        borderLight: 'border-emerald-200',
-        borderDark: 'border-emerald-900/40',
-        iconBg: 'bg-emerald-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-emerald-50 dark:bg-emerald-950/50',
-        badgeText: 'text-emerald-700 dark:text-emerald-300',
-        glow: 'rgba(16, 185, 129, 0.2)'
-      },
-      badgeEn: 'Daily Duty',
-      badgeBn: 'দৈনিক সেবা',
-      isMemberOnly: true
-    },
-    {
-      id: 'preaching_toolkit',
-      titleEn: "Preacher's Pocket Toolkit & Shlokas",
-      titleBn: 'প্রচারক পকেট টুলকিট ও শ্লোক',
-      descEn: '108 core Sanskrit verses, debate refutations & outreach strategies.',
-      descBn: '১০৮টি মৌলিক সংস্কৃত শ্লোক, বিজ্ঞানভিত্তিক যুক্তি ও প্রচার কলা।',
-      categoryEn: 'Preaching & Youth',
-      categoryBn: 'প্রচার ও যুবসেবা',
-      categoryType: 'PREACHING',
-      icon: Flame,
-      link: '/preaching',
-      colorScheme: {
-        bgLight: 'bg-orange-50',
-        bgDark: 'bg-orange-950/20',
-        borderLight: 'border-orange-200',
-        borderDark: 'border-orange-900/40',
-        iconBg: 'bg-orange-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-orange-50 dark:bg-orange-950/50',
-        badgeText: 'text-orange-700 dark:text-orange-300',
-        glow: 'rgba(234, 88, 12, 0.2)'
-      },
-      badgeEn: '108 Shlokas',
-      badgeBn: '১০৮ শ্লোক',
-      isMemberOnly: false
-    },
-    {
-      id: 'advaita_org',
-      titleEn: 'Advaita VOICE Org (All Depts)',
-      titleBn: 'অদ্বৈত ভয়েস সাংগঠনিক কাঠামো',
-      descEn: 'Central leadership, 9 departments, 12 members matrix & Study Care.',
-      descBn: 'কেন্দ্রীয় পরিচালনা পর্ষদ, ৯টি বিভাগ ও স্টাডি কেয়ার টিম।',
-      categoryEn: 'Ashram Management',
-      categoryBn: 'আশ্রম ব্যবস্থাপনা',
-      categoryType: 'ORG',
-      icon: Landmark,
-      link: '/management',
-      colorScheme: {
-        bgLight: 'bg-slate-50',
-        bgDark: 'bg-slate-900/40',
-        borderLight: 'border-slate-200',
-        borderDark: 'border-slate-800',
-        iconBg: 'bg-slate-700',
-        iconText: 'text-white',
-        badgeBg: 'bg-slate-100 dark:bg-slate-800',
-        badgeText: 'text-slate-700 dark:text-slate-300',
-        glow: 'rgba(71, 85, 105, 0.2)'
-      },
-      badgeEn: 'Central Org',
-      badgeBn: 'কেন্দ্রীয় পর্ষদ',
-      isMemberOnly: false
-    },
-    {
-      id: 'devotee_profiles',
-      titleEn: 'Devotee Profiles & Nectar Drops',
-      titleBn: 'ভক্ত প্রোফাইল ও সদ্গুণাবলী ডিরেক্টরি',
-      descEn: 'Photos, birthday, gmail, blood group & mutual Vaishnava appreciations.',
-      descBn: 'ভক্তের ছবি, জন্মদিন, রক্তের গ্রুপ ও অমৃতবিন্দু সদ্গুণাবলী ডিরেক্টরি।',
-      categoryEn: 'Vaishnava Profiles',
-      categoryBn: 'ভক্তবৃন্দ',
-      categoryType: 'ORG',
-      icon: Users,
-      link: '/profiles',
-      colorScheme: {
-        bgLight: 'bg-amber-50',
-        bgDark: 'bg-amber-950/20',
-        borderLight: 'border-amber-200',
-        borderDark: 'border-amber-900/40',
-        iconBg: 'bg-amber-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-amber-50 dark:bg-amber-950/50',
-        badgeText: 'text-amber-700 dark:text-amber-300',
-        glow: 'rgba(245, 158, 11, 0.2)'
-      },
-      badgeEn: 'All Profiles',
-      badgeBn: 'সকল ভক্তবৃন্দ',
-      isMemberOnly: false
-    },
-    {
-      id: 'vaishnava_calendar',
-      titleEn: '2026 Vaishnava Calendar & Festivals',
-      titleBn: '২০২৬ বৈষ্ণব ক্যালেন্ডার ও উৎসব',
-      descEn: 'Official 2026 Ekadashi fasting, Parana time & Appearance days.',
-      descBn: '২০২৬ সালের সকল একাদশী ব্রত, পারণ সময় ও বৈষ্ণবীয় আবির্ভাব তিথি।',
-      categoryEn: 'Calendar & Feasts',
-      categoryBn: 'পঞ্জিকা ও উৎসব',
-      categoryType: 'ORG',
-      icon: Calendar,
-      link: '/calendar',
-      colorScheme: {
-        bgLight: 'bg-teal-50',
-        bgDark: 'bg-teal-950/20',
-        borderLight: 'border-teal-200',
-        borderDark: 'border-teal-900/40',
-        iconBg: 'bg-teal-600',
-        iconText: 'text-white',
-        badgeBg: 'bg-teal-50 dark:bg-teal-950/50',
-        badgeText: 'text-teal-700 dark:text-teal-300',
-        glow: 'rgba(13, 148, 136, 0.2)'
-      },
-      badgeEn: '2026 Dates',
-      badgeBn: '২০২৬ পঞ্জিকা',
-      isMemberOnly: false
-    }
-  ];
-
-  const filteredCards = CARDS_DATA.filter(card => {
-    return activeFilter === 'ALL' || card.categoryType === activeFilter;
-  });
-
   return (
-    <div className="min-h-screen bg-slate-50/40 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
+    <div className="min-h-screen bg-transparent text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300 pb-28 sm:pb-16">
       
-      {/* ================= ULTRA-STYLISH TWO-ROW GLASSMARQUEE TICKER ================= */}
-      <div className="w-full shadow-md text-white text-xs font-bold divide-y divide-white/10 select-none backdrop-blur-xl">
-        
-        {/* Row 1: Royal Saffron & Rose Gold Festival Marquee */}
-        <div className="bg-gradient-to-r from-amber-600/95 via-orange-600/95 to-amber-700/95 py-2 px-3.5 sm:px-6 flex items-center gap-3 overflow-hidden border-b border-amber-500/20 relative">
-          <div className="flex items-center gap-1.5 shrink-0 z-20 px-2.5 py-0.5 rounded-full bg-amber-900/60 sm:bg-white/20 backdrop-blur-md border border-amber-300/40 sm:border-white/40 shadow-xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-300 animate-pulse" />
-            <span className="text-[10px] uppercase tracking-wider font-mono font-black text-white">
-              {language === 'bn' ? '🌸 উৎসব' : '🌸 FEAST'}
+      {/* ================= DISTINCT STYLISH ITALIC BANNER: DARE TO BE RARE & GLOBAL SEARCH BAR ================= */}
+      <div className="w-full bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-b border-indigo-500/30 py-4 px-4 sm:px-6 lg:px-8 shadow-lg transition-colors duration-300">
+        <div className="max-w-4xl lg:max-w-5xl mx-auto space-y-3.5">
+          
+          {/* Dare to be Rare Title Header */}
+          <div className="flex items-center justify-center gap-3 sm:gap-4">
+            <div className="h-[1px] flex-1 max-w-xs bg-gradient-to-r from-transparent via-amber-400/40 to-amber-400/90" />
+            <span className="text-xs sm:text-sm md:text-base font-serif italic tracking-[0.25em] font-extrabold bg-gradient-to-r from-amber-300 via-orange-200 to-amber-300 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(245,158,11,0.3)] select-none">
+              ✦ Dare to be Rare ✦
             </span>
+            <div className="h-[1px] flex-1 max-w-xs bg-gradient-to-l from-transparent via-amber-400/40 to-amber-400/90" />
           </div>
-          <div className="relative flex-1 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_24px,black_calc(100%-24px),transparent)]">
-            <div className="animate-marquee whitespace-nowrap flex items-center gap-12 text-[11px] sm:text-xs">
-              <span>🌸 <strong className="text-amber-100 font-extrabold">{language === 'bn' ? 'শ্রীকৃষ্ণ জন্মাষ্টমী (৪ সেপ্টেম্বর ২০২৬):' : 'Sri Krishna Janmastami (04 Sep 2026):'}</strong> <span className="text-white/90">{language === 'bn' ? 'মধ্যরাত ১২:০০ পর্যন্ত নির্জলা/সজল উপবাস ও রাত ১২টায় মহাভিষেক এবং আনন্দ উৎসব।' : 'Fasting till midnight 12:00 AM • Mahabhisheka & Feast!'}</span></span>
-              <span>🌸 <strong className="text-amber-100 font-extrabold">{language === 'bn' ? 'শ্রীকৃষ্ণ জন্মাষ্টমী (৪ সেপ্টেম্বর ২০২৬):' : 'Sri Krishna Janmastami (04 Sep 2026):'}</strong> <span className="text-white/90">{language === 'bn' ? 'মধ্যরাত ১২:০০ পর্যন্ত নির্জলা/সজল উপবাস ও রাত ১২টায় মহাভিষেক এবং আনন্দ উৎসব।' : 'Fasting till midnight 12:00 AM • Mahabhisheka & Feast!'}</span></span>
-            </div>
-          </div>
-          <Link to="/calendar" title="View Full Calendar" className="shrink-0 w-6 h-6 rounded-full bg-white/20 hover:bg-white/35 text-white z-20 flex items-center justify-center transition-all hover:scale-110 shadow-xs cursor-pointer">
-            <ArrowRight size={13} />
-          </Link>
-        </div>
 
-        {/* Row 2: Deep Indigo & Ruby Incharge Announcement Marquee */}
-        <div className="bg-gradient-to-r from-slate-950/95 via-indigo-950/95 to-slate-950/95 py-2 px-3.5 sm:px-6 flex items-center gap-3 overflow-hidden border-b border-indigo-500/20 relative">
-          <div className="flex items-center gap-1.5 shrink-0 z-20 px-2.5 py-0.5 rounded-full bg-rose-950/80 sm:bg-rose-500/25 backdrop-blur-md border border-rose-400/40 shadow-xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
-            <span className="text-[10px] uppercase tracking-wider font-mono font-black text-rose-200">
-              {language === 'bn' ? '📢 নোটিশ' : '📢 NOTICE'}
-            </span>
-          </div>
-          <div className="relative flex-1 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_24px,black_calc(100%-24px),transparent)]">
-            <div className="animate-marquee whitespace-nowrap flex items-center gap-12 text-[11px] sm:text-xs text-slate-200">
-              {liveNotices.length > 0 ? (
-                liveNotices.map((n: ManagerAnnouncement, i: number) => (
-                  <span key={i}>📢 <strong className="text-rose-200 font-extrabold">{language === 'bn' ? n.titleBn : n.titleEn} ({n.inchargeNameBn}):</strong> <span className="text-slate-300">{language === 'bn' ? n.descBn : n.descEn}</span></span>
-                ))
-              ) : (
-                <span>📢 <strong className="text-rose-200 font-extrabold">{language === 'bn' ? 'অদ্বৈত ভয়েস ইনচার্জ নোটিশ বোর্ড:' : 'Advaita VOICE Notice Board:'}</strong> <span className="text-slate-300">{language === 'bn' ? 'যেকোনো বিভাগীয় ইনচার্জ ও ব্যবস্থাপক নোটিশ বোর্ডে নতুন নির্দেশনা প্রকাশ করতে পারেন।' : 'Department managers can publish operational notices and directives in real time.'}</span></span>
-              )}
-            </div>
-          </div>
-          <Link to="/announcements" title="View All Notices" className="shrink-0 w-6 h-6 rounded-full bg-rose-500/20 hover:bg-rose-500/35 text-rose-200 z-10 flex items-center justify-center transition-all hover:scale-110 shadow-xs cursor-pointer">
-            <ArrowRight size={13} />
-          </Link>
-        </div>
+          {/* Majestic Global Search Bar */}
+          <GlobalSearchBar />
 
-      </div>
-
-      {/* ================= DISTINCT STYLISH ITALIC BANNER: DARE TO BE RARE ================= */}
-      <div className="w-full bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-b border-indigo-500/30 py-2.5 px-4 text-center shadow-xs">
-        <div className="max-w-5xl mx-auto flex items-center justify-center gap-4">
-          <span className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-amber-400/30 to-amber-400/80" />
-          <span className="text-xs sm:text-sm md:text-base font-serif italic tracking-[0.25em] font-extrabold bg-gradient-to-r from-amber-300 via-orange-200 to-amber-300 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(245,158,11,0.3)] select-none">
-            ✦ Dare to be Rare ✦
-          </span>
-          <span className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-amber-400/30 to-amber-400/80" />
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
         {/* ================= 1. MAJESTIC HERO SECTION WITH IYF LOGO & RESTYLED NAMES ================= */}
-        <div className="relative overflow-hidden rounded-[32px] p-6 sm:p-10 bg-gradient-to-br from-indigo-950 via-slate-900 to-amber-950 text-white shadow-[0_20px_50px_rgba(0,0,0,0.35)] border border-white/15">
-          <div className="absolute -right-16 -bottom-16 w-80 h-80 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative overflow-hidden rounded-[32px] p-6 sm:p-8 lg:p-10 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950/90 text-white shadow-[0_25px_60px_rgba(0,0,0,0.45)] border border-amber-500/25">
+          <div className="absolute -right-16 -bottom-16 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -left-16 -top-16 w-80 h-80 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
           
-          <div className="relative z-10 space-y-5">
+          <div className="relative z-10 space-y-6 lg:space-y-8">
             
-            {/* Header Identity Row: Official IYF Logo + Restyled Titles */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+            {/* Top Desktop Row: Left 7 Columns (Identity + Prabhupada Tribute) | Right 5 Columns (Presiding Deities Divine Darshan) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
               
-              {/* Official IYF Emblem Logo at First */}
-              <div className="relative shrink-0 group">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1 bg-gradient-to-tr from-amber-500 via-orange-500 to-indigo-600 shadow-[0_0_25px_rgba(245,158,11,0.35)] transition-transform duration-300 group-hover:scale-105">
-                  <img 
-                    src="/assets/iyf_logo.png" 
-                    alt="ISKCON Youth Forum (IYF)" 
-                    className="w-full h-full object-cover rounded-full bg-slate-950"
-                  />
+              {/* LEFT COLUMN: IYF Branding + Srila Prabhupada Oasis Quote */}
+              <div className="lg:col-span-7 flex flex-col justify-between space-y-5 sm:space-y-6">
+                
+                {/* Header Identity Row: Official IYF Logo + Restyled Titles */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+                  
+                  {/* Official IYF Emblem Logo with Illuminating Light Rays & Glowing Aura */}
+                  <div className="relative shrink-0 group flex items-center justify-center">
+                    {/* Divine Sunbeams & Illuminating Light Rays reaching across the screen */}
+                    <div className="divine-sunrays-layer1" />
+                    <div className="divine-sunrays-layer2" />
+
+                    {/* Layer 1: Ambient Pulsing Golden Glow Aura */}
+                    <div className="absolute -inset-4 rounded-full bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-300 opacity-90 blur-2xl animate-glow-aura pointer-events-none" />
+
+                    {/* Layer 2: Rotating Radiant Halo Ring */}
+                    <div className="absolute -inset-2 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-300 to-orange-500 opacity-95 blur-md animate-aura-spin pointer-events-none" />
+
+                    {/* Main Circular Emblem Container */}
+                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1 bg-gradient-to-tr from-amber-300 via-yellow-200 to-amber-500 shadow-[0_0_45px_rgba(251,191,36,0.85)] transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_0_60px_rgba(251,191,36,1)]">
+                      <img 
+                        src="/assets/iyf_logo.png" 
+                        alt="ISKCON Youth Forum (IYF)" 
+                        className="w-full h-full object-cover rounded-full bg-slate-950 ring-2 ring-yellow-300/80"
+                      />
+                    </div>
+
+                    {/* High-Contrast Golden Badge */}
+                    <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-slate-950 font-black text-[9px] uppercase font-mono shadow-md border border-white/90 whitespace-nowrap z-10">
+                      IYF • VOICE
+                    </div>
+                  </div>
+
+                  {/* Restyled Names & Sacred Motto */}
+                  <div className="space-y-2 text-center sm:text-left flex-1 min-w-0">
+                    
+                    {/* Prestigious Eyebrow: Full Meaning of VOICE */}
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 font-mono text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest border border-amber-400/25 backdrop-blur-md">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shadow-[0_0_6px_rgba(251,191,36,0.9)]" />
+                      <span>{language === 'bn' ? 'বৈদিক ওয়েসিস ফর ইন্সপায়ারেশন, কালচার অ্যান্ড এডুকেশন' : 'Vedic Oasis for Inspiration, Culture & Education'}</span>
+                    </div>
+                    
+                    {/* Main Heading Styled as "ADVAITA VOICE HUB" */}
+                    <div className="space-y-1">
+                      <h1 className="text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-black tracking-wider uppercase leading-tight bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent drop-shadow-[0_2px_15px_rgba(245,158,11,0.35)]">
+                        {language === 'bn' ? 'অদ্বৈত ভয়েস হাব' : 'ADVAITA VOICE HUB'}
+                      </h1>
+                      
+                      {/* University Affiliation & Sacred Motto Bar */}
+                      <div className="flex items-center justify-center sm:justify-start flex-wrap gap-2 text-xs sm:text-sm font-semibold text-amber-300/90 font-mono">
+                        <span className="inline-flex items-center gap-1 text-amber-300 font-bold bg-white/5 px-2.5 py-0.5 rounded-lg border border-white/10">
+                          <MapPin size={12} className="text-amber-400" />
+                          {language === 'bn' ? 'চট্টগ্রাম বিশ্ববিদ্যালয় শাখা' : 'University of Chittagong'}
+                        </span>
+                        <span className="text-white/30 hidden sm:inline">•</span>
+                        <span className="text-amber-200/90 font-serif italic text-xs sm:text-sm">
+                          "{language === 'bn' ? VOICE_HANDBOOK_DATA.mottoBn : VOICE_HANDBOOK_DATA.mottoEn}"
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
-                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full bg-amber-500 text-slate-950 font-black text-[8.5px] uppercase font-mono shadow-md whitespace-nowrap">
-                  IYF • VOICE
+
+                {/* Srila Prabhupada Oasis Quote & Founder-Acharya Tribute Box */}
+                <div className="p-4 sm:p-5 rounded-3xl bg-slate-950/60 border border-amber-400/25 backdrop-blur-md flex flex-col sm:flex-row items-center gap-4 shadow-xl flex-1 justify-center">
+                  <div className="relative shrink-0">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-amber-400/80 shadow-lg ring-4 ring-amber-500/20">
+                      <img
+                        src="/assets/srila_prabhupada.jpg"
+                        alt="His Divine Grace A.C. Bhaktivedanta Swami Srila Prabhupada"
+                        className="w-full h-full object-cover object-top"
+                      />
+                    </div>
+                    <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:-right-1 px-2 py-0.2 rounded-md bg-amber-500 text-slate-950 text-[8.5px] font-black uppercase tracking-wider whitespace-nowrap shadow-sm">
+                      Founder-Acharya
+                    </div>
+                  </div>
+
+                  <div className="flex-1 space-y-1.5 text-center sm:text-left">
+                    <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+                      <span className="text-xs font-black text-amber-300 tracking-wide uppercase font-serif">
+                        {language === 'bn' ? 'শ্রীল প্রভুপাদ বাণী ও আদর্শ' : 'His Divine Grace A.C. Bhaktivedanta Swami Prabhupada'}
+                      </span>
+                      <span className="text-[10px] text-amber-200/70 font-mono hidden sm:inline">• ISKCON Founder-Acharya</span>
+                    </div>
+                    <p className="italic text-xs sm:text-sm text-slate-200 leading-relaxed font-serif">
+                      "{language === 'bn' ? VOICE_HANDBOOK_DATA.oasisQuoteBn : VOICE_HANDBOOK_DATA.oasisQuoteEn}"
+                    </p>
+                    <div className="text-center sm:text-right text-[11px] font-bold text-amber-400/90 font-mono">
+                      — {language === 'bn' ? VOICE_HANDBOOK_DATA.oasisSourceBn : VOICE_HANDBOOK_DATA.oasisSourceEn}
+                    </div>
+                  </div>
                 </div>
+
               </div>
 
-              {/* Restyled Names & Sacred Motto (Prestigious, Non-redundant Hierarchy) */}
-              <div className="space-y-2 text-center sm:text-left flex-1 min-w-0">
-                
-                {/* Prestigious Eyebrow: Full Meaning of VOICE */}
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 font-mono text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest border border-amber-400/25 backdrop-blur-md">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                  <span>{language === 'bn' ? 'বৈদিক ওয়েসিস ফর ইন্সপায়ারেশন, কালচার অ্যান্ড এডুকেশন' : 'Vedic Oasis for Inspiration, Culture & Education'}</span>
-                </div>
-                
-                {/* Main Heading & Chapter Subtitle */}
-                <div className="space-y-1">
-                  <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight bg-gradient-to-r from-amber-100 via-amber-50 to-white bg-clip-text text-transparent drop-shadow-md">
-                    {language === 'bn' ? 'অদ্বৈত ভয়েস হাব' : 'Advaita VOICE Hub'}
-                  </h1>
-                  
-                  {/* University Affiliation & Sacred Motto Bar */}
-                  <div className="flex items-center justify-center sm:justify-start flex-wrap gap-2 text-xs sm:text-sm font-semibold text-amber-300/90 font-mono">
-                    <span className="inline-flex items-center gap-1 text-amber-300 font-bold bg-white/5 px-2.5 py-0.5 rounded-lg border border-white/10">
-                      <MapPin size={12} className="text-amber-400" />
-                      {language === 'bn' ? 'চট্টগ্রাম বিশ্ববিদ্যালয় শাখা' : 'University of Chittagong'}
+              {/* RIGHT COLUMN: Presiding Deities Divine Darshan Card */}
+              <div className="lg:col-span-5 flex flex-col">
+                <div className="relative overflow-hidden rounded-3xl p-4 sm:p-5 bg-gradient-to-b from-slate-950/90 via-slate-950/80 to-indigo-950/70 border border-amber-400/40 backdrop-blur-xl space-y-4 shadow-[0_10px_40px_rgba(0,0,0,0.6)] h-full flex flex-col justify-between">
+                  {/* Ambient Altar Glow Background */}
+                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-72 h-36 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
+                  <div className="absolute -bottom-10 right-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+
+                  {/* Header Title */}
+                  <div className="relative z-10 flex items-center justify-between gap-2 border-b border-amber-400/20 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-amber-400 text-sm animate-pulse">🪔</span>
+                      <div>
+                        <h2 className="text-xs sm:text-sm font-black text-amber-200 font-serif tracking-wide flex items-center gap-1.5">
+                          <span>{language === 'bn' ? 'শ্রীশ্রী রাধামাধব ও শ্রীশ্রী গৌর নিতাই নিত্য দর্শন' : 'Presiding Deities Divine Darshan'}</span>
+                        </h2>
+                        <p className="text-[9.5px] sm:text-[10.5px] text-amber-300/80 font-mono">
+                          Radhamadhav Temple & Gour Nitai Ashram, CU
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[9.5px] sm:text-[10px] text-amber-300 font-bold bg-amber-500/20 px-2.5 py-1 rounded-full border border-amber-400/40 shadow-xs flex items-center gap-1">
+                      <span>✨</span>
+                      <span>{language === 'bn' ? 'দর্শন মন্ত্র' : 'Tap for Mantras'}</span>
                     </span>
-                    <span className="text-white/30 hidden sm:inline">•</span>
-                    <span className="text-amber-200/90 font-serif italic text-xs sm:text-sm">
-                      "{language === 'bn' ? VOICE_HANDBOOK_DATA.mottoBn : VOICE_HANDBOOK_DATA.mottoEn}"
-                    </span>
+                  </div>
+
+                  {/* Side-by-Side Deity Portraits with Divine Glowing Halos */}
+                  <div className="relative z-10 grid grid-cols-2 gap-3.5 sm:gap-4 my-auto">
+                    
+                    {/* LEFT: Sri Sri Radha Madhava */}
+                    <div
+                      onClick={() => { triggerHaptic('selection'); setSelectedDeityModal('RADHA_MADHAV'); }}
+                      className="group flex flex-col items-center cursor-pointer active:scale-95 transition-all"
+                    >
+                      <div className="relative w-full aspect-[3/4] rounded-2xl p-1 bg-gradient-to-tr from-amber-400/60 via-yellow-300/40 to-amber-500/60 shadow-[0_0_25px_rgba(251,191,36,0.35)] group-hover:shadow-[0_0_40px_rgba(251,191,36,0.7)] group-hover:border-amber-300 transition-all duration-300">
+                        {/* Glowing Aura Behind Frame */}
+                        <div className="absolute -inset-2 rounded-2xl bg-gradient-to-tr from-amber-500/30 via-yellow-400/40 to-amber-600/30 blur-md opacity-75 group-hover:opacity-100 group-hover:blur-lg transition-all animate-glow-aura pointer-events-none" />
+                        
+                        {/* Deity Image Container */}
+                        <div className="relative w-full h-full rounded-xl overflow-hidden bg-slate-950 ring-1 ring-amber-300/50">
+                          <img
+                            src="/assets/sri_sri_radha_madhava.jpg"
+                            alt="Sri Sri Radha Madhava"
+                            className="w-full h-full object-cover object-top group-hover:scale-108 transition-transform duration-700"
+                          />
+                        </div>
+                      </div>
+                      <div className="mt-2.5 text-center">
+                        <h3 className="text-xs sm:text-sm font-black text-amber-200 font-serif leading-tight group-hover:text-amber-100 transition-colors drop-shadow-xs">
+                          {language === 'bn' ? 'শ্রীশ্রী রাধামাধব' : 'Sri Sri Radha Madhav'}
+                        </h3>
+                        <p className="text-[9.5px] sm:text-[10px] text-amber-300/70 font-serif italic mt-0.5">
+                          {language === 'bn' ? 'নিত্য যুগলকিশোর' : 'Divine Couple'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* RIGHT: Sri Sri Gaura Nitai */}
+                    <div
+                      onClick={() => { triggerHaptic('selection'); setSelectedDeityModal('GAURA_NITAI'); }}
+                      className="group flex flex-col items-center cursor-pointer active:scale-95 transition-all"
+                    >
+                      <div className="relative w-full aspect-[3/4] rounded-2xl p-1 bg-gradient-to-tr from-amber-400/60 via-yellow-300/40 to-amber-500/60 shadow-[0_0_25px_rgba(251,191,36,0.35)] group-hover:shadow-[0_0_40px_rgba(251,191,36,0.7)] group-hover:border-amber-300 transition-all duration-300">
+                        {/* Glowing Aura Behind Frame */}
+                        <div className="absolute -inset-2 rounded-2xl bg-gradient-to-tr from-amber-500/30 via-yellow-400/40 to-amber-600/30 blur-md opacity-75 group-hover:opacity-100 group-hover:blur-lg transition-all animate-glow-aura pointer-events-none" />
+                        
+                        {/* Deity Image Container */}
+                        <div className="relative w-full h-full rounded-xl overflow-hidden bg-slate-950 ring-1 ring-amber-300/50">
+                          <img
+                            src="/assets/sri_sri_gaura_nitai.jpg"
+                            alt="Sri Sri Gaura Nitai"
+                            className="w-full h-full object-cover object-top group-hover:scale-108 transition-transform duration-700"
+                          />
+                        </div>
+                      </div>
+                      <div className="mt-2.5 text-center">
+                        <h3 className="text-xs sm:text-sm font-black text-amber-200 font-serif leading-tight group-hover:text-amber-100 transition-colors drop-shadow-xs">
+                          {language === 'bn' ? 'শ্রীশ্রী গৌর নিতাই' : 'Sri Sri Gaura Nitai'}
+                        </h3>
+                        <p className="text-[9.5px] sm:text-[10px] text-amber-300/70 font-serif italic mt-0.5">
+                          {language === 'bn' ? 'পরম করুণ অবতারদ্বয়' : 'Merciful Lords'}
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Radiant Maha-Mantra */}
+                  <div className="relative z-10 pt-2 text-center border-t border-amber-400/15">
+                    <p className="text-[11px] sm:text-xs text-amber-300 font-serif italic tracking-wide drop-shadow-[0_0_10px_rgba(251,191,36,0.4)]">
+                      "হরে কৃষ্ণ হরে কৃষ্ণ কৃষ্ণ কৃষ্ণ হরে হরে • হরে রাম হরে রাম রাম রাম হরে হরে"
+                    </p>
                   </div>
                 </div>
               </div>
 
             </div>
 
-            {/* Srila Prabhupada Oasis Quote Box */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md space-y-2 text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
-              <p className="italic">
-                "{language === 'bn' ? VOICE_HANDBOOK_DATA.oasisQuoteBn : VOICE_HANDBOOK_DATA.oasisQuoteEn}"
-              </p>
-              <div className="text-right text-[11px] font-bold text-amber-400">
-                — {language === 'bn' ? VOICE_HANDBOOK_DATA.oasisSourceBn : VOICE_HANDBOOK_DATA.oasisSourceEn}
+            {/* ================= 4 SPIRITUAL GUARDIANS & PILLARS IN EXACT ORDER ================= */}
+            <div className="p-4 sm:p-6 rounded-3xl bg-slate-950/60 border border-amber-400/25 backdrop-blur-md space-y-3 shadow-xl">
+              <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <Sparkles size={15} className="text-amber-400" />
+                  <span className="text-xs sm:text-sm font-black text-amber-200 tracking-wide uppercase font-serif">
+                    {language === 'bn' ? 'আমাদের পরম আধ্যাত্মিক অভিভাবক ও পথপ্রদর্শক' : 'Spiritual Guardians & Lineage of VOICE'}
+                  </span>
+                </div>
+                <Link
+                  to="/profiles?tab=lineage"
+                  onClick={() => triggerHaptic('selection')}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider transition-all shadow-md hover:scale-105 active:scale-95 cursor-pointer"
+                >
+                  <span>{language === 'bn' ? 'বিস্তারিত জানুন (Know More)' : 'Know More'}</span>
+                  <ArrowRight size={13} />
+                </Link>
               </div>
-            </div>
 
-            {/* Symmetrical 10-Tab Action Grid: 2 cols mobile, 5 tablet, 10 desktop */}
-            <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-5 xl:grid-cols-10 gap-2 sm:gap-2.5 pt-2">
-              
-              {/* 1. Counselor Desk */}
-              <button
-                onClick={() => navigate('/counselor')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
-              >
-                <ShieldCheck size={14} className="shrink-0 text-slate-950" />
-                <span className="text-[10px] xs:text-[11px] sm:text-xs font-black tracking-tight truncate">
-                  {language === 'bn' ? 'কাউন্সেলর' : 'Counselor'}
-                </span>
-              </button>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                
+                {/* 1. Srila Prabhupada */}
+                <button
+                  onClick={() => { triggerHaptic('selection'); navigate('/profiles?tab=lineage&person=sp_prabhupada'); }}
+                  className="p-3.5 rounded-2xl bg-white/5 border border-amber-400/20 hover:border-amber-400/70 flex flex-col items-center text-center space-y-2 group hover:bg-amber-400/5 transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
+                >
+                  <div className="relative">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-amber-400 ring-4 ring-amber-500/20 shadow-md group-hover:scale-105 transition-transform duration-300">
+                      <img src="/assets/srila_prabhupada_white.png" alt="Srila Prabhupada" className="w-full h-full object-cover object-top" />
+                    </div>
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full bg-amber-500 text-slate-950 text-[8px] font-black uppercase whitespace-nowrap shadow-xs">
+                      1. Founder-Acharya
+                    </span>
+                  </div>
+                  <div className="w-full">
+                    <h4 className="text-xs sm:text-sm font-black text-white leading-tight font-serif mt-1 group-hover:text-amber-300 transition-colors">
+                      {language === 'bn' ? 'শ্রীল প্রভুপাদ' : 'Srila Prabhupada'}
+                    </h4>
+                    <p className="text-[9.5px] text-amber-300 font-medium truncate">
+                      HDG A.C. Bhaktivedanta Swami
+                    </p>
+                    <span className="inline-block mt-1.5 text-[9.5px] font-bold text-amber-400/80 group-hover:text-amber-300 group-hover:underline">
+                      {language === 'bn' ? 'বিস্তারিত জানুন →' : 'Know More →'}
+                    </span>
+                  </div>
+                </button>
 
-              {/* 2. VOICE & Lotus Group Discipline */}
-              <button
-                onClick={() => navigate('/discipline-audit')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-black flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
-              >
-                <Clock size={14} className="shrink-0 text-white" />
-                <span className="text-[10px] xs:text-[11px] sm:text-xs font-black tracking-tight truncate">
-                  {language === 'bn' ? 'ভয়েস ও লোটাস' : 'VOICE & Lotus'}
-                </span>
-              </button>
+                {/* 2. HH Jayapataka Swami Gurumaharaja */}
+                <button
+                  onClick={() => { triggerHaptic('selection'); navigate('/profiles?tab=lineage&person=hh_jayapataka_swami'); }}
+                  className="p-3.5 rounded-2xl bg-white/5 border border-amber-400/20 hover:border-amber-400/70 flex flex-col items-center text-center space-y-2 group hover:bg-amber-400/5 transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
+                >
+                  <div className="relative">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-amber-400 ring-4 ring-amber-500/20 shadow-md group-hover:scale-105 transition-transform duration-300">
+                      <img src="/assets/hh_jayapataka_swami.jpg" alt="HH Jayapataka Swami Gurumaharaja" className="w-full h-full object-cover object-top" />
+                    </div>
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full bg-amber-500 text-slate-950 text-[8px] font-black uppercase whitespace-nowrap shadow-xs">
+                      2. Guru Maharaja
+                    </span>
+                  </div>
+                  <div className="w-full">
+                    <h4 className="text-xs sm:text-sm font-black text-white leading-tight font-serif mt-1 group-hover:text-amber-300 transition-colors">
+                      {language === 'bn' ? 'জয়পতাকা স্বামী মহারাজ' : 'HH Jayapataka Swami'}
+                    </h4>
+                    <p className="text-[9.5px] text-amber-300 font-medium truncate">
+                      {language === 'bn' ? 'জিবিসি • আধ্যাত্মিক গুরুদেব' : 'ISKCON GBC • Spiritual Master'}
+                    </p>
+                    <span className="inline-block mt-1.5 text-[9.5px] font-bold text-amber-400/80 group-hover:text-amber-300 group-hover:underline">
+                      {language === 'bn' ? 'বিস্তারিত জানুন →' : 'Know More →'}
+                    </span>
+                  </div>
+                </button>
 
-              {/* 3. Prasad & Meals */}
-              <button
-                onClick={() => navigate('/meals')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white font-black flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
-              >
-                <Utensils size={14} className="shrink-0 text-white" />
-                <span className="text-[10px] xs:text-[11px] sm:text-xs font-black tracking-tight truncate">
-                  {language === 'bn' ? 'মিল ও প্রসাদ' : 'Prasad & Meal'}
-                </span>
-              </button>
+                {/* 3. HH Bhakti Purushottama Swami Maharaj */}
+                <button
+                  onClick={() => { triggerHaptic('selection'); navigate('/profiles?tab=lineage&person=hh_bhakti_purusottama_swami'); }}
+                  className="p-3.5 rounded-2xl bg-white/5 border border-amber-400/20 hover:border-amber-400/70 flex flex-col items-center text-center space-y-2 group hover:bg-amber-400/5 transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
+                >
+                  <div className="relative">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-amber-400 ring-4 ring-amber-500/20 shadow-md group-hover:scale-105 transition-transform duration-300">
+                      <img src="/assets/hh_bhaktipurusottam_swami.png" alt="HH Bhakti Purushottama Swami Maharaj" className="w-full h-full object-cover object-top" />
+                    </div>
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full bg-amber-500 text-slate-950 text-[8px] font-black uppercase whitespace-nowrap shadow-xs">
+                      3. Spiritual Mentor
+                    </span>
+                  </div>
+                  <div className="w-full">
+                    <h4 className="text-xs sm:text-sm font-black text-white leading-tight font-serif mt-1 group-hover:text-amber-300 transition-colors">
+                      {language === 'bn' ? 'ভক্তিপুরুষোত্তম স্বামী' : 'HH Bhakti Purusottam Swami'}
+                    </h4>
+                    <p className="text-[9.5px] text-amber-300 font-medium truncate">
+                      {language === 'bn' ? 'জিবিসি • মায়াপুর ডিরেক্টর' : 'ISKCON GBC • Mayapur Director'}
+                    </p>
+                    <span className="inline-block mt-1.5 text-[9.5px] font-bold text-amber-400/80 group-hover:text-amber-300 group-hover:underline">
+                      {language === 'bn' ? 'বিস্তারিত জানুন →' : 'Know More →'}
+                    </span>
+                  </div>
+                </button>
 
-              {/* 4. Audio & Video Media Library */}
-              <button
-                onClick={() => navigate('/lectures-library')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black flex items-center justify-center gap-1.5 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
-              >
-                <PlayCircle size={14} className="shrink-0 text-white" />
-                <span className="text-[10px] xs:text-[11px] sm:text-xs font-black tracking-tight truncate">
-                  {language === 'bn' ? 'অডিও ও ভিডিও' : 'Audio & Video'}
-                </span>
-              </button>
+                {/* 4. HG Radheshyam Das Prabhu */}
+                <button
+                  onClick={() => { triggerHaptic('selection'); navigate('/profiles?tab=lineage&person=hg_radheshyam_prabhu'); }}
+                  className="p-3.5 rounded-2xl bg-white/5 border border-amber-400/20 hover:border-amber-400/70 flex flex-col items-center text-center space-y-2 group hover:bg-amber-400/5 transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
+                >
+                  <div className="relative">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-amber-400 ring-4 ring-amber-500/20 shadow-md group-hover:scale-105 transition-transform duration-300">
+                      <img src="/assets/hg_radheshyam_prabhu.png" alt="HG Radheshyam Das Prabhu" className="w-full h-full object-cover object-top" />
+                    </div>
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full bg-amber-500 text-slate-950 text-[8px] font-black uppercase whitespace-nowrap shadow-xs">
+                      4. VOICE Architect
+                    </span>
+                  </div>
+                  <div className="w-full">
+                    <h4 className="text-xs sm:text-sm font-black text-white leading-tight font-serif mt-1 group-hover:text-amber-300 transition-colors">
+                      {language === 'bn' ? 'রাধেশ্যাম দাস প্রভু' : 'HG Radheshyam Das'}
+                    </h4>
+                    <p className="text-[9.5px] text-amber-300 font-medium truncate">
+                      {language === 'bn' ? 'আইআইটি বোম্বে • ভয়েস প্রতিষ্ঠাতা' : 'IIT Bombay • VOICE Founder'}
+                    </p>
+                    <span className="inline-block mt-1.5 text-[9.5px] font-bold text-amber-400/80 group-hover:text-amber-300 group-hover:underline">
+                      {language === 'bn' ? 'বিস্তারিত জানুন →' : 'Know More →'}
+                    </span>
+                  </div>
+                </button>
 
-              {/* 5. Digital Sadhana */}
-              <button
-                onClick={() => navigate('/sadhana')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
-              >
-                <HeartHandshake size={14} className="shrink-0 text-amber-300" />
-                <span className="text-[10px] xs:text-[11px] sm:text-xs font-bold tracking-tight truncate">
-                  {language === 'bn' ? 'সাধনাপত্র' : 'Sadhana'}
-                </span>
-              </button>
-
-              {/* 6. Service Cycle Duty */}
-              <button
-                onClick={() => navigate('/service-cycle')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
-              >
-                <RefreshCw size={14} className="shrink-0 text-amber-300" />
-                <span className="text-[10px] xs:text-[11px] sm:text-xs font-bold tracking-tight truncate">
-                  {language === 'bn' ? 'সেবাক্রম' : 'Seva Cycle'}
-                </span>
-              </button>
-
-              {/* 7. Full VOICE Syllabus */}
-              <button
-                onClick={() => navigate('/syllabus')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
-              >
-                <Compass size={14} className="shrink-0 text-amber-300" />
-                <span className="text-[10px] xs:text-[11px] sm:text-xs font-bold tracking-tight truncate">
-                  {language === 'bn' ? 'সিলেবাস' : 'Syllabus'}
-                </span>
-              </button>
-
-              {/* 8. Sebananda Library */}
-              <button
-                onClick={() => navigate('/library')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
-              >
-                <BookOpen size={14} className="shrink-0 text-amber-300" />
-                <span className="text-[10px] xs:text-[11px] sm:text-xs font-bold tracking-tight truncate">
-                  {language === 'bn' ? 'লাইব্রেরি' : 'Library'}
-                </span>
-              </button>
-
-              {/* 9. Preachers Pocket Toolkit */}
-              <button
-                onClick={() => navigate('/preaching')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
-              >
-                <Flame size={14} className="shrink-0 text-amber-300" />
-                <span className="text-[10px] xs:text-[11px] sm:text-xs font-bold tracking-tight truncate">
-                  {language === 'bn' ? 'প্রচারক' : 'Preachers'}
-                </span>
-              </button>
-
-              {/* 10. Announcements & Notices */}
-              <button
-                onClick={() => navigate('/announcements')}
-                className="h-11 sm:h-12 w-full px-2 py-1.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold border border-white/15 backdrop-blur-md flex items-center justify-center gap-1.5 shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
-              >
-                <Bell size={14} className="shrink-0 text-amber-300" />
-                <span className="text-[10px] xs:text-[11px] sm:text-xs font-bold tracking-tight truncate">
-                  {language === 'bn' ? 'নোটিশ' : 'Notices'}
-                </span>
-              </button>
-
+              </div>
             </div>
 
           </div>
         </div>
 
-        {/* ================= 2. COMPACT UPCOMING FESTIVALS & EKADASHI (SMALL LINES) ================= */}
-        <div className="rounded-2xl p-4 sm:p-5 bg-gradient-to-r from-amber-500/10 via-rose-500/5 to-indigo-500/10 border border-amber-500/20 shadow-xs space-y-3">
-          <div className="flex items-center justify-between flex-wrap gap-2">
+        {/* ================= 1. DAILY ASHRAM OPERATIONS & DEVOTEE CARE ================= */}
+        <div className="space-y-4 pt-2">
+          <div className="flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-2.5 flex-wrap">
             <div className="flex items-center gap-2">
-              <Sparkles size={16} className="text-amber-500" />
-              <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                {language === 'bn' ? 'আসন্ন মহোৎসব ও তিথি (Upcoming Festivals)' : 'Upcoming Sacred Festivals & Timings'}
+              <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+              <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                <span>{language === 'bn' ? '১. দৈনিক আশ্রম সেবা ও যত্ন' : '1. Daily Ashram Operations & Care'}</span>
               </h3>
             </div>
-            <Link
-              to="/calendar"
-              className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline"
-            >
-              <span>{language === 'bn' ? 'সম্পূর্ণ বৈষ্ণব পঞ্জিকা' : 'Full Calendar'}</span>
-              <ArrowRight size={12} />
-            </Link>
+            <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 shadow-2xs">
+              Daily Utilities • 6 Tools
+            </span>
           </div>
 
-          {/* Compact 3-Line Rows */}
-          <div className="space-y-2">
-            {CLOSEST_UPCOMING_FESTIVALS.map((fest) => (
-              <div
-                key={fest.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-4 p-2.5 sm:py-2 sm:px-3 rounded-xl bg-white dark:bg-slate-900 border border-amber-100 dark:border-slate-800/80 text-xs shadow-xs hover:border-amber-400/60 transition-all"
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-mono shrink-0 ${fest.badgeColor}`}>
-                    {language === 'bn' ? fest.dateBn : fest.dateEn}
-                  </span>
-                  <span className="font-bold text-slate-900 dark:text-white truncate">
-                    {language === 'bn' ? fest.nameBn : fest.nameEn}
-                  </span>
-                </div>
-
-                <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium sm:text-right shrink-0 pl-7 sm:pl-0">
-                  {language === 'bn' ? fest.fastingBn : fest.fastingEn}
-                </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-3.5">
+            {/* 1. Prasad & Meals */}
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/meals'); }}
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col items-center text-center justify-between group cursor-pointer h-full"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                <Utensils size={22} />
               </div>
-            ))}
+              <div className="mt-3">
+                <h4 className="text-[13px] sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors tracking-tight">
+                  {language === 'bn' ? 'মিল ও প্রসাদ' : 'Prasad & Meal'}
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-normal leading-tight">
+                  {language === 'bn' ? 'মিল গণনা ও বাজার লেজার' : 'Live Counts & Ledger'}
+                </p>
+              </div>
+            </button>
+
+            {/* 2. Digital Sadhana */}
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/sadhana'); }}
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-500 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col items-center text-center justify-between group cursor-pointer h-full"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                <HeartHandshake size={22} />
+              </div>
+              <div className="mt-3">
+                <h4 className="text-[13px] sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors tracking-tight">
+                  {language === 'bn' ? 'ডিজিটাল সাধনা' : 'Digital Sadhana'}
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-normal leading-tight">
+                  {language === 'bn' ? '১৬ মালা জপ ও রিপোর্ট' : '16 Rounds & Reports'}
+                </p>
+              </div>
+            </button>
+
+            {/* 3. Seva Cycle Duty */}
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/service-cycle'); }}
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-orange-400 dark:hover:border-orange-500 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col items-center text-center justify-between group cursor-pointer h-full"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800/60 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                <RefreshCw size={22} />
+              </div>
+              <div className="mt-3">
+                <h4 className="text-[13px] sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors tracking-tight">
+                  {language === 'bn' ? 'সেবাক্রম রোস্টার' : 'Seva Cycle'}
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-normal leading-tight">
+                  {language === 'bn' ? 'দৈনিক পূজা ও রান্না সেবা' : 'Duty Rotation Roster'}
+                </p>
+              </div>
+            </button>
+
+            {/* 4. Discipline Audit */}
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/discipline-audit'); }}
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-500 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col items-center text-center justify-between group cursor-pointer h-full"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                <Clock size={22} />
+              </div>
+              <div className="mt-3">
+                <h4 className="text-[13px] sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors tracking-tight">
+                  {language === 'bn' ? 'আশ্রম শৃঙ্খলা' : 'Discipline Audit'}
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-normal leading-tight">
+                  {language === 'bn' ? 'ভয়েস ৪:০০ ও লোটাস ৫:০০' : '4:00 AM & 5:00 AM'}
+                </p>
+              </div>
+            </button>
+
+            {/* 5. Voice Devotee Profiles */}
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/profiles'); }}
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-sky-400 dark:hover:border-sky-500 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col items-center text-center justify-between group cursor-pointer h-full"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-800/60 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                <Users size={22} />
+              </div>
+              <div className="mt-3">
+                <h4 className="text-[13px] sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors tracking-tight">
+                  {language === 'bn' ? 'ভয়েস প্রোফাইল' : 'Devotee Profiles'}
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-normal leading-tight">
+                  {language === 'bn' ? 'ভক্ত ডিরেক্টরি ও নেক্টার' : 'Directory & Nectar'}
+                </p>
+              </div>
+            </button>
+
+            {/* 6. Counselor Desk */}
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/counselor'); }}
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-purple-400 dark:hover:border-purple-500 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col items-center text-center justify-between group cursor-pointer h-full"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800/60 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                <ShieldCheck size={22} />
+              </div>
+              <div className="mt-3">
+                <h4 className="text-[13px] sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors tracking-tight">
+                  {language === 'bn' ? 'কাউন্সেলর ডেস্ক' : 'Counselor Desk'}
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-normal leading-tight">
+                  {language === 'bn' ? 'কাউন্সেলিং ও ৩টি রিপোর্ট' : 'Student Care & Guidance'}
+                </p>
+              </div>
+            </button>
           </div>
         </div>
 
-        {/* ================= 3. SEARCH & MODULES CARD GRID (NOW INCLUDES ANNOUNCEMENTS CARD) ================= */}
-        <div className="space-y-5">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                {language === 'bn' ? 'ভয়েস প্রধান মডিউল ও সেবাসমূহ' : 'VOICE Core Modules & Services'}
-              </h2>
-              <p className="text-xs text-slate-500">
-                {language === 'bn' ? 'নিচের যেকোনো কার্ডে ক্লিক করে সরাসরি ড্যাশবোর্ড ব্যবহার করুন' : 'Click any card below to launch its interactive workspace'}
-              </p>
+        {/* ================= 2. VEDIC ACADEMY, COURSES & RESIDENTIAL CAMPS ================= */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-2.5 flex-wrap">
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-purple-500" />
+              <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                <span>{language === 'bn' ? '২. বেদিক একাডেমি ও প্রশিক্ষণ' : '2. Vedic Academy & Courses'}</span>
+              </h3>
             </div>
-
-            {/* Category Filters */}
-            <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 p-1 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs font-bold overflow-x-auto">
-              {[
-                { key: 'ALL', label: 'All Modules' },
-                { key: 'SEVA', label: 'Seva & Care' },
-                { key: 'STUDY', label: 'Courses & Wisdom' },
-                { key: 'PREACHING', label: 'Preaching' },
-                { key: 'ORG', label: 'Org & Admin' }
-              ].map(f => (
-                <button
-                  key={f.key}
-                  onClick={() => setActiveFilter(f.key as any)}
-                  className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${activeFilter === f.key ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'}`}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
+            <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 shadow-2xs">
+              Syllabus &amp; Diplomas • 3 Portals
+            </span>
           </div>
 
-          {/* Cards Grid: 2 cols on mobile, 3 on md, 4 on xl desktop */}
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4.5 lg:gap-5">
-            {filteredCards.map(card => (
-              <FeatureCard
-                key={card.id}
-                {...card}
-                lang={language}
-                isLoggedIn={isLoggedIn}
-              />
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* 1. All Courses & Diplomas */}
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/courses'); }}
+              className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-purple-400 dark:hover:border-purple-500 shadow-xs hover:shadow-md transition-all duration-200 flex items-start gap-4 text-left group cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800/60 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <GraduationCap size={24} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="inline-block px-2.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-[10px] font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 mb-1">
+                  6 Courses
+                </span>
+                <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors tracking-tight">
+                  {language === 'bn' ? 'সকল বেদিক কোর্স ও ডিপ্লোমা' : 'All Courses & Diplomas'}
+                </h4>
+                <p className="text-[11.5px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed font-normal">
+                  {language === 'bn' ? 'DYS (৬ সেশন), স্পিরিচুয়াল সায়েন্টিস্ট, পজিট্রন, প্রোটন ও ভক্তি শাস্ত্রী।' : 'DYS (6 Sessions), SS, Positron, Protons, Spiritual Master & Bhakti Shastri.'}
+                </p>
+              </div>
+            </button>
+
+            {/* 2. Full VOICE Syllabus */}
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/syllabus'); }}
+              className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-500 shadow-xs hover:shadow-md transition-all duration-200 flex items-start gap-4 text-left group cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Compass size={24} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="inline-block px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-[10px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 mb-1">
+                  854 Topics
+                </span>
+                <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors tracking-tight">
+                  {language === 'bn' ? '৮৫৪-টপিক পূর্ণাঙ্গ সিলেবাস' : 'Full VOICE Syllabus (854 Topics)'}
+                </h4>
+                <p className="text-[11.5px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed font-normal">
+                  {language === 'bn' ? 'পুনে ভয়েস হ্যান্ডবুক, সকল অধ্যায়, লেকচার ও ট্রানস্ক্রিপ্ট।' : 'Official VOICE handbook, all chapters, lecture slides & outlines.'}
+                </p>
+              </div>
+            </button>
+
+            {/* 3. Official Residential Camps */}
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/camps'); }}
+              className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500 shadow-xs hover:shadow-md transition-all duration-200 flex items-start gap-4 text-left group cursor-pointer"
+            >
+              <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Tent size={24} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="inline-block px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300 mb-1">
+                  13 Official Camps
+                </span>
+                <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors tracking-tight">
+                  {language === 'bn' ? '১৩টি ভয়েস আবাসিক ক্যাম্প' : '13 Residential Camps'}
+                </h4>
+                <p className="text-[11.5px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed font-normal">
+                  {language === 'bn' ? 'সংকল্প, স্ফূর্তি, উৎসাহ, উৎকর্ষ, নিষ্ঠা, FTW, FEC ও আশ্রয় ক্যাম্প।' : 'Sankalpa, Sphurti, Utsaha, Utkarsha, Nistha, FTW, FEC & Ashraya.'}
+                </p>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* ================= 3. DIGITAL MEDIA & SEBANANDA LIBRARY ================= */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-2.5 flex-wrap">
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-rose-500" />
+              <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                <span>{language === 'bn' ? '৩. অডিও, ভিডিও ও সেবানন্দ গ্রন্থাগার' : '3. Digital Media & Sebananda Library'}</span>
+              </h3>
+            </div>
+            <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 shadow-2xs">
+              Media &amp; E-Books • 2 Archives
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* 1. Audio & Video Library */}
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/lectures-library'); }}
+              className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-500 shadow-xs hover:shadow-md transition-all duration-200 flex items-start gap-4 text-left group cursor-pointer"
+            >
+              <div className="w-13 h-13 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <PlayCircle size={26} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="inline-block px-2.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-[10px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-300 mb-1">
+                  Prabhupada Vani + RSP Lectures
+                </span>
+                <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors tracking-tight">
+                  {language === 'bn' ? 'ভয়েস অডিও ও ভিডিও লাইব্রেরি' : 'VOICE Audio & Video Library'}
+                </h4>
+                <p className="text-[11.5px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed font-normal">
+                  {language === 'bn' ? 'শ্রীল প্রভুপাদের প্রাতঃকালীন বাণী এবং শ্রীল রাধেশ্যাম প্রভুর ভিডিও লেকচার সংকলন।' : 'Srila Prabhupada morning SB lectures & HG Radheshyam Prabhu video discourse archive.'}
+                </p>
+              </div>
+            </button>
+
+            {/* 2. Sebananda Library */}
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/library'); }}
+              className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-emerald-500 shadow-xs hover:shadow-md transition-all duration-200 flex items-start gap-4 text-left group cursor-pointer"
+            >
+              <div className="w-13 h-13 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <BookOpen size={26} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 mb-1">
+                  E-Books &amp; PDFs
+                </span>
+                <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors tracking-tight">
+                  {language === 'bn' ? 'সেবানন্দ ডিজিটাল গ্রন্থাগার' : 'Sebananda Digital Library'}
+                </h4>
+                <p className="text-[11.5px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed font-normal">
+                  {language === 'bn' ? 'শ্রীল প্রভুপাদের সকল প্রামাণ্য গ্রন্থ, গীতা, ভাগবতম, ভজন গান ও DYS স্লাইডস।' : 'Authentic Prabhupada E-books, Gita, Bhagavatam, Songbooks & DYS slides.'}
+                </p>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* ================= 4. GOVERNANCE, FESTIVALS & CAMPUS PREACHING ================= */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-2.5 flex-wrap">
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+              <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                <span>{language === 'bn' ? '৪. পরিচালনা, পঞ্জিকা ও প্রচার' : '4. Governance, Festivals & Outreach'}</span>
+              </h3>
+            </div>
+            <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 shadow-2xs">
+              Admin &amp; Outreach • 4 Portals
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3.5">
+            {/* 1. Advaita Org & Management */}
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/management'); }}
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col items-center text-center justify-between group cursor-pointer h-full"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                <Landmark size={22} />
+              </div>
+              <div className="mt-3">
+                <h4 className="text-[13px] sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors tracking-tight">
+                  {language === 'bn' ? 'পরিচালনা পরিষদ' : 'Advaita Org Tree'}
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-normal leading-tight">
+                  {language === 'bn' ? '১৮টি বিভাগ ও স্টাডি কেয়ার' : '18 Depts & Board'}
+                </p>
+              </div>
+            </button>
+
+            {/* 2. Vaishnava Calendar */}
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/calendar'); }}
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-500 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col items-center text-center justify-between group cursor-pointer h-full"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-800/60 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                <Calendar size={22} />
+              </div>
+              <div className="mt-3">
+                <h4 className="text-[13px] sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors tracking-tight">
+                  {language === 'bn' ? 'বৈষ্ণব পঞ্জিকা' : 'Vaishnava Calendar'}
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-normal leading-tight">
+                  {language === 'bn' ? 'একাদশী ও মহোৎসব তিথি' : 'Ekadashi & Feasts'}
+                </p>
+              </div>
+            </button>
+
+            {/* 3. Incharge Notices */}
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/announcements'); }}
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-500 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col items-center text-center justify-between group cursor-pointer h-full"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/60 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                <Bell size={22} />
+              </div>
+              <div className="mt-3">
+                <h4 className="text-[13px] sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors tracking-tight">
+                  {language === 'bn' ? 'ইনচার্জ নোটিশ' : 'Incharge Notices'}
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-normal leading-tight">
+                  {language === 'bn' ? 'বিভাগীয় জরুরি নির্দেশনা' : 'Directives Board'}
+                </p>
+              </div>
+            </button>
+
+            {/* 4. Preacher's Toolkit */}
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/preaching'); }}
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-orange-400 dark:hover:border-orange-500 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col items-center text-center justify-between group cursor-pointer h-full"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800/60 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                <Flame size={22} />
+              </div>
+              <div className="mt-3">
+                <h4 className="text-[13px] sm:text-sm font-bold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors tracking-tight">
+                  {language === 'bn' ? 'প্রচারক টুলকিট' : 'Preacher Toolkit'}
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-normal leading-tight">
+                  {language === 'bn' ? 'ক্যাম্পাস প্রচার প্রশ্নোত্তর' : 'Campus Q&A & Slokas'}
+                </p>
+              </div>
+            </button>
+          </div>
+
+          {/* Compact Upcoming Festivals Strip */}
+          <div className="rounded-2xl p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <Sparkles size={15} className="text-amber-500" />
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 tracking-tight">
+                  {language === 'bn' ? 'আসন্ন মহোৎসব ও তিথি' : 'Upcoming Festivals & Ekadashi'}
+                </span>
+              </div>
+              <Link
+                to="/calendar"
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400 hover:underline"
+              >
+                <span>{language === 'bn' ? 'সম্পূর্ণ পঞ্জিকা' : 'Full Calendar'}</span>
+                <ArrowRight size={11} />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {CLOSEST_UPCOMING_FESTIVALS.map((fest) => (
+                <div
+                  key={fest.id}
+                  className="flex flex-col justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 text-xs shadow-2xs hover:border-amber-400 transition-all"
+                >
+                  <div className="flex items-center justify-between gap-1 mb-1.5">
+                    <span className={`px-2.5 py-0.5 rounded-full text-[9.5px] font-bold shadow-2xs shrink-0 ${fest.badgeColor}`}>
+                      {language === 'bn' ? fest.dateBn : fest.dateEn}
+                    </span>
+                  </div>
+                  <h5 className="font-bold text-[11.5px] text-slate-900 dark:text-white truncate">
+                    {language === 'bn' ? fest.nameBn : fest.nameEn}
+                  </h5>
+                  <p className="text-[10.5px] text-slate-500 dark:text-slate-400 font-normal truncate mt-0.5">
+                    {language === 'bn' ? fest.fastingBn : fest.fastingEn}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -898,150 +907,151 @@ export const HubHome: React.FC = () => {
 
         </div>
 
-        {/* ================= 5. AUTHENTIC 4-YEAR VOICE SYLLABUS & CAMPS MATRIX (IMAGE 2 REPLICA) ================= */}
-        <div className="rounded-[32px] p-6 sm:p-8 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white shadow-2xl space-y-6 border border-white/15">
+        {/* ================= 5. AUTHENTIC 4-YEAR VOICE SYLLABUS & CAMPS MATRIX ================= */}
+        <div className="rounded-[32px] p-6 sm:p-8 lg:p-10 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950/90 text-white shadow-2xl space-y-6 border border-amber-500/25 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
           
-          <div className="text-center space-y-2 max-w-2xl mx-auto">
-            <span className="inline-block px-4 py-1 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-xs font-mono font-black uppercase tracking-widest shadow-md">
+          <div className="text-center space-y-2 max-w-2xl mx-auto relative z-10">
+            <span className="inline-block px-3.5 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-indigo-500/20 border border-amber-400/30 text-amber-300 text-xs font-mono font-black uppercase tracking-widest shadow-sm">
               VOICE Syllabus
             </span>
             <h3 className="text-xl sm:text-3xl font-black text-white tracking-tight">
               {language === 'bn' ? '৪-বর্ষীয় ভয়েস সিলেবাস ও কোর্স-ক্যাম্প কাঠামো' : '4-Year VOICE Academic & Camp Progression Roadmap'}
             </h3>
-            <p className="text-xs sm:text-sm text-amber-200/90 font-serif italic">
+            <p className="text-xs sm:text-sm text-amber-200/80 font-serif italic">
               "Introducing Krishna Consciousness to youths by one time seminars on Art of Mind Control, Power of Habit, Stress Management etc."
             </p>
           </div>
 
-          {/* 4 Years Golden Plaque Grid (Exact replica of Handbook structure) */}
-          <div className="space-y-6">
+          {/* 4 Years Golden Plaque Grid */}
+          <div className="space-y-5 relative z-10">
             
             {/* --- FIRST YEAR --- */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <div className="text-center">
-                <span className="text-xs font-black uppercase tracking-widest text-amber-300 font-mono px-3 py-0.5 rounded-md bg-amber-400/20 border border-amber-400/30">
+                <span className="text-xs font-black uppercase tracking-widest text-amber-300 font-mono px-3.5 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 shadow-2xs">
                   FIRST YEAR
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Course Plaque */}
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-orange-500/20 border-2 border-amber-400/50 shadow-md backdrop-blur-md space-y-2">
-                  <div className="text-center pb-1.5 border-b border-amber-400/30">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">COURSE</span>
+                <div className="p-4.5 rounded-2xl bg-slate-900/80 border border-amber-400/35 shadow-lg backdrop-blur-md space-y-2.5">
+                  <div className="text-center pb-2 border-b border-amber-400/20">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider font-mono">COURSE</span>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-center text-amber-100 font-medium">
-                    <li className="p-1 rounded bg-black/20">Discover Yourself (DYS)</li>
-                    <li className="p-1 rounded bg-black/20">Spiritual Scientist (SS)</li>
-                    <li className="p-1 rounded bg-black/20">Positive Thinker (PT)</li>
+                  <ul className="space-y-1.5 text-xs text-center text-slate-200 font-medium">
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Discover Yourself (DYS)</li>
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Spiritual Scientist (SS)</li>
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Positive Thinker (PT)</li>
                   </ul>
                 </div>
                 {/* Camp Plaque */}
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-orange-500/20 border-2 border-amber-400/50 shadow-md backdrop-blur-md space-y-2">
-                  <div className="text-center pb-1.5 border-b border-amber-400/30">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">CAMP</span>
+                <div className="p-4.5 rounded-2xl bg-slate-900/80 border border-amber-400/35 shadow-lg backdrop-blur-md space-y-2.5">
+                  <div className="text-center pb-2 border-b border-amber-400/20">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider font-mono">CAMP</span>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-center text-amber-100 font-medium">
-                    <li className="p-1 rounded bg-black/20">Sankalpa</li>
-                    <li className="p-1 rounded bg-black/20">Sphurti</li>
-                    <li className="p-1 rounded bg-black/20">Utsaha</li>
-                    <li className="p-1 rounded bg-black/20">Utkarsha</li>
+                  <ul className="space-y-1.5 text-xs text-center text-slate-200 font-medium">
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Sankalpa</li>
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Sphurti</li>
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Utsaha</li>
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Utkarsha</li>
                   </ul>
                 </div>
               </div>
             </div>
 
             {/* --- SECOND YEAR --- */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <div className="text-center">
-                <span className="text-xs font-black uppercase tracking-widest text-amber-300 font-mono px-3 py-0.5 rounded-md bg-amber-400/20 border border-amber-400/30">
+                <span className="text-xs font-black uppercase tracking-widest text-amber-300 font-mono px-3.5 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 shadow-2xs">
                   SECOND YEAR
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Course Plaque */}
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-orange-500/20 border-2 border-amber-400/50 shadow-md backdrop-blur-md space-y-2">
-                  <div className="text-center pb-1.5 border-b border-amber-400/30">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">COURSE</span>
+                <div className="p-4.5 rounded-2xl bg-slate-900/80 border border-amber-400/35 shadow-lg backdrop-blur-md space-y-2.5">
+                  <div className="text-center pb-2 border-b border-amber-400/20">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider font-mono">COURSE</span>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-center text-amber-100 font-medium">
-                    <li className="p-1 rounded bg-black/20">Self Manager (SM)</li>
-                    <li className="p-1 rounded bg-black/20">Hearing Srila Prabhupada-100 Lecture</li>
+                  <ul className="space-y-1.5 text-xs text-center text-slate-200 font-medium">
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Self Manager (SM)</li>
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Hearing Srila Prabhupada-100 Lecture</li>
                   </ul>
                 </div>
                 {/* Camp Plaque */}
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-orange-500/20 border-2 border-amber-400/50 shadow-md backdrop-blur-md space-y-2">
-                  <div className="text-center pb-1.5 border-b border-amber-400/30">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">CAMP</span>
+                <div className="p-4.5 rounded-2xl bg-slate-900/80 border border-amber-400/35 shadow-lg backdrop-blur-md space-y-2.5">
+                  <div className="text-center pb-2 border-b border-amber-400/20">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider font-mono">CAMP</span>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-center text-amber-100 font-medium">
-                    <li className="p-1 rounded bg-black/20">SRCGD</li>
-                    <li className="p-1 rounded bg-black/20">Nistha Camp</li>
-                    <li className="p-1 rounded bg-black/20">Follow up Training Workshop (FTW)</li>
-                    <li className="p-1 rounded bg-black/20">Facilitator Empowerment Course (FEC)</li>
-                    <li className="p-1 rounded bg-black/20">DYS Preachers Training</li>
+                  <ul className="space-y-1.5 text-xs text-center text-slate-200 font-medium">
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">SRCGD</li>
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Nistha Camp</li>
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Follow up Training Workshop (FTW)</li>
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Facilitator Empowerment Course (FEC)</li>
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">DYS Preachers Training</li>
                   </ul>
                 </div>
               </div>
             </div>
 
             {/* --- THIRD YEAR --- */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <div className="text-center">
-                <span className="text-xs font-black uppercase tracking-widest text-amber-300 font-mono px-3 py-0.5 rounded-md bg-amber-400/20 border border-amber-400/30">
+                <span className="text-xs font-black uppercase tracking-widest text-amber-300 font-mono px-3.5 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 shadow-2xs">
                   THIRD YEAR
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Course Plaque */}
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-orange-500/20 border-2 border-amber-400/50 shadow-md backdrop-blur-md space-y-2">
-                  <div className="text-center pb-1.5 border-b border-amber-400/30">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">COURSE</span>
+                <div className="p-4.5 rounded-2xl bg-slate-900/80 border border-amber-400/35 shadow-lg backdrop-blur-md space-y-2.5">
+                  <div className="text-center pb-2 border-b border-amber-400/20">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider font-mono">COURSE</span>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-center text-amber-100 font-medium">
-                    <li className="p-1 rounded bg-black/20">Proactive Leader</li>
-                    <li className="p-1 rounded bg-black/20">Hearing Srila Prabhupada &amp; Gurumaharaj 100 Lecture</li>
+                  <ul className="space-y-1.5 text-xs text-center text-slate-200 font-medium">
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Proactive Leader</li>
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Hearing Srila Prabhupada &amp; Gurumaharaj 100 Lecture</li>
                   </ul>
                 </div>
                 {/* Camp Plaque */}
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-orange-500/20 border-2 border-amber-400/50 shadow-md backdrop-blur-md space-y-2">
-                  <div className="text-center pb-1.5 border-b border-amber-400/30">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">CAMP</span>
+                <div className="p-4.5 rounded-2xl bg-slate-900/80 border border-amber-400/35 shadow-lg backdrop-blur-md space-y-2.5">
+                  <div className="text-center pb-2 border-b border-amber-400/20">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider font-mono">CAMP</span>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-center text-amber-100 font-medium">
-                    <li className="p-1 rounded bg-black/20">Ashraya Camp</li>
-                    <li className="p-1 rounded bg-black/20">Gauranga Sabha Camp &amp; Nityananda Sabha Camp</li>
+                  <ul className="space-y-1.5 text-xs text-center text-slate-200 font-medium">
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Ashraya Camp</li>
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Gauranga Sabha Camp &amp; Nityananda Sabha Camp</li>
                   </ul>
                 </div>
               </div>
             </div>
 
             {/* --- FOURTH YEAR --- */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <div className="text-center">
-                <span className="text-xs font-black uppercase tracking-widest text-amber-300 font-mono px-3 py-0.5 rounded-md bg-amber-400/20 border border-amber-400/30">
+                <span className="text-xs font-black uppercase tracking-widest text-amber-300 font-mono px-3.5 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 shadow-2xs">
                   FOURTH YEAR
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Course Plaque */}
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-orange-500/20 border-2 border-amber-400/50 shadow-md backdrop-blur-md space-y-2">
-                  <div className="text-center pb-1.5 border-b border-amber-400/30">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">COURSE</span>
+                <div className="p-4.5 rounded-2xl bg-slate-900/80 border border-amber-400/35 shadow-lg backdrop-blur-md space-y-2.5">
+                  <div className="text-center pb-2 border-b border-amber-400/20">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider font-mono">COURSE</span>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-center text-amber-100 font-medium">
-                    <li className="p-1 rounded bg-black/20">Proactive Leader</li>
-                    <li className="p-1 rounded bg-black/20">Personality Development Course</li>
-                    <li className="p-1 rounded bg-black/20">Hearing Srila Prabhupada &amp; Gurumaharaj 100 Lecture</li>
+                  <ul className="space-y-1.5 text-xs text-center text-slate-200 font-medium">
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Proactive Leader</li>
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Personality Development Course</li>
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Hearing Srila Prabhupada &amp; Gurumaharaj 100 Lecture</li>
                   </ul>
                 </div>
                 {/* Camp Plaque */}
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/20 via-amber-600/15 to-orange-500/20 border-2 border-amber-400/50 shadow-md backdrop-blur-md space-y-2">
-                  <div className="text-center pb-1.5 border-b border-amber-400/30">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider">CAMP</span>
+                <div className="p-4.5 rounded-2xl bg-slate-900/80 border border-amber-400/35 shadow-lg backdrop-blur-md space-y-2.5">
+                  <div className="text-center pb-2 border-b border-amber-400/20">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider font-mono">CAMP</span>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-center text-amber-100 font-medium">
-                    <li className="p-1 rounded bg-black/20">Sharanagati Camp</li>
-                    <li className="p-1 rounded bg-black/20">Gauranga Sabha Camp &amp; Nityananda Sabha Camp</li>
+                  <ul className="space-y-1.5 text-xs text-center text-slate-200 font-medium">
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Sharanagati Camp</li>
+                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Gauranga Sabha Camp &amp; Nityananda Sabha Camp</li>
                   </ul>
                 </div>
               </div>
@@ -1050,7 +1060,7 @@ export const HubHome: React.FC = () => {
           </div>
         </div>
 
-        {/* ================= 6. DEVOTEE'S ADVANCEMENT MATRIX (IMAGE 3 REPLICA: ভক্তের উন্নতির পাঠ্যক্রম) ================= */}
+        {/* ================= 6. DEVOTEE'S ADVANCEMENT MATRIX ================= */}
         <div className="rounded-[32px] p-6 sm:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
           
           <div className="text-center space-y-1 max-w-2xl mx-auto">
@@ -1083,7 +1093,7 @@ export const HubHome: React.FC = () => {
                     {stage.items.map((item, iIdx) => (
                       <div 
                         key={iIdx}
-                        className="p-2.5 rounded-xl bg-white/85 dark:bg-slate-800/90 border border-slate-200/60 dark:border-slate-700/60 text-xs text-slate-800 dark:text-slate-200 font-semibold shadow-2xs leading-snug flex items-start gap-2"
+                        className="p-2.5 rounded-xl bg-white/90 dark:bg-slate-800/90 border border-slate-200/60 dark:border-slate-700/60 text-xs text-slate-800 dark:text-slate-200 font-semibold shadow-2xs leading-snug flex items-start gap-2"
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0 mt-1.5" />
                         <span>{language === 'bn' ? item.bn : item.en}</span>
@@ -1096,17 +1106,17 @@ export const HubHome: React.FC = () => {
           </div>
 
           {/* Footer Official Accreditations */}
-          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-4 flex-wrap text-xs font-mono font-black text-slate-700 dark:text-slate-300">
-            <span className="px-3 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-3 sm:gap-4 flex-wrap text-xs font-mono font-black text-slate-700 dark:text-slate-300">
+            <span className="px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
               🎓 BHAKTISASTRI
             </span>
-            <span className="px-3 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
+            <span className="px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
               📜 TTC1
             </span>
-            <span className="px-3 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
+            <span className="px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
               📜 TTC2
             </span>
-            <span className="px-3 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
+            <span className="px-3.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xs">
               🏛️ BSTTC
             </span>
           </div>
@@ -1114,15 +1124,15 @@ export const HubHome: React.FC = () => {
         </div>
 
         {/* ================= 7. BLESSINGS & CENTRAL LEADERSHIP ================= */}
-        <div className="rounded-3xl p-6 sm:p-8 bg-amber-500/10 border border-amber-500/30 space-y-4">
+        <div className="rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-transparent border border-amber-500/30 space-y-3 shadow-sm">
           <div className="space-y-2">
             <span className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400 font-mono">
               Invocations &amp; Blessings
             </span>
-            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 italic leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 italic leading-relaxed font-serif">
               "{language === 'bn' ? VOICE_HANDBOOK_DATA.swamiBlessingBn : VOICE_HANDBOOK_DATA.swamiBlessingEn}"
             </p>
-            <p className="text-xs font-bold text-amber-700 dark:text-amber-400">
+            <p className="text-xs font-bold text-amber-700 dark:text-amber-400 font-mono">
               — {language === 'bn' ? VOICE_HANDBOOK_DATA.swamiTitleBn : VOICE_HANDBOOK_DATA.swamiTitleEn}
             </p>
           </div>
@@ -1134,33 +1144,33 @@ export const HubHome: React.FC = () => {
             onClick={() => setShowIskconCenters(!showIskconCenters)}
             className="flex items-center justify-between cursor-pointer"
           >
-            <div className="flex items-center gap-2">
-              <Landmark size={18} className="text-indigo-600" />
+            <div className="flex items-center gap-2.5">
+              <Landmark size={20} className="text-indigo-600 dark:text-amber-400" />
               <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
                 {language === 'bn' ? 'বাংলাদেশে ইসকন কেন্দ্রসমূহের তালিকা (ফোন ও ঠিকানা)' : 'ISKCON Centres in Bangladesh Directory'}
               </h3>
             </div>
-            <button className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
-              {showIskconCenters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            <button className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors">
+              {showIskconCenters ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
             </button>
           </div>
 
           {showIskconCenters && (
-            <div className="space-y-4 pt-2 border-t border-slate-100 dark:border-slate-800 animate-in fade-in duration-200">
+            <div className="space-y-4 pt-3 border-t border-slate-100 dark:border-slate-800 animate-in fade-in duration-200">
               {VOICE_HANDBOOK_DATA.iskconDivisions.map((div, dIdx) => (
-                <div key={dIdx} className="space-y-2">
-                  <h4 className="text-xs font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                <div key={dIdx} className="space-y-2.5">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-indigo-600 dark:text-amber-400 font-mono">
                     {language === 'bn' ? div.divisionNameBn : div.divisionNameEn}
                   </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                     {div.centers.map((c, cIdx) => (
-                      <div key={cIdx} className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-1">
+                      <div key={cIdx} className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 space-y-1.5 hover:border-amber-400/40 transition-all">
                         <div className="font-bold text-slate-900 dark:text-white">{c.name}</div>
-                        <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                           <MapPin size={12} className="text-rose-500 shrink-0" />
                           <span>{c.address}</span>
                         </div>
-                        <div className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                        <div className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 font-semibold">
                           <Phone size={11} />
                           <span>{c.phones.join(', ')}</span>
                         </div>
@@ -1174,6 +1184,198 @@ export const HubHome: React.FC = () => {
         </div>
 
       </div>
+
+      {/* ================= PRESIDING DEITIES HIGH-RES DARSHAN MODAL ================= */}
+      {selectedDeityModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto">
+          <div className="relative w-full max-w-4xl rounded-[32px] bg-slate-950 border border-amber-500/50 shadow-2xl overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200 text-white">
+            
+            {/* Close Button */}
+            <button
+              onClick={() => setSelectedDeityModal(null)}
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition-all cursor-pointer z-20 shadow-lg"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Modal Header */}
+            <div className="p-6 bg-gradient-to-r from-amber-950 via-slate-900 to-purple-950 border-b border-amber-500/30 text-center space-y-1">
+              <span className="inline-block px-3 py-1 rounded-full bg-amber-500 text-slate-950 font-black text-xs font-mono uppercase tracking-wider shadow-md">
+                {language === 'bn' ? 'শ্রীবিগ্রহ নিত্য দর্শন' : 'Daily Deity Darshan'}
+              </span>
+              <h2 className="text-xl sm:text-2xl font-black font-serif text-amber-200">
+                {selectedDeityModal === 'RADHA_MADHAV'
+                  ? (language === 'bn' ? 'শ্রীশ্রী রাধামাধব জিউ' : 'Sri Sri Radha Madhava')
+                  : selectedDeityModal === 'GAURA_NITAI'
+                    ? (language === 'bn' ? 'শ্রীশ্রী গৌর নিতাই জিউ' : 'Sri Sri Gaura Nitai')
+                    : (language === 'bn' ? 'শ্রীশ্রী রাধামাধব ও শ্রীশ্রী গৌর নিতাই জিউ' : 'Sri Sri Radha Madhava & Sri Sri Gaura Nitai')}
+              </h2>
+              <p className="text-xs text-amber-300/80 font-mono">
+                Radhamadhav Temple & Gour Nitai Ashram • Advaita VOICE, CU
+              </p>
+            </div>
+
+            {/* Modal Darshan Showcase */}
+            <div className="p-6 max-h-[65vh] overflow-y-auto space-y-6">
+              
+              {/* If BOTH selected, show side-by-side with full mantras */}
+              {selectedDeityModal === 'BOTH' ? (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    
+                    {/* Sri Sri Radha Madhava Column */}
+                    <div className="space-y-3">
+                      <div className="rounded-2xl overflow-hidden border-2 border-amber-400/60 shadow-xl bg-slate-900 aspect-[4/3]">
+                        <img 
+                          src="/assets/sri_sri_radha_madhava.jpg" 
+                          alt="Sri Sri Radha Madhava" 
+                          className="w-full h-full object-cover object-top"
+                        />
+                      </div>
+                      <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 space-y-2 text-center">
+                        <div>
+                          <span className="text-[10px] uppercase font-mono font-bold text-amber-400">
+                            {language === 'bn' ? 'শ্রীকৃষ্ণ প্রণাম মন্ত্র' : 'Sri Krishna Pranama Mantra'}
+                          </span>
+                          <p className="text-xs sm:text-sm font-serif italic text-amber-200 mt-0.5">
+                            "হে কৃষ্ণ করুণাসিন্ধো দীনবন্ধো জগৎপতে । গোপেশ গোপিকাকান্ত রাধাকান্ত নমোঽস্তু তে ॥"
+                          </p>
+                        </div>
+                        <div className="pt-2 border-t border-amber-500/20">
+                          <span className="text-[10px] uppercase font-mono font-bold text-amber-400">
+                            {language === 'bn' ? 'শ্রীমতী রাধারাণী প্রণাম মন্ত্র' : 'Srimati Radharani Pranama Mantra'}
+                          </span>
+                          <p className="text-xs sm:text-sm font-serif italic text-amber-200 mt-0.5">
+                            "তপ্তকাঞ্চনগৌরাঙ্গি রাধে বৃন্দাবনেশ্বরী । বৃষভানুসুতে দেবি প্রণমামি হরিপ্রিয়ে ॥"
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Sri Sri Gaura Nitai Column */}
+                    <div className="space-y-3">
+                      <div className="rounded-2xl overflow-hidden border-2 border-amber-400/60 shadow-xl bg-slate-900 aspect-[4/3]">
+                        <img 
+                          src="/assets/sri_sri_gaura_nitai.jpg" 
+                          alt="Sri Sri Gaura Nitai" 
+                          className="w-full h-full object-cover object-top"
+                        />
+                      </div>
+                      <div className="p-3.5 rounded-2xl bg-orange-500/10 border border-orange-500/25 space-y-2 text-center">
+                        <div>
+                          <span className="text-[10px] uppercase font-mono font-bold text-orange-400">
+                            {language === 'bn' ? 'শ্রীগৌরাঙ্গ মহাপ্রভু প্রণাম মন্ত্র' : 'Sri Gauranga Mahaprabhu Pranama Mantra'}
+                          </span>
+                          <p className="text-xs sm:text-sm font-serif italic text-amber-200 mt-0.5">
+                            "নমো মহাবদান্যায় কৃষ্ণপ্রেমপ্রদায় তে । কৃষ্ণায় কৃষ্ণচৈতন্যনাম্নে গৌরত্বিষে নমঃ ॥"
+                          </p>
+                        </div>
+                        <div className="pt-2 border-t border-orange-500/20">
+                          <span className="text-[10px] uppercase font-mono font-bold text-orange-400">
+                            {language === 'bn' ? 'শ্রীশ্রীনিত্যানন্দ প্রভু প্রণাম মন্ত্র' : 'Sri Nityananda Prabhu Pranama Mantra'}
+                          </span>
+                          <p className="text-xs sm:text-sm font-serif italic text-amber-200 mt-0.5">
+                            "নিত্যানন্দ নমস্তুভ্যং প্রেমানন্দ-প্রদায়িনে । কলৌ কল্মষনাশায় জাহ্নবাপতয়ে নমঃ ॥"
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              ) : selectedDeityModal === 'RADHA_MADHAV' ? (
+                <div className="space-y-4">
+                  <div className="max-w-xl mx-auto rounded-3xl overflow-hidden border-3 border-amber-400/80 shadow-2xl bg-slate-900">
+                    <img 
+                      src="/assets/sri_sri_radha_madhava.jpg" 
+                      alt="Sri Sri Radha Madhava" 
+                      className="w-full h-auto object-cover max-h-[480px] mx-auto"
+                    />
+                  </div>
+
+                  {/* Both Sri Krishna & Sri Radharani Mantras */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-center space-y-1">
+                      <span className="text-[10.5px] uppercase font-mono font-bold text-amber-400">
+                        {language === 'bn' ? 'শ্রীকৃষ্ণ প্রণাম মন্ত্র' : 'Sri Krishna Pranama Mantra'}
+                      </span>
+                      <p className="text-xs sm:text-sm font-serif italic text-amber-200 leading-relaxed">
+                        "হে কৃষ্ণ করুণাসিন্ধো দীনবন্ধো জগৎপতে ।<br />গোপেশ গোপিকাকান্ত রাধাকান্ত নমোঽস্তু তে ॥"
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-center space-y-1">
+                      <span className="text-[10.5px] uppercase font-mono font-bold text-amber-400">
+                        {language === 'bn' ? 'শ্রীমতী রাধারাণী প্রণাম মন্ত্র' : 'Srimati Radharani Pranama Mantra'}
+                      </span>
+                      <p className="text-xs sm:text-sm font-serif italic text-amber-200 leading-relaxed">
+                        "তপ্তকাঞ্চনগৌরাঙ্গি রাধে বৃন্দাবনেশ্বরী ।<br />বৃষভানুসুতে দেবি প্রণমামি হরিপ্রিয়ে ॥"
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="max-w-xl mx-auto rounded-3xl overflow-hidden border-3 border-amber-400/80 shadow-2xl bg-slate-900">
+                    <img 
+                      src="/assets/sri_sri_gaura_nitai.jpg" 
+                      alt="Sri Sri Gaura Nitai" 
+                      className="w-full h-auto object-cover max-h-[480px] mx-auto"
+                    />
+                  </div>
+
+                  {/* Both Sri Gauranga & Sri Nityananda Mantras */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20 text-center space-y-1">
+                      <span className="text-[10.5px] uppercase font-mono font-bold text-orange-400">
+                        {language === 'bn' ? 'শ্রীগৌরাঙ্গ মহাপ্রভু প্রণাম মন্ত্র' : 'Sri Gauranga Mahaprabhu Pranama Mantra'}
+                      </span>
+                      <p className="text-xs sm:text-sm font-serif italic text-amber-200 leading-relaxed">
+                        "নমো মহাবদান্যায় কৃষ্ণপ্রেমপ্রদায় তে ।<br />কৃষ্ণায় কৃষ্ণচৈতন্যনাম্নে গৌরত্বিষে নমঃ ॥"
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20 text-center space-y-1">
+                      <span className="text-[10.5px] uppercase font-mono font-bold text-orange-400">
+                        {language === 'bn' ? 'শ্রীশ্রীনিত্যানন্দ প্রভু প্রণাম মন্ত্র' : 'Sri Nityananda Prabhu Pranama Mantra'}
+                      </span>
+                      <p className="text-xs sm:text-sm font-serif italic text-amber-200 leading-relaxed">
+                        "নিত্যানন্দ নমস্তুভ্যং প্রেমানন্দ-প্রদায়িনে ।<br />কলৌ কল্মষনাশায় জাহ্নবাপতয়ে নমঃ ॥"
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Universal Maha Mantra Callout */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-indigo-500/15 border border-amber-400/30 text-center space-y-1.5">
+                <span className="text-[10px] uppercase font-mono font-black text-amber-400 tracking-wider">
+                  The Maha-Mantra for Kali-Yuga
+                </span>
+                <p className="text-sm sm:text-base font-black text-white font-serif leading-relaxed">
+                  হরে কৃষ্ণ হরে কৃষ্ণ কৃষ্ণ কৃষ্ণ হরে হরে ।<br />
+                  হরে রাম হরে রাম রাম রাম হরে হরে ॥
+                </p>
+              </div>
+
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 bg-black/70 border-t border-slate-800 flex items-center justify-between">
+              <span className="text-xs text-slate-400 font-mono">
+                Advaita VOICE • Presiding Deities
+              </span>
+              <button
+                onClick={() => setSelectedDeityModal(null)}
+                className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black text-xs cursor-pointer shadow-md hover:scale-105 active:scale-95 transition-all"
+              >
+                {language === 'bn' ? 'জয় শ্রীল প্রভুপাদ (Close)' : 'Jay Srila Prabhupada'}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

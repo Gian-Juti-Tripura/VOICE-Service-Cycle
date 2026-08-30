@@ -160,18 +160,30 @@ export const AdvaitaOrgPage: React.FC = () => {
                 {SPIRITUAL_LEADERSHIP.map(leader => (
                   <div 
                     key={leader.id}
-                    className="rounded-2xl p-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 text-xs flex flex-col justify-between"
+                    className="rounded-2xl p-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 text-xs flex flex-col justify-between hover:shadow-md transition-all group"
                   >
-                    <div>
-                      <span className="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-mono">
-                        {leader.level}
-                      </span>
-                      <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white mt-1.5">
-                        {leader.name}
-                      </h4>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                        {language === 'bn' ? leader.roleBn : leader.roleEn}
-                      </p>
+                    <div className="flex items-start gap-3">
+                      {leader.photo ? (
+                        <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-amber-400 shadow-md shrink-0 ring-2 ring-amber-500/20">
+                          <img src={leader.photo} alt={leader.name} className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform" />
+                        </div>
+                      ) : (
+                        <div className="w-11 h-11 rounded-2xl bg-amber-500/10 border border-amber-400/30 text-amber-600 flex items-center justify-center font-bold text-base shrink-0">
+                          {leader.name.charAt(3) || 'S'}
+                        </div>
+                      )}
+
+                      <div className="flex-1 min-w-0">
+                        <span className="text-[8.5px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-mono inline-block">
+                          {leader.level}
+                        </span>
+                        <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white mt-1 leading-tight">
+                          {leader.name}
+                        </h4>
+                        <p className="text-[10.5px] text-slate-500 dark:text-slate-400 mt-0.5">
+                          {language === 'bn' ? leader.roleBn : leader.roleEn}
+                        </p>
+                      </div>
                     </div>
 
                     {leader.phone && (

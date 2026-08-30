@@ -87,35 +87,53 @@ export const SebanandaLibrary: React.FC = () => {
         {/* Hero Header with Physical Ashram Banner Style */}
         <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-emerald-800 via-teal-800 to-slate-900 text-white shadow-xl">
           <div className="absolute right-0 top-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="relative z-10 space-y-3">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-3 py-1 rounded-full bg-white/20 text-xs font-bold backdrop-blur-md inline-flex items-center gap-1.5">
-                <BookOpen size={13} />
-                <span>সেবানন্দ গ্রন্থাগার (Sebananda E-Library)</span>
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-900 text-[10px] font-extrabold uppercase tracking-wide">
-                Please Speak in English
-              </span>
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 justify-between">
+            
+            <div className="space-y-3 flex-1 text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
+                <span className="px-3 py-1 rounded-full bg-white/20 text-xs font-bold backdrop-blur-md inline-flex items-center gap-1.5">
+                  <BookOpen size={13} />
+                  <span>সেবানন্দ গ্রন্থাগার (Sebananda E-Library)</span>
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-900 text-[10px] font-extrabold uppercase tracking-wide">
+                  Founder-Acharya Library
+                </span>
+              </div>
+
+              <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
+                {language === 'bn' ? 'ডিজিটাল সেবানন্দ গ্রন্থাগার ও জ্ঞানভাণ্ডার' : 'Sebananda Digital Library & Resources Vault'}
+              </h1>
+              <p className="text-xs sm:text-sm text-emerald-100 max-w-2xl leading-relaxed">
+                {language === 'bn'
+                  ? 'শ্রীল প্রভুপাদের মূল গ্রন্থাবলি, ডিওয়াইএস স্লাইড ও ওয়ার্কবুক, ক্যাম্প হ্যান্ডবুক, চবি সেমিস্টার ও বিসিএস পরীক্ষার নোটস এবং বৈষ্ণব পদাবলীর ডিজিটাল সংগ্রহশালা।'
+                  : 'Free authentic E-books, high-definition course slide decks, camp handbooks, university exam guides, and Vaishnava songbooks.'}
+              </p>
+
+              <div className="flex items-center justify-center md:justify-start gap-3 pt-1 flex-wrap text-xs font-bold">
+                <button
+                  onClick={handleSuggestBookWhatsApp}
+                  className="px-4 py-2 rounded-xl bg-white text-emerald-900 hover:bg-emerald-50 text-xs font-bold flex items-center gap-1.5 shadow-md hover:scale-102 transition-all cursor-pointer"
+                >
+                  <UploadCloud size={14} className="text-emerald-700" />
+                  <span>{language === 'bn' ? 'নতুন গ্রন্থ / PDF যুক্ত করতে অনুরোধ পাঠান' : 'Contribute / Request Book via WhatsApp'}</span>
+                </button>
+              </div>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
-              {language === 'bn' ? 'ডিজিটাল সেবানন্দ গ্রন্থাগার ও জ্ঞানভাণ্ডার' : 'Sebananda Digital Library & Resources Vault'}
-            </h1>
-            <p className="text-xs sm:text-sm text-emerald-100 max-w-2xl leading-relaxed">
-              {language === 'bn'
-                ? 'শ্রীল প্রভুপাদের মূল গ্রন্থাবলি, ডিওয়াইএস স্লাইড ও ওয়ার্কবুক, ক্যাম্প হ্যান্ডবুক, চবি সেমিস্টার ও বিসিএস পরীক্ষার নোটস এবং বৈষ্ণব পদাবলীর ডিজিটাল সংগ্রহশালা।'
-                : 'Free authentic E-books, high-definition course slide decks, camp handbooks, university exam guides, and Vaishnava songbooks.'}
-            </p>
-
-            <div className="flex items-center gap-3 pt-1 flex-wrap text-xs font-bold">
-              <button
-                onClick={handleSuggestBookWhatsApp}
-                className="px-4 py-2 rounded-xl bg-white text-emerald-900 hover:bg-emerald-50 text-xs font-bold flex items-center gap-1.5 shadow-md hover:scale-102 transition-all cursor-pointer"
-              >
-                <UploadCloud size={14} className="text-emerald-700" />
-                <span>{language === 'bn' ? 'নতুন গ্রন্থ / PDF যুক্ত করতে অনুরোধ পাঠান' : 'Contribute / Request Book via WhatsApp'}</span>
-              </button>
+            {/* Srila Prabhupada Portrait */}
+            <div className="relative shrink-0">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-amber-400/90 shadow-2xl ring-4 ring-amber-500/20">
+                <img
+                  src="/assets/srila_prabhupada.jpg"
+                  alt="His Divine Grace A.C. Bhaktivedanta Swami Srila Prabhupada"
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-md bg-amber-400 text-slate-950 text-[9px] font-black uppercase tracking-wider whitespace-nowrap shadow-md">
+                Srila Prabhupada
+              </div>
             </div>
+
           </div>
         </div>
 
