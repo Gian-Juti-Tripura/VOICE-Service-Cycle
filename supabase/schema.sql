@@ -482,7 +482,7 @@ ON CONFLICT (id) DO UPDATE SET
 INSERT INTO public.members (id, full_name, spiritual_name, phone, email, dob, address, blood_group, department, institute, guardian_number, national_id, service_type, role_badge, cycle_order, role) VALUES
 ('member_0', 'UTPOL P.', 'Utpol Das', '01790839891', 'utpol.acce.cu@gmail.com', '2001-09-18', 'Rajshahi', 'A+', 'ACCE', 'University of Chittagong', '01712000000', '2001769823451', 'IYF (VOICE Coordinator)', 'VOICE Coordinator', 0, 'INTERNAL_MANAGER'),
 ('member_1', 'CHAITANYA P.', 'Chaitanya Das', '01331982443', 'bappi.sanskrit.cu@gmail.com', '2003-11-02', 'Panchagarh', 'A+', 'Sanskrit', 'University of Chittagong', '01331000000', '2003159876999', 'IYF', 'Youth Member', 1, 'MEMBER'),
-('member_2', 'GIAN P.', 'Gianjyoti Das', '01571328549', 'gianjyoti.cse.cu@gmail.com', '2002-11-25', 'Khagrachari', 'B+', 'CSE', 'University of Chittagong', '01550000000', '2002159823009', 'IYF (Digital & IT Incharge)', 'IT & Digital Seva', 2, 'INTERNAL_MANAGER'),
+('member_2', 'GIAN P.', 'Gianjyoti Das', '01571328549', 'gianjuti.csecu@gmail.com', '2002-11-25', 'Khagrachari', 'B+', 'CSE', 'University of Chittagong', '01550000000', '2002159823009', 'IYF (Digital & IT Incharge)', 'IT & Digital Seva', 2, 'ADMIN'),
 ('member_3', 'PRANTO P.', 'Pranto Krishna Das', '01609302008', 'pranto.cse.cu@gmail.com', '2003-02-14', 'Gazipur', 'AB+', 'CSE', 'University of Chittagong', '01609000000', '2003159876777', 'IYF', 'Technical Support', 3, 'MEMBER'),
 ('member_4', 'SANGA P.', 'Sangakara Krishna Das', '01722711849', 'sangakara.chem.cu@gmail.com', '2001-12-05', 'Jashor', 'B+', 'Chemistry', 'University of Chittagong', '01722000000', '2001159876222', 'IYF', 'Kitchen & Prasadam Seva', 4, 'MEMBER'),
 ('member_5', 'DIPEN P.', 'Dipendra Das', '01320903062', 'dipendra.philo.cu@gmail.com', '2002-07-08', 'Thakurgaon', 'O+', 'Philosophy', 'University of Chittagong', '01320000000', '2002159876111', 'IYF', 'Philosophical Study', 5, 'MEMBER'),
@@ -491,7 +491,7 @@ INSERT INTO public.members (id, full_name, spiritual_name, phone, email, dob, ad
 ('member_8', 'ROTON P.', 'Roton Das', '01750504601', 'roton.sanskrit.cu@gmail.com', '2002-10-10', 'Rangpur', 'B+', 'Sanskrit', 'University of Chittagong', '01750000000', '2002159876666', 'IYF', 'Study Care Incharge', 8, 'MEMBER'),
 ('member_9', 'JOY S. P.', 'Utshab Das', '01734550288', 'utshab.joy.cu@gmail.com', '2002-08-28', 'Mymensingh', 'O+', 'Sanskrit', 'University of Chittagong', '01734000000', '2002159876555', 'IYF', 'Kirtan & Bhajan Seva', 9, 'MEMBER'),
 ('member_10', 'JOYKANT P.', 'Joykanto Das', '01754034183', 'joykanto.sanskrit.cu@gmail.com', '2002-06-18', 'Thakurgaon', 'B+', 'Sanskrit', 'University of Chittagong', '01754000000', '2002159876888', 'IYF', 'Temple Cleanliness Seva', 10, 'MEMBER'),
-('member_11', 'BAPPI C. P.', 'Akash Das', '01799100306', 'akash.socio.cu@gmail.com', '2001-03-12', 'Feni, Chittagong', 'O+', 'Sociology', 'University of Chittagong', '01799000000', '2001159876543', 'IYF', 'Youth Member', 11, 'MEMBER')
+('member_11', 'BAPPI C. P.', 'Bappi Das', '01331982443', 'bappi.sanskrit.cu@gmail.com', '2003-11-02', 'Panchagarh', 'A+', 'Sanskrit', 'University of Chittagong', '01331000000', '2003159876999', 'IYF', 'Youth Member', 11, 'MEMBER')
 ON CONFLICT (id) DO UPDATE SET
     full_name = EXCLUDED.full_name,
     spiritual_name = EXCLUDED.spiritual_name,
