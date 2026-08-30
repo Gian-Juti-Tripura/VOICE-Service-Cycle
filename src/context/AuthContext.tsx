@@ -46,21 +46,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const fetchRole = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', userId)
-      .single();
-      
-    if (!error && data) {
-      setRole(data.role as UserRole);
-    } else {
-      if (error) {
-        console.error("Supabase fetchRole error:", error);
+    try {
+      // 1. Try querying members table by user_id
+      const { data: memberData } = await supabase
+        .from('members')
+        .select('role')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (memberData?.role) {
+        setRole(memberData.role as UserRole);
+        localStorage.setItem('voice_auth_role', memberData.role);
+        setLoading(false);
+        return;
       }
-      setRole(null);
+
+      // 2. Try querying profiles table by id
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (profileData?.role) {
+        setRole(profileData.role as UserRole);
+        localStorage.setItem('voice_auth_role', profileData.role);
+      } else {
+        const cachedRole = localStorage.getItem('voice_auth_role') as UserRole;
+        setRole(cachedRole || 'MEMBER');
+      }
+    } catch (err) {
+      console.error("Supabase fetchRole error:", err);
+      const cachedRole = localStorage.getItem('voice_auth_role') as UserRole;
+      setRole(cachedRole || 'MEMBER');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const logout = async () => {
