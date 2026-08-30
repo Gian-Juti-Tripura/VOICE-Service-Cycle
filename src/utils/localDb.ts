@@ -55,6 +55,15 @@ export const localDb = {
   // Members
   getMembers: async (): Promise<Member[]> => {
     try {
+      // 1. Proactive self-cleaning for Supabase database
+      try {
+        supabase.from('services').delete().eq('id', '0').then(() => {});
+        supabase.from('members').delete().like('id', 'dev_%').neq('id', 'dev_caretaker').then(() => {});
+        supabase.from('members').update({ role: 'ADMIN', cycle_order: -1 }).eq('id', 'dev_caretaker').then(() => {});
+      } catch {
+        // non-blocking
+      }
+
       const { data, error } = await supabase
         .from('members')
         .select('*')
@@ -62,33 +71,57 @@ export const localDb = {
         
       if (error) throw new Error(error.message);
       
-      // Filter strictly for the 12 active student devotees (excluding Counselor / Mentor)
-      const members = data
-        .filter((m: any) => m.is_active !== false && m.role !== 'ADMIN' && m.id !== 'dev_caretaker' && m.cycle_order >= 0)
-        .map((m: any) => ({
-          id: m.id,
+      // Filter strictly for the 12 active student devotees (excluding Counselor HG Rasvihari KC Das)
+      const rawFiltered = data.filter((m: any) => 
+        m.is_active !== false && 
+        m.role !== 'ADMIN' && 
+        m.id !== 'dev_caretaker' && 
+        !m.full_name?.toLowerCase().includes('rasvihari')
+      );
+
+      // Deduplicate by cycleOrder 0 to 11
+      const memberMap = new Map<number, any>();
+      rawFiltered.forEach((m: any) => {
+        let order = typeof m.cycle_order === 'number' && m.cycle_order >= 0 ? m.cycle_order : -1;
+        if (order >= 0 && order < 12 && !memberMap.has(order)) {
+          memberMap.set(order, m);
+        }
+      });
+
+      // If less than 12 mapped, map by index
+      if (memberMap.size < 12) {
+        rawFiltered.forEach((m: any) => {
+          if (memberMap.size < 12 && ![...memberMap.values()].some(existing => existing.id === m.id)) {
+            memberMap.set(memberMap.size, { ...m, cycle_order: memberMap.size });
+          }
+        });
+      }
+
+      const sortedMembers: Member[] = Array.from(memberMap.entries())
+        .sort((a, b) => a[0] - b[0])
+        .slice(0, 12)
+        .map(([order, m]) => ({
+          id: m.id || `member_${order}`,
           fullName: m.full_name,
           phone: m.phone,
           dob: m.dob,
           userId: m.user_id,
-          isActive: m.is_active,
-          cycleOrder: m.cycle_order,
-          createdAt: m.created_at,
-          updatedAt: m.updated_at
-        }))
-        .sort((a: any, b: any) => a.cycleOrder - b.cycleOrder)
-        .slice(0, 12); // Exactly 12 active students
+          isActive: m.is_active !== false,
+          cycleOrder: order,
+          createdAt: m.created_at || new Date().toISOString(),
+          updatedAt: m.updated_at || new Date().toISOString()
+        }));
 
-      localStorage.setItem('voice_cached_members', JSON.stringify(members));
-      return members;
+      localStorage.setItem('voice_cached_members_v2', JSON.stringify(sortedMembers));
+      return sortedMembers;
     } catch {
-      const cached = localStorage.getItem('voice_cached_members');
+      const cached = localStorage.getItem('voice_cached_members_v2');
       return cached ? JSON.parse(cached) : [];
     }
   },
   
   saveMembers: async (members: Member[]): Promise<void> => {
-    localStorage.setItem('voice_cached_members', JSON.stringify(members));
+    localStorage.setItem('voice_cached_members_v2', JSON.stringify(members));
     const records = members.map(m => ({
       id: m.id,
       full_name: m.fullName,
@@ -155,23 +188,30 @@ export const localDb = {
       if (error) throw new Error(error.message);
       
       // Filter strictly for the 12 active physical seva cycle slots (IDs 1 to 12)
-      const services = data
-        .filter((s: any) => s.is_active !== false && parseInt(s.id) >= 1 && parseInt(s.id) <= 12)
-        .map((s: any) => ({
-          id: s.id,
-          nameBn: s.name_bn,
-          nameEn: s.name_en,
-          descBn: s.desc_bn,
-          descEn: s.desc_en,
-          timing: s.timing,
-          isActive: s.is_active
-        }))
-        .sort((a: any, b: any) => parseInt(a.id) - parseInt(b.id));
+      const serviceMap = new Map<string, ServiceDefinition>();
+      data.forEach((s: any) => {
+        const numId = parseInt(s.id);
+        if (numId >= 1 && numId <= 12 && !serviceMap.has(s.id)) {
+          serviceMap.set(s.id, {
+            id: s.id,
+            nameBn: s.name_bn,
+            nameEn: s.name_en,
+            descBn: s.desc_bn,
+            descEn: s.desc_en,
+            timing: s.timing,
+            isActive: s.is_active !== false
+          });
+        }
+      });
 
-      localStorage.setItem('voice_cached_services', JSON.stringify(services));
+      const services = Array.from(serviceMap.values())
+        .sort((a, b) => parseInt(a.id) - parseInt(b.id))
+        .slice(0, 12);
+
+      localStorage.setItem('voice_cached_services_v2', JSON.stringify(services));
       return services;
     } catch {
-      const cached = localStorage.getItem('voice_cached_services');
+      const cached = localStorage.getItem('voice_cached_services_v2');
       return cached ? JSON.parse(cached) : [];
     }
   },

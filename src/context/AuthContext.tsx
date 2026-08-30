@@ -24,7 +24,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchRole(session.user.id);
+        fetchRole(session.user.id, session.user.email);
       } else {
         setRole(null);
         setLoading(false);
@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchRole(session.user.id);
+        fetchRole(session.user.id, session.user.email);
       } else {
         setRole(null);
         setLoading(false);
@@ -45,14 +45,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchRole = async (userId: string) => {
+  const fetchRole = async (userId: string, userEmail?: string) => {
     try {
-      // 1. Try querying members table by user_id
-      const { data: memberData } = await supabase
-        .from('members')
-        .select('role')
-        .eq('user_id', userId)
-        .maybeSingle();
+      // 1. Direct Admin Grant for Master Admin emails
+      const normalizedEmail = userEmail?.trim().toLowerCase();
+      if (normalizedEmail && (
+        normalizedEmail === 'gianjuti.csecu@gmail.com' ||
+        normalizedEmail === 'gianjyoti.cse.cu@gmail.com' ||
+        normalizedEmail === 'rasvihari.voice@gmail.com'
+      )) {
+        setRole('ADMIN');
+        localStorage.setItem('voice_auth_role', 'ADMIN');
+        setLoading(false);
+        return;
+      }
+
+      // 2. Try querying members table by user_id or email
+      let query = supabase.from('members').select('role');
+      if (normalizedEmail) {
+        query = query.or(`user_id.eq.${userId},email.eq.${normalizedEmail}`);
+      } else {
+        query = query.eq('user_id', userId);
+      }
+      
+      const { data: memberData } = await query.maybeSingle();
 
       if (memberData?.role) {
         setRole(memberData.role as UserRole);
@@ -61,7 +77,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
 
-      // 2. Try querying profiles table by id
+      // 3. Try querying profiles table by id
       const { data: profileData } = await supabase
         .from('profiles')
         .select('role')
