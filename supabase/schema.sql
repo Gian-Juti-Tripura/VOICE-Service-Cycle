@@ -22,9 +22,12 @@ CREATE TABLE IF NOT EXISTS public.members (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
 
--- Safely add extended profile columns if table already existed previously
+-- Safely ensure ALL columns exist even if table was created in an older schema version
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS full_name TEXT;
 ALTER TABLE public.members ADD COLUMN IF NOT EXISTS spiritual_name TEXT;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS phone TEXT;
 ALTER TABLE public.members ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS dob TEXT;
 ALTER TABLE public.members ADD COLUMN IF NOT EXISTS address TEXT;
 ALTER TABLE public.members ADD COLUMN IF NOT EXISTS blood_group TEXT;
 ALTER TABLE public.members ADD COLUMN IF NOT EXISTS department TEXT;
@@ -35,8 +38,14 @@ ALTER TABLE public.members ADD COLUMN IF NOT EXISTS service_type TEXT;
 ALTER TABLE public.members ADD COLUMN IF NOT EXISTS role_badge TEXT;
 ALTER TABLE public.members ADD COLUMN IF NOT EXISTS photo_url TEXT;
 ALTER TABLE public.members ADD COLUMN IF NOT EXISTS nectar_drops JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'MEMBER';
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS cycle_order INTEGER DEFAULT 0;
 ALTER TABLE public.members ADD COLUMN IF NOT EXISTS counselor_name TEXT;
 ALTER TABLE public.members ADD COLUMN IF NOT EXISTS scale_id INTEGER DEFAULT 2;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now());
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now());
 
 -- 3. Services Table (12 Seva Slots)
 CREATE TABLE IF NOT EXISTS public.services (
