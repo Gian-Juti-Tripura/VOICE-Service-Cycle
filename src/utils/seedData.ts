@@ -3,16 +3,16 @@ import { localDb } from './localDb';
 
 const INITIAL_MEMBERS = [
   { fullName: 'UTPOL P.', cycleOrder: 0 },
-  { fullName: 'CHAITANYA', cycleOrder: 1 },
+  { fullName: 'CHAITANYA P.', cycleOrder: 1 },
   { fullName: 'GIAN P.', cycleOrder: 2 },
-  { fullName: 'PRANTOR', cycleOrder: 3 },
+  { fullName: 'PRANTO P.', cycleOrder: 3 },
   { fullName: 'SANGA P.', cycleOrder: 4 },
   { fullName: 'DIPEN P.', cycleOrder: 5 },
   { fullName: 'ANKON P.', cycleOrder: 6 },
-  { fullName: 'ANTAR P.', cycleOrder: 7 },
+  { fullName: 'ANTOR P.', cycleOrder: 7 },
   { fullName: 'ROTON P.', cycleOrder: 8 },
-  { fullName: 'JOY\'S P.', cycleOrder: 9 },
-  { fullName: 'JOYKAN P.', cycleOrder: 10 },
+  { fullName: 'JOY S. P.', cycleOrder: 9 },
+  { fullName: 'JOYKANT P.', cycleOrder: 10 },
   { fullName: 'BAPPI C. P.', cycleOrder: 11 },
 ];
 
@@ -43,7 +43,7 @@ const INITIAL_SERVICES: Partial<ServiceDefinition>[] = [
   },
   {
     id: '4',
-    nameEn: 'Preparing veg at night for morning (+ 2nd Absent)',
+    nameEn: 'Preparing veg at night for morning+throwing away vegetables peels.(+ 2nd Absent)',
     nameBn: 'আগামী সকালের জন্য রাতে সবজি প্রস্তুত করা (+ সেবা ২ অনুপস্থিত)',
     descEn: 'Preparing vegetables at night for next morning (Fallback for Service 2)',
     descBn: 'আগামী সকালের জন্য রাতে সবজি প্রস্তুত করা (সেবা ২ এর অবর্তমানে)',
@@ -59,7 +59,7 @@ const INITIAL_SERVICES: Partial<ServiceDefinition>[] = [
   },
   {
     id: '6',
-    nameEn: 'Making veg at night for morning + Wash (+ 3rd Absent)',
+    nameEn: 'Making veg at night for morning + Washing vegetables (+ 3rd Absent)',
     nameBn: 'আগামী সকালের জন্য রাতে সবজি কাটা + ধোয়া (+ সেবা ৩ অনুপস্থিত)',
     descEn: 'Making vegetables at night for next morning + Washing veg (Fallback for Service 3)',
     descBn: 'আগামী সকালের জন্য রাতে সবজি কাটা + সবজি ধোয়া (সেবা ৩ এর অবর্তমানে)',
@@ -112,14 +112,6 @@ const INITIAL_SERVICES: Partial<ServiceDefinition>[] = [
     descEn: 'Cooking at night + Shayan + Nrisimha Arati Kirton',
     descBn: 'রাতে রান্না করা + শয়ন + নৃসিংহ আরতি কীর্তন',
     timing: 'Enter Before 7:00 PM'
-  },
-  {
-    id: '13',
-    nameEn: 'Prasad-hall Cleaning + Breakfast Service',
-    nameBn: 'প্রসাদ হল পরিষ্কার + প্রাতরাশ সেবা',
-    descEn: 'Prasad-hall Cleaning + Breakfast Service',
-    descBn: 'প্রসাদ হল পরিষ্কার + প্রাতরাশ সেবা',
-    timing: 'Before 7.30 AM'
   }
 ];
 
