@@ -10,20 +10,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS public.members (
     id TEXT PRIMARY KEY,
     full_name TEXT NOT NULL,
-    spiritual_name TEXT,
     phone TEXT,
-    email TEXT,
     dob TEXT,
-    address TEXT,
-    blood_group TEXT,
-    department TEXT,
-    institute TEXT,
-    guardian_number TEXT,
-    national_id TEXT,
-    service_type TEXT,
-    role_badge TEXT,
-    photo_url TEXT,
-    nectar_drops JSONB DEFAULT '[]'::jsonb,
     user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
     role TEXT NOT NULL DEFAULT 'MEMBER' CHECK (role IN ('MEMBER', 'INTERNAL_MANAGER', 'ADMIN')),
     is_active BOOLEAN NOT NULL DEFAULT true,
@@ -33,6 +21,22 @@ CREATE TABLE IF NOT EXISTS public.members (
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
+
+-- Safely add extended profile columns if table already existed previously
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS spiritual_name TEXT;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS blood_group TEXT;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS department TEXT;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS institute TEXT;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS guardian_number TEXT;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS national_id TEXT;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS service_type TEXT;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS role_badge TEXT;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS photo_url TEXT;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS nectar_drops JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS counselor_name TEXT;
+ALTER TABLE public.members ADD COLUMN IF NOT EXISTS scale_id INTEGER DEFAULT 2;
 
 -- 3. Services Table (12 Seva Slots)
 CREATE TABLE IF NOT EXISTS public.services (
@@ -265,63 +269,151 @@ ALTER TABLE public.course_enrollments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.camp_registrations ENABLE ROW LEVEL SECURITY;
 
 -- Read policies: Public read for ashram residents
+DROP POLICY IF EXISTS "Public read for members" ON public.members;
 CREATE POLICY "Public read for members" ON public.members FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read for services" ON public.services;
 CREATE POLICY "Public read for services" ON public.services FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read for overrides" ON public.assignment_overrides;
 CREATE POLICY "Public read for overrides" ON public.assignment_overrides FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read for announcements" ON public.announcements;
 CREATE POLICY "Public read for announcements" ON public.announcements FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read for department tasks" ON public.department_tasks;
 CREATE POLICY "Public read for department tasks" ON public.department_tasks FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read for meal overrides" ON public.meal_overrides;
 CREATE POLICY "Public read for meal overrides" ON public.meal_overrides FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read for bazar entries" ON public.bazar_entries;
 CREATE POLICY "Public read for bazar entries" ON public.bazar_entries FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read for meal payments" ON public.meal_payments;
 CREATE POLICY "Public read for meal payments" ON public.meal_payments FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read for balance adjustments" ON public.balance_adjustments;
 CREATE POLICY "Public read for balance adjustments" ON public.balance_adjustments FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read for discipline students" ON public.discipline_students;
 CREATE POLICY "Public read for discipline students" ON public.discipline_students FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read for discipline logs" ON public.daily_discipline_logs;
 CREATE POLICY "Public read for discipline logs" ON public.daily_discipline_logs FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read for course enrollments" ON public.course_enrollments;
 CREATE POLICY "Public read for course enrollments" ON public.course_enrollments FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read for camp registrations" ON public.camp_registrations;
 CREATE POLICY "Public read for camp registrations" ON public.camp_registrations FOR SELECT USING (true);
 
 -- Authenticated write policies: Members can update their own data
-CREATE POLICY "Users can manage own sadhana logs" ON public.sadhana_logs 
-    FOR ALL USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can manage own sadhana logs" ON public.sadhana_logs;
+CREATE POLICY "Users can manage own sadhana logs" ON public.sadhana_logs FOR ALL USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can manage own study notes" ON public.study_notes 
-    FOR ALL USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can manage own study notes" ON public.study_notes;
+CREATE POLICY "Users can manage own study notes" ON public.study_notes FOR ALL USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can manage own course enrollments" ON public.course_enrollments 
-    FOR ALL USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can manage own course enrollments" ON public.course_enrollments;
+CREATE POLICY "Users can manage own course enrollments" ON public.course_enrollments FOR ALL USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can manage own camp registrations" ON public.camp_registrations 
-    FOR ALL USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can manage own camp registrations" ON public.camp_registrations;
+CREATE POLICY "Users can manage own camp registrations" ON public.camp_registrations FOR ALL USING (auth.uid() = user_id);
 
 -- General authenticated/manager writes
+DROP POLICY IF EXISTS "Manage overrides" ON public.assignment_overrides;
 CREATE POLICY "Manage overrides" ON public.assignment_overrides FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Manage members" ON public.members;
 CREATE POLICY "Manage members" ON public.members FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Manage services" ON public.services;
 CREATE POLICY "Manage services" ON public.services FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Manage department tasks" ON public.department_tasks;
 CREATE POLICY "Manage department tasks" ON public.department_tasks FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Manage announcements" ON public.announcements;
 CREATE POLICY "Manage announcements" ON public.announcements FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Manage meal overrides" ON public.meal_overrides;
 CREATE POLICY "Manage meal overrides" ON public.meal_overrides FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Manage bazar entries" ON public.bazar_entries;
 CREATE POLICY "Manage bazar entries" ON public.bazar_entries FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Manage meal payments" ON public.meal_payments;
 CREATE POLICY "Manage meal payments" ON public.meal_payments FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Manage balance adjustments" ON public.balance_adjustments;
 CREATE POLICY "Manage balance adjustments" ON public.balance_adjustments FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Manage discipline students" ON public.discipline_students;
 CREATE POLICY "Manage discipline students" ON public.discipline_students FOR ALL USING (true);
+
+DROP POLICY IF EXISTS "Manage discipline logs" ON public.daily_discipline_logs;
 CREATE POLICY "Manage discipline logs" ON public.daily_discipline_logs FOR ALL USING (true);
 
 -- ==============================================================================
 -- REALTIME REPLICATION (Instant WebSocket Push to Devotee Phones)
 -- ==============================================================================
 
-ALTER PUBLICATION supabase_realtime ADD TABLE public.members;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.services;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.assignment_overrides;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.announcements;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.department_tasks;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.meal_overrides;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.bazar_entries;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.meal_payments;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.balance_adjustments;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.discipline_students;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.daily_discipline_logs;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.course_enrollments;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.camp_registrations;
+DO $$
+BEGIN
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.members;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.services;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.assignment_overrides;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.announcements;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.department_tasks;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.meal_overrides;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.bazar_entries;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.meal_payments;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.balance_adjustments;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.discipline_students;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.daily_discipline_logs;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.course_enrollments;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.camp_registrations;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+END $$;
 
 -- ==============================================================================
 -- INITIAL SEED DATA (Advaita VOICE Chittagong University)
@@ -347,7 +439,8 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.announcements (title_en, title_bn, desc_en, desc_bn, type, is_pinned) VALUES
 ('🌸 Daily Seva Roster Published', '🌸 আজকের সেবাক্রম প্রকাশিত হয়েছে', 'Please check your seva duty and timing for today in the Service Cycle.', 'সার্ভিস সাইকেলে আজকের সেবা ও সময়সূচি দেখে নিন।', 'SEVA', true),
 ('📅 Upcoming Ekadashi Fasting', '📅 আসন্ন একাদশী ব্রত ও পারণ', 'Annada Ekadashi is approaching. Fasting from grains & beans. Parana timings inside.', 'আসন্ন অন্নদা একাদশী ব্রত। শস্য বর্জন ও পারণ সময়সূচি জেনে নিন।', 'EKADASHI', false),
-('📖 Study Care Notice (Gian Juti Tripura)', '📖 স্টাডি কেয়ার বিজ্ঞপ্তি (জ্ঞান জ্যোতি ত্রিপুরা)', 'Semester exam revision circle meeting this Saturday at 8:00 PM.', 'সেমিস্টার পরীক্ষার রিভিশন সার্কেল মিটিং আগামী শনিবার রাত ৮:০০ টায়।', 'STUDY', true);
+('📖 Study Care Notice (Gian Juti Tripura)', '📖 স্টাডি কেয়ার বিজ্ঞপ্তি (জ্ঞান জ্যোতি ত্রিপুরা)', 'Semester exam revision circle meeting this Saturday at 8:00 PM.', 'সেমিস্টার পরীক্ষার রিভিশন সার্কেল মিটিং আগামী শনিবার রাত ৮:০০ টায়।', 'STUDY', true)
+ON CONFLICT (id) DO NOTHING;
 
 -- Initial Study Care Tasks
 INSERT INTO public.department_tasks (department_id, title, incharge_name, is_done) VALUES
@@ -372,7 +465,22 @@ INSERT INTO public.members (id, full_name, spiritual_name, phone, email, dob, ad
 ('dev_pranto', 'Pranto Das', 'Pranto Krishna Das', '01609302008', 'pranto.cse.cu@gmail.com', '2003-02-14', 'Gazipur', 'AB+', 'CSE', 'University of Chittagong', '01609000000', '2003159876777', 'IYF', 'Technical Support', 10, 'MEMBER'),
 ('dev_joykanto', 'Joykanto Sen', 'Joykanto Das', '01754034183', 'joykanto.sanskrit.cu@gmail.com', '2002-06-18', 'Thakurgaon', 'B+', 'Sanskrit', 'University of Chittagong', '01754000000', '2002159876888', 'IYF', 'Temple Cleanliness Seva', 11, 'MEMBER'),
 ('dev_bappi', 'Bappi Chandra Sarkar', 'Bappi Das', '01331982443', 'bappi.sanskrit.cu@gmail.com', '2003-11-02', 'Panchagarh', 'A+', 'Sanskrit', 'University of Chittagong', '01331000000', '2003159876999', 'IYF', 'Youth Member', 12, 'MEMBER')
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+    full_name = EXCLUDED.full_name,
+    spiritual_name = EXCLUDED.spiritual_name,
+    phone = EXCLUDED.phone,
+    email = EXCLUDED.email,
+    dob = EXCLUDED.dob,
+    address = EXCLUDED.address,
+    blood_group = EXCLUDED.blood_group,
+    department = EXCLUDED.department,
+    institute = EXCLUDED.institute,
+    guardian_number = EXCLUDED.guardian_number,
+    national_id = EXCLUDED.national_id,
+    service_type = EXCLUDED.service_type,
+    role_badge = EXCLUDED.role_badge,
+    cycle_order = EXCLUDED.cycle_order,
+    role = EXCLUDED.role;
 
 -- Initial Discipline Students (VOICE & Lotus Groups)
 INSERT INTO public.discipline_students (id, name, group_type, phone, cycle_order, monthly_strikes, status) VALUES
@@ -388,4 +496,9 @@ INSERT INTO public.discipline_students (id, name, group_type, phone, cycle_order
 ('member_9', 'JOY S. P.', 'VOICE', '+880 1734-550288', 10, 0, 'ACTIVE'),
 ('member_10', 'JOYKANT P.', 'VOICE', '+880 1754-034183', 11, 0, 'ACTIVE'),
 ('member_11', 'BAPPI C. P.', 'VOICE', '', 12, 0, 'ACTIVE')
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    group_type = EXCLUDED.group_type,
+    phone = EXCLUDED.phone,
+    cycle_order = EXCLUDED.cycle_order,
+    status = EXCLUDED.status;
