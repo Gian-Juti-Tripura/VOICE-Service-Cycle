@@ -52,18 +52,18 @@ export interface AnnouncementRecord {
 }
 
 export const CANONICAL_MEMBERS_LIST: Member[] = [
-  { id: 'member_0', fullName: 'UTPOL P.', cycleOrder: 0, isActive: true, phone: '01790839891', dob: '2001-09-18' },
-  { id: 'member_1', fullName: 'CHAITANYA P.', cycleOrder: 1, isActive: true, phone: '01331982443', dob: '2003-11-02' },
-  { id: 'member_2', fullName: 'GIAN P.', cycleOrder: 2, isActive: true, phone: '01571328549', dob: '2002-11-25' },
-  { id: 'member_3', fullName: 'PRANTO P.', cycleOrder: 3, isActive: true, phone: '01609302008', dob: '2003-02-14' },
-  { id: 'member_4', fullName: 'SANGA P.', cycleOrder: 4, isActive: true, phone: '01722711849', dob: '2001-12-05' },
-  { id: 'member_5', fullName: 'DIPEN P.', cycleOrder: 5, isActive: true, phone: '01320903062', dob: '2002-07-08' },
-  { id: 'member_6', fullName: 'ANKON P.', cycleOrder: 6, isActive: true, phone: '01933503979', dob: '2002-01-20' },
-  { id: 'member_7', fullName: 'ANTOR P.', cycleOrder: 7, isActive: true, phone: '01704370139', dob: '2003-04-15' },
-  { id: 'member_8', fullName: 'ROTON P.', cycleOrder: 8, isActive: true, phone: '01750504601', dob: '2002-10-10' },
-  { id: 'member_9', fullName: 'JOY S. P.', cycleOrder: 9, isActive: true, phone: '01734550288', dob: '2002-08-28' },
-  { id: 'member_10', fullName: 'JOYKANT P.', cycleOrder: 10, isActive: true, phone: '01754034183', dob: '2002-06-18' },
-  { id: 'member_11', fullName: 'BAPPI C. P.', cycleOrder: 11, isActive: true, phone: '01331982443', dob: '2003-11-02' }
+  { id: 'member_0', fullName: 'UTPOL P.', cycleOrder: 0, isActive: true, phone: '01790839891', dob: '2001-09-18', createdAt: '2026-08-01T00:00:00Z', updatedAt: '2026-08-01T00:00:00Z' },
+  { id: 'member_1', fullName: 'CHAITANYA P.', cycleOrder: 1, isActive: true, phone: '01331982443', dob: '2003-11-02', createdAt: '2026-08-01T00:00:00Z', updatedAt: '2026-08-01T00:00:00Z' },
+  { id: 'member_2', fullName: 'GIAN P.', cycleOrder: 2, isActive: true, phone: '01571328549', dob: '2002-11-25', createdAt: '2026-08-01T00:00:00Z', updatedAt: '2026-08-01T00:00:00Z' },
+  { id: 'member_3', fullName: 'PRANTO P.', cycleOrder: 3, isActive: true, phone: '01609302008', dob: '2003-02-14', createdAt: '2026-08-01T00:00:00Z', updatedAt: '2026-08-01T00:00:00Z' },
+  { id: 'member_4', fullName: 'SANGA P.', cycleOrder: 4, isActive: true, phone: '01722711849', dob: '2001-12-05', createdAt: '2026-08-01T00:00:00Z', updatedAt: '2026-08-01T00:00:00Z' },
+  { id: 'member_5', fullName: 'DIPEN P.', cycleOrder: 5, isActive: true, phone: '01320903062', dob: '2002-07-08', createdAt: '2026-08-01T00:00:00Z', updatedAt: '2026-08-01T00:00:00Z' },
+  { id: 'member_6', fullName: 'ANKON P.', cycleOrder: 6, isActive: true, phone: '01933503979', dob: '2002-01-20', createdAt: '2026-08-01T00:00:00Z', updatedAt: '2026-08-01T00:00:00Z' },
+  { id: 'member_7', fullName: 'ANTOR P.', cycleOrder: 7, isActive: true, phone: '01704370139', dob: '2003-04-15', createdAt: '2026-08-01T00:00:00Z', updatedAt: '2026-08-01T00:00:00Z' },
+  { id: 'member_8', fullName: 'ROTON P.', cycleOrder: 8, isActive: true, phone: '01750504601', dob: '2002-10-10', createdAt: '2026-08-01T00:00:00Z', updatedAt: '2026-08-01T00:00:00Z' },
+  { id: 'member_9', fullName: 'JOY S. P.', cycleOrder: 9, isActive: true, phone: '01734550288', dob: '2002-08-28', createdAt: '2026-08-01T00:00:00Z', updatedAt: '2026-08-01T00:00:00Z' },
+  { id: 'member_10', fullName: 'JOYKANT P.', cycleOrder: 10, isActive: true, phone: '01754034183', dob: '2002-06-18', createdAt: '2026-08-01T00:00:00Z', updatedAt: '2026-08-01T00:00:00Z' },
+  { id: 'member_11', fullName: 'BAPPI C. P.', cycleOrder: 11, isActive: true, phone: '01331982443', dob: '2003-11-02', createdAt: '2026-08-01T00:00:00Z', updatedAt: '2026-08-01T00:00:00Z' }
 ];
 
 export const CANONICAL_SERVICES_LIST: ServiceDefinition[] = [
