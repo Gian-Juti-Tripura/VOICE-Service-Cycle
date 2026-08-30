@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS public.department_tasks (
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
 
--- 8. Announcements & Notifications (Top Navbar Feed)
+-- -- 8. Announcements & Notifications (Top Navbar Feed)
 CREATE TABLE IF NOT EXISTS public.announcements (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title_en TEXT NOT NULL,
@@ -117,6 +117,63 @@ CREATE TABLE IF NOT EXISTS public.announcements (
     desc_bn TEXT NOT NULL,
     type TEXT NOT NULL DEFAULT 'ANNOUNCEMENT' CHECK (type IN ('SEVA', 'EKADASHI', 'STUDY', 'ANNOUNCEMENT')),
     is_pinned BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+);
+
+-- 9. Daily Meal Attendance & Guest Overrides
+CREATE TABLE IF NOT EXISTS public.meal_overrides (
+    id TEXT PRIMARY KEY,
+    member_id TEXT NOT NULL REFERENCES public.members(id) ON DELETE CASCADE,
+    date_str DATE NOT NULL,
+    breakfast BOOLEAN NOT NULL DEFAULT true,
+    lunch BOOLEAN NOT NULL DEFAULT true,
+    dinner BOOLEAN NOT NULL DEFAULT true,
+    is_guest BOOLEAN NOT NULL DEFAULT false,
+    guest_count INTEGER NOT NULL DEFAULT 0,
+    is_ekadashi_fasting BOOLEAN NOT NULL DEFAULT false,
+    notes TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+    UNIQUE(member_id, date_str)
+);
+
+-- 10. Daily & Monthly Bazar Expenses
+CREATE TABLE IF NOT EXISTS public.bazar_entries (
+    id TEXT PRIMARY KEY,
+    date_str DATE NOT NULL,
+    month_str TEXT NOT NULL, -- YYYY-MM
+    buyer_name TEXT NOT NULL,
+    buyer_member_id TEXT REFERENCES public.members(id) ON DELETE SET NULL,
+    category TEXT NOT NULL CHECK (category IN ('VEGETABLES', 'GRAINS_DAL', 'DAIRY_GHEE', 'SPICES_OIL', 'GAS_FUEL', 'CLEANING', 'FEAST_SPECIAL', 'OTHER')),
+    items_detail TEXT NOT NULL,
+    amount NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+    receipt_image_url TEXT,
+    notes TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+);
+
+-- 11. Devotee Meal Deposits & Payments
+CREATE TABLE IF NOT EXISTS public.meal_payments (
+    id TEXT PRIMARY KEY,
+    member_id TEXT NOT NULL REFERENCES public.members(id) ON DELETE CASCADE,
+    amount NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+    date_str DATE NOT NULL,
+    month_str TEXT NOT NULL, -- YYYY-MM
+    payment_method TEXT NOT NULL DEFAULT 'CASH' CHECK (payment_method IN ('CASH', 'BKASH', 'NAGAD', 'BANK', 'OTHER')),
+    trx_id TEXT,
+    note TEXT,
+    received_by TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+);
+
+-- 12. Devotee Balance Adjustments (Surplus/Due carry-forwards)
+CREATE TABLE IF NOT EXISTS public.balance_adjustments (
+    id TEXT PRIMARY KEY,
+    member_id TEXT NOT NULL REFERENCES public.members(id) ON DELETE CASCADE,
+    amount NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+    adjustment_type TEXT NOT NULL CHECK (adjustment_type IN ('CREDIT', 'DEBIT')),
+    date_str DATE NOT NULL,
+    month_str TEXT NOT NULL,
+    note TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
 
@@ -131,13 +188,21 @@ ALTER TABLE public.sadhana_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.study_notes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.department_tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.meal_overrides ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.bazar_entries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.meal_payments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.balance_adjustments ENABLE ROW LEVEL SECURITY;
 
--- Read policies: Public read for general directories
+-- Read policies: Public read for ashram residents
 CREATE POLICY "Public read for members" ON public.members FOR SELECT USING (true);
 CREATE POLICY "Public read for services" ON public.services FOR SELECT USING (true);
 CREATE POLICY "Public read for overrides" ON public.assignment_overrides FOR SELECT USING (true);
 CREATE POLICY "Public read for announcements" ON public.announcements FOR SELECT USING (true);
 CREATE POLICY "Public read for department tasks" ON public.department_tasks FOR SELECT USING (true);
+CREATE POLICY "Public read for meal overrides" ON public.meal_overrides FOR SELECT USING (true);
+CREATE POLICY "Public read for bazar entries" ON public.bazar_entries FOR SELECT USING (true);
+CREATE POLICY "Public read for meal payments" ON public.meal_payments FOR SELECT USING (true);
+CREATE POLICY "Public read for balance adjustments" ON public.balance_adjustments FOR SELECT USING (true);
 
 -- Authenticated write policies: Members can update their own data
 CREATE POLICY "Users can manage own sadhana logs" ON public.sadhana_logs 
@@ -146,21 +211,16 @@ CREATE POLICY "Users can manage own sadhana logs" ON public.sadhana_logs
 CREATE POLICY "Users can manage own study notes" ON public.study_notes 
     FOR ALL USING (auth.uid() = user_id);
 
--- Managers & Admins can write anywhere
-CREATE POLICY "Managers can manage overrides" ON public.assignment_overrides 
-    FOR ALL USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Managers can manage members" ON public.members 
-    FOR ALL USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Managers can manage services" ON public.services 
-    FOR ALL USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Managers can manage department tasks" ON public.department_tasks 
-    FOR ALL USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Managers can manage announcements" ON public.announcements 
-    FOR ALL USING (auth.role() = 'authenticated');
+-- General authenticated/manager writes
+CREATE POLICY "Manage overrides" ON public.assignment_overrides FOR ALL USING (true);
+CREATE POLICY "Manage members" ON public.members FOR ALL USING (true);
+CREATE POLICY "Manage services" ON public.services FOR ALL USING (true);
+CREATE POLICY "Manage department tasks" ON public.department_tasks FOR ALL USING (true);
+CREATE POLICY "Manage announcements" ON public.announcements FOR ALL USING (true);
+CREATE POLICY "Manage meal overrides" ON public.meal_overrides FOR ALL USING (true);
+CREATE POLICY "Manage bazar entries" ON public.bazar_entries FOR ALL USING (true);
+CREATE POLICY "Manage meal payments" ON public.meal_payments FOR ALL USING (true);
+CREATE POLICY "Manage balance adjustments" ON public.balance_adjustments FOR ALL USING (true);
 
 -- ==============================================================================
 -- REALTIME REPLICATION (Instant WebSocket Push to Devotee Phones)
@@ -171,6 +231,10 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.services;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.assignment_overrides;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.announcements;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.department_tasks;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.meal_overrides;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.bazar_entries;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.meal_payments;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.balance_adjustments;
 
 -- ==============================================================================
 -- INITIAL SEED DATA (Advaita VOICE Chittagong University)
