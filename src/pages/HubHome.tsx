@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { GlobalSearchBar } from '../components/hub/GlobalSearchBar';
+import { VisitorWelcomeModal } from '../components/hub/VisitorWelcomeModal';
 import { Footer } from '../components/layout/Footer';
 import { VOICE_HANDBOOK_DATA } from '../data/voiceHandbookData';
 import { triggerHaptic } from '../utils/haptics';
@@ -56,6 +57,9 @@ export const HubHome: React.FC = () => {
   return (
     <div className="min-h-screen bg-transparent text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300 pb-28 sm:pb-16">
       
+      {/* First-time Visitor Welcome Modal */}
+      <VisitorWelcomeModal />
+
       {/* ================= DISTINCT STYLISH ITALIC BANNER: DARE TO BE RARE & GLOBAL SEARCH BAR ================= */}
       <div className="w-full bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-b border-indigo-500/30 py-4 px-4 sm:px-6 lg:px-8 shadow-lg transition-colors duration-300">
         <div className="max-w-4xl lg:max-w-5xl mx-auto space-y-3.5">

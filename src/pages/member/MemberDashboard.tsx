@@ -21,7 +21,6 @@ const MemberDashboard: React.FC = () => {
   const [selectedMemberId, setSelectedMemberId] = useState('');
   const [phonePin, setPhonePin] = useState('');
   const [linking, setLinking] = useState(false);
-  const [isGuest, setIsGuest] = useState(false);
   
   const [todayAssignments, setTodayAssignments] = useState<DailyAssignment[]>([]);
   const [tomorrowAssignments, setTomorrowAssignments] = useState<DailyAssignment[]>([]);
@@ -283,121 +282,195 @@ const MemberDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Profile Claim Section (If unlinked) */}
-        {!myMember && !loading && !isGuest && (
-          <div className="rounded-[28px] p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md border-l-4 border-l-amber-500 space-y-4">
-            <div>
-              <h2 className="text-lg font-black text-slate-900 dark:text-white">
-                {language === 'bn' ? 'আপনার প্রোফাইল লিংক করুন' : 'Claim Your Profile'}
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {language === 'bn' 
-                  ? 'আপনার অ্যাকাউন্টের সাথে সেবা প্রোফাইল যুক্ত করতে নিচে আপনার নাম নির্বাচন করুন।'
-                  : "Your account hasn't been linked to a member profile yet. Select your name below to link your account."}
-              </p>
-            </div>
+        {/* Profile Claim Section (If unlinked resident student) */}
+        {!myMember && !loading && (
+          <div className="space-y-6">
             
-            <div className="max-w-md space-y-3">
-              <select 
-                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500"
-                value={selectedMemberId}
-                onChange={(e) => setSelectedMemberId(e.target.value)}
-                disabled={linking}
-              >
-                <option value="">{language === 'bn' ? '-- আপনার নাম বেছে নিন --' : '-- Select your name --'}</option>
-                {unlinkedMembers.sort((a, b) => a.cycleOrder - b.cycleOrder).map(m => (
-                  <option key={m.id} value={m.id}>{m.fullName}</option>
-                ))}
-              </select>
-              
-              {selectedMemberId && (
-                <div className="space-y-2 pt-1 animate-fade-in">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                    {language === 'bn' ? 'ফোন নম্বর দিয়ে পরিচয় নিশ্চিত করুন' : 'Verify Identity (Phone PIN)'}
-                  </label>
-                  <div className="flex gap-2">
-                    <input 
-                      type="password" 
-                      placeholder="Enter registered phone number"
-                      className="flex-1 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs text-slate-900 dark:text-white"
-                      value={phonePin}
-                      onChange={(e) => setPhonePin(e.target.value)}
-                    />
-                    <button
-                      onClick={handleLinkAccount}
-                      disabled={linking || !phonePin}
-                      className="px-4 py-2 rounded-xl bg-amber-500 text-slate-950 font-black text-xs hover:bg-amber-400 disabled:opacity-50 cursor-pointer"
-                    >
-                      {linking ? 'Linking...' : 'Confirm'}
-                    </button>
+            {/* Guest / External Student Welcome Banner */}
+            <div className="rounded-[28px] p-6 sm:p-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 font-bold text-lg">
+                    {user?.email?.charAt(0).toUpperCase() || 'G'}
+                  </div>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                      {user?.user_metadata?.full_name || user?.email?.split('@')[0] || (language === 'bn' ? 'সম্মানিত অতিথি ভক্ত' : 'Guest Devotee')}
+                    </h2>
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
+                      <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                      {language === 'bn' ? 'আইওয়াইএফ যুব শিক্ষার্থী / অতিথি' : 'IYF Youth Student / Guest'}
+                    </span>
                   </div>
                 </div>
-              )}
 
-              <button 
-                onClick={() => setIsGuest(true)}
-                className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 underline cursor-pointer"
-              >
-                {language === 'bn' ? 'আমি অতিথি হিসেবে দেখতে চাই' : "I'm visiting as a guest"}
-              </button>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 font-mono text-slate-600 dark:text-slate-400 font-bold">
+                    {user?.email}
+                  </span>
+                </div>
+              </div>
+
+              {/* Guest Quick Resource Cards */}
+              <div className="grid sm:grid-cols-3 gap-3 pt-2">
+                <Link
+                  to="/camps"
+                  className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70 hover:border-amber-500/50 hover:bg-amber-50/50 dark:hover:bg-amber-950/20 transition-all group space-y-1"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400">
+                      {language === 'bn' ? 'ইউথ ক্যাম্প ও রিট্রিট' : 'Youth Retreats'}
+                    </span>
+                    <span className="text-xs text-amber-500">→</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">
+                    {language === 'bn' ? 'আসন্ন ক্যাম্পের শিডিউল ও অনলাইন বুকিং' : 'View upcoming camps & registrations'}
+                  </p>
+                </Link>
+
+                <Link
+                  to="/courses"
+                  className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70 hover:border-orange-500/50 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 transition-all group space-y-1"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400">
+                      {language === 'bn' ? 'গীতা ও ডিওয়াইএস কোর্স' : 'Gita & DYS Courses'}
+                    </span>
+                    <span className="text-xs text-orange-500">→</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">
+                    {language === 'bn' ? 'কোর্স কারিকুলাম ও সার্টিফিকেট' : 'Spiritual courses & certification'}
+                  </p>
+                </Link>
+
+                <Link
+                  to="/sadhana"
+                  className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/70 hover:border-emerald-500/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 transition-all group space-y-1"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                      {language === 'bn' ? 'দৈনিক সাধনা ট্র্যাকার' : 'Daily Sadhana'}
+                    </span>
+                    <span className="text-xs text-emerald-500">→</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">
+                    {language === 'bn' ? 'জপ, শাস্ত্রপাঠ ও শ্রবণ হিসেব রাখুন' : 'Log daily japa & reading progress'}
+                  </p>
+                </Link>
+              </div>
+
+              {/* Collapsible Resident Student Link Card */}
+              <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <details className="group cursor-pointer">
+                  <summary className="text-xs font-bold text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 flex items-center justify-between select-none">
+                    <span>
+                      {language === 'bn' 
+                        ? '🏠 আপনি কি ভয়েস আশ্রমের ১২ জন আবাসিক শিক্ষার্থীর একজন? সেবা একাউন্ট লিংক করুন' 
+                        : '🏠 Are you one of the 12 resident ashram students? Link your seva profile'}
+                    </span>
+                    <span className="group-open:rotate-180 transition-transform">▼</span>
+                  </summary>
+
+                  <div className="pt-3 max-w-md space-y-3">
+                    <select 
+                      className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500"
+                      value={selectedMemberId}
+                      onChange={(e) => setSelectedMemberId(e.target.value)}
+                      disabled={linking}
+                    >
+                      <option value="">{language === 'bn' ? '-- আপনার নাম বেছে নিন --' : '-- Select your resident name --'}</option>
+                      {unlinkedMembers.sort((a, b) => a.cycleOrder - b.cycleOrder).map(m => (
+                        <option key={m.id} value={m.id}>{m.fullName}</option>
+                      ))}
+                    </select>
+                    
+                    {selectedMemberId && (
+                      <div className="space-y-2 pt-1 animate-fade-in">
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                          {language === 'bn' ? 'ফোন নম্বর দিয়ে পরিচয় নিশ্চিত করুন' : 'Verify Identity (Phone PIN)'}
+                        </label>
+                        <div className="flex gap-2">
+                          <input 
+                            type="password" 
+                            placeholder="Enter registered phone number"
+                            className="flex-1 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs text-slate-900 dark:text-white"
+                            value={phonePin}
+                            onChange={(e) => setPhonePin(e.target.value)}
+                          />
+                          <button
+                            onClick={handleLinkAccount}
+                            disabled={linking || !phonePin}
+                            className="px-4 py-2 rounded-xl bg-amber-500 text-slate-950 font-black text-xs hover:bg-amber-400 disabled:opacity-50 cursor-pointer"
+                          >
+                            {linking ? 'Linking...' : 'Confirm'}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </details>
+              </div>
+
             </div>
           </div>
         )}
 
-        {/* Daily Service Cards Grid (Unified Harmonized Theme) */}
-        <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
-          
-          {/* Today's Service Card */}
-          <div className="rounded-[28px] p-6 sm:p-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                <ShieldCheck size={18} className="text-amber-500" />
-                <span>{t('member.todayService')}</span>
-              </h2>
-              <span className="text-[11px] font-bold text-slate-400 font-mono">
-                {todayDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-              </span>
-            </div>
+        {/* Daily Service Cards Grid (For Linked Resident Members) */}
+        {myMember && (
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
             
-            {loading ? (
-              <p className="text-slate-400 text-xs text-center py-8">Loading...</p>
-            ) : todayAssignments.length === 0 ? (
-              <div className="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-8 text-center border-2 border-dashed border-slate-200 dark:border-slate-800">
-                <p className="text-slate-500 dark:text-slate-400 text-xs font-bold">
-                  {language === 'bn' ? 'আজ আপনার কোনো নির্ধারিত সেবা নেই।' : 'No services assigned for today.'}
-                </p>
+            {/* Today's Service Card */}
+            <div className="rounded-[28px] p-6 sm:p-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                  <ShieldCheck size={18} className="text-amber-500" />
+                  <span>{t('member.todayService')}</span>
+                </h2>
+                <span className="text-[11px] font-bold text-slate-400 font-mono">
+                  {todayDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                </span>
               </div>
-            ) : (
-              <div>{todayAssignments.map(renderAssignmentCard)}</div>
-            )}
-          </div>
-
-          {/* Tomorrow's Service Card */}
-          <div className="rounded-[28px] p-6 sm:p-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                <Calendar size={18} className="text-amber-500" />
-                <span>{t('member.tomorrowService')}</span>
-              </h2>
-              <span className="text-[11px] font-bold text-slate-400 font-mono">
-                {tomorrowDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-              </span>
+              
+              {loading ? (
+                <p className="text-slate-400 text-xs text-center py-8">Loading...</p>
+              ) : todayAssignments.length === 0 ? (
+                <div className="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-8 text-center border-2 border-dashed border-slate-200 dark:border-slate-800">
+                  <p className="text-slate-500 dark:text-slate-400 text-xs font-bold">
+                    {language === 'bn' ? 'আজ আপনার কোনো নির্ধারিত সেবা নেই।' : 'No services assigned for today.'}
+                  </p>
+                </div>
+              ) : (
+                <div>{todayAssignments.map(renderAssignmentCard)}</div>
+              )}
             </div>
-            
-            {loading ? (
-              <p className="text-slate-400 text-xs text-center py-8">Loading...</p>
-            ) : tomorrowAssignments.length === 0 ? (
-              <div className="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-8 text-center border-2 border-dashed border-slate-200 dark:border-slate-800">
-                <p className="text-slate-500 dark:text-slate-400 text-xs font-bold">
-                  {language === 'bn' ? 'আগামীকাল আপনার কোনো নির্ধারিত সেবা নেই।' : 'No services assigned for tomorrow.'}
-                </p>
-              </div>
-            ) : (
-              <div>{tomorrowAssignments.map(renderAssignmentCard)}</div>
-            )}
-          </div>
 
-        </div>
+            {/* Tomorrow's Service Card */}
+            <div className="rounded-[28px] p-6 sm:p-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+                  <Calendar size={18} className="text-amber-500" />
+                  <span>{t('member.tomorrowService')}</span>
+                </h2>
+                <span className="text-[11px] font-bold text-slate-400 font-mono">
+                  {tomorrowDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                </span>
+              </div>
+              
+              {loading ? (
+                <p className="text-slate-400 text-xs text-center py-8">Loading...</p>
+              ) : tomorrowAssignments.length === 0 ? (
+                <div className="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-8 text-center border-2 border-dashed border-slate-200 dark:border-slate-800">
+                  <p className="text-slate-500 dark:text-slate-400 text-xs font-bold">
+                    {language === 'bn' ? 'আগামীকাল আপনার কোনো নির্ধারিত সেবা নেই।' : 'No services assigned for tomorrow.'}
+                  </p>
+                </div>
+              ) : (
+                <div>{tomorrowAssignments.map(renderAssignmentCard)}</div>
+              )}
+            </div>
+
+          </div>
+        )}
 
       </div>
     </div>
@@ -405,3 +478,4 @@ const MemberDashboard: React.FC = () => {
 };
 
 export default MemberDashboard;
+
