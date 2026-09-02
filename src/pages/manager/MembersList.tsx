@@ -3,10 +3,10 @@ import { localDb } from '../../utils/localDb';
 import type { Member } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
-import { UserPlus, Edit, CheckCircle, XCircle, Copy, Check, Printer } from 'lucide-react';
+import { UserPlus, Edit, CheckCircle, XCircle, Copy, Check, Printer, Download, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ServiceCycleHeader } from '../../components/layout/ServiceCycleHeader';
-import { ExportPdfButton } from '../../components/meals/ExportPdfButton';
+import { exportTableToPdf } from '../../lib/exportTablePdf';
 import { triggerHaptic } from '../../utils/haptics';
 import toast from 'react-hot-toast';
 
@@ -15,6 +15,7 @@ export default function MembersList() {
   const { role } = useAuth();
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
+  const [exportingPdf, setExportingPdf] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copiedList, setCopiedList] = useState(false);
 
@@ -35,6 +36,24 @@ export default function MembersList() {
     }
     fetchMembers();
   }, []);
+
+  const handleExportPdf = async () => {
+    try {
+      setExportingPdf(true);
+      toast.loading('Generating PDF...', { id: 'pdf-gen' });
+      await exportTableToPdf({
+        elementId: 'devotees-list-table-section',
+        filename: 'Advaita-VOICE-Devotees-Roster.pdf',
+        title: 'Advaita VOICE — 12 Active Resident Devotees Roster',
+        subtitle: 'University of Chittagong • Ashram Seva Rotation Chart'
+      });
+      toast.success('PDF downloaded successfully!', { id: 'pdf-gen' });
+    } catch (err) {
+      toast.error('Failed to export PDF', { id: 'pdf-gen' });
+    } finally {
+      setExportingPdf(false);
+    }
+  };
 
   const handleCopyWhatsAppList = async () => {
     triggerHaptic('selection');
@@ -74,15 +93,15 @@ export default function MembersList() {
 
         <div className="flex items-center gap-2 flex-wrap justify-end">
           {/* Export PDF Button */}
-          <ExportPdfButton
-            elementId="devotees-list-table-section"
-            meta={{
-              title: 'Advaita VOICE — 12 Active Resident Devotees Roster',
-              subtitle: 'University of Chittagong • Ashram Seva Rotation Chart',
-              generatedAt: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
-            }}
-            label={language === 'bn' ? 'পিডিএফ এক্সপোর্ট' : 'Export PDF'}
-          />
+          <button
+            onClick={handleExportPdf}
+            disabled={exportingPdf}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black text-xs shadow-xs transition-all cursor-pointer disabled:opacity-50"
+            title="Download Devotees List as PDF"
+          >
+            {exportingPdf ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+            <span>{exportingPdf ? 'Exporting...' : (language === 'bn' ? 'পিডিএফ এক্সপোর্ট' : 'Export PDF')}</span>
+          </button>
 
           {/* Copy WhatsApp List */}
           <button

@@ -3,10 +3,10 @@ import { localDb } from '../../utils/localDb';
 import type { ServiceDefinition } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
-import { Edit, PlusCircle, CheckCircle, XCircle, Clock, Copy, Check, Printer } from 'lucide-react';
+import { Edit, PlusCircle, CheckCircle, XCircle, Clock, Copy, Check, Printer, Download, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ServiceCycleHeader } from '../../components/layout/ServiceCycleHeader';
-import { ExportPdfButton } from '../../components/meals/ExportPdfButton';
+import { exportTableToPdf } from '../../lib/exportTablePdf';
 import { triggerHaptic } from '../../utils/haptics';
 import toast from 'react-hot-toast';
 
@@ -15,6 +15,7 @@ export default function ServicesList() {
   const { role } = useAuth();
   const [services, setServices] = useState<ServiceDefinition[]>([]);
   const [loading, setLoading] = useState(true);
+  const [exportingPdf, setExportingPdf] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copiedList, setCopiedList] = useState(false);
 
@@ -36,6 +37,24 @@ export default function ServicesList() {
     fetchServices();
   }, []);
 
+  const handleExportPdf = async () => {
+    try {
+      setExportingPdf(true);
+      toast.loading('Generating PDF...', { id: 'pdf-gen' });
+      await exportTableToPdf({
+        elementId: 'services-list-table-section',
+        filename: 'Advaita-VOICE-Services-List.pdf',
+        title: 'Advaita VOICE — 12 Daily Seva Definitions & Slots',
+        subtitle: 'University of Chittagong • Ashram Seva Chart'
+      });
+      toast.success('PDF downloaded successfully!', { id: 'pdf-gen' });
+    } catch (err) {
+      toast.error('Failed to export PDF', { id: 'pdf-gen' });
+    } finally {
+      setExportingPdf(false);
+    }
+  };
+
   const handleCopyWhatsAppServices = async () => {
     triggerHaptic('selection');
     let text = `🌟 *ADVAITA VOICE — 12 DAILY SEVA DEFINITIONS & SLOTS* 🌟\n`;
@@ -43,7 +62,7 @@ export default function ServicesList() {
     services.forEach((s) => {
       text += `🟢 *Slot ${s.id}:* ${s.nameEn} / ${s.nameBn}\n`;
       text += `   ⏰ Timing: ${s.timing}\n`;
-      if (s.descriptionEn) text += `   📋 Description: ${s.descriptionEn}\n`;
+      if (s.descEn) text += `   📋 Description: ${s.descEn}\n`;
       text += `\n`;
     });
     text += `🙏 *Advaita VOICE Seva Management*`;
@@ -75,15 +94,15 @@ export default function ServicesList() {
 
         <div className="flex items-center gap-2 flex-wrap justify-end">
           {/* Export PDF Button */}
-          <ExportPdfButton
-            elementId="services-list-table-section"
-            meta={{
-              title: 'Advaita VOICE — 12 Daily Seva Definitions & Slots',
-              subtitle: 'University of Chittagong • Ashram Seva Chart',
-              generatedAt: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
-            }}
-            label={language === 'bn' ? 'পিডিএফ এক্সপোর্ট' : 'Export PDF'}
-          />
+          <button
+            onClick={handleExportPdf}
+            disabled={exportingPdf}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black text-xs shadow-xs transition-all cursor-pointer disabled:opacity-50"
+            title="Download Services List as PDF"
+          >
+            {exportingPdf ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+            <span>{exportingPdf ? 'Exporting...' : (language === 'bn' ? 'পিডিএফ এক্সপোর্ট' : 'Export PDF')}</span>
+          </button>
 
           {/* Copy WhatsApp List */}
           <button

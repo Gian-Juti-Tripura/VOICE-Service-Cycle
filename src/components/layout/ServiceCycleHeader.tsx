@@ -12,7 +12,6 @@ export const ServiceCycleHeader: React.FC<{ title?: string; subtitle?: string }>
   const { language } = useLanguage();
   const location = useLocation();
 
-  const isManagerOrAdmin = role === 'INTERNAL_MANAGER' || role === 'ADMIN';
   const isAdmin = role === 'ADMIN';
 
   const NAV_ITEMS = [
