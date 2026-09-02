@@ -28,21 +28,21 @@ export const ServiceCycleHeader: React.FC<{ title?: string; subtitle?: string }>
       labelEn: 'Daily Roster',
       labelBn: 'দৈনিক রোস্টার',
       icon: Calendar,
-      show: isManagerOrAdmin,
+      show: true,
     },
     {
       to: '/manager/members',
       labelEn: 'Devotees',
       labelBn: 'ভক্তবৃন্দ',
       icon: Users,
-      show: isManagerOrAdmin,
+      show: true,
     },
     {
       to: '/manager/services',
       labelEn: 'Services',
       labelBn: 'সেবাসমূহ',
       icon: Briefcase,
-      show: isManagerOrAdmin,
+      show: true,
     },
     {
       to: '/manager/settings',
@@ -85,32 +85,30 @@ export const ServiceCycleHeader: React.FC<{ title?: string; subtitle?: string }>
         </div>
       )}
 
-      {/* Navigation Tabs (Only if Manager or Admin) */}
-      {isManagerOrAdmin && (
-        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 p-1.5 bg-slate-100/80 dark:bg-slate-800/60 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
-          {NAV_ITEMS.filter(item => item.show).map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.to || 
-              (item.to === '/manager/members' && location.pathname.startsWith('/manager/members')) ||
-              (item.to === '/manager/services' && location.pathname.startsWith('/manager/services'));
+      {/* Navigation Tabs (Available for all members) */}
+      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 p-1.5 bg-slate-100/80 dark:bg-slate-800/60 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
+        {NAV_ITEMS.filter(item => item.show).map((item) => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.to || 
+            (item.to === '/manager/members' && (location.pathname.startsWith('/manager/members') || location.pathname.startsWith('/members'))) ||
+            (item.to === '/manager/services' && (location.pathname.startsWith('/manager/services') || location.pathname.startsWith('/services')));
 
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 shrink-0 ${
-                  isActive
-                    ? 'bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 shadow-sm border border-amber-500/20 font-black'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-white/50 dark:hover:bg-slate-700/50'
-                }`}
-              >
-                <Icon size={15} className={isActive ? 'text-amber-600 dark:text-amber-400' : 'opacity-70'} />
-                <span>{language === 'bn' ? item.labelBn : item.labelEn}</span>
-              </Link>
-            );
-          })}
-        </div>
-      )}
+          return (
+            <Link
+              key={item.to}
+              to={item.to}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 shrink-0 ${
+                isActive
+                  ? 'bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 shadow-sm border border-amber-500/20 font-black'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-white/50 dark:hover:bg-slate-700/50'
+              }`}
+            >
+              <Icon size={15} className={isActive ? 'text-amber-600 dark:text-amber-400' : 'opacity-70'} />
+              <span>{language === 'bn' ? item.labelBn : item.labelEn}</span>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 };

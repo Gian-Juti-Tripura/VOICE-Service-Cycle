@@ -49,6 +49,8 @@ export const AshramDisciplineAudit: React.FC = () => {
   const [copiedVoice, setCopiedVoice] = useState(false);
   const [copiedLotus, setCopiedLotus] = useState(false);
   const [copiedAll, setCopiedAll] = useState(false);
+  const [copiedMp, setCopiedMp] = useState(false);
+  const [copiedNight, setCopiedNight] = useState(false);
 
   // Add Student Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -314,12 +316,175 @@ export const AshramDisciplineAudit: React.FC = () => {
     return report;
   };
 
-  const copyToClipboard = async (text: string, type: 'VOICE' | 'LOTUS' | 'ALL') => {
+  // Generate Combined Morning Program Incharge Report (Both Groups)
+  const generateMorningProgramCombinedReport = () => {
+    const voiceStudents = students.filter(s => s.group === 'VOICE');
+    const lotusStudents = students.filter(s => s.group === 'LOTUS');
+
+    const voiceCompliant: string[] = [];
+    const voiceNonCompliant: string[] = [];
+    const lotusCompliant: string[] = [];
+    const lotusNonCompliant: string[] = [];
+
+    voiceStudents.forEach(s => {
+      const entry = getEntry(s.id);
+      const isMorningGood = entry.wokeUpOnTime && entry.morningProgramOnTime;
+      if (isMorningGood) {
+        voiceCompliant.push(s.name);
+      } else {
+        const issues: string[] = [];
+        if (!entry.wokeUpOnTime) issues.push('Late Wake (>4:00 AM)');
+        if (!entry.morningProgramOnTime) issues.push('Late to MP (>4:30 AM)');
+        let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
+        voiceNonCompliant.push(`❌ *${s.name}* (${issues.join(', ')})${reasonStr}`);
+      }
+    });
+
+    lotusStudents.forEach(s => {
+      const entry = getEntry(s.id);
+      const isMorningGood = entry.morningProgramOnTime;
+      if (isMorningGood) {
+        lotusCompliant.push(s.name);
+      } else {
+        let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
+        lotusNonCompliant.push(`❌ *${s.name}* (Late to MP >5:00 AM)${reasonStr}`);
+      }
+    });
+
+    const totalStudents = students.length;
+    const totalCompliant = voiceCompliant.length + lotusCompliant.length;
+    const totalNonCompliant = voiceNonCompliant.length + lotusNonCompliant.length;
+
+    let report = `🌅 *ADVAITA VOICE — MORNING PROGRAM COMBINED REPORT* 🌅\n`;
+    report += `📅 *Date:* ${dateFormatted}\n`;
+    report += `👥 *Total Attendance:* ${totalCompliant}/${totalStudents} Present on Time\n\n`;
+
+    report += `🌟 *1. VOICE GROUP (Target: Wake 4:00 AM | MP <= 4:30 AM)*\n`;
+    report += `✅ *On Time (${voiceCompliant.length}/${voiceStudents.length}):*\n`;
+    if (voiceCompliant.length > 0) {
+      voiceCompliant.forEach((name, i) => {
+        report += `   ${i + 1}. ${name}\n`;
+      });
+    } else {
+      report += `   (None)\n`;
+    }
+    if (voiceNonCompliant.length > 0) {
+      report += `⚠️ *Late / Missed (${voiceNonCompliant.length}):*\n`;
+      voiceNonCompliant.forEach((item, i) => {
+        report += `   ${i + 1}. ${item}\n`;
+      });
+    }
+    report += `\n`;
+
+    report += `🪷 *2. LOTUS GROUP (Target: MP <= 5:00 AM)*\n`;
+    report += `✅ *On Time (${lotusCompliant.length}/${lotusStudents.length}):*\n`;
+    if (lotusCompliant.length > 0) {
+      lotusCompliant.forEach((name, i) => {
+        report += `   ${i + 1}. ${name}\n`;
+      });
+    } else {
+      report += `   (None)\n`;
+    }
+    if (lotusNonCompliant.length > 0) {
+      report += `⚠️ *Late / Missed (${lotusNonCompliant.length}):*\n`;
+      lotusNonCompliant.forEach((item, i) => {
+        report += `   ${i + 1}. ${item}\n`;
+      });
+    }
+    report += `\n`;
+
+    report += `📊 *Summary:* ${totalCompliant} On-Time, ${totalNonCompliant} Exception(s)\n`;
+    report += `🙏 *Reported by:* Morning Program Incharge (Advaita VOICE)\n`;
+    return report;
+  };
+
+  // Generate Combined Security Manager / Night Discipline Report (Both Groups)
+  const generateSecurityManagerCombinedReport = () => {
+    const voiceStudents = students.filter(s => s.group === 'VOICE');
+    const lotusStudents = students.filter(s => s.group === 'LOTUS');
+
+    const voiceCompliant: string[] = [];
+    const voiceNonCompliant: string[] = [];
+    const lotusCompliant: string[] = [];
+    const lotusNonCompliant: string[] = [];
+
+    voiceStudents.forEach(s => {
+      const entry = getEntry(s.id);
+      if (entry.sleptOnTime) {
+        voiceCompliant.push(s.name);
+      } else {
+        let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
+        let strikeStr = s.monthlyStrikes > 0 ? ` [Strike ${s.monthlyStrikes}/3]` : '';
+        voiceNonCompliant.push(`❌ *${s.name}* (Late Bed >10:00 PM)${reasonStr}${strikeStr}`);
+      }
+    });
+
+    lotusStudents.forEach(s => {
+      const entry = getEntry(s.id);
+      if (entry.sleptOnTime) {
+        lotusCompliant.push(s.name);
+      } else {
+        let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
+        let strikeStr = s.monthlyStrikes > 0 ? ` [Strike ${s.monthlyStrikes}/3]` : '';
+        lotusNonCompliant.push(`❌ *${s.name}* (Late Bed >11:00 PM)${reasonStr}${strikeStr}`);
+      }
+    });
+
+    const totalStudents = students.length;
+    const totalCompliant = voiceCompliant.length + lotusCompliant.length;
+    const totalNonCompliant = voiceNonCompliant.length + lotusNonCompliant.length;
+
+    let report = `🌙 *ADVAITA VOICE — NIGHT DISCIPLINE & SECURITY REPORT* 🌙\n`;
+    report += `📅 *Date:* ${dateFormatted}\n`;
+    report += `🔒 *Curfew & Bedtime Compliance:* ${totalCompliant}/${totalStudents} On Time\n\n`;
+
+    report += `🌟 *1. VOICE GROUP (Bedtime Target: <= 10:00 PM | Lights Off)*\n`;
+    report += `✅ *Slept On Time (${voiceCompliant.length}/${voiceStudents.length}):*\n`;
+    if (voiceCompliant.length > 0) {
+      voiceCompliant.forEach((name, i) => {
+        report += `   ${i + 1}. ${name}\n`;
+      });
+    } else {
+      report += `   (None)\n`;
+    }
+    if (voiceNonCompliant.length > 0) {
+      report += `⚠️ *Late Bed Violations (${voiceNonCompliant.length}):*\n`;
+      voiceNonCompliant.forEach((item, i) => {
+        report += `   ${i + 1}. ${item}\n`;
+      });
+    }
+    report += `\n`;
+
+    report += `🪷 *2. LOTUS GROUP (Bedtime Target: <= 11:00 PM | Security Lock)*\n`;
+    report += `✅ *Slept On Time (${lotusCompliant.length}/${lotusStudents.length}):*\n`;
+    if (lotusCompliant.length > 0) {
+      lotusCompliant.forEach((name, i) => {
+        report += `   ${i + 1}. ${name}\n`;
+      });
+    } else {
+      report += `   (None)\n`;
+    }
+    if (lotusNonCompliant.length > 0) {
+      report += `⚠️ *Late Bed Violations (${lotusNonCompliant.length}):*\n`;
+      lotusNonCompliant.forEach((item, i) => {
+        report += `   ${i + 1}. ${item}\n`;
+      });
+    }
+    report += `\n`;
+
+    report += `📊 *Summary:* ${totalCompliant} Slept On-Time, ${totalNonCompliant} Violation(s)\n`;
+    report += `🙏 *Reported by:* Security Manager (Advaita VOICE)\n`;
+    return report;
+  };
+
+  const copyToClipboard = async (text: string, type: 'VOICE' | 'LOTUS' | 'ALL' | 'MP' | 'NIGHT') => {
     try {
       await navigator.clipboard.writeText(text);
       if (type === 'VOICE') { setCopiedVoice(true); setTimeout(() => setCopiedVoice(false), 2000); }
       if (type === 'LOTUS') { setCopiedLotus(true); setTimeout(() => setCopiedLotus(false), 2000); }
       if (type === 'ALL') { setCopiedAll(true); setTimeout(() => setCopiedAll(false), 2000); }
+      if (type === 'MP') { setCopiedMp(true); setTimeout(() => setCopiedMp(false), 2000); }
+      if (type === 'NIGHT') { setCopiedNight(true); setTimeout(() => setCopiedNight(false), 2000); }
       toast.success(language === 'bn' ? 'হোয়াটসঅ্যাপ রিপোর্ট কপি করা হয়েছে!' : 'WhatsApp Report copied to clipboard!');
     } catch {
       toast.error('Failed to copy');
@@ -574,28 +739,91 @@ export const AshramDisciplineAudit: React.FC = () => {
 
             {activeTab === 'ALL' && (
               <>
+                {/* Morning Program Incharge Combined Report */}
                 <button
                   onClick={() => {
-                    const fullReport = `${generateVoiceReport()}\n-----------------------------\n\n${generateLotusReport()}`;
+                    const mpReport = generateMorningProgramCombinedReport();
                     shareToWhatsAppOrSystem({
-                      title: 'Advaita VOICE Discipline Report',
-                      text: fullReport,
+                      title: 'Advaita VOICE Morning Program Combined Report',
+                      text: mpReport,
                       successMessage: 'Opening WhatsApp...'
                     });
                   }}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
+                  title="Send Morning Program Report (Both Groups)"
                 >
-                  <Send size={14} />
-                  <span>Send All Reports</span>
+                  <Sun size={14} />
+                  <span>🌅 Morning Report</span>
                 </button>
 
                 <button
                   onClick={() => {
                     triggerHaptic('selection');
-                    const fullReport = `${generateVoiceReport()}\n-----------------------------\n\n${generateLotusReport()}`;
+                    const mpReport = generateMorningProgramCombinedReport();
+                    copyToClipboard(mpReport, 'MP');
+                  }}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 border border-amber-500/30 font-bold text-xs shadow-xs transition-all cursor-pointer"
+                  title="Copy Morning Program Report"
+                >
+                  {copiedMp ? <Check size={14} /> : <Copy size={14} />}
+                  <span>{copiedMp ? 'Copied!' : 'Copy MP'}</span>
+                </button>
+
+                {/* Security Manager Combined Report */}
+                <button
+                  onClick={() => {
+                    const nightReport = generateSecurityManagerCombinedReport();
+                    shareToWhatsAppOrSystem({
+                      title: 'Advaita VOICE Security Manager Night Report',
+                      text: nightReport,
+                      successMessage: 'Opening WhatsApp...'
+                    });
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
+                  title="Send Security / Night Report (Both Groups)"
+                >
+                  <Moon size={14} />
+                  <span>🌙 Security Report</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    triggerHaptic('selection');
+                    const nightReport = generateSecurityManagerCombinedReport();
+                    copyToClipboard(nightReport, 'NIGHT');
+                  }}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-800 dark:text-indigo-300 border border-indigo-500/30 font-bold text-xs shadow-xs transition-all cursor-pointer"
+                  title="Copy Security / Night Report"
+                >
+                  {copiedNight ? <Check size={14} /> : <Copy size={14} />}
+                  <span>{copiedNight ? 'Copied!' : 'Copy Night'}</span>
+                </button>
+
+                {/* Send All Combined */}
+                <button
+                  onClick={() => {
+                    const fullReport = `${generateMorningProgramCombinedReport()}\n=============================\n\n${generateSecurityManagerCombinedReport()}`;
+                    shareToWhatsAppOrSystem({
+                      title: 'Advaita VOICE Full Discipline Report',
+                      text: fullReport,
+                      successMessage: 'Opening WhatsApp...'
+                    });
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
+                  title="Send All Reports"
+                >
+                  <Send size={14} />
+                  <span>All</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    triggerHaptic('selection');
+                    const fullReport = `${generateMorningProgramCombinedReport()}\n=============================\n\n${generateSecurityManagerCombinedReport()}`;
                     copyToClipboard(fullReport, 'ALL');
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
+                  title="Copy All Combined"
                 >
                   {copiedAll ? <Check size={14} /> : <Copy size={14} />}
                   <span>{copiedAll ? 'Copied!' : 'Copy All'}</span>

@@ -168,7 +168,7 @@ const AppContent = () => {
               } 
             />
 
-            {/* Manager & Admin Routes */}
+            {/* Manager & Devotee Seva Routes */}
             <Route 
               path="/manager" 
               element={
@@ -177,9 +177,11 @@ const AppContent = () => {
                 </ProtectedRoute>
               } 
             />
-            <Route path="/manager/members" element={<ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN']}><MembersList /></ProtectedRoute>} />
+            <Route path="/members" element={<ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}><MembersList /></ProtectedRoute>} />
+            <Route path="/manager/members" element={<ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}><MembersList /></ProtectedRoute>} />
             <Route path="/manager/members/:id" element={<ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN']}><MemberEdit /></ProtectedRoute>} />
-            <Route path="/manager/services" element={<ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN']}><ServicesList /></ProtectedRoute>} />
+            <Route path="/services" element={<ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}><ServicesList /></ProtectedRoute>} />
+            <Route path="/manager/services" element={<ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}><ServicesList /></ProtectedRoute>} />
             <Route path="/manager/services/:id" element={<ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN']}><ServiceEdit /></ProtectedRoute>} />
             <Route path="/manager/settings" element={<ProtectedRoute allowedRole="ADMIN"><SettingsDashboard /></ProtectedRoute>} />
 
