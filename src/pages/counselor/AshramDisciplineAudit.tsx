@@ -12,6 +12,7 @@ import {
   type StudentDisciplineRecord, 
   type DailyDisciplineEntry, 
   EMERGENCY_REASONS, 
+  ABSENCE_REASONS,
   INITIAL_DISCIPLINE_STUDENTS 
 } from '../../data/groupDisciplineData';
 import { shareToWhatsAppOrSystem } from '../../utils/shareUtils';
@@ -84,6 +85,8 @@ export const AshramDisciplineAudit: React.FC = () => {
     return dayData[studentId] || {
       studentId,
       dateStr: dateIso,
+      isAbsent: studentId === 'member_0', // Default Utpol P. out of town
+      absenceReason: studentId === 'member_0' ? 'Out of town / Home Leave (গ্রামের বাড়ি / বাইরে অবস্থান)' : '',
       sleptOnTime: true,
       wokeUpOnTime: true,
       morningProgramOnTime: true,
@@ -111,9 +114,12 @@ export const AshramDisciplineAudit: React.FC = () => {
     const newDayEntries: Record<string, DailyDisciplineEntry> = { ...(dailyRecords[dateIso] || {}) };
 
     targetStudents.forEach(s => {
+      const prevEntry = getEntry(s.id);
       newDayEntries[s.id] = {
         studentId: s.id,
         dateStr: dateIso,
+        isAbsent: prevEntry.isAbsent,
+        absenceReason: prevEntry.absenceReason,
         sleptOnTime: true,
         wokeUpOnTime: true,
         morningProgramOnTime: true,
@@ -218,22 +224,27 @@ export const AshramDisciplineAudit: React.FC = () => {
     const voiceStudents = students.filter(s => s.group === 'VOICE');
     const compliant: string[] = [];
     const nonCompliant: string[] = [];
+    const absent: string[] = [];
 
     voiceStudents.forEach(s => {
       const entry = getEntry(s.id);
-      const isAllGood = entry.sleptOnTime && entry.wokeUpOnTime && entry.morningProgramOnTime;
-      
-      if (isAllGood) {
-        compliant.push(s.name);
+      if (entry.isAbsent) {
+        let reasonStr = entry.absenceReason ? ` — *Reason:* ${entry.absenceReason}` : '';
+        absent.push(`🔴 *${s.name}* (Absent)${reasonStr}`);
       } else {
-        const issues: string[] = [];
-        if (!entry.sleptOnTime) issues.push('Late Bed (>10:00 PM)');
-        if (!entry.wokeUpOnTime) issues.push('Late Wake (>4:00 AM)');
-        if (!entry.morningProgramOnTime) issues.push('Late to MP (>4:30 AM)');
-        
-        let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
-        let strikeStr = s.monthlyStrikes > 0 ? ` [Strike ${s.monthlyStrikes}/3]` : '';
-        nonCompliant.push(`❌ *${s.name}* (${issues.join(', ')})${reasonStr}${strikeStr}`);
+        const isAllGood = entry.sleptOnTime && entry.wokeUpOnTime && entry.morningProgramOnTime;
+        if (isAllGood) {
+          compliant.push(s.name);
+        } else {
+          const issues: string[] = [];
+          if (!entry.sleptOnTime) issues.push('Late Bed (>10:00 PM)');
+          if (!entry.wokeUpOnTime) issues.push('Late Wake (>4:00 AM)');
+          if (!entry.morningProgramOnTime) issues.push('Late to MP (>4:30 AM)');
+          
+          let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
+          let strikeStr = s.monthlyStrikes > 0 ? ` [Strike ${s.monthlyStrikes}/3]` : '';
+          nonCompliant.push(`❌ *${s.name}* (${issues.join(', ')})${reasonStr}${strikeStr}`);
+        }
       }
     });
 
@@ -251,15 +262,25 @@ export const AshramDisciplineAudit: React.FC = () => {
     }
     report += `\n`;
 
-    report += `⚠️ *Rule Breaches / Exceptions (${nonCompliant.length}):*\n`;
     if (nonCompliant.length > 0) {
+      report += `⚠️ *Rule Breaches / Exceptions (${nonCompliant.length}):*\n`;
       nonCompliant.forEach((item, i) => {
         report += `   ${i + 1}. ${item}\n`;
       });
-    } else {
-      report += `   ✨ All students followed rules on time! Haribol!\n`;
+      report += `\n`;
     }
-    report += `\n`;
+
+    if (absent.length > 0) {
+      report += `🔴 *Absent Devotees (${absent.length}):*\n`;
+      absent.forEach((item, i) => {
+        report += `   ${i + 1}. ${item}\n`;
+      });
+      report += `\n`;
+    }
+
+    if (nonCompliant.length === 0 && absent.length === 0) {
+      report += `✨ All students present and followed rules on time! Haribol!\n\n`;
+    }
 
     report += `🙏 *Reported by:* Morning Program Incharge (VOICE Group)\n`;
     return report;
@@ -270,21 +291,26 @@ export const AshramDisciplineAudit: React.FC = () => {
     const lotusStudents = students.filter(s => s.group === 'LOTUS');
     const compliant: string[] = [];
     const nonCompliant: string[] = [];
+    const absent: string[] = [];
 
     lotusStudents.forEach(s => {
       const entry = getEntry(s.id);
-      const isAllGood = entry.sleptOnTime && entry.morningProgramOnTime;
-      
-      if (isAllGood) {
-        compliant.push(s.name);
+      if (entry.isAbsent) {
+        let reasonStr = entry.absenceReason ? ` — *Reason:* ${entry.absenceReason}` : '';
+        absent.push(`🔴 *${s.name}* (Absent)${reasonStr}`);
       } else {
-        const issues: string[] = [];
-        if (!entry.sleptOnTime) issues.push('Late Bed (>11:00 PM)');
-        if (!entry.morningProgramOnTime) issues.push('Late to MP (>5:00 AM)');
-        
-        let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
-        let strikeStr = s.monthlyStrikes > 0 ? ` [Strike ${s.monthlyStrikes}/3]` : '';
-        nonCompliant.push(`❌ *${s.name}* (${issues.join(', ')})${reasonStr}${strikeStr}`);
+        const isAllGood = entry.sleptOnTime && entry.morningProgramOnTime;
+        if (isAllGood) {
+          compliant.push(s.name);
+        } else {
+          const issues: string[] = [];
+          if (!entry.sleptOnTime) issues.push('Late Bed (>11:00 PM)');
+          if (!entry.morningProgramOnTime) issues.push('Late to MP (>5:00 AM)');
+          
+          let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
+          let strikeStr = s.monthlyStrikes > 0 ? ` [Strike ${s.monthlyStrikes}/3]` : '';
+          nonCompliant.push(`❌ *${s.name}* (${issues.join(', ')})${reasonStr}${strikeStr}`);
+        }
       }
     });
 
@@ -302,15 +328,25 @@ export const AshramDisciplineAudit: React.FC = () => {
     }
     report += `\n`;
 
-    report += `⚠️ *Rule Breaches / Exceptions (${nonCompliant.length}):*\n`;
     if (nonCompliant.length > 0) {
+      report += `⚠️ *Rule Breaches / Exceptions (${nonCompliant.length}):*\n`;
       nonCompliant.forEach((item, i) => {
         report += `   ${i + 1}. ${item}\n`;
       });
-    } else {
-      report += `   ✨ All students followed rules on time! Haribol!\n`;
+      report += `\n`;
     }
-    report += `\n`;
+
+    if (absent.length > 0) {
+      report += `🔴 *Absent Devotees (${absent.length}):*\n`;
+      absent.forEach((item, i) => {
+        report += `   ${i + 1}. ${item}\n`;
+      });
+      report += `\n`;
+    }
+
+    if (nonCompliant.length === 0 && absent.length === 0) {
+      report += `✨ All students present and followed rules on time! Haribol!\n\n`;
+    }
 
     report += `🙏 *Reported by:* Security Manager (Lotus Group)\n`;
     return report;
@@ -323,41 +359,57 @@ export const AshramDisciplineAudit: React.FC = () => {
 
     const voiceCompliant: string[] = [];
     const voiceNonCompliant: string[] = [];
+    const voiceAbsent: string[] = [];
+
     const lotusCompliant: string[] = [];
     const lotusNonCompliant: string[] = [];
+    const lotusAbsent: string[] = [];
 
     voiceStudents.forEach(s => {
       const entry = getEntry(s.id);
-      const isMorningGood = entry.wokeUpOnTime && entry.morningProgramOnTime;
-      if (isMorningGood) {
-        voiceCompliant.push(s.name);
+      if (entry.isAbsent) {
+        let reasonStr = entry.absenceReason ? ` — *Reason:* ${entry.absenceReason}` : '';
+        voiceAbsent.push(`🔴 *${s.name}* (Absent)${reasonStr}`);
       } else {
-        const issues: string[] = [];
-        if (!entry.wokeUpOnTime) issues.push('Late Wake (>4:00 AM)');
-        if (!entry.morningProgramOnTime) issues.push('Late to MP (>4:30 AM)');
-        let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
-        voiceNonCompliant.push(`❌ *${s.name}* (${issues.join(', ')})${reasonStr}`);
+        const isMorningGood = entry.wokeUpOnTime && entry.morningProgramOnTime;
+        if (isMorningGood) {
+          voiceCompliant.push(s.name);
+        } else {
+          const issues: string[] = [];
+          if (!entry.wokeUpOnTime) issues.push('Late Wake (>4:00 AM)');
+          if (!entry.morningProgramOnTime) issues.push('Late to MP (>4:30 AM)');
+          let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
+          voiceNonCompliant.push(`❌ *${s.name}* (${issues.join(', ')})${reasonStr}`);
+        }
       }
     });
 
     lotusStudents.forEach(s => {
       const entry = getEntry(s.id);
-      const isMorningGood = entry.morningProgramOnTime;
-      if (isMorningGood) {
-        lotusCompliant.push(s.name);
+      if (entry.isAbsent) {
+        let reasonStr = entry.absenceReason ? ` — *Reason:* ${entry.absenceReason}` : '';
+        lotusAbsent.push(`🔴 *${s.name}* (Absent)${reasonStr}`);
       } else {
-        let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
-        lotusNonCompliant.push(`❌ *${s.name}* (Late to MP >5:00 AM)${reasonStr}`);
+        const isMorningGood = entry.morningProgramOnTime;
+        if (isMorningGood) {
+          lotusCompliant.push(s.name);
+        } else {
+          let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
+          lotusNonCompliant.push(`❌ *${s.name}* (Late to MP >5:00 AM)${reasonStr}`);
+        }
       }
     });
 
     const totalStudents = students.length;
     const totalCompliant = voiceCompliant.length + lotusCompliant.length;
     const totalNonCompliant = voiceNonCompliant.length + lotusNonCompliant.length;
+    const totalAbsent = voiceAbsent.length + lotusAbsent.length;
 
     let report = `🌅 *ADVAITA VOICE — MORNING PROGRAM COMBINED REPORT* 🌅\n`;
     report += `📅 *Date:* ${dateFormatted}\n`;
-    report += `👥 *Total Attendance:* ${totalCompliant}/${totalStudents} Present on Time\n\n`;
+    report += `👥 *Total Attendance:* ${totalCompliant}/${totalStudents} Present on Time`;
+    if (totalAbsent > 0) report += ` (${totalAbsent} Absent)`;
+    report += `\n\n`;
 
     report += `🌟 *1. VOICE GROUP (Target: Wake 4:00 AM | MP <= 4:30 AM)*\n`;
     report += `✅ *On Time (${voiceCompliant.length}/${voiceStudents.length}):*\n`;
@@ -371,6 +423,12 @@ export const AshramDisciplineAudit: React.FC = () => {
     if (voiceNonCompliant.length > 0) {
       report += `⚠️ *Late / Missed (${voiceNonCompliant.length}):*\n`;
       voiceNonCompliant.forEach((item, i) => {
+        report += `   ${i + 1}. ${item}\n`;
+      });
+    }
+    if (voiceAbsent.length > 0) {
+      report += `🔴 *Absent Devotees (${voiceAbsent.length}):*\n`;
+      voiceAbsent.forEach((item, i) => {
         report += `   ${i + 1}. ${item}\n`;
       });
     }
@@ -391,9 +449,15 @@ export const AshramDisciplineAudit: React.FC = () => {
         report += `   ${i + 1}. ${item}\n`;
       });
     }
+    if (lotusAbsent.length > 0) {
+      report += `🔴 *Absent Devotees (${lotusAbsent.length}):*\n`;
+      lotusAbsent.forEach((item, i) => {
+        report += `   ${i + 1}. ${item}\n`;
+      });
+    }
     report += `\n`;
 
-    report += `📊 *Summary:* ${totalCompliant} On-Time, ${totalNonCompliant} Exception(s)\n`;
+    report += `📊 *Summary:* ${totalCompliant} On-Time, ${totalNonCompliant} Exception(s), ${totalAbsent} Absent\n`;
     report += `🙏 *Reported by:* Morning Program Incharge (Advaita VOICE)\n`;
     return report;
   };
@@ -405,38 +469,54 @@ export const AshramDisciplineAudit: React.FC = () => {
 
     const voiceCompliant: string[] = [];
     const voiceNonCompliant: string[] = [];
+    const voiceAbsent: string[] = [];
+
     const lotusCompliant: string[] = [];
     const lotusNonCompliant: string[] = [];
+    const lotusAbsent: string[] = [];
 
     voiceStudents.forEach(s => {
       const entry = getEntry(s.id);
-      if (entry.sleptOnTime) {
-        voiceCompliant.push(s.name);
+      if (entry.isAbsent) {
+        let reasonStr = entry.absenceReason ? ` — *Reason:* ${entry.absenceReason}` : '';
+        voiceAbsent.push(`🔴 *${s.name}* (Night Leave / Absent)${reasonStr}`);
       } else {
-        let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
-        let strikeStr = s.monthlyStrikes > 0 ? ` [Strike ${s.monthlyStrikes}/3]` : '';
-        voiceNonCompliant.push(`❌ *${s.name}* (Late Bed >10:00 PM)${reasonStr}${strikeStr}`);
+        if (entry.sleptOnTime) {
+          voiceCompliant.push(s.name);
+        } else {
+          let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
+          let strikeStr = s.monthlyStrikes > 0 ? ` [Strike ${s.monthlyStrikes}/3]` : '';
+          voiceNonCompliant.push(`❌ *${s.name}* (Late Bed >10:00 PM)${reasonStr}${strikeStr}`);
+        }
       }
     });
 
     lotusStudents.forEach(s => {
       const entry = getEntry(s.id);
-      if (entry.sleptOnTime) {
-        lotusCompliant.push(s.name);
+      if (entry.isAbsent) {
+        let reasonStr = entry.absenceReason ? ` — *Reason:* ${entry.absenceReason}` : '';
+        lotusAbsent.push(`🔴 *${s.name}* (Night Leave / Absent)${reasonStr}`);
       } else {
-        let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
-        let strikeStr = s.monthlyStrikes > 0 ? ` [Strike ${s.monthlyStrikes}/3]` : '';
-        lotusNonCompliant.push(`❌ *${s.name}* (Late Bed >11:00 PM)${reasonStr}${strikeStr}`);
+        if (entry.sleptOnTime) {
+          lotusCompliant.push(s.name);
+        } else {
+          let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
+          let strikeStr = s.monthlyStrikes > 0 ? ` [Strike ${s.monthlyStrikes}/3]` : '';
+          lotusNonCompliant.push(`❌ *${s.name}* (Late Bed >11:00 PM)${reasonStr}${strikeStr}`);
+        }
       }
     });
 
     const totalStudents = students.length;
     const totalCompliant = voiceCompliant.length + lotusCompliant.length;
     const totalNonCompliant = voiceNonCompliant.length + lotusNonCompliant.length;
+    const totalAbsent = voiceAbsent.length + lotusAbsent.length;
 
     let report = `🌙 *ADVAITA VOICE — NIGHT DISCIPLINE & SECURITY REPORT* 🌙\n`;
     report += `📅 *Date:* ${dateFormatted}\n`;
-    report += `🔒 *Curfew & Bedtime Compliance:* ${totalCompliant}/${totalStudents} On Time\n\n`;
+    report += `🔒 *Curfew & Bedtime Compliance:* ${totalCompliant}/${totalStudents} Present on Time`;
+    if (totalAbsent > 0) report += ` (${totalAbsent} Night Leave/Absent)`;
+    report += `\n\n`;
 
     report += `🌟 *1. VOICE GROUP (Bedtime Target: <= 10:00 PM | Lights Off)*\n`;
     report += `✅ *Slept On Time (${voiceCompliant.length}/${voiceStudents.length}):*\n`;
@@ -450,6 +530,12 @@ export const AshramDisciplineAudit: React.FC = () => {
     if (voiceNonCompliant.length > 0) {
       report += `⚠️ *Late Bed Violations (${voiceNonCompliant.length}):*\n`;
       voiceNonCompliant.forEach((item, i) => {
+        report += `   ${i + 1}. ${item}\n`;
+      });
+    }
+    if (voiceAbsent.length > 0) {
+      report += `🔴 *Night Leave / Absent (${voiceAbsent.length}):*\n`;
+      voiceAbsent.forEach((item, i) => {
         report += `   ${i + 1}. ${item}\n`;
       });
     }
@@ -470,9 +556,15 @@ export const AshramDisciplineAudit: React.FC = () => {
         report += `   ${i + 1}. ${item}\n`;
       });
     }
+    if (lotusAbsent.length > 0) {
+      report += `🔴 *Night Leave / Absent (${lotusAbsent.length}):*\n`;
+      lotusAbsent.forEach((item, i) => {
+        report += `   ${i + 1}. ${item}\n`;
+      });
+    }
     report += `\n`;
 
-    report += `📊 *Summary:* ${totalCompliant} Slept On-Time, ${totalNonCompliant} Violation(s)\n`;
+    report += `📊 *Summary:* ${totalCompliant} Slept On-Time, ${totalNonCompliant} Violation(s), ${totalAbsent} Night Leave\n`;
     report += `🙏 *Reported by:* Security Manager (Advaita VOICE)\n`;
     return report;
   };
@@ -886,25 +978,30 @@ export const AshramDisciplineAudit: React.FC = () => {
             displayedStudents.map((student, idx) => {
               const entry = getEntry(student.id);
               const isVoice = student.group === 'VOICE';
-              const hasFailure = !entry.sleptOnTime || !entry.wokeUpOnTime || !entry.morningProgramOnTime;
+              const isAbsent = !!entry.isAbsent;
+              const hasFailure = !isAbsent && (!entry.sleptOnTime || !entry.wokeUpOnTime || !entry.morningProgramOnTime);
 
               return (
                 <div 
                   key={student.id}
                   className={`rounded-2xl p-4 sm:p-5 border transition-all shadow-xs ${
-                    hasFailure
-                      ? 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/60'
-                      : 'bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800'
+                    isAbsent
+                      ? 'bg-amber-50/40 dark:bg-amber-950/20 border-amber-300/80 dark:border-amber-800/60'
+                      : hasFailure
+                        ? 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/60'
+                        : 'bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800'
                   }`}
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     
-                    {/* Devotee Identity + Strikes + Edit trigger */}
+                    {/* Devotee Identity + Strikes + Attendance Pill */}
                     <div className="flex items-center gap-3 min-w-[220px]">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shrink-0 ${
-                        isVoice 
-                          ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30' 
-                          : 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30'
+                        isAbsent
+                          ? 'bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30'
+                          : isVoice 
+                            ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30' 
+                            : 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30'
                       }`}>
                         {student.cycleOrder ? student.cycleOrder : idx + 1}
                       </div>
@@ -921,6 +1018,25 @@ export const AshramDisciplineAudit: React.FC = () => {
                           }`}>
                             {student.group}
                           </span>
+
+                          {/* Attendance Status Toggle Button */}
+                          <button
+                            onClick={() => {
+                              triggerHaptic('selection');
+                              updateEntry(student.id, { 
+                                isAbsent: !isAbsent,
+                                absenceReason: !isAbsent ? (entry.absenceReason || 'Out of town / Home Leave (গ্রামের বাড়ি / বাইরে অবস্থান)') : ''
+                              });
+                            }}
+                            className={`px-2 py-0.5 rounded-lg text-[10px] font-black transition-all cursor-pointer border ${
+                              isAbsent
+                                ? 'bg-rose-500 text-white border-rose-600 shadow-xs'
+                                : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 hover:bg-emerald-100'
+                            }`}
+                            title="Click to toggle Present / Absent status"
+                          >
+                            <span>{isAbsent ? '🔴 Absent' : '🟢 Present'}</span>
+                          </button>
                         </div>
 
                         {/* Strikes Status & Phone */}
@@ -957,70 +1073,88 @@ export const AshramDisciplineAudit: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Rule Abidance Toggles */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 flex-1 max-w-xl">
-                      
-                      {/* 1. Bedtime */}
-                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5">
-                          <Moon size={14} className="text-indigo-400" />
-                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            {isVoice ? '<= 10:00 PM Bed' : '<= 11:00 PM Bed'}
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => updateEntry(student.id, { sleptOnTime: !entry.sleptOnTime })}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                            entry.sleptOnTime
-                              ? 'bg-emerald-500 text-white shadow-xs'
-                              : 'bg-rose-500 text-white shadow-xs'
-                          }`}
+                    {/* Controls: If Absent, show Absence Reason; If Present, show 3 discipline toggles */}
+                    {isAbsent ? (
+                      <div className="flex-1 max-w-xl p-2.5 rounded-xl bg-amber-500/10 dark:bg-amber-950/30 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center gap-2 animate-fade-in">
+                        <span className="text-xs font-black text-amber-800 dark:text-amber-300 shrink-0 flex items-center gap-1">
+                          <span>🔴 Reason for Absence:</span>
+                        </span>
+                        <select
+                          value={entry.absenceReason || ''}
+                          onChange={(e) => updateEntry(student.id, { absenceReason: e.target.value })}
+                          className="flex-1 bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 text-slate-800 dark:text-slate-200 text-xs rounded-lg p-1.5 font-medium focus:ring-2 focus:ring-amber-500"
                         >
-                          {entry.sleptOnTime ? 'Yes' : 'No'}
-                        </button>
+                          <option value="">-- Select Absence Reason --</option>
+                          {ABSENCE_REASONS.map(r => (
+                            <option key={r} value={r}>{r}</option>
+                          ))}
+                        </select>
                       </div>
-
-                      {/* 2. Wake-up */}
-                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5">
-                          <Sun size={14} className="text-amber-400" />
-                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            {isVoice ? '4:00 AM Wake' : 'Wake On-Time'}
-                          </span>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 flex-1 max-w-xl">
+                        
+                        {/* 1. Bedtime */}
+                        <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5">
+                            <Moon size={14} className="text-indigo-400" />
+                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                              {isVoice ? '<= 10:00 PM Bed' : '<= 11:00 PM Bed'}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => updateEntry(student.id, { sleptOnTime: !entry.sleptOnTime })}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                              entry.sleptOnTime
+                                ? 'bg-emerald-500 text-white shadow-xs'
+                                : 'bg-rose-500 text-white shadow-xs'
+                            }`}
+                          >
+                            {entry.sleptOnTime ? 'Yes' : 'No'}
+                          </button>
                         </div>
-                        <button
-                          onClick={() => updateEntry(student.id, { wokeUpOnTime: !entry.wokeUpOnTime })}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                            entry.wokeUpOnTime
-                              ? 'bg-emerald-500 text-white shadow-xs'
-                              : 'bg-rose-500 text-white shadow-xs'
-                          }`}
-                        >
-                          {entry.wokeUpOnTime ? 'Yes' : 'No'}
-                        </button>
-                      </div>
 
-                      {/* 3. Morning Program */}
-                      <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5">
-                          <Clock size={14} className="text-rose-400" />
-                          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                            {isVoice ? '<= 4:30 AM MP' : '<= 5:00 AM MP'}
-                          </span>
+                        {/* 2. Wake-up */}
+                        <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5">
+                            <Sun size={14} className="text-amber-400" />
+                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                              {isVoice ? '4:00 AM Wake' : 'Wake On-Time'}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => updateEntry(student.id, { wokeUpOnTime: !entry.wokeUpOnTime })}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                              entry.wokeUpOnTime
+                                ? 'bg-emerald-500 text-white shadow-xs'
+                                : 'bg-rose-500 text-white shadow-xs'
+                            }`}
+                          >
+                            {entry.wokeUpOnTime ? 'Yes' : 'No'}
+                          </button>
                         </div>
-                        <button
-                          onClick={() => updateEntry(student.id, { morningProgramOnTime: !entry.morningProgramOnTime })}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                            entry.morningProgramOnTime
-                              ? 'bg-emerald-500 text-white shadow-xs'
-                              : 'bg-rose-500 text-white shadow-xs'
-                          }`}
-                        >
-                          {entry.morningProgramOnTime ? 'Yes' : 'No'}
-                        </button>
-                      </div>
 
-                    </div>
+                        {/* 3. Morning Program */}
+                        <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5">
+                            <Clock size={14} className="text-rose-400" />
+                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                              {isVoice ? '<= 4:30 AM MP' : '<= 5:00 AM MP'}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => updateEntry(student.id, { morningProgramOnTime: !entry.morningProgramOnTime })}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                              entry.morningProgramOnTime
+                                ? 'bg-emerald-500 text-white shadow-xs'
+                                : 'bg-rose-500 text-white shadow-xs'
+                            }`}
+                          >
+                            {entry.morningProgramOnTime ? 'Yes' : 'No'}
+                          </button>
+                        </div>
+
+                      </div>
+                    )}
 
                     {/* Management Edit Actions */}
                     <div className="flex items-center gap-1.5 justify-end shrink-0">
@@ -1057,8 +1191,8 @@ export const AshramDisciplineAudit: React.FC = () => {
 
                   </div>
 
-                  {/* Exception / Emergency Reason Dropdown (Shown if any rule was broken) */}
-                  {hasFailure && (
+                  {/* Exception / Emergency Reason Dropdown (Shown if present and any rule was broken) */}
+                  {!isAbsent && hasFailure && (
                     <div className="mt-3 pt-3 border-t border-rose-200/60 dark:border-rose-900/60 flex flex-col sm:flex-row sm:items-center gap-2 animate-fade-in">
                       <div className="flex items-center gap-1.5 text-xs font-bold text-rose-600 dark:text-rose-400 shrink-0">
                         <AlertCircle size={14} />

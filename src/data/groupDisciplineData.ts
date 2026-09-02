@@ -13,6 +13,8 @@ export interface StudentDisciplineRecord {
 export interface DailyDisciplineEntry {
   studentId: string;
   dateStr: string; // YYYY-MM-DD
+  isAbsent?: boolean;
+  absenceReason?: string;
   sleptOnTime: boolean;
   wokeUpOnTime: boolean;
   morningProgramOnTime: boolean;
@@ -21,6 +23,15 @@ export interface DailyDisciplineEntry {
   reportedBy?: string;
   notes?: string;
 }
+
+export const ABSENCE_REASONS = [
+  'Out of town / Home Leave (গ্রামের বাড়ি / বাইরে অবস্থান)',
+  'Health / Hospital / Sickness (অসুস্থতা / চিকিৎসা)',
+  'University Exam / Academic (পরীক্ষার প্রস্তুতি)',
+  'Temple / Outside Seva (মন্দির বা বিশেষ প্রচার সেবা)',
+  'Personal Emergency (পারিবারিক / ব্যক্তিগত ছুটি)',
+  'Other Reason (অন্যান্য কারণ)'
+];
 
 export const EMERGENCY_REASONS = [
   'Emergency (জরুরি পরিস্থিতি)',
