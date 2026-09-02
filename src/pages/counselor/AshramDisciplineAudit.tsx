@@ -219,8 +219,29 @@ export const AshramDisciplineAudit: React.FC = () => {
     setSelectedDate(next);
   };
 
+  // Format reasons cleanly without bracket repetition
+  const formatReasonText = (reason?: string, isBn = false) => {
+    if (!reason) return isBn ? 'অনুপস্থিত / ছুটি' : 'Leave / Absent';
+    if (isBn) {
+      const match = reason.match(/\((.*?)\)/);
+      if (match && match[1]) return match[1].trim();
+      return reason;
+    } else {
+      const parts = reason.split('(');
+      return parts[0].trim() || reason;
+    }
+  };
+
+  // Convert English numbers to Bengali digits when language === 'bn'
+  const toBn = (num: number | string) => {
+    if (language !== 'bn') return String(num);
+    const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    return String(num).replace(/[0-9]/g, d => bnDigits[parseInt(d, 10)]);
+  };
+
   // Generate VOICE Group WhatsApp Report (Morning Program Incharge)
   const generateVoiceReport = () => {
+    const isBn = language === 'bn';
     const voiceStudents = students.filter(s => s.group === 'VOICE');
     const compliant: string[] = [];
     const nonCompliant: string[] = [];
@@ -229,65 +250,68 @@ export const AshramDisciplineAudit: React.FC = () => {
     voiceStudents.forEach(s => {
       const entry = getEntry(s.id);
       if (entry.isAbsent) {
-        let reasonStr = entry.absenceReason ? ` — *Reason:* ${entry.absenceReason}` : '';
-        absent.push(`🔴 *${s.name}* (Absent)${reasonStr}`);
+        const reason = formatReasonText(entry.absenceReason, isBn);
+        absent.push(`🔴 *${s.name}* — ${reason}`);
       } else {
         const isAllGood = entry.sleptOnTime && entry.wokeUpOnTime && entry.morningProgramOnTime;
         if (isAllGood) {
           compliant.push(s.name);
         } else {
           const issues: string[] = [];
-          if (!entry.sleptOnTime) issues.push('Late Bed (>10:00 PM)');
-          if (!entry.wokeUpOnTime) issues.push('Late Wake (>4:00 AM)');
-          if (!entry.morningProgramOnTime) issues.push('Late to MP (>4:30 AM)');
+          if (!entry.sleptOnTime) issues.push(isBn ? 'দেরিতে শয়ন (>১০:০০)' : 'Late Bed (>10:00 PM)');
+          if (!entry.wokeUpOnTime) issues.push(isBn ? 'দেরিতে জাগরণ (>৪:০০)' : 'Late Wake (>4:00 AM)');
+          if (!entry.morningProgramOnTime) issues.push(isBn ? 'মর্নিংয়ে দেরি (>৪:৩০)' : 'Late to MP (>4:30 AM)');
           
-          let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
-          let strikeStr = s.monthlyStrikes > 0 ? ` [Strike ${s.monthlyStrikes}/3]` : '';
+          let reasonStr = entry.reason ? ` — *${isBn ? 'কারণ' : 'Reason'}:* ${formatReasonText(entry.reason, isBn)}` : '';
+          let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
           nonCompliant.push(`❌ *${s.name}* (${issues.join(', ')})${reasonStr}${strikeStr}`);
         }
       }
     });
 
-    let report = `🌟 *ADVAITA VOICE — MORNING PROGRAM & DISCIPLINE REPORT* 🌟\n`;
-    report += `📅 *Date:* ${dateFormatted}\n`;
-    report += `📋 *Group:* VOICE Group (Bed: <= 10:00 PM | Wake: 4:00 AM | MP: <= 4:30 AM)\n\n`;
+    let report = isBn
+      ? `🌟 *অদ্বৈত ভয়েস — ভয়েস গ্রুপ সাধনা ও শৃঙ্খলা রিপোর্ট* 🌟\n`
+      : `🌟 *ADVAITA VOICE — MORNING PROGRAM & DISCIPLINE REPORT* 🌟\n`;
+    report += `📅 *${isBn ? 'তারিখ' : 'Date'}:* ${dateFormatted}\n`;
+    report += `📋 *${isBn ? 'গ্রুপ' : 'Group'}:* ${isBn ? 'ভয়েস গ্রুপ (শয়ন: <= রাত ১০:০০ | ওঠা: ভোর ৪:০০ | মর্নিং: <= ৪:৩০)' : 'VOICE Group (Bed: <= 10:00 PM | Wake: 4:00 AM | MP: <= 4:30 AM)'}\n\n`;
 
-    report += `✅ *All Rules Followed (On Time - ${compliant.length}/${voiceStudents.length}):*\n`;
+    report += `✅ *${isBn ? 'সব নিয়ম পালন করেছেন' : 'All Rules Followed (On Time)'} (${toBn(compliant.length)}/${toBn(voiceStudents.length)}):*\n`;
     if (compliant.length > 0) {
       compliant.forEach((name, i) => {
-        report += `   ${i + 1}. ${name}\n`;
+        report += `   ${toBn(i + 1)}. ${name}\n`;
       });
     } else {
-      report += `   (None)\n`;
+      report += `   (${isBn ? 'কেউ নেই' : 'None'})\n`;
     }
     report += `\n`;
 
     if (nonCompliant.length > 0) {
-      report += `⚠️ *Rule Breaches / Exceptions (${nonCompliant.length}):*\n`;
+      report += `⚠️ *${isBn ? 'নিয়ম লঙ্ঘন / ব্যতিক্রম' : 'Rule Breaches / Exceptions'} (${toBn(nonCompliant.length)}):*\n`;
       nonCompliant.forEach((item, i) => {
-        report += `   ${i + 1}. ${item}\n`;
+        report += `   ${toBn(i + 1)}. ${item}\n`;
       });
       report += `\n`;
     }
 
     if (absent.length > 0) {
-      report += `🔴 *Absent Devotees (${absent.length}):*\n`;
+      report += `🔴 *${isBn ? 'অনুপস্থিত ভক্তবৃন্দ' : 'Absent Devotees'} (${toBn(absent.length)}):*\n`;
       absent.forEach((item, i) => {
-        report += `   ${i + 1}. ${item}\n`;
+        report += `   ${toBn(i + 1)}. ${item}\n`;
       });
       report += `\n`;
     }
 
     if (nonCompliant.length === 0 && absent.length === 0) {
-      report += `✨ All students present and followed rules on time! Haribol!\n\n`;
+      report += `✨ ${isBn ? 'সবাই সময়মতো নিয়ম পালন করেছেন! হরিবোল!' : 'All students present and followed rules on time! Haribol!'}\n\n`;
     }
 
-    report += `🙏 *Reported by:* Morning Program Incharge (VOICE Group)\n`;
+    report += `🙏 *${isBn ? 'রিপোর্ট প্রেরণকারী' : 'Reported by'}:* ${isBn ? 'মর্নিং প্রোগ্রাম ইনচার্জ (ভয়েস গ্রুপ)' : 'Morning Program Incharge (VOICE Group)'}\n`;
     return report;
   };
 
   // Generate Lotus Group WhatsApp Report (Security Manager)
   const generateLotusReport = () => {
+    const isBn = language === 'bn';
     const lotusStudents = students.filter(s => s.group === 'LOTUS');
     const compliant: string[] = [];
     const nonCompliant: string[] = [];
@@ -296,64 +320,67 @@ export const AshramDisciplineAudit: React.FC = () => {
     lotusStudents.forEach(s => {
       const entry = getEntry(s.id);
       if (entry.isAbsent) {
-        let reasonStr = entry.absenceReason ? ` — *Reason:* ${entry.absenceReason}` : '';
-        absent.push(`🔴 *${s.name}* (Absent)${reasonStr}`);
+        const reason = formatReasonText(entry.absenceReason, isBn);
+        absent.push(`🔴 *${s.name}* — ${reason}`);
       } else {
         const isAllGood = entry.sleptOnTime && entry.morningProgramOnTime;
         if (isAllGood) {
           compliant.push(s.name);
         } else {
           const issues: string[] = [];
-          if (!entry.sleptOnTime) issues.push('Late Bed (>11:00 PM)');
-          if (!entry.morningProgramOnTime) issues.push('Late to MP (>5:00 AM)');
+          if (!entry.sleptOnTime) issues.push(isBn ? 'দেরিতে শয়ন (>১১:০০)' : 'Late Bed (>11:00 PM)');
+          if (!entry.morningProgramOnTime) issues.push(isBn ? 'মর্নিংয়ে দেরি (>৫:০০)' : 'Late to MP (>5:00 AM)');
           
-          let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
-          let strikeStr = s.monthlyStrikes > 0 ? ` [Strike ${s.monthlyStrikes}/3]` : '';
+          let reasonStr = entry.reason ? ` — *${isBn ? 'কারণ' : 'Reason'}:* ${formatReasonText(entry.reason, isBn)}` : '';
+          let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
           nonCompliant.push(`❌ *${s.name}* (${issues.join(', ')})${reasonStr}${strikeStr}`);
         }
       }
     });
 
-    let report = `🪷 *ADVAITA VOICE — LOTUS GROUP DISCIPLINE REPORT* 🪷\n`;
-    report += `📅 *Date:* ${dateFormatted}\n`;
-    report += `📋 *Group:* Lotus Group (Bed: <= 11:00 PM | MP: <= 5:00 AM)\n\n`;
+    let report = isBn
+      ? `🪷 *অদ্বৈত ভয়েস — লোটাস গ্রুপ সাধনা ও শৃঙ্খলা রিপোর্ট* 🪷\n`
+      : `🪷 *ADVAITA VOICE — LOTUS GROUP DISCIPLINE REPORT* 🪷\n`;
+    report += `📅 *${isBn ? 'তারিখ' : 'Date'}:* ${dateFormatted}\n`;
+    report += `📋 *${isBn ? 'গ্রুপ' : 'Group'}:* ${isBn ? 'লোটাস গ্রুপ (শয়ন: <= রাত ১১:০০ | মর্নিং: <= ভোর ৫:০০)' : 'Lotus Group (Bed: <= 11:00 PM | MP: <= 5:00 AM)'}\n\n`;
 
-    report += `✅ *All Rules Followed (On Time - ${compliant.length}/${lotusStudents.length}):*\n`;
+    report += `✅ *${isBn ? 'সব নিয়ম পালন করেছেন' : 'All Rules Followed (On Time)'} (${toBn(compliant.length)}/${toBn(lotusStudents.length)}):*\n`;
     if (compliant.length > 0) {
       compliant.forEach((name, i) => {
-        report += `   ${i + 1}. ${name}\n`;
+        report += `   ${toBn(i + 1)}. ${name}\n`;
       });
     } else {
-      report += `   (None)\n`;
+      report += `   (${isBn ? 'কেউ নেই' : 'None'})\n`;
     }
     report += `\n`;
 
     if (nonCompliant.length > 0) {
-      report += `⚠️ *Rule Breaches / Exceptions (${nonCompliant.length}):*\n`;
+      report += `⚠️ *${isBn ? 'নিয়ম লঙ্ঘন / ব্যতিক্রম' : 'Rule Breaches / Exceptions'} (${toBn(nonCompliant.length)}):*\n`;
       nonCompliant.forEach((item, i) => {
-        report += `   ${i + 1}. ${item}\n`;
+        report += `   ${toBn(i + 1)}. ${item}\n`;
       });
       report += `\n`;
     }
 
     if (absent.length > 0) {
-      report += `🔴 *Absent Devotees (${absent.length}):*\n`;
+      report += `🔴 *${isBn ? 'অনুপস্থিত ভক্তবৃন্দ' : 'Absent Devotees'} (${toBn(absent.length)}):*\n`;
       absent.forEach((item, i) => {
-        report += `   ${i + 1}. ${item}\n`;
+        report += `   ${toBn(i + 1)}. ${item}\n`;
       });
       report += `\n`;
     }
 
     if (nonCompliant.length === 0 && absent.length === 0) {
-      report += `✨ All students present and followed rules on time! Haribol!\n\n`;
+      report += `✨ ${isBn ? 'সবাই সময়মতো নিয়ম পালন করেছেন! হরিবোল!' : 'All students present and followed rules on time! Haribol!'}\n\n`;
     }
 
-    report += `🙏 *Reported by:* Security Manager (Lotus Group)\n`;
+    report += `🙏 *${isBn ? 'রিপোর্ট প্রেরণকারী' : 'Reported by'}:* ${isBn ? 'সিকিউরিটি ম্যানেজার (লোটাস গ্রুপ)' : 'Security Manager (Lotus Group)'}\n`;
     return report;
   };
 
   // Generate Combined Morning Program Incharge Report (Both Groups)
   const generateMorningProgramCombinedReport = () => {
+    const isBn = language === 'bn';
     const voiceStudents = students.filter(s => s.group === 'VOICE');
     const lotusStudents = students.filter(s => s.group === 'LOTUS');
 
@@ -368,17 +395,17 @@ export const AshramDisciplineAudit: React.FC = () => {
     voiceStudents.forEach(s => {
       const entry = getEntry(s.id);
       if (entry.isAbsent) {
-        let reasonStr = entry.absenceReason ? ` — *Reason:* ${entry.absenceReason}` : '';
-        voiceAbsent.push(`🔴 *${s.name}* (Absent)${reasonStr}`);
+        const reason = formatReasonText(entry.absenceReason, isBn);
+        voiceAbsent.push(`🔴 *${s.name}* — ${reason}`);
       } else {
         const isMorningGood = entry.wokeUpOnTime && entry.morningProgramOnTime;
         if (isMorningGood) {
           voiceCompliant.push(s.name);
         } else {
           const issues: string[] = [];
-          if (!entry.wokeUpOnTime) issues.push('Late Wake (>4:00 AM)');
-          if (!entry.morningProgramOnTime) issues.push('Late to MP (>4:30 AM)');
-          let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
+          if (!entry.wokeUpOnTime) issues.push(isBn ? 'দেরিতে জাগরণ (>৪:০০)' : 'Late Wake (>4:00 AM)');
+          if (!entry.morningProgramOnTime) issues.push(isBn ? 'মর্নিংয়ে দেরি (>৪:৩০)' : 'Late to MP (>4:30 AM)');
+          let reasonStr = entry.reason ? ` — *${isBn ? 'কারণ' : 'Reason'}:* ${formatReasonText(entry.reason, isBn)}` : '';
           voiceNonCompliant.push(`❌ *${s.name}* (${issues.join(', ')})${reasonStr}`);
         }
       }
@@ -387,15 +414,15 @@ export const AshramDisciplineAudit: React.FC = () => {
     lotusStudents.forEach(s => {
       const entry = getEntry(s.id);
       if (entry.isAbsent) {
-        let reasonStr = entry.absenceReason ? ` — *Reason:* ${entry.absenceReason}` : '';
-        lotusAbsent.push(`🔴 *${s.name}* (Absent)${reasonStr}`);
+        const reason = formatReasonText(entry.absenceReason, isBn);
+        lotusAbsent.push(`🔴 *${s.name}* — ${reason}`);
       } else {
         const isMorningGood = entry.morningProgramOnTime;
         if (isMorningGood) {
           lotusCompliant.push(s.name);
         } else {
-          let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
-          lotusNonCompliant.push(`❌ *${s.name}* (Late to MP >5:00 AM)${reasonStr}`);
+          let reasonStr = entry.reason ? ` — *${isBn ? 'কারণ' : 'Reason'}:* ${formatReasonText(entry.reason, isBn)}` : '';
+          lotusNonCompliant.push(`❌ *${s.name}* (${isBn ? 'মর্নিংয়ে দেরি >৫:০০' : 'Late to MP >5:00 AM'})${reasonStr}`);
         }
       }
     });
@@ -405,65 +432,68 @@ export const AshramDisciplineAudit: React.FC = () => {
     const totalNonCompliant = voiceNonCompliant.length + lotusNonCompliant.length;
     const totalAbsent = voiceAbsent.length + lotusAbsent.length;
 
-    let report = `🌅 *ADVAITA VOICE — MORNING PROGRAM COMBINED REPORT* 🌅\n`;
-    report += `📅 *Date:* ${dateFormatted}\n`;
-    report += `👥 *Total Attendance:* ${totalCompliant}/${totalStudents} Present on Time`;
-    if (totalAbsent > 0) report += ` (${totalAbsent} Absent)`;
+    let report = isBn
+      ? `🌅 *অদ্বৈত ভয়েস — প্রাতঃকালীন সাধনা ও উপস্থিতি রিপোর্ট* 🌅\n`
+      : `🌅 *ADVAITA VOICE — MORNING PROGRAM COMBINED REPORT* 🌅\n`;
+    report += `📅 *${isBn ? 'তারিখ' : 'Date'}:* ${dateFormatted}\n`;
+    report += `👥 *${isBn ? 'মোট উপস্থিতি' : 'Total Attendance'}:* ${toBn(totalCompliant)}/${toBn(totalStudents)} ${isBn ? 'জন সময়মতো উপস্থিত' : 'Present on Time'}`;
+    if (totalAbsent > 0) report += ` (${toBn(totalAbsent)} ${isBn ? 'জন অনুপস্থিত' : 'Absent'})`;
     report += `\n\n`;
 
-    report += `🌟 *1. VOICE GROUP (Target: Wake 4:00 AM | MP <= 4:30 AM)*\n`;
-    report += `✅ *On Time (${voiceCompliant.length}/${voiceStudents.length}):*\n`;
+    report += `🌟 *১. ${isBn ? 'ভয়েস গ্রুপ (ভোর ৪:০০ জাগরণ | ৪:৩০ এর মধ্যে মর্নিং প্রোগ্রাম)' : 'VOICE GROUP (Target: Wake 4:00 AM | MP <= 4:30 AM)'}*\n`;
+    report += `✅ *${isBn ? 'সময়মতো উপস্থিত' : 'On Time'} (${toBn(voiceCompliant.length)}/${toBn(voiceStudents.length)}):*\n`;
     if (voiceCompliant.length > 0) {
       voiceCompliant.forEach((name, i) => {
-        report += `   ${i + 1}. ${name}\n`;
+        report += `   ${toBn(i + 1)}. ${name}\n`;
       });
     } else {
-      report += `   (None)\n`;
+      report += `   (${isBn ? 'কেউ নেই' : 'None'})\n`;
     }
     if (voiceNonCompliant.length > 0) {
-      report += `⚠️ *Late / Missed (${voiceNonCompliant.length}):*\n`;
+      report += `⚠️ *${isBn ? 'দেরি / মিস' : 'Late / Missed'} (${toBn(voiceNonCompliant.length)}):*\n`;
       voiceNonCompliant.forEach((item, i) => {
-        report += `   ${i + 1}. ${item}\n`;
+        report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
     if (voiceAbsent.length > 0) {
-      report += `🔴 *Absent Devotees (${voiceAbsent.length}):*\n`;
+      report += `🔴 *${isBn ? 'অনুপস্থিত ভক্তবৃন্দ' : 'Absent Devotees'} (${toBn(voiceAbsent.length)}):*\n`;
       voiceAbsent.forEach((item, i) => {
-        report += `   ${i + 1}. ${item}\n`;
+        report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
     report += `\n`;
 
-    report += `🪷 *2. LOTUS GROUP (Target: MP <= 5:00 AM)*\n`;
-    report += `✅ *On Time (${lotusCompliant.length}/${lotusStudents.length}):*\n`;
+    report += `🪷 *২. ${isBn ? 'লোটাস গ্রুপ (ভোর ৫:০০ এর মধ্যে মর্নিং প্রোগ্রাম)' : 'LOTUS GROUP (Target: MP <= 5:00 AM)'}*\n`;
+    report += `✅ *${isBn ? 'সময়মতো উপস্থিত' : 'On Time'} (${toBn(lotusCompliant.length)}/${toBn(lotusStudents.length)}):*\n`;
     if (lotusCompliant.length > 0) {
       lotusCompliant.forEach((name, i) => {
-        report += `   ${i + 1}. ${name}\n`;
+        report += `   ${toBn(i + 1)}. ${name}\n`;
       });
     } else {
-      report += `   (None)\n`;
+      report += `   (${isBn ? 'কেউ নেই' : 'None'})\n`;
     }
     if (lotusNonCompliant.length > 0) {
-      report += `⚠️ *Late / Missed (${lotusNonCompliant.length}):*\n`;
+      report += `⚠️ *${isBn ? 'দেরি / মিস' : 'Late / Missed'} (${toBn(lotusNonCompliant.length)}):*\n`;
       lotusNonCompliant.forEach((item, i) => {
-        report += `   ${i + 1}. ${item}\n`;
+        report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
     if (lotusAbsent.length > 0) {
-      report += `🔴 *Absent Devotees (${lotusAbsent.length}):*\n`;
+      report += `🔴 *${isBn ? 'অনুপস্থিত ভক্তবৃন্দ' : 'Absent Devotees'} (${toBn(lotusAbsent.length)}):*\n`;
       lotusAbsent.forEach((item, i) => {
-        report += `   ${i + 1}. ${item}\n`;
+        report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
     report += `\n`;
 
-    report += `📊 *Summary:* ${totalCompliant} On-Time, ${totalNonCompliant} Exception(s), ${totalAbsent} Absent\n`;
-    report += `🙏 *Reported by:* Morning Program Incharge (Advaita VOICE)\n`;
+    report += `📊 *${isBn ? 'সারসংক্ষেপ' : 'Summary'}:* ${toBn(totalCompliant)} ${isBn ? 'জন সময়মতো' : 'On-Time'}, ${toBn(totalNonCompliant)} ${isBn ? 'জন ব্যতিক্রম' : 'Exception(s)'}, ${toBn(totalAbsent)} ${isBn ? 'জন অনুপস্থিত' : 'Absent'}\n`;
+    report += `🙏 *${isBn ? 'রিপোর্ট প্রেরণকারী' : 'Reported by'}:* ${isBn ? 'মর্নিং প্রোগ্রাম ইনচার্জ (অদ্বৈত ভয়েস)' : 'Morning Program Incharge (Advaita VOICE)'}\n`;
     return report;
   };
 
   // Generate Combined Security Manager / Night Discipline Report (Both Groups)
   const generateSecurityManagerCombinedReport = () => {
+    const isBn = language === 'bn';
     const voiceStudents = students.filter(s => s.group === 'VOICE');
     const lotusStudents = students.filter(s => s.group === 'LOTUS');
 
@@ -478,15 +508,15 @@ export const AshramDisciplineAudit: React.FC = () => {
     voiceStudents.forEach(s => {
       const entry = getEntry(s.id);
       if (entry.isAbsent) {
-        let reasonStr = entry.absenceReason ? ` — *Reason:* ${entry.absenceReason}` : '';
-        voiceAbsent.push(`🔴 *${s.name}* (Night Leave / Absent)${reasonStr}`);
+        const reason = formatReasonText(entry.absenceReason, isBn);
+        voiceAbsent.push(`🔴 *${s.name}* — ${reason}`);
       } else {
         if (entry.sleptOnTime) {
           voiceCompliant.push(s.name);
         } else {
-          let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
-          let strikeStr = s.monthlyStrikes > 0 ? ` [Strike ${s.monthlyStrikes}/3]` : '';
-          voiceNonCompliant.push(`❌ *${s.name}* (Late Bed >10:00 PM)${reasonStr}${strikeStr}`);
+          let reasonStr = entry.reason ? ` — *${isBn ? 'কারণ' : 'Reason'}:* ${formatReasonText(entry.reason, isBn)}` : '';
+          let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
+          voiceNonCompliant.push(`❌ *${s.name}* (${isBn ? 'দেরিতে শয়ন >১০:০০' : 'Late Bed >10:00 PM'})${reasonStr}${strikeStr}`);
         }
       }
     });
@@ -494,15 +524,15 @@ export const AshramDisciplineAudit: React.FC = () => {
     lotusStudents.forEach(s => {
       const entry = getEntry(s.id);
       if (entry.isAbsent) {
-        let reasonStr = entry.absenceReason ? ` — *Reason:* ${entry.absenceReason}` : '';
-        lotusAbsent.push(`🔴 *${s.name}* (Night Leave / Absent)${reasonStr}`);
+        const reason = formatReasonText(entry.absenceReason, isBn);
+        lotusAbsent.push(`🔴 *${s.name}* — ${reason}`);
       } else {
         if (entry.sleptOnTime) {
           lotusCompliant.push(s.name);
         } else {
-          let reasonStr = entry.reason ? ` — *Reason:* ${entry.reason}` : '';
-          let strikeStr = s.monthlyStrikes > 0 ? ` [Strike ${s.monthlyStrikes}/3]` : '';
-          lotusNonCompliant.push(`❌ *${s.name}* (Late Bed >11:00 PM)${reasonStr}${strikeStr}`);
+          let reasonStr = entry.reason ? ` — *${isBn ? 'কারণ' : 'Reason'}:* ${formatReasonText(entry.reason, isBn)}` : '';
+          let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
+          lotusNonCompliant.push(`❌ *${s.name}* (${isBn ? 'দেরিতে শয়ন >১১:০০' : 'Late Bed >11:00 PM'})${reasonStr}${strikeStr}`);
         }
       }
     });
@@ -512,60 +542,62 @@ export const AshramDisciplineAudit: React.FC = () => {
     const totalNonCompliant = voiceNonCompliant.length + lotusNonCompliant.length;
     const totalAbsent = voiceAbsent.length + lotusAbsent.length;
 
-    let report = `🌙 *ADVAITA VOICE — NIGHT DISCIPLINE & SECURITY REPORT* 🌙\n`;
-    report += `📅 *Date:* ${dateFormatted}\n`;
-    report += `🔒 *Curfew & Bedtime Compliance:* ${totalCompliant}/${totalStudents} Present on Time`;
-    if (totalAbsent > 0) report += ` (${totalAbsent} Night Leave/Absent)`;
+    let report = isBn
+      ? `🌙 *অদ্বৈত ভয়েস — নৈশ শৃঙ্খলা ও নিরাপত্তা রিপোর্ট* 🌙\n`
+      : `🌙 *ADVAITA VOICE — NIGHT DISCIPLINE & SECURITY REPORT* 🌙\n`;
+    report += `📅 *${isBn ? 'তারিখ' : 'Date'}:* ${dateFormatted}\n`;
+    report += `🔒 *${isBn ? 'কারফিউ ও শয়ন নিয়ম পালন' : 'Curfew & Bedtime Compliance'}:* ${toBn(totalCompliant)}/${toBn(totalStudents)} ${isBn ? 'জন সময়মতো শয়ন' : 'Present on Time'}`;
+    if (totalAbsent > 0) report += ` (${toBn(totalAbsent)} ${isBn ? 'জন নৈশ ছুটি/অনুপস্থিত' : 'Night Leave/Absent'})`;
     report += `\n\n`;
 
-    report += `🌟 *1. VOICE GROUP (Bedtime Target: <= 10:00 PM | Lights Off)*\n`;
-    report += `✅ *Slept On Time (${voiceCompliant.length}/${voiceStudents.length}):*\n`;
+    report += `🌟 *১. ${isBn ? 'ভয়েস গ্রুপ (শয়ন লক্ষ্য: রাত ১০:০০ এর মধ্যে | বাতি বন্ধ)' : 'VOICE GROUP (Bedtime Target: <= 10:00 PM | Lights Off)'}*\n`;
+    report += `✅ *${isBn ? 'সময়মতো শয়ন' : 'Slept On Time'} (${toBn(voiceCompliant.length)}/${toBn(voiceStudents.length)}):*\n`;
     if (voiceCompliant.length > 0) {
       voiceCompliant.forEach((name, i) => {
-        report += `   ${i + 1}. ${name}\n`;
+        report += `   ${toBn(i + 1)}. ${name}\n`;
       });
     } else {
-      report += `   (None)\n`;
+      report += `   (${isBn ? 'কেউ নেই' : 'None'})\n`;
     }
     if (voiceNonCompliant.length > 0) {
-      report += `⚠️ *Late Bed Violations (${voiceNonCompliant.length}):*\n`;
+      report += `⚠️ *${isBn ? 'দেরিতে শয়ন' : 'Late Bed Violations'} (${toBn(voiceNonCompliant.length)}):*\n`;
       voiceNonCompliant.forEach((item, i) => {
-        report += `   ${i + 1}. ${item}\n`;
+        report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
     if (voiceAbsent.length > 0) {
-      report += `🔴 *Night Leave / Absent (${voiceAbsent.length}):*\n`;
+      report += `🔴 *${isBn ? 'নৈশ ছুটি / অনুপস্থিত' : 'Night Leave / Absent'} (${toBn(voiceAbsent.length)}):*\n`;
       voiceAbsent.forEach((item, i) => {
-        report += `   ${i + 1}. ${item}\n`;
+        report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
     report += `\n`;
 
-    report += `🪷 *2. LOTUS GROUP (Bedtime Target: <= 11:00 PM | Security Lock)*\n`;
-    report += `✅ *Slept On Time (${lotusCompliant.length}/${lotusStudents.length}):*\n`;
+    report += `🪷 *২. ${isBn ? 'লোটাস গ্রুপ (শয়ন লক্ষ্য: রাত ১১:০০ এর মধ্যে | সিকিউরিটি লক)' : 'LOTUS GROUP (Bedtime Target: <= 11:00 PM | Security Lock)'}*\n`;
+    report += `✅ *${isBn ? 'সময়মতো শয়ন' : 'Slept On Time'} (${toBn(lotusCompliant.length)}/${toBn(lotusStudents.length)}):*\n`;
     if (lotusCompliant.length > 0) {
       lotusCompliant.forEach((name, i) => {
-        report += `   ${i + 1}. ${name}\n`;
+        report += `   ${toBn(i + 1)}. ${name}\n`;
       });
     } else {
-      report += `   (None)\n`;
+      report += `   (${isBn ? 'কেউ নেই' : 'None'})\n`;
     }
     if (lotusNonCompliant.length > 0) {
-      report += `⚠️ *Late Bed Violations (${lotusNonCompliant.length}):*\n`;
+      report += `⚠️ *${isBn ? 'দেরিতে শয়ন' : 'Late Bed Violations'} (${toBn(lotusNonCompliant.length)}):*\n`;
       lotusNonCompliant.forEach((item, i) => {
-        report += `   ${i + 1}. ${item}\n`;
+        report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
     if (lotusAbsent.length > 0) {
-      report += `🔴 *Night Leave / Absent (${lotusAbsent.length}):*\n`;
+      report += `🔴 *${isBn ? 'নৈশ ছুটি / অনুপস্থিত' : 'Night Leave / Absent'} (${toBn(lotusAbsent.length)}):*\n`;
       lotusAbsent.forEach((item, i) => {
-        report += `   ${i + 1}. ${item}\n`;
+        report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
     report += `\n`;
 
-    report += `📊 *Summary:* ${totalCompliant} Slept On-Time, ${totalNonCompliant} Violation(s), ${totalAbsent} Night Leave\n`;
-    report += `🙏 *Reported by:* Security Manager (Advaita VOICE)\n`;
+    report += `📊 *${isBn ? 'সারসংক্ষেপ' : 'Summary'}:* ${toBn(totalCompliant)} ${isBn ? 'জন সময়মতো শয়ন' : 'Slept On-Time'}, ${toBn(totalNonCompliant)} ${isBn ? 'জন অনিয়ম' : 'Violation(s)'}, ${toBn(totalAbsent)} ${isBn ? 'জন নৈশ ছুটি' : 'Night Leave'}\n`;
+    report += `🙏 *${isBn ? 'রিপোর্ট প্রেরণকারী' : 'Reported by'}:* ${isBn ? 'সিকিউরিটি ম্যানেজার (অদ্বৈত ভয়েস)' : 'Security Manager (Advaita VOICE)'}\n`;
     return report;
   };
 
