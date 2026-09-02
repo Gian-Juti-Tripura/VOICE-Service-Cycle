@@ -9,7 +9,6 @@ export interface ShareOptions {
 }
 
 export const shareToWhatsAppOrSystem = async ({
-  title = 'Advaita VOICE Report',
   text,
   whatsappNumber,
   successMessage = 'Opening WhatsApp...'
@@ -28,46 +27,13 @@ export const shareToWhatsAppOrSystem = async ({
   const encodedText = encodeURIComponent(text);
   const cleanPhone = whatsappNumber ? whatsappNumber.replace(/[^0-9+]/g, '') : '';
 
-  // If specific phone provided or direct WhatsApp preferred
-  if (cleanPhone) {
-    const directAppUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodedText}`;
-    const webFallbackUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodedText}`;
-    
-    // Try launching installed Android WhatsApp app directly
-    try {
-      window.location.href = directAppUrl;
-      toast.success(successMessage, { icon: '📱' });
-      return true;
-    } catch (e) {
-      window.open(webFallbackUrl, '_blank');
-      return true;
-    }
-  }
+  // Open standard HTTPS WhatsApp API URL in a new tab
+  // This seamlessly opens WhatsApp Web on Desktop (without xdg-open popups) and WhatsApp App on mobile
+  const whatsappUrl = cleanPhone 
+    ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodedText}`
+    : `https://api.whatsapp.com/send?text=${encodedText}`;
 
-  // If Android Native Share is available, open native system drawer
-  if (typeof navigator !== 'undefined' && navigator.share) {
-    try {
-      await navigator.share({
-        title,
-        text,
-      });
-      toast.success('Shared successfully!', { icon: '✨' });
-      return true;
-    } catch (err: any) {
-      // User cancelled share sheet or error
-      if (err.name === 'AbortError') {
-        return false;
-      }
-    }
-  }
-
-  // Fallback to WhatsApp general direct URI or Web URL
-  try {
-    window.location.href = `whatsapp://send?text=${encodedText}`;
-    toast.success(successMessage, { icon: '📱' });
-    return true;
-  } catch (e) {
-    window.open(`https://api.whatsapp.com/send?text=${encodedText}`, '_blank');
-    return true;
-  }
+  window.open(whatsappUrl, '_blank');
+  toast.success(successMessage, { icon: '📱' });
+  return true;
 };

@@ -611,14 +611,14 @@ export const AshramDisciplineAudit: React.FC = () => {
           </div>
         </div>
 
-        {/* Group Filter Tabs & Report Copy Buttons */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+        {/* Row 1: Clean Tabs and Devotee Management */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
           
           {/* Tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
             <button
               onClick={() => setActiveTab('VOICE')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all shrink-0 ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 activeTab === 'VOICE'
                   ? 'bg-amber-500 text-slate-950 shadow-sm font-black'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
@@ -629,7 +629,7 @@ export const AshramDisciplineAudit: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('LOTUS')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all shrink-0 ${
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 activeTab === 'LOTUS'
                   ? 'bg-indigo-600 text-white shadow-sm font-black'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
@@ -640,46 +640,49 @@ export const AshramDisciplineAudit: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('ALL')}
-              className={`px-3 py-2 rounded-lg text-xs font-bold transition-all shrink-0 ${
+              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 activeTab === 'ALL'
                   ? 'bg-slate-900 text-white dark:bg-slate-700 shadow-sm font-black'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
             >
-              <span>All Students ({students.length})</span>
+              <span>👥 All Students ({students.length})</span>
             </button>
           </div>
 
-          {/* Action Bar (Mark All + Copy Report) */}
+          {/* Quick Management Actions */}
           <div className="flex items-center gap-2 flex-wrap justify-end">
-            
+            <button
+              onClick={() => {
+                triggerHaptic('light');
+                if (activeTab === 'ALL') {
+                  handleMarkAllOnTime('VOICE');
+                  handleMarkAllOnTime('LOTUS');
+                } else {
+                  handleMarkAllOnTime(activeTab);
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-all cursor-pointer"
+            >
+              <CheckCircle2 size={14} />
+              <span>Mark On-Time</span>
+            </button>
+
             {activeTab === 'VOICE' && (
               <>
                 <button
                   onClick={() => {
-                    triggerHaptic('light');
-                    handleMarkAllOnTime('VOICE');
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold hover:bg-emerald-100 transition-all cursor-pointer"
-                >
-                  <CheckCircle2 size={14} />
-                  <span>Mark All On-Time</span>
-                </button>
-
-                <button
-                  onClick={() => {
                     const report = generateVoiceReport();
                     shareToWhatsAppOrSystem({
-                      title: 'VOICE Group Discipline Report',
                       text: report,
-                      successMessage: 'Opening WhatsApp...'
+                      successMessage: 'Opening WhatsApp with VOICE Report...'
                     });
                   }}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
-                  title="Send via WhatsApp"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-xs transition-all cursor-pointer"
+                  title="Send VOICE Group WhatsApp Report"
                 >
-                  <Send size={14} />
-                  <span>WhatsApp Report</span>
+                  <Send size={13} />
+                  <span>VOICE Report</span>
                 </button>
 
                 <button
@@ -687,9 +690,10 @@ export const AshramDisciplineAudit: React.FC = () => {
                     triggerHaptic('selection');
                     copyToClipboard(generateVoiceReport(), 'VOICE');
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-xs font-bold transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 text-xs font-bold transition-all cursor-pointer"
+                  title="Copy VOICE Report"
                 >
-                  {copiedVoice ? <Check size={14} /> : <Copy size={14} />}
+                  {copiedVoice ? <Check size={13} /> : <Copy size={13} />}
                   <span>{copiedVoice ? 'Copied!' : 'Copy'}</span>
                 </button>
               </>
@@ -699,29 +703,17 @@ export const AshramDisciplineAudit: React.FC = () => {
               <>
                 <button
                   onClick={() => {
-                    triggerHaptic('light');
-                    handleMarkAllOnTime('LOTUS');
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold hover:bg-emerald-100 transition-all cursor-pointer"
-                >
-                  <CheckCircle2 size={14} />
-                  <span>Mark All On-Time</span>
-                </button>
-
-                <button
-                  onClick={() => {
                     const report = generateLotusReport();
                     shareToWhatsAppOrSystem({
-                      title: 'Lotus Group Discipline Report',
                       text: report,
-                      successMessage: 'Opening WhatsApp...'
+                      successMessage: 'Opening WhatsApp with Lotus Report...'
                     });
                   }}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
-                  title="Send via WhatsApp"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs shadow-xs transition-all cursor-pointer"
+                  title="Send Lotus Group WhatsApp Report"
                 >
-                  <Send size={14} />
-                  <span>WhatsApp Report</span>
+                  <Send size={13} />
+                  <span>Lotus Report</span>
                 </button>
 
                 <button
@@ -729,104 +721,11 @@ export const AshramDisciplineAudit: React.FC = () => {
                     triggerHaptic('selection');
                     copyToClipboard(generateLotusReport(), 'LOTUS');
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 border border-indigo-500/30 text-xs font-bold transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 border border-indigo-500/30 text-xs font-bold transition-all cursor-pointer"
+                  title="Copy Lotus Report"
                 >
-                  {copiedLotus ? <Check size={14} /> : <Copy size={14} />}
+                  {copiedLotus ? <Check size={13} /> : <Copy size={13} />}
                   <span>{copiedLotus ? 'Copied!' : 'Copy'}</span>
-                </button>
-              </>
-            )}
-
-            {activeTab === 'ALL' && (
-              <>
-                {/* Morning Program Incharge Combined Report */}
-                <button
-                  onClick={() => {
-                    const mpReport = generateMorningProgramCombinedReport();
-                    shareToWhatsAppOrSystem({
-                      title: 'Advaita VOICE Morning Program Combined Report',
-                      text: mpReport,
-                      successMessage: 'Opening WhatsApp...'
-                    });
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
-                  title="Send Morning Program Report (Both Groups)"
-                >
-                  <Sun size={14} />
-                  <span>🌅 Morning Report</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    triggerHaptic('selection');
-                    const mpReport = generateMorningProgramCombinedReport();
-                    copyToClipboard(mpReport, 'MP');
-                  }}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 border border-amber-500/30 font-bold text-xs shadow-xs transition-all cursor-pointer"
-                  title="Copy Morning Program Report"
-                >
-                  {copiedMp ? <Check size={14} /> : <Copy size={14} />}
-                  <span>{copiedMp ? 'Copied!' : 'Copy MP'}</span>
-                </button>
-
-                {/* Security Manager Combined Report */}
-                <button
-                  onClick={() => {
-                    const nightReport = generateSecurityManagerCombinedReport();
-                    shareToWhatsAppOrSystem({
-                      title: 'Advaita VOICE Security Manager Night Report',
-                      text: nightReport,
-                      successMessage: 'Opening WhatsApp...'
-                    });
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
-                  title="Send Security / Night Report (Both Groups)"
-                >
-                  <Moon size={14} />
-                  <span>🌙 Security Report</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    triggerHaptic('selection');
-                    const nightReport = generateSecurityManagerCombinedReport();
-                    copyToClipboard(nightReport, 'NIGHT');
-                  }}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-800 dark:text-indigo-300 border border-indigo-500/30 font-bold text-xs shadow-xs transition-all cursor-pointer"
-                  title="Copy Security / Night Report"
-                >
-                  {copiedNight ? <Check size={14} /> : <Copy size={14} />}
-                  <span>{copiedNight ? 'Copied!' : 'Copy Night'}</span>
-                </button>
-
-                {/* Send All Combined */}
-                <button
-                  onClick={() => {
-                    const fullReport = `${generateMorningProgramCombinedReport()}\n=============================\n\n${generateSecurityManagerCombinedReport()}`;
-                    shareToWhatsAppOrSystem({
-                      title: 'Advaita VOICE Full Discipline Report',
-                      text: fullReport,
-                      successMessage: 'Opening WhatsApp...'
-                    });
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-sm transition-all active:scale-95 cursor-pointer"
-                  title="Send All Reports"
-                >
-                  <Send size={14} />
-                  <span>All</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    triggerHaptic('selection');
-                    const fullReport = `${generateMorningProgramCombinedReport()}\n=============================\n\n${generateSecurityManagerCombinedReport()}`;
-                    copyToClipboard(fullReport, 'ALL');
-                  }}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
-                  title="Copy All Combined"
-                >
-                  {copiedAll ? <Check size={14} /> : <Copy size={14} />}
-                  <span>{copiedAll ? 'Copied!' : 'Copy All'}</span>
                 </button>
               </>
             )}
@@ -840,7 +739,141 @@ export const AshramDisciplineAudit: React.FC = () => {
               <span>Add Devotee</span>
             </button>
           </div>
+        </div>
 
+        {/* Row 2: Incharge Reports Command Center */}
+        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-4 sm:p-5 rounded-[24px] border border-indigo-500/30 shadow-md space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-2.5">
+            <div className="flex items-center gap-2">
+              <span className="text-amber-400">📊</span>
+              <h2 className="text-xs sm:text-sm font-black tracking-wide uppercase text-white">
+                Incharge Daily Reports & WhatsApp Dispatch
+              </h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const fullReport = `${generateMorningProgramCombinedReport()}\n=============================\n\n${generateSecurityManagerCombinedReport()}`;
+                  shareToWhatsAppOrSystem({
+                    text: fullReport,
+                    successMessage: 'Opening WhatsApp with Full Report...'
+                  });
+                }}
+                className="text-[11px] font-bold text-amber-300 hover:text-amber-200 underline cursor-pointer inline-flex items-center gap-1"
+              >
+                <span>Share Full Summary →</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  triggerHaptic('selection');
+                  const fullReport = `${generateMorningProgramCombinedReport()}\n=============================\n\n${generateSecurityManagerCombinedReport()}`;
+                  copyToClipboard(fullReport, 'ALL');
+                }}
+                className="text-[11px] font-bold bg-white/10 hover:bg-white/20 px-2 py-0.5 rounded-md text-slate-200 cursor-pointer inline-flex items-center gap-1"
+                title="Copy Full Report"
+              >
+                {copiedAll ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
+                <span>{copiedAll ? 'Copied' : 'Copy All'}</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+            {/* Morning Program Incharge Card */}
+            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex flex-col justify-between gap-3">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold text-amber-300 flex items-center gap-1.5">
+                    <Sun size={14} className="text-amber-400" />
+                    Morning Program Incharge Report
+                  </span>
+                  <span className="text-[10px] bg-amber-500/20 text-amber-200 font-mono px-2 py-0.5 rounded-full font-bold">
+                    All 12 Students
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300 mt-1 font-normal">
+                  Covers morning wake-up & Mangal Arati attendance for both VOICE & Lotus groups.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  onClick={() => {
+                    const mpReport = generateMorningProgramCombinedReport();
+                    shareToWhatsAppOrSystem({
+                      text: mpReport,
+                      successMessage: 'Opening WhatsApp...'
+                    });
+                  }}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-xs transition-all cursor-pointer"
+                >
+                  <Send size={13} />
+                  <span>Send WhatsApp</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    triggerHaptic('selection');
+                    const mpReport = generateMorningProgramCombinedReport();
+                    copyToClipboard(mpReport, 'MP');
+                  }}
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/15 text-xs font-bold transition-all cursor-pointer"
+                  title="Copy Morning Report"
+                >
+                  {copiedMp ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                  <span>{copiedMp ? 'Copied!' : 'Copy'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Security Manager Night Report Card */}
+            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex flex-col justify-between gap-3">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-extrabold text-indigo-300 flex items-center gap-1.5">
+                    <Moon size={14} className="text-indigo-400" />
+                    Security Manager Night Report
+                  </span>
+                  <span className="text-[10px] bg-indigo-500/20 text-indigo-200 font-mono px-2 py-0.5 rounded-full font-bold">
+                    All 12 Students
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300 mt-1 font-normal">
+                  Covers bedtime curfew compliance (10 PM / 11 PM) and lights-off security for all students.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  onClick={() => {
+                    const nightReport = generateSecurityManagerCombinedReport();
+                    shareToWhatsAppOrSystem({
+                      text: nightReport,
+                      successMessage: 'Opening WhatsApp...'
+                    });
+                  }}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs shadow-xs transition-all cursor-pointer"
+                >
+                  <Send size={13} />
+                  <span>Send WhatsApp</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    triggerHaptic('selection');
+                    const nightReport = generateSecurityManagerCombinedReport();
+                    copyToClipboard(nightReport, 'NIGHT');
+                  }}
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/15 text-xs font-bold transition-all cursor-pointer"
+                  title="Copy Night Report"
+                >
+                  {copiedNight ? <Check size={13} className="text-indigo-400" /> : <Copy size={13} />}
+                  <span>{copiedNight ? 'Copied!' : 'Copy'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Student Checklist Cards with Edit Option */}
