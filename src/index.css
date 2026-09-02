@@ -221,5 +221,53 @@
   mix-blend-mode: screen;
 }
 
+/* Clean, Ink-Saving Print Media Styles */
+@media print {
+  @page {
+    margin: 12mm;
+    size: A4 portrait;
+  }
 
+  body, html {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+  }
 
+  /* Hide navigation, toolbars, buttons, shadows, background effects */
+  header, nav, footer, button, .no-print, [role="navigation"], .ServiceCycleHeader {
+    display: none !important;
+  }
+
+  /* Ensure tables print crisp with black text and light borders */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    color: #000000 !important;
+    background: #ffffff !important;
+  }
+
+  th {
+    background-color: #f1f5f9 !important;
+    color: #000000 !important;
+    font-weight: 800 !important;
+    border-bottom: 2px solid #000000 !important;
+    padding: 8px 10px !important;
+  }
+
+  td {
+    border-bottom: 1px solid #cbd5e1 !important;
+    color: #000000 !important;
+    padding: 8px 10px !important;
+  }
+
+  tr:nth-child(even) td {
+    background-color: #f8fafc !important;
+  }
+
+  /* Force all dark colors to black/white */
+  .dark {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}
