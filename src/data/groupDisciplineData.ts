@@ -1,5 +1,76 @@
 export type GroupType = 'VOICE' | 'LOTUS';
 
+export type DisciplineAuditorRole = 'ADMIN' | 'MORNING_INCHARGE' | 'SECURITY_MANAGER' | 'INTERNAL_MANAGER' | 'VIEWER';
+
+export interface AuditorProfile {
+  key: DisciplineAuditorRole;
+  titleEn: string;
+  titleBn: string;
+  inchargeNameEn: string;
+  inchargeNameBn: string;
+  studentId?: string;
+  badgeColor: string;
+  descriptionEn: string;
+  descriptionBn: string;
+}
+
+export const DISCIPLINE_AUDITOR_ROLES: AuditorProfile[] = [
+  {
+    key: 'ADMIN',
+    titleEn: 'Admin / Overall Coordinator',
+    titleBn: 'অ্যাডমিন ও সার্বিক সমন্বয়ক',
+    inchargeNameEn: 'Utpol Das & Gian Juti (Admin)',
+    inchargeNameBn: 'উৎপল দাস ও জ্ঞান জ্যোতি (অ্যাডমিন)',
+    studentId: 'member_0',
+    badgeColor: 'bg-amber-500 text-slate-950',
+    descriptionEn: 'Full editing authority across all Bedtime, Morning Program, Strikes, and Devotee lists.',
+    descriptionBn: 'শয়ন, মর্নিং প্রোগ্রাম, স্ট্রাইক এবং ভক্ত তালিকার পূর্ণ পরিবর্তন ও নিয়ন্ত্রণের ক্ষমতাপ্রাপ্ত।'
+  },
+  {
+    key: 'MORNING_INCHARGE',
+    titleEn: 'Morning Program Incharge',
+    titleBn: 'মর্নিং প্রোগ্রাম ইনচার্জ',
+    inchargeNameEn: 'Joykanto Roy (Joykant P.)',
+    inchargeNameBn: 'জয়কান্ত রায় (জয়কান্ত প্রভু)',
+    studentId: 'member_10',
+    badgeColor: 'bg-emerald-600 text-white',
+    descriptionEn: 'Authorized to edit Wake-up (4:00 AM), MP Punctuality (with late minutes), Mangalarati, and Morning Class.',
+    descriptionBn: 'ভোর ৪:০০ জাগরণ, মর্নিং প্রোগ্রাম (বিলম্ব মিনিট), মঙ্গল আরতি ও ক্লাসের উপস্থিতি নিয়ন্ত্রণের ক্ষমতাপ্রাপ্ত।'
+  },
+  {
+    key: 'SECURITY_MANAGER',
+    titleEn: 'Security & Energy Manager',
+    titleBn: 'নিরাপত্তা ও বিদ্যুৎ ব্যবস্থাপক',
+    inchargeNameEn: 'Sangakara Das (Sanga P.)',
+    inchargeNameBn: 'সাঙ্গাকারা দাস (সাঙ্গা প্রভু)',
+    studentId: 'member_4',
+    badgeColor: 'bg-indigo-600 text-white',
+    descriptionEn: 'Authorized to edit Bedtime Curfew compliance (10 PM / 11 PM), late minutes, and Night Leaves/Absence reasons.',
+    descriptionBn: 'নৈশ কারফিউ শয়ন সময় (১০/১১টা), বিলম্ব মিনিট ও নৈশ ছুটির কারণ নিয়ন্ত্রণের ক্ষমতাপ্রাপ্ত।'
+  },
+  {
+    key: 'INTERNAL_MANAGER',
+    titleEn: 'Internal Manager',
+    titleBn: 'অভ্যন্তরীণ ব্যবস্থাপক',
+    inchargeNameEn: 'Dipendranath Roy (Dipen P.)',
+    inchargeNameBn: 'দীপেন্দ্রনাথ রায় (দীপেন প্রভু)',
+    studentId: 'member_5',
+    badgeColor: 'bg-purple-600 text-white',
+    descriptionEn: 'Supervisory management authority across all daily ashram discipline activities.',
+    descriptionBn: 'দৈনিক আশ্রম শৃঙ্খলার সার্বিক ব্যবস্থাপনা ও পর্যালোচনার ক্ষমতাপ্রাপ্ত।'
+  },
+  {
+    key: 'VIEWER',
+    titleEn: 'General Devotee (View-Only)',
+    titleBn: 'সাধারণ ভক্ত (শুধু দর্শন/রিপোর্ট)',
+    inchargeNameEn: 'Ashram Devotees & Visitors',
+    inchargeNameBn: 'আশ্রম ভক্তবৃন্দ ও দর্শনার্থী',
+    badgeColor: 'bg-slate-700 text-slate-200',
+    descriptionEn: 'Read-only access to view daily attendance, sadhana records, history logs, and monthly verdicts.',
+    descriptionBn: 'শুধুমাত্র দৈনিক উপস্থিতি, সাধনা রেকর্ড, হিস্ট্রি ও মাসিক মূল্যায়ন পর্যবেক্ষণের সুবিধা।'
+  }
+];
+
 export interface StudentDisciplineRecord {
   id: string;
   name: string;

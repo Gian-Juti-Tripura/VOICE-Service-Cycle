@@ -7,12 +7,14 @@ import {
   UserPlus, Trash2, ArrowRightLeft,
   Moon, Sun, Clock, AlertCircle, Edit, Save, X, Send,
   Flame, BookOpen, History, Award,
-  Download
+  Download, Shield
 } from 'lucide-react';
 import { 
   type GroupType, 
+  type DisciplineAuditorRole,
   type StudentDisciplineRecord, 
   type DailyDisciplineEntry, 
+  DISCIPLINE_AUDITOR_ROLES,
   EMERGENCY_REASONS, 
   ABSENCE_REASONS,
   MANGALARATI_REASONS,
@@ -29,6 +31,7 @@ import toast from 'react-hot-toast';
 
 const STORAGE_STUDENTS_KEY = 'advaita_discipline_students_v4';
 const STORAGE_DAILY_KEY = 'advaita_discipline_daily_v4';
+const STORAGE_AUDITOR_ROLE_KEY = 'advaita_discipline_auditor_role_v1';
 
 interface MonthlyDevoteeStats {
   student: StudentDisciplineRecord;
@@ -55,6 +58,20 @@ export const AshramDisciplineAudit: React.FC = () => {
   const { language } = useLanguage();
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date(2026, 8, 7, 12, 0, 0));
   const [activeTab, setActiveTab] = useState<GroupType | 'ALL'>('VOICE');
+
+  // Role-Based Auditor Identity State
+  const [activeAuditorRole, setActiveAuditorRole] = useState<DisciplineAuditorRole>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_AUDITOR_ROLE_KEY);
+      return (saved as DisciplineAuditorRole) || 'ADMIN';
+    } catch {
+      return 'ADMIN';
+    }
+  });
+
+  // Track active custom minute inputs for Bedtime and MP
+  const [customBedActive, setCustomBedActive] = useState<Record<string, boolean>>({});
+  const [customMpActive, setCustomMpActive] = useState<Record<string, boolean>>({});
 
   const [students, setStudents] = useState<StudentDisciplineRecord[]>(() => {
     try {
@@ -105,8 +122,64 @@ export const AshramDisciplineAudit: React.FC = () => {
     localStorage.setItem(STORAGE_DAILY_KEY, JSON.stringify(dailyRecords));
   }, [dailyRecords]);
 
+  useEffect(() => {
+    localStorage.setItem(STORAGE_AUDITOR_ROLE_KEY, activeAuditorRole);
+  }, [activeAuditorRole]);
+
   const dateIso = selectedDate.toISOString().split('T')[0];
   const isBn = language === 'bn';
+
+  // Permission Evaluation
+  const canEditBedtime = activeAuditorRole === 'ADMIN' || activeAuditorRole === 'SECURITY_MANAGER' || activeAuditorRole === 'INTERNAL_MANAGER';
+  const canEditMorning = activeAuditorRole === 'ADMIN' || activeAuditorRole === 'MORNING_INCHARGE' || activeAuditorRole === 'INTERNAL_MANAGER';
+  const canEditAbsence = activeAuditorRole === 'ADMIN' || activeAuditorRole === 'SECURITY_MANAGER' || activeAuditorRole === 'INTERNAL_MANAGER';
+  const canEditStrikes = activeAuditorRole === 'ADMIN' || activeAuditorRole === 'INTERNAL_MANAGER';
+  const canManageDevotees = activeAuditorRole === 'ADMIN';
+
+  const checkPermission = (actionType: 'bedtime' | 'morning' | 'absence' | 'strikes' | 'manage'): boolean => {
+    if (activeAuditorRole === 'ADMIN') return true;
+    if (actionType === 'bedtime' && canEditBedtime) return true;
+    if (actionType === 'morning' && canEditMorning) return true;
+    if (actionType === 'absence' && canEditAbsence) return true;
+    if (actionType === 'strikes' && canEditStrikes) return true;
+    if (actionType === 'manage' && canManageDevotees) return true;
+
+    const curProfile = DISCIPLINE_AUDITOR_ROLES.find(r => r.key === activeAuditorRole);
+    const roleTitle = isBn ? curProfile?.titleBn : curProfile?.titleEn;
+
+    if (actionType === 'bedtime') {
+      toast.error(
+        isBn 
+          ? `🔒 শয়নের সময় ও বিলম্ব মিনিট সম্পাদনার অধিকার শুধুমাত্র সিকিউরিটি ও এনার্জি ম্যানেজার (সাঙ্গাকারা দাস) এবং অ্যাডমিনের রয়েছে। (বর্তমান আইডি: ${roleTitle})`
+          : `🔒 Only Security & Energy Manager (Sangakara Das) & Admin can edit Bedtime records. (Current: ${roleTitle})`
+      );
+    } else if (actionType === 'morning') {
+      toast.error(
+        isBn
+          ? `🔒 জাগরণ, মর্নিং প্রোগ্রাম ও মঙ্গল আরতি সম্পাদনার অধিকার শুধুমাত্র মর্নিং ইনচার্জ (জয়কান্ত রায়) এবং অ্যাডমিনের রয়েছে। (বর্তমান আইডি: ${roleTitle})`
+          : `🔒 Only Morning Program Incharge (Joykanto Roy) & Admin can edit Morning Sadhana records. (Current: ${roleTitle})`
+      );
+    } else if (actionType === 'absence') {
+      toast.error(
+        isBn
+          ? `🔒 অনুপস্থিতি ও নৈশ ছুটির কারণ ব্যবস্থাপনার অধিকার সিকিউরিটি ম্যানেজার ও অ্যাডমিনের রয়েছে।`
+          : `🔒 Only Security Manager & Admin can manage presence/absence reasons.`
+      );
+    } else if (actionType === 'strikes') {
+      toast.error(
+        isBn
+          ? `🔒 স্ট্রাইক সমন্বয় করার অধিকার শুধুমাত্র অ্যাডমিন ও অভ্যন্তরীণ ব্যবস্থাপকের রয়েছে।`
+          : `🔒 Only Admin and Internal Manager can adjust strikes.`
+      );
+    } else {
+      toast.error(
+        isBn
+          ? `🔒 ভক্ত তালিকা পরিবর্তন শুধুমাত্র অ্যাডমিন অ্যাকাউন্টের জন্য সংরক্ষিত।`
+          : `🔒 Devotee management is restricted to Admin.`
+      );
+    }
+    return false;
+  };
 
   const dateFormatted = selectedDate.toLocaleDateString(isBn ? 'bn-BD' : 'en-GB', { 
     weekday: 'long', 
@@ -177,6 +250,19 @@ export const AshramDisciplineAudit: React.FC = () => {
   };
 
   const handleMarkAllOnTime = (group: GroupType) => {
+    if (activeAuditorRole === 'VIEWER') {
+      checkPermission('manage');
+      return;
+    }
+    if (activeAuditorRole === 'SECURITY_MANAGER') {
+      toast.error(
+        isBn 
+          ? '🔒 সিকিউরিটি ম্যানেজার হিসেবে আপনি শুধুমাত্র শয়নের সময় নিয়ন্ত্রণ করতে পারবেন।' 
+          : '🔒 As Security Manager, you can only manage bedtime/night attendance.'
+      );
+      return;
+    }
+
     const targetStudents = students.filter(s => s.group === group);
     const newDayEntries: Record<string, DailyDisciplineEntry> = { ...(dailyRecords[dateIso] || {}) };
 
@@ -214,6 +300,8 @@ export const AshramDisciplineAudit: React.FC = () => {
   };
 
   const handleAdjustStrikes = (studentId: string, delta: number) => {
+    if (!checkPermission('strikes')) return;
+
     setStudents(prev => prev.map(s => {
       if (s.id !== studentId) return s;
       const newStrikes = Math.max(0, Math.min(3, s.monthlyStrikes + delta));
@@ -242,6 +330,8 @@ export const AshramDisciplineAudit: React.FC = () => {
   };
 
   const handleSwitchGroup = (studentId: string) => {
+    if (!checkPermission('manage')) return;
+
     setStudents(prev => prev.map(s => {
       if (s.id !== studentId) return s;
       const newGroup: GroupType = s.group === 'VOICE' ? 'LOTUS' : 'VOICE';
@@ -256,6 +346,7 @@ export const AshramDisciplineAudit: React.FC = () => {
 
   const handleAddStudent = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!checkPermission('manage')) return;
     if (!newStudentName.trim()) return;
 
     const newStudent: StudentDisciplineRecord = {
@@ -277,6 +368,7 @@ export const AshramDisciplineAudit: React.FC = () => {
 
   const handleSaveEditStudent = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!checkPermission('manage')) return;
     if (!editingStudent || !editingStudent.name.trim()) return;
 
     setStudents(prev => prev.map(s => s.id === editingStudent.id ? editingStudent : s));
@@ -285,12 +377,14 @@ export const AshramDisciplineAudit: React.FC = () => {
   };
 
   const handleDeleteStudent = (studentId: string, name: string) => {
+    if (!checkPermission('manage')) return;
     if (!window.confirm(`Remove ${name} from discipline list?`)) return;
     setStudents(prev => prev.filter(s => s.id !== studentId));
     toast.success('Devotee removed');
   };
 
   const handleResetToDefault = () => {
+    if (!checkPermission('manage')) return;
     if (!window.confirm('Reset devotee list and restore September 1–7 historical data?')) return;
     setStudents(INITIAL_DISCIPLINE_STUDENTS);
     setDailyRecords(INITIAL_DAILY_DISCIPLINE_RECORDS);
@@ -1008,6 +1102,119 @@ export const AshramDisciplineAudit: React.FC = () => {
           </div>
         </div>
 
+        {/* Role-Based Auditor Identity Switcher Banner */}
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-md space-y-3">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
+                <Shield size={20} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-xs font-black tracking-wider uppercase text-slate-500 dark:text-slate-400">
+                    {isBn ? 'দায়িত্বপ্রাপ্ত ইনচার্জ ও রোল নিয়ন্ত্রণ' : 'Discipline Auditor & Access Role'}
+                  </h2>
+                  <span className={`px-2 py-0.5 rounded-full text-[10.5px] font-black ${
+                    DISCIPLINE_AUDITOR_ROLES.find(r => r.key === activeAuditorRole)?.badgeColor || 'bg-slate-700 text-white'
+                  }`}>
+                    {isBn 
+                      ? DISCIPLINE_AUDITOR_ROLES.find(r => r.key === activeAuditorRole)?.titleBn 
+                      : DISCIPLINE_AUDITOR_ROLES.find(r => r.key === activeAuditorRole)?.titleEn}
+                  </span>
+                </div>
+                <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-0.5">
+                  👤 {isBn 
+                    ? DISCIPLINE_AUDITOR_ROLES.find(r => r.key === activeAuditorRole)?.inchargeNameBn 
+                    : DISCIPLINE_AUDITOR_ROLES.find(r => r.key === activeAuditorRole)?.inchargeNameEn}
+                  <span className="text-slate-400 dark:text-slate-500 font-normal ml-2 hidden sm:inline">
+                    — {isBn 
+                      ? DISCIPLINE_AUDITOR_ROLES.find(r => r.key === activeAuditorRole)?.descriptionBn 
+                      : DISCIPLINE_AUDITOR_ROLES.find(r => r.key === activeAuditorRole)?.descriptionEn}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            {/* Role Select Control */}
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 hidden sm:inline">
+                {isBn ? 'সক্রিয় আইডি:' : 'Active Role:'}
+              </span>
+              <select
+                value={activeAuditorRole}
+                onChange={(e) => {
+                  const newRole = e.target.value as DisciplineAuditorRole;
+                  setActiveAuditorRole(newRole);
+                  const p = DISCIPLINE_AUDITOR_ROLES.find(r => r.key === newRole);
+                  toast.success(
+                    isBn
+                      ? `সক্রিয় রোল পরিবর্তন করা হয়েছে: ${p?.titleBn} (${p?.inchargeNameBn})`
+                      : `Switched active auditor to: ${p?.titleEn} (${p?.inchargeNameEn})`
+                  );
+                }}
+                className="w-full sm:w-auto bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 cursor-pointer"
+              >
+                {DISCIPLINE_AUDITOR_ROLES.map(r => (
+                  <option key={r.key} value={r.key}>
+                    {r.key === 'ADMIN' ? '👑' : r.key === 'MORNING_INCHARGE' ? '🌅' : r.key === 'SECURITY_MANAGER' ? '🌙' : r.key === 'INTERNAL_MANAGER' ? '📋' : '👁️'} {isBn ? r.titleBn : r.titleEn} ({isBn ? r.inchargeNameBn : r.inchargeNameEn})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Quick Permission Status Pills */}
+          <div className="flex items-center gap-1.5 flex-wrap pt-2 border-t border-slate-100 dark:border-slate-800 text-[10.5px]">
+            <span className="font-bold text-slate-500 mr-1">{isBn ? 'অনুমতি সমূহ:' : 'Permissions:'}</span>
+            
+            <span className={`px-2 py-0.5 rounded-md font-semibold flex items-center gap-1 ${
+              canEditBedtime 
+                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30' 
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 line-through'
+            }`}>
+              {canEditBedtime ? '✅' : '🔒'} {isBn ? 'শয়ন কারফিউ (১০/১১টা) ও বিলম্ব' : 'Bed Curfew & Late Mins'}
+            </span>
+
+            <span className={`px-2 py-0.5 rounded-md font-semibold flex items-center gap-1 ${
+              canEditMorning 
+                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30' 
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 line-through'
+            }`}>
+              {canEditMorning ? '✅' : '🔒'} {isBn ? 'জাগরণ, এমপি, আরতি ও ক্লাস' : 'Wake, MP, Arati & Class'}
+            </span>
+
+            <span className={`px-2 py-0.5 rounded-md font-semibold flex items-center gap-1 ${
+              canEditAbsence 
+                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30' 
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 line-through'
+            }`}>
+              {canEditAbsence ? '✅' : '🔒'} {isBn ? 'ছুটি / অনুপস্থিতি' : 'Leave / Absence'}
+            </span>
+
+            <span className={`px-2 py-0.5 rounded-md font-semibold flex items-center gap-1 ${
+              canEditStrikes 
+                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30' 
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 line-through'
+            }`}>
+              {canEditStrikes ? '✅' : '🔒'} {isBn ? 'স্ট্রাইক সমন্বয়' : 'Strikes'}
+            </span>
+
+            <span className={`px-2 py-0.5 rounded-md font-semibold flex items-center gap-1 ${
+              canManageDevotees 
+                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30' 
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 line-through'
+            }`}>
+              {canManageDevotees ? '✅' : '🔒'} {isBn ? 'ভক্ত তালিকা পরিবর্তন' : 'Devotee Registry'}
+            </span>
+
+            {activeAuditorRole === 'VIEWER' && (
+              <span className="text-amber-600 dark:text-amber-400 font-black ml-auto">
+                👁️ {isBn ? 'শুধুমাত্র দেখার সুযোগ (রিপোর্ট ও ভার্ডিক্ট উন্মুক্ত)' : 'View Only Mode (Read & Reports Enabled)'}
+              </span>
+            )}
+          </div>
+        </div>
+
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
           
           <div className="flex items-center gap-1.5 overflow-x-auto p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
@@ -1285,6 +1492,7 @@ export const AshramDisciplineAudit: React.FC = () => {
 
                           <button
                             onClick={() => {
+                              if (!checkPermission('absence')) return;
                               triggerHaptic('selection');
                               updateEntry(student.id, { 
                                 isAbsent: !isAbsent,
@@ -1314,7 +1522,10 @@ export const AshramDisciplineAudit: React.FC = () => {
                             {[1, 2, 3].map(st => (
                               <button
                                 key={st}
-                                onClick={() => handleAdjustStrikes(student.id, student.monthlyStrikes === st ? -1 : (st - student.monthlyStrikes))}
+                                onClick={() => {
+                                  if (!checkPermission('strikes')) return;
+                                  handleAdjustStrikes(student.id, student.monthlyStrikes === st ? -1 : (st - student.monthlyStrikes));
+                                }}
                                 className={`w-4 h-4 rounded text-[9px] font-black flex items-center justify-center transition-all cursor-pointer ${
                                   student.monthlyStrikes >= st
                                     ? 'bg-rose-600 text-white shadow-xs'
@@ -1342,9 +1553,13 @@ export const AshramDisciplineAudit: React.FC = () => {
                           <span>🔴 Reason for Absence:</span>
                         </span>
                         <select
+                          disabled={!canEditAbsence}
                           value={entry.absenceReason || ''}
-                          onChange={(e) => updateEntry(student.id, { absenceReason: e.target.value })}
-                          className="flex-1 bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 text-slate-800 dark:text-slate-200 text-xs rounded-lg p-1.5 font-medium focus:ring-2 focus:ring-amber-500"
+                          onChange={(e) => {
+                            if (!checkPermission('absence')) return;
+                            updateEntry(student.id, { absenceReason: e.target.value });
+                          }}
+                          className="flex-1 bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 text-slate-800 dark:text-slate-200 text-xs rounded-lg p-1.5 font-medium focus:ring-2 focus:ring-amber-500 disabled:opacity-50"
                         >
                           <option value="">-- Select Absence Reason --</option>
                           {ABSENCE_REASONS.map(r => (
@@ -1355,6 +1570,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                     ) : (
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 flex-1 max-w-3xl">
                         
+                        {/* Bedtime Curfew */}
                         <div className={`p-2 rounded-xl border flex flex-col justify-between gap-1.5 transition-all ${
                           entry.sleptOnTime 
                             ? 'bg-slate-50 dark:bg-slate-800/60 border-slate-200/60 dark:border-slate-700/60' 
@@ -1366,7 +1582,13 @@ export const AshramDisciplineAudit: React.FC = () => {
                               {isVoice ? '<=10 PM' : '<=11 PM'}
                             </span>
                             <button
-                              onClick={() => updateEntry(student.id, { sleptOnTime: !entry.sleptOnTime })}
+                              onClick={() => {
+                                if (!checkPermission('bedtime')) return;
+                                updateEntry(student.id, { 
+                                  sleptOnTime: !entry.sleptOnTime,
+                                  bedLateMinutes: !entry.sleptOnTime ? 0 : (entry.bedLateMinutes || 15)
+                                });
+                              }}
                               className={`px-2 py-0.5 rounded-md text-[10.5px] font-black cursor-pointer transition-all ${
                                 entry.sleptOnTime ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
                               }`}
@@ -1377,41 +1599,56 @@ export const AshramDisciplineAudit: React.FC = () => {
                           {!entry.sleptOnTime && (
                             <div className="flex flex-col gap-1 mt-1">
                               <select
-                                value={LATE_MINUTE_OPTIONS.includes(entry.bedLateMinutes || 15) ? (entry.bedLateMinutes || 15) : 'custom'}
+                                disabled={!canEditBedtime}
+                                value={
+                                  customBedActive[student.id] || (entry.bedLateMinutes !== undefined && entry.bedLateMinutes > 0 && !LATE_MINUTE_OPTIONS.includes(entry.bedLateMinutes))
+                                    ? 'custom'
+                                    : (entry.bedLateMinutes && LATE_MINUTE_OPTIONS.includes(entry.bedLateMinutes) ? entry.bedLateMinutes : 15)
+                                }
                                 onChange={(e) => {
+                                  if (!checkPermission('bedtime')) return;
                                   if (e.target.value === 'custom') {
-                                    updateEntry(student.id, { 
-                                      bedLateMinutes: entry.bedLateMinutes && !LATE_MINUTE_OPTIONS.includes(entry.bedLateMinutes) ? entry.bedLateMinutes : 25 
-                                    });
+                                    setCustomBedActive(prev => ({ ...prev, [student.id]: true }));
+                                    if (!entry.bedLateMinutes || LATE_MINUTE_OPTIONS.includes(entry.bedLateMinutes)) {
+                                      updateEntry(student.id, { bedLateMinutes: entry.bedLateMinutes || 15 });
+                                    }
                                   } else {
-                                    updateEntry(student.id, { bedLateMinutes: parseInt(e.target.value) || 0 });
+                                    setCustomBedActive(prev => ({ ...prev, [student.id]: false }));
+                                    updateEntry(student.id, { bedLateMinutes: parseInt(e.target.value, 10) || 0 });
                                   }
                                 }}
-                                className="text-[10px] bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 rounded px-1 py-0.5 font-bold text-rose-700 dark:text-rose-300 cursor-pointer"
+                                className="text-[10px] bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 rounded px-1 py-0.5 font-bold text-rose-700 dark:text-rose-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                               >
+                                <option value="custom">✏️ {isBn ? 'কাস্টম মিনিট...' : 'Custom min...'}</option>
                                 {LATE_MINUTE_OPTIONS.map(m => (
                                   <option key={m} value={m}>Late {m}m</option>
                                 ))}
-                                <option value="custom">✏️ {isBn ? 'কাস্টম মিনিট...' : 'Custom min...'}</option>
                               </select>
-                              {(!LATE_MINUTE_OPTIONS.includes(entry.bedLateMinutes || 15) || (entry.bedLateMinutes !== undefined && entry.bedLateMinutes > 0 && !LATE_MINUTE_OPTIONS.includes(entry.bedLateMinutes))) && (
-                                <div className="flex items-center gap-1">
+                              {(customBedActive[student.id] || (entry.bedLateMinutes !== undefined && entry.bedLateMinutes > 0 && !LATE_MINUTE_OPTIONS.includes(entry.bedLateMinutes))) && (
+                                <div className="flex items-center gap-1 animate-fade-in mt-0.5">
                                   <input
                                     type="number"
                                     min="1"
                                     max="360"
-                                    value={entry.bedLateMinutes || ''}
-                                    onChange={(e) => updateEntry(student.id, { bedLateMinutes: parseInt(e.target.value) || 0 })}
-                                    placeholder="mins"
-                                    className="w-14 text-[10px] bg-white dark:bg-slate-900 border border-rose-400 dark:border-rose-700 rounded px-1.5 py-0.5 font-mono font-bold text-rose-800 dark:text-rose-200"
+                                    autoFocus
+                                    disabled={!canEditBedtime}
+                                    value={entry.bedLateMinutes === 0 ? '' : (entry.bedLateMinutes || '')}
+                                    onChange={(e) => {
+                                      if (!checkPermission('bedtime')) return;
+                                      const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10) || 0;
+                                      updateEntry(student.id, { bedLateMinutes: val });
+                                    }}
+                                    placeholder={isBn ? 'মিনিট' : 'mins'}
+                                    className="w-14 text-[10px] bg-white dark:bg-slate-900 border border-rose-400 dark:border-rose-700 rounded px-1.5 py-0.5 font-mono font-bold text-rose-800 dark:text-rose-200 focus:ring-1 focus:ring-rose-500 disabled:opacity-50"
                                   />
-                                  <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">min</span>
+                                  <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">{isBn ? 'মি.' : 'min'}</span>
                                 </div>
                               )}
                             </div>
                           )}
                         </div>
 
+                        {/* Wake-up 4:00 AM */}
                         <div className={`p-2 rounded-xl border flex flex-col justify-between gap-1.5 transition-all ${
                           entry.wokeUpOnTime 
                             ? 'bg-slate-50 dark:bg-slate-800/60 border-slate-200/60 dark:border-slate-700/60' 
@@ -1423,7 +1660,10 @@ export const AshramDisciplineAudit: React.FC = () => {
                               {isVoice ? '4:00 AM' : 'Wake'}
                             </span>
                             <button
-                              onClick={() => updateEntry(student.id, { wokeUpOnTime: !entry.wokeUpOnTime })}
+                              onClick={() => {
+                                if (!checkPermission('morning')) return;
+                                updateEntry(student.id, { wokeUpOnTime: !entry.wokeUpOnTime });
+                              }}
                               className={`px-2 py-0.5 rounded-md text-[10.5px] font-black cursor-pointer transition-all ${
                                 entry.wokeUpOnTime ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
                               }`}
@@ -1433,6 +1673,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                           </div>
                         </div>
 
+                        {/* Morning Program Attendance */}
                         <div className={`p-2 rounded-xl border flex flex-col justify-between gap-1.5 transition-all ${
                           entry.morningProgramOnTime 
                             ? 'bg-slate-50 dark:bg-slate-800/60 border-slate-200/60 dark:border-slate-700/60' 
@@ -1444,7 +1685,13 @@ export const AshramDisciplineAudit: React.FC = () => {
                               {isVoice ? '<=4:30' : '<=5:00'}
                             </span>
                             <button
-                              onClick={() => updateEntry(student.id, { morningProgramOnTime: !entry.morningProgramOnTime })}
+                              onClick={() => {
+                                if (!checkPermission('morning')) return;
+                                updateEntry(student.id, { 
+                                  morningProgramOnTime: !entry.morningProgramOnTime,
+                                  mpLateMinutes: !entry.morningProgramOnTime ? 0 : (entry.mpLateMinutes || 15)
+                                });
+                              }}
                               className={`px-2 py-0.5 rounded-md text-[10.5px] font-black cursor-pointer transition-all ${
                                 entry.morningProgramOnTime ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
                               }`}
@@ -1455,41 +1702,56 @@ export const AshramDisciplineAudit: React.FC = () => {
                           {!entry.morningProgramOnTime && (
                             <div className="flex flex-col gap-1 mt-1">
                               <select
-                                value={LATE_MINUTE_OPTIONS.includes(entry.mpLateMinutes || 15) ? (entry.mpLateMinutes || 15) : 'custom'}
+                                disabled={!canEditMorning}
+                                value={
+                                  customMpActive[student.id] || (entry.mpLateMinutes !== undefined && entry.mpLateMinutes > 0 && !LATE_MINUTE_OPTIONS.includes(entry.mpLateMinutes))
+                                    ? 'custom'
+                                    : (entry.mpLateMinutes && LATE_MINUTE_OPTIONS.includes(entry.mpLateMinutes) ? entry.mpLateMinutes : 15)
+                                }
                                 onChange={(e) => {
+                                  if (!checkPermission('morning')) return;
                                   if (e.target.value === 'custom') {
-                                    updateEntry(student.id, { 
-                                      mpLateMinutes: entry.mpLateMinutes && !LATE_MINUTE_OPTIONS.includes(entry.mpLateMinutes) ? entry.mpLateMinutes : 25 
-                                    });
+                                    setCustomMpActive(prev => ({ ...prev, [student.id]: true }));
+                                    if (!entry.mpLateMinutes || LATE_MINUTE_OPTIONS.includes(entry.mpLateMinutes)) {
+                                      updateEntry(student.id, { mpLateMinutes: entry.mpLateMinutes || 15 });
+                                    }
                                   } else {
-                                    updateEntry(student.id, { mpLateMinutes: parseInt(e.target.value) || 0 });
+                                    setCustomMpActive(prev => ({ ...prev, [student.id]: false }));
+                                    updateEntry(student.id, { mpLateMinutes: parseInt(e.target.value, 10) || 0 });
                                   }
                                 }}
-                                className="text-[10px] bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 rounded px-1 py-0.5 font-bold text-rose-700 dark:text-rose-300 cursor-pointer"
+                                className="text-[10px] bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 rounded px-1 py-0.5 font-bold text-rose-700 dark:text-rose-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                               >
+                                <option value="custom">✏️ {isBn ? 'কাস্টম মিনিট...' : 'Custom min...'}</option>
                                 {LATE_MINUTE_OPTIONS.map(m => (
                                   <option key={m} value={m}>Late {m}m</option>
                                 ))}
-                                <option value="custom">✏️ {isBn ? 'কাস্টম মিনিট...' : 'Custom min...'}</option>
                               </select>
-                              {(!LATE_MINUTE_OPTIONS.includes(entry.mpLateMinutes || 15) || (entry.mpLateMinutes !== undefined && entry.mpLateMinutes > 0 && !LATE_MINUTE_OPTIONS.includes(entry.mpLateMinutes))) && (
-                                <div className="flex items-center gap-1">
+                              {(customMpActive[student.id] || (entry.mpLateMinutes !== undefined && entry.mpLateMinutes > 0 && !LATE_MINUTE_OPTIONS.includes(entry.mpLateMinutes))) && (
+                                <div className="flex items-center gap-1 animate-fade-in mt-0.5">
                                   <input
                                     type="number"
                                     min="1"
                                     max="360"
-                                    value={entry.mpLateMinutes || ''}
-                                    onChange={(e) => updateEntry(student.id, { mpLateMinutes: parseInt(e.target.value) || 0 })}
-                                    placeholder="mins"
-                                    className="w-14 text-[10px] bg-white dark:bg-slate-900 border border-rose-400 dark:border-rose-700 rounded px-1.5 py-0.5 font-mono font-bold text-rose-800 dark:text-rose-200"
+                                    autoFocus
+                                    disabled={!canEditMorning}
+                                    value={entry.mpLateMinutes === 0 ? '' : (entry.mpLateMinutes || '')}
+                                    onChange={(e) => {
+                                      if (!checkPermission('morning')) return;
+                                      const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10) || 0;
+                                      updateEntry(student.id, { mpLateMinutes: val });
+                                    }}
+                                    placeholder={isBn ? 'মিনিট' : 'mins'}
+                                    className="w-14 text-[10px] bg-white dark:bg-slate-900 border border-rose-400 dark:border-rose-700 rounded px-1.5 py-0.5 font-mono font-bold text-rose-800 dark:text-rose-200 focus:ring-1 focus:ring-rose-500 disabled:opacity-50"
                                   />
-                                  <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">min</span>
+                                  <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">{isBn ? 'মি.' : 'min'}</span>
                                 </div>
                               )}
                             </div>
                           )}
                         </div>
 
+                        {/* Mangalarati */}
                         <div className={`p-2 rounded-xl border flex flex-col justify-between gap-1.5 transition-all ${
                           entry.mangalaratiAttended 
                             ? 'bg-slate-50 dark:bg-slate-800/60 border-slate-200/60 dark:border-slate-700/60' 
@@ -1501,7 +1763,13 @@ export const AshramDisciplineAudit: React.FC = () => {
                               Mangal Arati
                             </span>
                             <button
-                              onClick={() => updateEntry(student.id, { mangalaratiAttended: !entry.mangalaratiAttended })}
+                              onClick={() => {
+                                if (!checkPermission('morning')) return;
+                                updateEntry(student.id, { 
+                                  mangalaratiAttended: !entry.mangalaratiAttended,
+                                  mangalaratiReason: !entry.mangalaratiAttended ? '' : (entry.mangalaratiReason || MANGALARATI_REASONS[0])
+                                });
+                              }}
                               className={`px-2 py-0.5 rounded-md text-[10.5px] font-black cursor-pointer transition-all ${
                                 entry.mangalaratiAttended ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
                               }`}
@@ -1511,9 +1779,13 @@ export const AshramDisciplineAudit: React.FC = () => {
                           </div>
                           {!entry.mangalaratiAttended && (
                             <select
+                              disabled={!canEditMorning}
                               value={entry.mangalaratiReason || ''}
-                              onChange={(e) => updateEntry(student.id, { mangalaratiReason: e.target.value })}
-                              className="text-[10px] bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 rounded px-1 py-0.5 font-medium text-rose-700 dark:text-rose-300"
+                              onChange={(e) => {
+                                if (!checkPermission('morning')) return;
+                                updateEntry(student.id, { mangalaratiReason: e.target.value });
+                              }}
+                              className="text-[10px] bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 rounded px-1 py-0.5 font-medium text-rose-700 dark:text-rose-300 disabled:opacity-50"
                             >
                               <option value="">-- Reason --</option>
                               {MANGALARATI_REASONS.map(r => (
@@ -1523,6 +1795,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                           )}
                         </div>
 
+                        {/* Morning Class */}
                         <div className={`p-2 rounded-xl border flex flex-col justify-between gap-1.5 transition-all ${
                           entry.morningClassAttended 
                             ? 'bg-slate-50 dark:bg-slate-800/60 border-slate-200/60 dark:border-slate-700/60' 
@@ -1534,7 +1807,13 @@ export const AshramDisciplineAudit: React.FC = () => {
                               Class (~7 AM)
                             </span>
                             <button
-                              onClick={() => updateEntry(student.id, { morningClassAttended: !entry.morningClassAttended })}
+                              onClick={() => {
+                                if (!checkPermission('morning')) return;
+                                updateEntry(student.id, { 
+                                  morningClassAttended: !entry.morningClassAttended,
+                                  morningClassReason: !entry.morningClassAttended ? '' : (entry.morningClassReason || MORNING_CLASS_REASONS[0])
+                                });
+                              }}
                               className={`px-2 py-0.5 rounded-md text-[10.5px] font-black cursor-pointer transition-all ${
                                 entry.morningClassAttended ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
                               }`}
@@ -1544,9 +1823,13 @@ export const AshramDisciplineAudit: React.FC = () => {
                           </div>
                           {!entry.morningClassAttended && (
                             <select
+                              disabled={!canEditMorning}
                               value={entry.morningClassReason || ''}
-                              onChange={(e) => updateEntry(student.id, { morningClassReason: e.target.value })}
-                              className="text-[10px] bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 rounded px-1 py-0.5 font-medium text-rose-700 dark:text-rose-300"
+                              onChange={(e) => {
+                                if (!checkPermission('morning')) return;
+                                updateEntry(student.id, { morningClassReason: e.target.value });
+                              }}
+                              className="text-[10px] bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 rounded px-1 py-0.5 font-medium text-rose-700 dark:text-rose-300 disabled:opacity-50"
                             >
                               <option value="">-- Reason --</option>
                               {MORNING_CLASS_REASONS.map(r => (
@@ -1561,7 +1844,10 @@ export const AshramDisciplineAudit: React.FC = () => {
 
                     <div className="flex items-center gap-1.5 justify-end shrink-0">
                       <button
-                        onClick={() => setEditingStudent({ ...student })}
+                        onClick={() => {
+                          if (!checkPermission('manage')) return;
+                          setEditingStudent({ ...student });
+                        }}
                         className="p-2 rounded-xl text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors cursor-pointer text-xs font-bold flex items-center gap-1"
                         title="Edit Devotee Details"
                       >
