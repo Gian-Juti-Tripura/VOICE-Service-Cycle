@@ -16,13 +16,39 @@ export interface DailyDisciplineEntry {
   isAbsent?: boolean;
   absenceReason?: string;
   sleptOnTime: boolean;
+  bedLateMinutes?: number; // e.g. 5, 10, 15, 30, 45, 60
   wokeUpOnTime: boolean;
   morningProgramOnTime: boolean;
+  mpLateMinutes?: number; // e.g. 5, 10, 15, 30
+  mangalaratiAttended: boolean; // Yes / No
+  mangalaratiReason?: string;
+  morningClassAttended: boolean; // Yes / No till 7:00 AM
+  morningClassReason?: string;
   reason?: string;
   isEmergency?: boolean;
   reportedBy?: string;
   notes?: string;
 }
+
+export const LATE_MINUTE_OPTIONS = [5, 10, 15, 20, 30, 45, 60, 90, 120];
+
+export const MANGALARATI_REASONS = [
+  'Health / Sickness (অসুস্থতা / চিকিৎসা)',
+  'Room Study / Exam Prep (পরীক্ষার পড়া / পড়াশোনা)',
+  'Temple / Outside Seva (মন্দির বা বিশেষ সেবা)',
+  'Overslept / Exhaustion (দেরিতে ঘুম ভাঙা / ক্লান্তি)',
+  'Personal Emergency (পারিবারিক / ব্যক্তিগত জরুরি)',
+  'Other Reason (অন্যান্য কারণ)'
+];
+
+export const MORNING_CLASS_REASONS = [
+  'University Class / Lab (বিশ্ববিদ্যালয়ের ক্লাস / ল্যাব পরীক্ষা)',
+  'Academic Exam Prep (পরীক্ষার বিশেষ প্রস্তুতি)',
+  'Health / Sickness (অসুস্থতা / বিশ্রাম)',
+  'Morning Temple Seva Duty (সকালের বিশেষ সেবা দায়িত্ব)',
+  'Personal Emergency (ব্যক্তিগত জরুরি)',
+  'Other Reason (অন্যান্য কারণ)'
+];
 
 export const ABSENCE_REASONS = [
   'Out of town / Home Leave (গ্রামের বাড়ি / বাইরে অবস্থান)',
