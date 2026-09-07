@@ -30,7 +30,7 @@ export interface DailyDisciplineEntry {
   notes?: string;
 }
 
-export const LATE_MINUTE_OPTIONS = [5, 10, 15, 20, 30, 45, 60, 90, 120];
+export const LATE_MINUTE_OPTIONS = [5, 10, 15, 20, 25, 30, 45, 60, 90, 120];
 
 export const MANGALARATI_REASONS = [
   'Health / Sickness (অসুস্থতা / চিকিৎসা)',
@@ -86,3 +86,47 @@ export const INITIAL_DISCIPLINE_STUDENTS: StudentDisciplineRecord[] = [
   { id: 'member_3', name: 'PRANTO P. (Pranto C Das)', group: 'LOTUS', phone: '+880 1609-302008', cycleOrder: 4, monthlyStrikes: 0, status: 'ACTIVE' },
   { id: 'member_4', name: 'SANGA P. (Sangakara Das)', group: 'LOTUS', phone: '+880 1722-711849', cycleOrder: 5, monthlyStrikes: 0, status: 'ACTIVE' },
 ];
+
+export const createDefaultDailyRecordsForDate = (dateIso: string): Record<string, DailyDisciplineEntry> => {
+  const result: Record<string, DailyDisciplineEntry> = {};
+  
+  INITIAL_DISCIPLINE_STUDENTS.forEach(student => {
+    const isUtpol = student.id === 'member_0';
+    const isSept2 = dateIso === '2026-09-02';
+    
+    result[student.id] = {
+      studentId: student.id,
+      dateStr: dateIso,
+      isAbsent: isUtpol,
+      absenceReason: isUtpol 
+        ? (isSept2 
+            ? 'Health / Hospital / Sickness (অসুস্থতা / চিকিৎসা)' 
+            : 'Out of town / Home Leave (গ্রামের বাড়ি / বাইরে অবস্থান)')
+        : '',
+      sleptOnTime: true,
+      bedLateMinutes: 0,
+      wokeUpOnTime: true,
+      morningProgramOnTime: true,
+      mpLateMinutes: 0,
+      mangalaratiAttended: !isUtpol,
+      mangalaratiReason: isUtpol ? 'Leave / Absent' : '',
+      morningClassAttended: !isUtpol,
+      morningClassReason: isUtpol ? 'Leave / Absent' : '',
+      reason: '',
+      isEmergency: false
+    };
+  });
+  
+  return result;
+};
+
+// Initial Seed Data for September 1 to September 7, 2026
+export const INITIAL_DAILY_DISCIPLINE_RECORDS: Record<string, Record<string, DailyDisciplineEntry>> = {
+  '2026-09-01': createDefaultDailyRecordsForDate('2026-09-01'),
+  '2026-09-02': createDefaultDailyRecordsForDate('2026-09-02'),
+  '2026-09-03': createDefaultDailyRecordsForDate('2026-09-03'),
+  '2026-09-04': createDefaultDailyRecordsForDate('2026-09-04'),
+  '2026-09-05': createDefaultDailyRecordsForDate('2026-09-05'),
+  '2026-09-06': createDefaultDailyRecordsForDate('2026-09-06'),
+  '2026-09-07': createDefaultDailyRecordsForDate('2026-09-07')
+};

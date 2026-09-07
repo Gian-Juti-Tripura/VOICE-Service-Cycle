@@ -18,15 +18,17 @@ import {
   MANGALARATI_REASONS,
   MORNING_CLASS_REASONS,
   LATE_MINUTE_OPTIONS,
-  INITIAL_DISCIPLINE_STUDENTS 
+  INITIAL_DISCIPLINE_STUDENTS,
+  INITIAL_DAILY_DISCIPLINE_RECORDS,
+  createDefaultDailyRecordsForDate
 } from '../../data/groupDisciplineData';
 import { shareToWhatsAppOrSystem } from '../../utils/shareUtils';
 import { exportTableToPdf } from '../../lib/exportTablePdf';
 import { triggerHaptic } from '../../utils/haptics';
 import toast from 'react-hot-toast';
 
-const STORAGE_STUDENTS_KEY = 'advaita_discipline_students_v3';
-const STORAGE_DAILY_KEY = 'advaita_discipline_daily_v3';
+const STORAGE_STUDENTS_KEY = 'advaita_discipline_students_v4';
+const STORAGE_DAILY_KEY = 'advaita_discipline_daily_v4';
 
 interface MonthlyDevoteeStats {
   student: StudentDisciplineRecord;
@@ -51,12 +53,12 @@ interface MonthlyDevoteeStats {
 
 export const AshramDisciplineAudit: React.FC = () => {
   const { language } = useLanguage();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(() => new Date(2026, 8, 7, 12, 0, 0));
   const [activeTab, setActiveTab] = useState<GroupType | 'ALL'>('VOICE');
 
   const [students, setStudents] = useState<StudentDisciplineRecord[]>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_STUDENTS_KEY);
+      const saved = localStorage.getItem(STORAGE_STUDENTS_KEY) || localStorage.getItem('advaita_discipline_students_v3');
       return saved ? JSON.parse(saved) : INITIAL_DISCIPLINE_STUDENTS;
     } catch {
       return INITIAL_DISCIPLINE_STUDENTS;
@@ -65,10 +67,11 @@ export const AshramDisciplineAudit: React.FC = () => {
 
   const [dailyRecords, setDailyRecords] = useState<Record<string, Record<string, DailyDisciplineEntry>>>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_DAILY_KEY);
-      return saved ? JSON.parse(saved) : {};
+      const saved = localStorage.getItem(STORAGE_DAILY_KEY) || localStorage.getItem('advaita_discipline_daily_v3');
+      const parsed = saved ? JSON.parse(saved) : {};
+      return { ...INITIAL_DAILY_DISCIPLINE_RECORDS, ...parsed };
     } catch {
-      return {};
+      return INITIAL_DAILY_DISCIPLINE_RECORDS;
     }
   });
 
@@ -118,6 +121,11 @@ export const AshramDisciplineAudit: React.FC = () => {
     return String(num).replace(/[0-9]/g, d => bnDigits[parseInt(d, 10)]);
   };
 
+  const parseIsoDate = (iso: string) => {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d, 12, 0, 0);
+  };
+
   const formatReasonText = (reason?: string, bn = isBn) => {
     if (!reason) return bn ? 'অনুপস্থিত / ছুটি' : 'Leave / Absent';
     if (bn) {
@@ -131,8 +139,12 @@ export const AshramDisciplineAudit: React.FC = () => {
   };
 
   const getEntry = (studentId: string, customDateIso = dateIso): DailyDisciplineEntry => {
-    const dayData = dailyRecords[customDateIso] || {};
-    return dayData[studentId] || {
+    const dayData = dailyRecords[customDateIso];
+    if (dayData && dayData[studentId]) {
+      return dayData[studentId];
+    }
+    const defaultDay = createDefaultDailyRecordsForDate(customDateIso);
+    return defaultDay[studentId] || {
       studentId,
       dateStr: customDateIso,
       isAbsent: studentId === 'member_0',
@@ -142,10 +154,10 @@ export const AshramDisciplineAudit: React.FC = () => {
       wokeUpOnTime: true,
       morningProgramOnTime: true,
       mpLateMinutes: 0,
-      mangalaratiAttended: true,
-      mangalaratiReason: '',
-      morningClassAttended: true,
-      morningClassReason: '',
+      mangalaratiAttended: studentId !== 'member_0',
+      mangalaratiReason: studentId === 'member_0' ? 'Leave / Absent' : '',
+      morningClassAttended: studentId !== 'member_0',
+      morningClassReason: studentId === 'member_0' ? 'Leave / Absent' : '',
       reason: '',
       isEmergency: false,
     };
@@ -279,9 +291,12 @@ export const AshramDisciplineAudit: React.FC = () => {
   };
 
   const handleResetToDefault = () => {
-    if (!window.confirm('Reset student list to default 12 active ashram devotees?')) return;
+    if (!window.confirm('Reset devotee list and restore September 1–7 historical data?')) return;
     setStudents(INITIAL_DISCIPLINE_STUDENTS);
-    toast.success('Reset to 12 active devotees list');
+    setDailyRecords(INITIAL_DAILY_DISCIPLINE_RECORDS);
+    localStorage.setItem(STORAGE_STUDENTS_KEY, JSON.stringify(INITIAL_DISCIPLINE_STUDENTS));
+    localStorage.setItem(STORAGE_DAILY_KEY, JSON.stringify(INITIAL_DAILY_DISCIPLINE_RECORDS));
+    toast.success('Reset to 12 active devotees & restored September history!');
   };
 
   const changeDate = (days: number) => {
@@ -309,47 +324,45 @@ export const AshramDisciplineAudit: React.FC = () => {
           const issues: string[] = [];
           if (!entry.sleptOnTime) {
             const minStr = entry.bedLateMinutes ? ` (${entry.bedLateMinutes}m late)` : '';
-            issues.push(isBn ? `শয়নে দেরি${minStr}` : `Late Bed${minStr}`);
+            issues.push(`Bed Late${minStr}`);
           }
-          if (!entry.wokeUpOnTime) issues.push(isBn ? 'দেরিতে জাগরণ (>৪:০০)' : 'Late Wake (>4:00 AM)');
+          if (!entry.wokeUpOnTime) issues.push('Wake Late');
           if (!entry.morningProgramOnTime) {
             const minStr = entry.mpLateMinutes ? ` (${entry.mpLateMinutes}m late)` : '';
-            issues.push(isBn ? `মর্নিংয়ে দেরি${minStr}` : `Late to MP${minStr}`);
+            issues.push(`MP Late${minStr}`);
           }
           if (!entry.mangalaratiAttended) {
-            const mReason = entry.mangalaratiReason ? ` [${formatReasonText(entry.mangalaratiReason, isBn)}]` : '';
-            issues.push(isBn ? `মঙ্গল আরতি মিস${mReason}` : `Missed Mangalarati${mReason}`);
+            const reason = formatReasonText(entry.mangalaratiReason, isBn);
+            issues.push(`Missed Mangalarati (${reason})`);
           }
           if (!entry.morningClassAttended) {
-            const cReason = entry.morningClassReason ? ` [${formatReasonText(entry.morningClassReason, isBn)}]` : '';
-            issues.push(isBn ? `ক্লাস মিস${cReason}` : `Missed Morning Class${cReason}`);
+            const reason = formatReasonText(entry.morningClassReason, isBn);
+            issues.push(`Missed Class (${reason})`);
           }
-          
-          let reasonStr = entry.reason ? ` — *${isBn ? 'কারণ' : 'Reason'}:* ${formatReasonText(entry.reason, isBn)}` : '';
           let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
-          nonCompliant.push(`❌ *${s.name}* (${issues.join(', ')})${reasonStr}${strikeStr}`);
+          nonCompliant.push(`⚠️ *${s.name}*${strikeStr} — ${issues.join(', ')}`);
         }
       }
     });
 
-    let report = isBn
-      ? `🌟 *অদ্বৈত ভয়েস — ভয়েস গ্রুপ সাধনা ও শৃঙ্খলা রিপোর্ট* 🌟\n`
-      : `🌟 *ADVAITA VOICE — MORNING PROGRAM & DISCIPLINE REPORT* 🌟\n`;
+    let report = isBn 
+      ? `🌟 *অদ্বৈত ভয়েস — ভয়েস গ্রুপ সাধনা ও শৃঙ্খলা প্রতিবেদন* 🌟\n` 
+      : `🌟 *ADVAITA VOICE — VOICE GROUP DISCIPLINE REPORT* 🌟\n`;
     report += `📅 *${isBn ? 'তারিখ' : 'Date'}:* ${dateFormatted}\n`;
-    report += `📋 *${isBn ? 'গ্রুপ' : 'Group'}:* ${isBn ? 'ভয়েস গ্রুপ (শয়ন: <= রাত ১০:০০ | ওঠা: ভোর ৪:০০ | মর্নিং: <= ৪:৩০ | মঙ্গল আরতি ও ক্লাস)' : 'VOICE Group (Bed: <= 10:00 PM | Wake: 4:00 AM | MP: <= 4:30 AM | Mangalarati & Class)'}\n\n`;
+    report += `🎯 *${isBn ? 'শয়ন লক্ষ্য' : 'Bedtime Target'}:* <= 10:00 PM | *${isBn ? 'মর্নিং প্রোগ্রাম' : 'MP Target'}:* <= 4:30 AM\n\n`;
 
-    report += `✅ *${isBn ? 'সব নিয়ম পালন করেছেন' : 'All Rules Followed (On Time)'} (${toBn(compliant.length)}/${toBn(voiceStudents.length)}):*\n`;
-    if (compliant.length > 0) {
+    report += `✅ *${isBn ? 'নিয়মানুবর্তী' : 'On-Time / Compliant'} (${toBn(compliant.length)}/${toBn(voiceStudents.length)}):*\n`;
+    if (compliant.length === 0) {
+      report += `   _${isBn ? 'কেউ নেই' : 'None'}_\n`;
+    } else {
       compliant.forEach((name, i) => {
         report += `   ${toBn(i + 1)}. ${name}\n`;
       });
-    } else {
-      report += `   (${isBn ? 'কেউ নেই' : 'None'})\n`;
     }
     report += `\n`;
 
     if (nonCompliant.length > 0) {
-      report += `⚠️ *${isBn ? 'নিয়ম লঙ্ঘন / ব্যতিক্রম' : 'Rule Breaches / Exceptions'} (${toBn(nonCompliant.length)}):*\n`;
+      report += `⚠️ *${isBn ? 'অনিয়ম / বিলম্ব' : 'Violations / Late / Missed'} (${toBn(nonCompliant.length)}):*\n`;
       nonCompliant.forEach((item, i) => {
         report += `   ${toBn(i + 1)}. ${item}\n`;
       });
@@ -357,18 +370,15 @@ export const AshramDisciplineAudit: React.FC = () => {
     }
 
     if (absent.length > 0) {
-      report += `🔴 *${isBn ? 'অনুপস্থিত ভক্তবৃন্দ' : 'Absent Devotees'} (${toBn(absent.length)}):*\n`;
+      report += `🔴 *${isBn ? 'ছুটি / অনুপস্থিত' : 'Leave / Absent'} (${toBn(absent.length)}):*\n`;
       absent.forEach((item, i) => {
         report += `   ${toBn(i + 1)}. ${item}\n`;
       });
       report += `\n`;
     }
 
-    if (nonCompliant.length === 0 && absent.length === 0) {
-      report += `✨ ${isBn ? 'সবাই সময়মতো নিয়ম পালন করেছেন! হরিবোল!' : 'All students present and followed rules on time! Haribol!'}\n\n`;
-    }
-
-    report += `🙏 *${isBn ? 'রিপোর্ট প্রেরণকারী' : 'Reported by'}:* ${isBn ? 'মর্নিং প্রোগ্রাম ইনচার্জ (ভয়েস গ্রুপ)' : 'Morning Program Incharge (VOICE Group)'}\n`;
+    report += `📊 *${isBn ? 'সারসংক্ষেপ' : 'Summary'}:* ${toBn(compliant.length)} ${isBn ? 'জন যথাযথ' : 'Compliant'}, ${toBn(nonCompliant.length)} ${isBn ? 'জন অনিয়ম' : 'Irregular'}, ${toBn(absent.length)} ${isBn ? 'জন ছুটি' : 'Leave'}\n`;
+    report += `🙏 *${isBn ? 'রিপোর্ট প্রেরক' : 'Reported by'}:* ${isBn ? 'কাউন্সেলর ডেস্ক (অদ্বৈত ভয়েস)' : 'Counselor Desk (Advaita VOICE)'}\n`;
     return report;
   };
 
@@ -384,53 +394,52 @@ export const AshramDisciplineAudit: React.FC = () => {
         const reason = formatReasonText(entry.absenceReason, isBn);
         absent.push(`🔴 *${s.name}* — ${reason}`);
       } else {
-        const isAllGood = entry.sleptOnTime && entry.morningProgramOnTime && entry.mangalaratiAttended && entry.morningClassAttended;
+        const isAllGood = entry.sleptOnTime && entry.wokeUpOnTime && entry.morningProgramOnTime && entry.mangalaratiAttended && entry.morningClassAttended;
         if (isAllGood) {
           compliant.push(s.name);
         } else {
           const issues: string[] = [];
           if (!entry.sleptOnTime) {
             const minStr = entry.bedLateMinutes ? ` (${entry.bedLateMinutes}m late)` : '';
-            issues.push(isBn ? `দেরিতে শয়ন${minStr}` : `Late Bed${minStr}`);
+            issues.push(`Bed Late${minStr}`);
           }
+          if (!entry.wokeUpOnTime) issues.push('Wake Late');
           if (!entry.morningProgramOnTime) {
             const minStr = entry.mpLateMinutes ? ` (${entry.mpLateMinutes}m late)` : '';
-            issues.push(isBn ? `মর্নিংয়ে দেরি${minStr}` : `Late to MP${minStr}`);
+            issues.push(`MP Late${minStr}`);
           }
           if (!entry.mangalaratiAttended) {
-            const mReason = entry.mangalaratiReason ? ` [${formatReasonText(entry.mangalaratiReason, isBn)}]` : '';
-            issues.push(isBn ? `মঙ্গল আরতি মিস${mReason}` : `Missed Mangalarati${mReason}`);
+            const reason = formatReasonText(entry.mangalaratiReason, isBn);
+            issues.push(`Missed Mangalarati (${reason})`);
           }
           if (!entry.morningClassAttended) {
-            const cReason = entry.morningClassReason ? ` [${formatReasonText(entry.morningClassReason, isBn)}]` : '';
-            issues.push(isBn ? `ক্লাস মিস${cReason}` : `Missed Morning Class${cReason}`);
+            const reason = formatReasonText(entry.morningClassReason, isBn);
+            issues.push(`Missed Class (${reason})`);
           }
-          
-          let reasonStr = entry.reason ? ` — *${isBn ? 'কারণ' : 'Reason'}:* ${formatReasonText(entry.reason, isBn)}` : '';
           let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
-          nonCompliant.push(`❌ *${s.name}* (${issues.join(', ')})${reasonStr}${strikeStr}`);
+          nonCompliant.push(`⚠️ *${s.name}*${strikeStr} — ${issues.join(', ')}`);
         }
       }
     });
 
-    let report = isBn
-      ? `🪷 *অদ্বৈত ভয়েস — লোটাস গ্রুপ সাধনা ও শৃঙ্খলা রিপোর্ট* 🪷\n`
+    let report = isBn 
+      ? `🪷 *অদ্বৈত ভয়েস — লোটাস গ্রুপ সাধনা ও শৃঙ্খলা প্রতিবেদন* 🪷\n` 
       : `🪷 *ADVAITA VOICE — LOTUS GROUP DISCIPLINE REPORT* 🪷\n`;
     report += `📅 *${isBn ? 'তারিখ' : 'Date'}:* ${dateFormatted}\n`;
-    report += `📋 *${isBn ? 'গ্রুপ' : 'Group'}:* ${isBn ? 'লোটাস গ্রুপ (শয়ন: <= রাত ১১:০০ | মর্নিং: <= ভোর ৫:০০ | মঙ্গল আরতি ও ক্লাস)' : 'Lotus Group (Bed: <= 11:00 PM | MP: <= 5:00 AM | Mangalarati & Class)'}\n\n`;
+    report += `🎯 *${isBn ? 'শয়ন লক্ষ্য' : 'Bedtime Target'}:* <= 11:00 PM | *${isBn ? 'মর্নিং প্রোগ্রাম' : 'MP Target'}:* <= 5:00 AM\n\n`;
 
-    report += `✅ *${isBn ? 'সব নিয়ম পালন করেছেন' : 'All Rules Followed (On Time)'} (${toBn(compliant.length)}/${toBn(lotusStudents.length)}):*\n`;
-    if (compliant.length > 0) {
+    report += `✅ *${isBn ? 'নিয়মানুবর্তী' : 'On-Time / Compliant'} (${toBn(compliant.length)}/${toBn(lotusStudents.length)}):*\n`;
+    if (compliant.length === 0) {
+      report += `   _${isBn ? 'কেউ নেই' : 'None'}_\n`;
+    } else {
       compliant.forEach((name, i) => {
         report += `   ${toBn(i + 1)}. ${name}\n`;
       });
-    } else {
-      report += `   (${isBn ? 'কেউ নেই' : 'None'})\n`;
     }
     report += `\n`;
 
     if (nonCompliant.length > 0) {
-      report += `⚠️ *${isBn ? 'নিয়ম লঙ্ঘন / ব্যতিক্রম' : 'Rule Breaches / Exceptions'} (${toBn(nonCompliant.length)}):*\n`;
+      report += `⚠️ *${isBn ? 'অনিয়ম / বিলম্ব' : 'Violations / Late / Missed'} (${toBn(nonCompliant.length)}):*\n`;
       nonCompliant.forEach((item, i) => {
         report += `   ${toBn(i + 1)}. ${item}\n`;
       });
@@ -438,18 +447,15 @@ export const AshramDisciplineAudit: React.FC = () => {
     }
 
     if (absent.length > 0) {
-      report += `🔴 *${isBn ? 'অনুপস্থিত ভক্তবৃন্দ' : 'Absent Devotees'} (${toBn(absent.length)}):*\n`;
+      report += `🔴 *${isBn ? 'ছুটি / অনুপস্থিত' : 'Leave / Absent'} (${toBn(absent.length)}):*\n`;
       absent.forEach((item, i) => {
         report += `   ${toBn(i + 1)}. ${item}\n`;
       });
       report += `\n`;
     }
 
-    if (nonCompliant.length === 0 && absent.length === 0) {
-      report += `✨ ${isBn ? 'সবাই সময়মতো নিয়ম পালন করেছেন! হরিবোল!' : 'All students present and followed rules on time! Haribol!'}\n\n`;
-    }
-
-    report += `🙏 *${isBn ? 'রিপোর্ট প্রেরণকারী' : 'Reported by'}:* ${isBn ? 'সিকিউরিটি ম্যানেজার (লোটাস গ্রুপ)' : 'Security Manager (Lotus Group)'}\n`;
+    report += `📊 *${isBn ? 'সারসংক্ষেপ' : 'Summary'}:* ${toBn(compliant.length)} ${isBn ? 'জন যথাযথ' : 'Compliant'}, ${toBn(nonCompliant.length)} ${isBn ? 'জন অনিয়ম' : 'Irregular'}, ${toBn(absent.length)} ${isBn ? 'জন ছুটি' : 'Leave'}\n`;
+    report += `🙏 *${isBn ? 'রিপোর্ট প্রেরক' : 'Reported by'}:* ${isBn ? 'কাউন্সেলর ডেস্ক (অদ্বৈত ভয়েস)' : 'Counselor Desk (Advaita VOICE)'}\n`;
     return report;
   };
 
@@ -457,48 +463,40 @@ export const AshramDisciplineAudit: React.FC = () => {
     const voiceStudents = students.filter(s => s.group === 'VOICE');
     const lotusStudents = students.filter(s => s.group === 'LOTUS');
 
-    const voiceCompliant: string[] = [];
-    const voiceNonCompliant: string[] = [];
+    const voiceOnTime: string[] = [];
+    const voiceLateOrMissed: string[] = [];
     const voiceAbsent: string[] = [];
 
-    const lotusCompliant: string[] = [];
-    const lotusNonCompliant: string[] = [];
+    const lotusOnTime: string[] = [];
+    const lotusLateOrMissed: string[] = [];
     const lotusAbsent: string[] = [];
-
-    let totalMangalaratiAttended = 0;
-    let totalMorningClassAttended = 0;
-    let totalPresentCount = 0;
 
     voiceStudents.forEach(s => {
       const entry = getEntry(s.id);
       if (entry.isAbsent) {
         const reason = formatReasonText(entry.absenceReason, isBn);
-        voiceAbsent.push(`🔴 *${s.name}* — ${reason}`);
+        voiceAbsent.push(`🔴 *${s.name}* (${isBn ? 'ছুটি' : 'Leave/Absent'}) — *${isBn ? 'কারণ' : 'Reason'}:* ${reason}`);
       } else {
-        totalPresentCount++;
-        if (entry.mangalaratiAttended) totalMangalaratiAttended++;
-        if (entry.morningClassAttended) totalMorningClassAttended++;
-
-        const isMorningGood = entry.wokeUpOnTime && entry.morningProgramOnTime && entry.mangalaratiAttended && entry.morningClassAttended;
-        if (isMorningGood) {
-          voiceCompliant.push(s.name);
+        const isPerfect = entry.wokeUpOnTime && entry.morningProgramOnTime && entry.mangalaratiAttended && entry.morningClassAttended;
+        if (isPerfect) {
+          voiceOnTime.push(s.name);
         } else {
-          const issues: string[] = [];
-          if (!entry.wokeUpOnTime) issues.push(isBn ? 'দেরিতে জাগরণ (>৪:০০)' : 'Late Wake (>4:00 AM)');
+          const notes: string[] = [];
+          if (!entry.wokeUpOnTime) notes.push(isBn ? 'দেরিতে ঘুম থেকে ওঠা' : 'Wake Late');
           if (!entry.morningProgramOnTime) {
             const minStr = entry.mpLateMinutes ? ` (${entry.mpLateMinutes}m)` : '';
-            issues.push(isBn ? `মর্নিংয়ে দেরি${minStr}` : `Late to MP${minStr}`);
+            notes.push(`${isBn ? 'মর্নিং প্রোগ্রামে বিলম্ব' : 'MP Late'}${minStr}`);
           }
           if (!entry.mangalaratiAttended) {
-            const mReason = entry.mangalaratiReason ? ` (${formatReasonText(entry.mangalaratiReason, isBn)})` : '';
-            issues.push(isBn ? `মঙ্গল আরতি মিস${mReason}` : `Missed Mangalarati${mReason}`);
+            const r = formatReasonText(entry.mangalaratiReason, isBn);
+            notes.push(`${isBn ? 'মঙ্গল আরতি অনুপস্থিত' : 'Missed Mangalarati'} (${r})`);
           }
           if (!entry.morningClassAttended) {
-            const cReason = entry.morningClassReason ? ` (${formatReasonText(entry.morningClassReason, isBn)})` : '';
-            issues.push(isBn ? `ক্লাস মিস${cReason}` : `Missed Morning Class${cReason}`);
+            const r = formatReasonText(entry.morningClassReason, isBn);
+            notes.push(`${isBn ? 'মর্নিং ক্লাস অনুপস্থিত' : 'Missed Class'} (${r})`);
           }
-          let reasonStr = entry.reason ? ` — *${isBn ? 'কারণ' : 'Reason'}:* ${formatReasonText(entry.reason, isBn)}` : '';
-          voiceNonCompliant.push(`❌ *${s.name}* (${issues.join(', ')})${reasonStr}`);
+          let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
+          voiceLateOrMissed.push(`⚠️ *${s.name}*${strikeStr} — ${notes.join(', ')}`);
         }
       }
     });
@@ -507,95 +505,94 @@ export const AshramDisciplineAudit: React.FC = () => {
       const entry = getEntry(s.id);
       if (entry.isAbsent) {
         const reason = formatReasonText(entry.absenceReason, isBn);
-        lotusAbsent.push(`🔴 *${s.name}* — ${reason}`);
+        lotusAbsent.push(`🔴 *${s.name}* (${isBn ? 'ছুটি' : 'Leave/Absent'}) — *${isBn ? 'কারণ' : 'Reason'}:* ${reason}`);
       } else {
-        totalPresentCount++;
-        if (entry.mangalaratiAttended) totalMangalaratiAttended++;
-        if (entry.morningClassAttended) totalMorningClassAttended++;
-
-        const isMorningGood = entry.morningProgramOnTime && entry.mangalaratiAttended && entry.morningClassAttended;
-        if (isMorningGood) {
-          lotusCompliant.push(s.name);
+        const isPerfect = entry.wokeUpOnTime && entry.morningProgramOnTime && entry.mangalaratiAttended && entry.morningClassAttended;
+        if (isPerfect) {
+          lotusOnTime.push(s.name);
         } else {
-          const issues: string[] = [];
+          const notes: string[] = [];
+          if (!entry.wokeUpOnTime) notes.push(isBn ? 'দেরিতে ঘুম থেকে ওঠা' : 'Wake Late');
           if (!entry.morningProgramOnTime) {
             const minStr = entry.mpLateMinutes ? ` (${entry.mpLateMinutes}m)` : '';
-            issues.push(isBn ? `মর্নিংয়ে দেরি${minStr}` : `Late to MP${minStr}`);
+            notes.push(`${isBn ? 'মর্নিং প্রোগ্রামে বিলম্ব' : 'MP Late'}${minStr}`);
           }
           if (!entry.mangalaratiAttended) {
-            const mReason = entry.mangalaratiReason ? ` (${formatReasonText(entry.mangalaratiReason, isBn)})` : '';
-            issues.push(isBn ? `মঙ্গল আরতি মিস${mReason}` : `Missed Mangalarati${mReason}`);
+            const r = formatReasonText(entry.mangalaratiReason, isBn);
+            notes.push(`${isBn ? 'মঙ্গল আরতি অনুপস্থিত' : 'Missed Mangalarati'} (${r})`);
           }
           if (!entry.morningClassAttended) {
-            const cReason = entry.morningClassReason ? ` (${formatReasonText(entry.morningClassReason, isBn)})` : '';
-            issues.push(isBn ? `ক্লাস মিস${cReason}` : `Missed Morning Class${cReason}`);
+            const r = formatReasonText(entry.morningClassReason, isBn);
+            notes.push(`${isBn ? 'মর্নিং ক্লাস অনুপস্থিত' : 'Missed Class'} (${r})`);
           }
-          let reasonStr = entry.reason ? ` — *${isBn ? 'কারণ' : 'Reason'}:* ${formatReasonText(entry.reason, isBn)}` : '';
-          lotusNonCompliant.push(`❌ *${s.name}* (${issues.join(', ')})${reasonStr}`);
+          let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
+          lotusLateOrMissed.push(`⚠️ *${s.name}*${strikeStr} — ${notes.join(', ')}`);
         }
       }
     });
 
-    const totalStudents = students.length;
-    const totalCompliant = voiceCompliant.length + lotusCompliant.length;
+    const totalPresent = (voiceOnTime.length + voiceLateOrMissed.length) + (lotusOnTime.length + lotusLateOrMissed.length);
+    const totalOnTime = voiceOnTime.length + lotusOnTime.length;
     const totalAbsent = voiceAbsent.length + lotusAbsent.length;
+    const totalStudents = students.length;
 
     let report = isBn
-      ? `🌅 *অদ্বৈত ভয়েস — প্রাতঃকালীন সাধনা ও উপস্থিতি রিপোর্ট* 🌅\n`
+      ? `🌅 *অদ্বৈত ভয়েস — প্রাতঃকালীন সাধনা ও উপস্থিতি সমন্বিত প্রতিবেদন* 🌅\n`
       : `🌅 *ADVAITA VOICE — MORNING PROGRAM COMBINED REPORT* 🌅\n`;
     report += `📅 *${isBn ? 'তারিখ' : 'Date'}:* ${dateFormatted}\n`;
-    report += `👥 *${isBn ? 'মোট উপস্থিতি' : 'Total Attendance'}:* ${toBn(totalCompliant)}/${toBn(totalStudents)} ${isBn ? 'জন সময়মতো উপস্থিত' : 'Present on Time'}`;
-    if (totalAbsent > 0) report += ` (${toBn(totalAbsent)} ${isBn ? 'জন অনুপস্থিত' : 'Absent'})`;
-    report += `\n`;
-    report += `🪔 *${isBn ? 'মঙ্গল আরতি উপস্থিতি' : 'Mangalarati Attendance'}:* ${toBn(totalMangalaratiAttended)}/${toBn(totalPresentCount)} ${isBn ? 'জন উপস্থিত' : 'Attended'}\n`;
-    report += `📖 *${isBn ? 'প্রাতঃকালীন ক্লাস (~৭:০০)' : 'Morning Class (~7:00 AM)'}:* ${toBn(totalMorningClassAttended)}/${toBn(totalPresentCount)} ${isBn ? 'জন উপস্থিত' : 'Attended'}\n\n`;
+    report += `🏛️ *${isBn ? 'উপস্থিতি ও সময়ানুবর্তিতা' : 'Attendance & Punctuality'}:* ${toBn(totalOnTime)}/${toBn(totalStudents)} ${isBn ? 'জন সময়মতো উপস্থিত' : 'Present on Time'}${totalAbsent > 0 ? ` (${toBn(totalAbsent)} ${isBn ? 'জন ছুটি/অনুপস্থিত' : 'Leave/Absent'})` : ''}\n\n`;
 
-    report += `🌟 *১. ${isBn ? 'ভয়েস গ্রুপ (ভোর ৪:০০ জাগরণ | ৪:৩০ এর মধ্যে মর্নিং প্রোগ্রাম)' : 'VOICE GROUP (Target: Wake 4:00 AM | MP <= 4:30 AM)'}*\n`;
-    report += `✅ *${isBn ? 'সময়মতো উপস্থিত' : 'On Time'} (${toBn(voiceCompliant.length)}/${toBn(voiceStudents.length)}):*\n`;
-    if (voiceCompliant.length > 0) {
-      voiceCompliant.forEach((name, i) => {
+    report += `🌟 *১. ${isBn ? 'ভয়েস গ্রুপ' : 'VOICE GROUP'} (${isBn ? 'মর্নিং প্রোগ্রাম লক্ষ্য' : 'MP Target'}: <= 4:30 AM | ${isBn ? 'ক্লাস' : 'Class'}: 7:00 AM)*\n`;
+    report += `✅ *${isBn ? 'সময়মতো সম্পন্ন' : 'Completed On-Time'} (${toBn(voiceOnTime.length)}/${toBn(voiceStudents.length)}):*\n`;
+    if (voiceOnTime.length === 0) {
+      report += `   _${isBn ? 'কেউ নেই' : 'None'}_\n`;
+    } else {
+      voiceOnTime.forEach((name, i) => {
         report += `   ${toBn(i + 1)}. ${name}\n`;
       });
-    } else {
-      report += `   (${isBn ? 'কেউ নেই' : 'None'})\n`;
     }
-    if (voiceNonCompliant.length > 0) {
-      report += `⚠️ *${isBn ? 'দেরি / মিস' : 'Late / Missed'} (${toBn(voiceNonCompliant.length)}):*\n`;
-      voiceNonCompliant.forEach((item, i) => {
+
+    if (voiceLateOrMissed.length > 0) {
+      report += `⚠️ *${isBn ? 'দেরি বা অপূর্ণ' : 'Late / Incomplete'} (${toBn(voiceLateOrMissed.length)}):*\n`;
+      voiceLateOrMissed.forEach((item, i) => {
         report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
+
     if (voiceAbsent.length > 0) {
-      report += `🔴 *${isBn ? 'অনুপস্থিত ভক্তবৃন্দ' : 'Absent Devotees'} (${toBn(voiceAbsent.length)}):*\n`;
+      report += `🔴 *${isBn ? 'ছুটি / অনুপস্থিত' : 'Leave / Absent'} (${toBn(voiceAbsent.length)}):*\n`;
       voiceAbsent.forEach((item, i) => {
         report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
     report += `\n`;
 
-    report += `🪷 *২. ${isBn ? 'লোটাস গ্রুপ (ভোর ৫:০০ এর মধ্যে মর্নিং প্রোগ্রাম)' : 'LOTUS GROUP (Target: MP <= 5:00 AM)'}*\n`;
-    report += `✅ *${isBn ? 'সময়মতো উপস্থিত' : 'On Time'} (${toBn(lotusCompliant.length)}/${toBn(lotusStudents.length)}):*\n`;
-    if (lotusCompliant.length > 0) {
-      lotusCompliant.forEach((name, i) => {
+    report += `🪷 *২. ${isBn ? 'লোটাস গ্রুপ' : 'LOTUS GROUP'} (${isBn ? 'মর্নিং প্রোগ্রাম লক্ষ্য' : 'MP Target'}: <= 5:00 AM | ${isBn ? 'ক্লাস' : 'Class'}: 7:00 AM)*\n`;
+    report += `✅ *${isBn ? 'সময়মতো সম্পন্ন' : 'Completed On-Time'} (${toBn(lotusOnTime.length)}/${toBn(lotusStudents.length)}):*\n`;
+    if (lotusOnTime.length === 0) {
+      report += `   _${isBn ? 'কেউ নেই' : 'None'}_\n`;
+    } else {
+      lotusOnTime.forEach((name, i) => {
         report += `   ${toBn(i + 1)}. ${name}\n`;
       });
-    } else {
-      report += `   (${isBn ? 'কেউ নেই' : 'None'})\n`;
     }
-    if (lotusNonCompliant.length > 0) {
-      report += `⚠️ *${isBn ? 'দেরি / মিস' : 'Late / Missed'} (${toBn(lotusNonCompliant.length)}):*\n`;
-      lotusNonCompliant.forEach((item, i) => {
+
+    if (lotusLateOrMissed.length > 0) {
+      report += `⚠️ *${isBn ? 'দেরি বা অপূর্ণ' : 'Late / Incomplete'} (${toBn(lotusLateOrMissed.length)}):*\n`;
+      lotusLateOrMissed.forEach((item, i) => {
         report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
+
     if (lotusAbsent.length > 0) {
-      report += `🔴 *${isBn ? 'অনুপস্থিত ভক্তবৃন্দ' : 'Absent Devotees'} (${toBn(lotusAbsent.length)}):*\n`;
+      report += `🔴 *${isBn ? 'ছুটি / অনুপস্থিত' : 'Leave / Absent'} (${toBn(lotusAbsent.length)}):*\n`;
       lotusAbsent.forEach((item, i) => {
         report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
     report += `\n`;
 
+    report += `📊 *${isBn ? 'সারসংক্ষেপ' : 'Summary'}:* ${toBn(totalOnTime)} ${isBn ? 'জন সম্পূর্ণ অন-টাইম' : 'Fully On-Time'}, ${toBn(totalPresent - totalOnTime)} ${isBn ? 'জন বিলম্ব/আংশিক' : 'Late/Partial'}, ${toBn(totalAbsent)} ${isBn ? 'জন ছুটি' : 'Leave'}\n`;
     report += `🙏 *${isBn ? 'রিপোর্ট প্রেরণকারী' : 'Reported by'}:* ${isBn ? 'মর্নিং প্রোগ্রাম ইনচার্জ (অদ্বৈত ভয়েস)' : 'Morning Program Incharge (Advaita VOICE)'}\n`;
     return report;
   };
@@ -604,28 +601,26 @@ export const AshramDisciplineAudit: React.FC = () => {
     const voiceStudents = students.filter(s => s.group === 'VOICE');
     const lotusStudents = students.filter(s => s.group === 'LOTUS');
 
-    const voiceCompliant: string[] = [];
-    const voiceNonCompliant: string[] = [];
+    const voiceSleptOnTime: string[] = [];
+    const voiceLate: string[] = [];
     const voiceAbsent: string[] = [];
 
-    const lotusCompliant: string[] = [];
-    const lotusNonCompliant: string[] = [];
+    const lotusSleptOnTime: string[] = [];
+    const lotusLate: string[] = [];
     const lotusAbsent: string[] = [];
 
     voiceStudents.forEach(s => {
       const entry = getEntry(s.id);
       if (entry.isAbsent) {
         const reason = formatReasonText(entry.absenceReason, isBn);
-        voiceAbsent.push(`🔴 *${s.name}* — ${reason}`);
+        voiceAbsent.push(`🔴 *${s.name}* (${isBn ? 'নৈশ ছুটি / অনুপস্থিত' : 'Night Leave / Absent'}) — *${isBn ? 'কারণ' : 'Reason'}:* ${reason}`);
+      } else if (entry.sleptOnTime) {
+        voiceSleptOnTime.push(s.name);
       } else {
-        if (entry.sleptOnTime) {
-          voiceCompliant.push(s.name);
-        } else {
-          const minStr = entry.bedLateMinutes ? ` (${entry.bedLateMinutes}m late)` : '';
-          let reasonStr = entry.reason ? ` — *${isBn ? 'কারণ' : 'Reason'}:* ${formatReasonText(entry.reason, isBn)}` : '';
-          let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
-          voiceNonCompliant.push(`❌ *${s.name}* (${isBn ? `রাত ১০:০০ এর পর শয়ন${minStr}` : `Late Bed >10:00 PM${minStr}`})${reasonStr}${strikeStr}`);
-        }
+        const minStr = entry.bedLateMinutes ? ` (${entry.bedLateMinutes}m late)` : '';
+        let reasonStr = entry.reason ? ` (${entry.reason})` : '';
+        let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
+        voiceLate.push(`⚠️ *${s.name}*${strikeStr} — ${isBn ? 'দেরিতে শয়ন' : 'Late Bedtime'}${minStr}${reasonStr}`);
       }
     });
 
@@ -633,47 +628,45 @@ export const AshramDisciplineAudit: React.FC = () => {
       const entry = getEntry(s.id);
       if (entry.isAbsent) {
         const reason = formatReasonText(entry.absenceReason, isBn);
-        lotusAbsent.push(`🔴 *${s.name}* — ${reason}`);
+        lotusAbsent.push(`🔴 *${s.name}* (${isBn ? 'নৈশ ছুটি / অনুপস্থিত' : 'Night Leave / Absent'}) — *${isBn ? 'কারণ' : 'Reason'}:* ${reason}`);
+      } else if (entry.sleptOnTime) {
+        lotusSleptOnTime.push(s.name);
       } else {
-        if (entry.sleptOnTime) {
-          lotusCompliant.push(s.name);
-        } else {
-          const minStr = entry.bedLateMinutes ? ` (${entry.bedLateMinutes}m late)` : '';
-          let reasonStr = entry.reason ? ` — *${isBn ? 'কারণ' : 'Reason'}:* ${formatReasonText(entry.reason, isBn)}` : '';
-          let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
-          lotusNonCompliant.push(`❌ *${s.name}* (${isBn ? `রাত ১১:০০ এর পর শয়ন${minStr}` : `Late Bed >11:00 PM${minStr}`})${reasonStr}${strikeStr}`);
-        }
+        const minStr = entry.bedLateMinutes ? ` (${entry.bedLateMinutes}m late)` : '';
+        let reasonStr = entry.reason ? ` (${entry.reason})` : '';
+        let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
+        lotusLate.push(`⚠️ *${s.name}*${strikeStr} — ${isBn ? 'দেরিতে শয়ন' : 'Late Bedtime'}${minStr}${reasonStr}`);
       }
     });
 
-    const totalStudents = students.length;
-    const totalCompliant = voiceCompliant.length + lotusCompliant.length;
-    const totalNonCompliant = voiceNonCompliant.length + lotusNonCompliant.length;
+    const totalCompliant = voiceSleptOnTime.length + lotusSleptOnTime.length;
+    const totalNonCompliant = voiceLate.length + lotusLate.length;
     const totalAbsent = voiceAbsent.length + lotusAbsent.length;
+    const totalStudents = students.length;
 
     let report = isBn
-      ? `🌙 *অদ্বৈত ভয়েস — নৈশ শৃঙ্খলা ও নিরাপত্তা রিপোর্ট* 🌙\n`
+      ? `🌙 *অদ্বৈত ভয়েস — নৈশ শৃঙ্খলা ও নিরাপত্তা সমন্বিত প্রতিবেদন* 🌙\n`
       : `🌙 *ADVAITA VOICE — NIGHT DISCIPLINE & SECURITY REPORT* 🌙\n`;
     report += `📅 *${isBn ? 'তারিখ' : 'Date'}:* ${dateFormatted}\n`;
-    report += `🔒 *${isBn ? 'কারফিউ ও শয়ন নিয়ম পালন' : 'Curfew & Bedtime Compliance'}:* ${toBn(totalCompliant)}/${toBn(totalStudents)} ${isBn ? 'জন সময়মতো শয়ন' : 'Present on Time'}`;
-    if (totalAbsent > 0) report += ` (${toBn(totalAbsent)} ${isBn ? 'জন নৈশ ছুটি/অনুপস্থিত' : 'Night Leave/Absent'})`;
-    report += `\n\n`;
+    report += `🔒 *${isBn ? 'কারফিউ ও শয়ন মানদণ্ড' : 'Curfew & Bedtime Compliance'}:* ${toBn(totalCompliant)}/${toBn(totalStudents)} ${isBn ? 'জন সময়মতো উপস্থিত' : 'Present on Time'}${totalAbsent > 0 ? ` (${toBn(totalAbsent)} ${isBn ? 'জন নৈশ ছুটি' : 'Night Leave/Absent'})` : ''}\n\n`;
 
-    report += `🌟 *১. ${isBn ? 'ভয়েস গ্রুপ (শয়ন লক্ষ্য: রাত ১০:০০ এর মধ্যে | বাতি বন্ধ)' : 'VOICE GROUP (Bedtime Target: <= 10:00 PM | Lights Off)'}*\n`;
-    report += `✅ *${isBn ? 'সময়মতো শয়ন' : 'Slept On Time'} (${toBn(voiceCompliant.length)}/${toBn(voiceStudents.length)}):*\n`;
-    if (voiceCompliant.length > 0) {
-      voiceCompliant.forEach((name, i) => {
+    report += `🌟 *১. ${isBn ? 'ভয়েস গ্রুপ' : 'VOICE GROUP'} (${isBn ? 'শয়ন লক্ষ্য' : 'Bedtime Target'}: <= 10:00 PM | ${isBn ? 'লাইট অফ' : 'Lights Off'})*\n`;
+    report += `✅ *${isBn ? 'সময়মতো শয়ন' : 'Slept On Time'} (${toBn(voiceSleptOnTime.length)}/${toBn(voiceStudents.length)}):*\n`;
+    if (voiceSleptOnTime.length === 0) {
+      report += `   _${isBn ? 'কেউ নেই' : 'None'}_\n`;
+    } else {
+      voiceSleptOnTime.forEach((name, i) => {
         report += `   ${toBn(i + 1)}. ${name}\n`;
       });
-    } else {
-      report += `   (${isBn ? 'কেউ নেই' : 'None'})\n`;
     }
-    if (voiceNonCompliant.length > 0) {
-      report += `⚠️ *${isBn ? 'দেরিতে শয়ন' : 'Late Bed Violations'} (${toBn(voiceNonCompliant.length)}):*\n`;
-      voiceNonCompliant.forEach((item, i) => {
+
+    if (voiceLate.length > 0) {
+      report += `⚠️ *${isBn ? 'বিলম্ব শয়ন / নিয়ম লঙ্ঘন' : 'Late Bedtime / Violations'} (${toBn(voiceLate.length)}):*\n`;
+      voiceLate.forEach((item, i) => {
         report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
+
     if (voiceAbsent.length > 0) {
       report += `🔴 *${isBn ? 'নৈশ ছুটি / অনুপস্থিত' : 'Night Leave / Absent'} (${toBn(voiceAbsent.length)}):*\n`;
       voiceAbsent.forEach((item, i) => {
@@ -682,21 +675,23 @@ export const AshramDisciplineAudit: React.FC = () => {
     }
     report += `\n`;
 
-    report += `🪷 *২. ${isBn ? 'লোটাস গ্রুপ (শয়ন লক্ষ্য: রাত ১১:০০ এর মধ্যে | সিকিউরিটি লক)' : 'LOTUS GROUP (Bedtime Target: <= 11:00 PM | Security Lock)'}*\n`;
-    report += `✅ *${isBn ? 'সময়মতো শয়ন' : 'Slept On Time'} (${toBn(lotusCompliant.length)}/${toBn(lotusStudents.length)}):*\n`;
-    if (lotusCompliant.length > 0) {
-      lotusCompliant.forEach((name, i) => {
+    report += `🪷 *২. ${isBn ? 'লোটাস গ্রুপ' : 'LOTUS GROUP'} (${isBn ? 'শয়ন লক্ষ্য' : 'Bedtime Target'}: <= 11:00 PM | ${isBn ? 'সিকিউরিটি লক' : 'Security Lock'})*\n`;
+    report += `✅ *${isBn ? 'সময়মতো শয়ন' : 'Slept On Time'} (${toBn(lotusSleptOnTime.length)}/${toBn(lotusStudents.length)}):*\n`;
+    if (lotusSleptOnTime.length === 0) {
+      report += `   _${isBn ? 'কেউ নেই' : 'None'}_\n`;
+    } else {
+      lotusSleptOnTime.forEach((name, i) => {
         report += `   ${toBn(i + 1)}. ${name}\n`;
       });
-    } else {
-      report += `   (${isBn ? 'কেউ নেই' : 'None'})\n`;
     }
-    if (lotusNonCompliant.length > 0) {
-      report += `⚠️ *${isBn ? 'দেরিতে শয়ন' : 'Late Bed Violations'} (${toBn(lotusNonCompliant.length)}):*\n`;
-      lotusNonCompliant.forEach((item, i) => {
+
+    if (lotusLate.length > 0) {
+      report += `⚠️ *${isBn ? 'বিলম্ব শয়ন / নিয়ম লঙ্ঘন' : 'Late Bedtime / Violations'} (${toBn(lotusLate.length)}):*\n`;
+      lotusLate.forEach((item, i) => {
         report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
+
     if (lotusAbsent.length > 0) {
       report += `🔴 *${isBn ? 'নৈশ ছুটি / অনুপস্থিত' : 'Night Leave / Absent'} (${toBn(lotusAbsent.length)}):*\n`;
       lotusAbsent.forEach((item, i) => {
@@ -711,10 +706,21 @@ export const AshramDisciplineAudit: React.FC = () => {
   };
 
   const monthlyStats = useMemo<MonthlyDevoteeStats[]>(() => {
-    const monthDates = Object.keys(dailyRecords).filter(d => d.startsWith(selectedVerdictMonth));
-    if (monthDates.length === 0 && dateIso.startsWith(selectedVerdictMonth)) {
-      monthDates.push(dateIso);
+    const datesSet = new Set<string>();
+    Object.keys(dailyRecords).filter(d => d.startsWith(selectedVerdictMonth)).forEach(d => datesSet.add(d));
+
+    const [vYear, vMonth] = selectedVerdictMonth.split('-').map(Number);
+    const now = new Date();
+    const isCurrentMonth = now.getFullYear() === vYear && (now.getMonth() + 1) === vMonth;
+    const daysInMonthCount = new Date(vYear, vMonth, 0).getDate();
+    const maxDay = isCurrentMonth ? now.getDate() : daysInMonthCount;
+
+    for (let day = 1; day <= maxDay; day++) {
+      const dStr = `${vYear}-${String(vMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      datesSet.add(dStr);
     }
+
+    const monthDates = Array.from(datesSet).sort();
 
     return students.map(student => {
       let presentDays = 0;
@@ -864,9 +870,19 @@ export const AshramDisciplineAudit: React.FC = () => {
   const lotusCount = students.filter(s => s.group === 'LOTUS').length;
 
   const recordedDates = useMemo(() => {
-    const dates = Object.keys(dailyRecords);
-    if (!dates.includes(dateIso)) dates.push(dateIso);
-    return dates.sort().reverse();
+    const dates = new Set<string>();
+    Object.keys(dailyRecords).forEach(d => dates.add(d));
+
+    const now = new Date();
+    const curYear = now.getFullYear();
+    const curMonth = now.getMonth() + 1;
+    const curDay = now.getDate();
+    for (let day = 1; day <= curDay; day++) {
+      const dStr = `${curYear}-${String(curMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      dates.add(dStr);
+    }
+    if (!dates.has(dateIso)) dates.add(dateIso);
+    return Array.from(dates).sort().reverse();
   }, [dailyRecords, dateIso]);
 
   return (
@@ -1359,15 +1375,40 @@ export const AshramDisciplineAudit: React.FC = () => {
                             </button>
                           </div>
                           {!entry.sleptOnTime && (
-                            <select
-                              value={entry.bedLateMinutes || 15}
-                              onChange={(e) => updateEntry(student.id, { bedLateMinutes: parseInt(e.target.value) || 0 })}
-                              className="text-[10px] bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 rounded px-1 py-0.5 font-bold text-rose-700 dark:text-rose-300"
-                            >
-                              {LATE_MINUTE_OPTIONS.map(m => (
-                                <option key={m} value={m}>Late {m}m</option>
-                              ))}
-                            </select>
+                            <div className="flex flex-col gap-1 mt-1">
+                              <select
+                                value={LATE_MINUTE_OPTIONS.includes(entry.bedLateMinutes || 15) ? (entry.bedLateMinutes || 15) : 'custom'}
+                                onChange={(e) => {
+                                  if (e.target.value === 'custom') {
+                                    updateEntry(student.id, { 
+                                      bedLateMinutes: entry.bedLateMinutes && !LATE_MINUTE_OPTIONS.includes(entry.bedLateMinutes) ? entry.bedLateMinutes : 25 
+                                    });
+                                  } else {
+                                    updateEntry(student.id, { bedLateMinutes: parseInt(e.target.value) || 0 });
+                                  }
+                                }}
+                                className="text-[10px] bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 rounded px-1 py-0.5 font-bold text-rose-700 dark:text-rose-300 cursor-pointer"
+                              >
+                                {LATE_MINUTE_OPTIONS.map(m => (
+                                  <option key={m} value={m}>Late {m}m</option>
+                                ))}
+                                <option value="custom">✏️ {isBn ? 'কাস্টম মিনিট...' : 'Custom min...'}</option>
+                              </select>
+                              {(!LATE_MINUTE_OPTIONS.includes(entry.bedLateMinutes || 15) || (entry.bedLateMinutes !== undefined && entry.bedLateMinutes > 0 && !LATE_MINUTE_OPTIONS.includes(entry.bedLateMinutes))) && (
+                                <div className="flex items-center gap-1">
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    max="360"
+                                    value={entry.bedLateMinutes || ''}
+                                    onChange={(e) => updateEntry(student.id, { bedLateMinutes: parseInt(e.target.value) || 0 })}
+                                    placeholder="mins"
+                                    className="w-14 text-[10px] bg-white dark:bg-slate-900 border border-rose-400 dark:border-rose-700 rounded px-1.5 py-0.5 font-mono font-bold text-rose-800 dark:text-rose-200"
+                                  />
+                                  <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">min</span>
+                                </div>
+                              )}
+                            </div>
                           )}
                         </div>
 
@@ -1412,15 +1453,40 @@ export const AshramDisciplineAudit: React.FC = () => {
                             </button>
                           </div>
                           {!entry.morningProgramOnTime && (
-                            <select
-                              value={entry.mpLateMinutes || 15}
-                              onChange={(e) => updateEntry(student.id, { mpLateMinutes: parseInt(e.target.value) || 0 })}
-                              className="text-[10px] bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 rounded px-1 py-0.5 font-bold text-rose-700 dark:text-rose-300"
-                            >
-                              {LATE_MINUTE_OPTIONS.map(m => (
-                                <option key={m} value={m}>Late {m}m</option>
-                              ))}
-                            </select>
+                            <div className="flex flex-col gap-1 mt-1">
+                              <select
+                                value={LATE_MINUTE_OPTIONS.includes(entry.mpLateMinutes || 15) ? (entry.mpLateMinutes || 15) : 'custom'}
+                                onChange={(e) => {
+                                  if (e.target.value === 'custom') {
+                                    updateEntry(student.id, { 
+                                      mpLateMinutes: entry.mpLateMinutes && !LATE_MINUTE_OPTIONS.includes(entry.mpLateMinutes) ? entry.mpLateMinutes : 25 
+                                    });
+                                  } else {
+                                    updateEntry(student.id, { mpLateMinutes: parseInt(e.target.value) || 0 });
+                                  }
+                                }}
+                                className="text-[10px] bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 rounded px-1 py-0.5 font-bold text-rose-700 dark:text-rose-300 cursor-pointer"
+                              >
+                                {LATE_MINUTE_OPTIONS.map(m => (
+                                  <option key={m} value={m}>Late {m}m</option>
+                                ))}
+                                <option value="custom">✏️ {isBn ? 'কাস্টম মিনিট...' : 'Custom min...'}</option>
+                              </select>
+                              {(!LATE_MINUTE_OPTIONS.includes(entry.mpLateMinutes || 15) || (entry.mpLateMinutes !== undefined && entry.mpLateMinutes > 0 && !LATE_MINUTE_OPTIONS.includes(entry.mpLateMinutes))) && (
+                                <div className="flex items-center gap-1">
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    max="360"
+                                    value={entry.mpLateMinutes || ''}
+                                    onChange={(e) => updateEntry(student.id, { mpLateMinutes: parseInt(e.target.value) || 0 })}
+                                    placeholder="mins"
+                                    className="w-14 text-[10px] bg-white dark:bg-slate-900 border border-rose-400 dark:border-rose-700 rounded px-1.5 py-0.5 font-mono font-bold text-rose-800 dark:text-rose-200"
+                                  />
+                                  <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400">min</span>
+                                </div>
+                              )}
+                            </div>
                           )}
                         </div>
 
@@ -1604,47 +1670,120 @@ export const AshramDisciplineAudit: React.FC = () => {
                   const targetStudent = students.find(s => s.id === historySelectedStudentId);
                   if (!targetStudent) return null;
 
+                  let presentDays = 0;
+                  let absentDays = 0;
+                  let bedOnTime = 0;
+                  let mpOnTime = 0;
+                  let mangalOnTime = 0;
+                  let classOnTime = 0;
+
+                  recordedDates.forEach(date => {
+                    const entry = getEntry(targetStudent.id, date);
+                    if (entry.isAbsent) {
+                      absentDays++;
+                    } else {
+                      presentDays++;
+                      if (entry.sleptOnTime) bedOnTime++;
+                      if (entry.morningProgramOnTime) mpOnTime++;
+                      if (entry.mangalaratiAttended) mangalOnTime++;
+                      if (entry.morningClassAttended) classOnTime++;
+                    }
+                  });
+
+                  const divisor = presentDays > 0 ? presentDays : 1;
+                  const overallRate = presentDays > 0
+                    ? Math.round(((bedOnTime + mpOnTime + mangalOnTime + classOnTime) / (divisor * 4)) * 100)
+                    : 100;
+
                   return (
-                    <div>
-                      <div className="p-3 bg-indigo-50 dark:bg-indigo-950/40 rounded-2xl border border-indigo-200 dark:border-indigo-800 flex items-center justify-between">
+                    <div className="space-y-3">
+                      <div className="p-4 bg-gradient-to-r from-indigo-900/40 via-slate-900 to-indigo-950/40 rounded-2xl border border-indigo-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-white">
                         <div>
-                          <h4 className="font-black text-sm text-indigo-950 dark:text-indigo-200">
-                            {targetStudent.name} • {targetStudent.group} Group Timeline
-                          </h4>
-                          <p className="text-xs text-slate-500">
-                            Current Strikes: {targetStudent.monthlyStrikes}/3
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-black text-base text-white">
+                              {targetStudent.name}
+                            </h4>
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-black ${
+                              targetStudent.group === 'VOICE' ? 'bg-amber-500 text-slate-950' : 'bg-indigo-500 text-white'
+                            }`}>
+                              {targetStudent.group} Group
+                            </span>
+                            <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-white/10 text-slate-200">
+                              {targetStudent.status}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-400 mt-1">
+                            {isBn ? 'মূল্যায়নকৃত দিন' : 'Evaluated'}: <span className="text-white font-bold">{presentDays + absentDays} {isBn ? 'দিন' : 'days'}</span> ({presentDays} {isBn ? 'উপস্থিত' : 'present'}, {absentDays} {isBn ? 'ছুটি' : 'leave'}) • {isBn ? 'স্ট্রাইক' : 'Strikes'}: <span className="text-amber-400 font-black">{targetStudent.monthlyStrikes}/3</span>
                           </p>
                         </div>
-                        <span className="text-xs font-bold px-3 py-1 rounded-full bg-indigo-500 text-white">
-                          {targetStudent.status}
-                        </span>
+                        
+                        <div className="text-right sm:border-l sm:border-white/15 sm:pl-4">
+                          <div className="text-[11px] text-slate-400 font-medium">{isBn ? 'সাধনা সাফল্যের হার' : 'Sadhana Success Rate'}</div>
+                          <div className={`text-xl font-mono font-black ${
+                            overallRate >= 90 ? 'text-emerald-400' : overallRate >= 75 ? 'text-amber-400' : 'text-rose-400'
+                          }`}>
+                            {overallRate}%
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="mt-3 divide-y divide-slate-100 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-white dark:bg-slate-900">
+                      <div className="divide-y divide-slate-100 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
                         {recordedDates.map(date => {
                           const entry = getEntry(targetStudent.id, date);
+                          const dateObj = parseIsoDate(date);
+                          const dateLabel = dateObj.toLocaleDateString(isBn ? 'bn-BD' : 'en-GB', { 
+                            weekday: 'short', 
+                            day: 'numeric', 
+                            month: 'short' 
+                          });
+
                           return (
-                            <div key={date} className="p-3 flex items-center justify-between gap-2 text-xs">
-                              <span className="font-mono font-bold text-slate-600 dark:text-slate-400">
-                                {date}
-                              </span>
+                            <div key={date} className="p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                              <div className="flex items-center gap-2 shrink-0">
+                                <span className="font-mono font-bold text-slate-700 dark:text-slate-300 w-24">
+                                  {date}
+                                </span>
+                                <span className="text-[11px] text-slate-400 font-medium">
+                                  ({dateLabel})
+                                </span>
+                              </div>
+
                               {entry.isAbsent ? (
-                                <span className="text-rose-600 font-bold bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded">
-                                  🔴 Absent: {entry.absenceReason || 'Leave'}
+                                <span className="text-rose-600 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 px-2.5 py-1 rounded-lg text-xs w-fit">
+                                  🔴 {isBn ? 'অনুপস্থিত / ছুটি' : 'Absent / Leave'}: {formatReasonText(entry.absenceReason, isBn)}
                                 </span>
                               ) : (
-                                <div className="flex items-center gap-2 flex-wrap text-[11px]">
-                                  <span className={entry.sleptOnTime ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold'}>
-                                    Bed: {entry.sleptOnTime ? 'On-Time' : `Late ${entry.bedLateMinutes || 15}m`}
+                                <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
+                                  <span className={`px-2 py-0.5 rounded font-bold ${
+                                    entry.sleptOnTime 
+                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300' 
+                                      : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 font-black'
+                                  }`}>
+                                    🌙 Bed: {entry.sleptOnTime ? 'On-Time' : `Late +${entry.bedLateMinutes || 15}m`}
                                   </span>
-                                  <span className={entry.morningProgramOnTime ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold'}>
-                                    MP: {entry.morningProgramOnTime ? 'On-Time' : `Late ${entry.mpLateMinutes || 15}m`}
+
+                                  <span className={`px-2 py-0.5 rounded font-bold ${
+                                    entry.morningProgramOnTime 
+                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300' 
+                                      : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 font-black'
+                                  }`}>
+                                    ⏰ MP: {entry.morningProgramOnTime ? 'On-Time' : `Late +${entry.mpLateMinutes || 15}m`}
                                   </span>
-                                  <span className={entry.mangalaratiAttended ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold'}>
-                                    Mangalarati: {entry.mangalaratiAttended ? 'Attended' : 'Missed'}
+
+                                  <span className={`px-2 py-0.5 rounded font-bold ${
+                                    entry.mangalaratiAttended 
+                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300' 
+                                      : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300'
+                                  }`}>
+                                    🪔 Mangal: {entry.mangalaratiAttended ? 'Attended' : 'Missed'}
                                   </span>
-                                  <span className={entry.morningClassAttended ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold'}>
-                                    Class: {entry.morningClassAttended ? 'Attended' : 'Missed'}
+
+                                  <span className={`px-2 py-0.5 rounded font-bold ${
+                                    entry.morningClassAttended 
+                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300' 
+                                      : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300'
+                                  }`}>
+                                    📖 Class: {entry.morningClassAttended ? 'Attended' : 'Missed'}
                                   </span>
                                 </div>
                               )}
@@ -1658,39 +1797,66 @@ export const AshramDisciplineAudit: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-2">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
                   {recordedDates.map(date => {
-                    const dayEntries = dailyRecords[date] || {};
-                    const recordedCount = Object.keys(dayEntries).length;
                     const isCurrent = date === dateIso;
+                    const dateObj = parseIsoDate(date);
+                    const formattedDate = dateObj.toLocaleDateString(isBn ? 'bn-BD' : 'en-GB', { 
+                      weekday: 'long', 
+                      day: 'numeric', 
+                      month: 'short',
+                      year: 'numeric'
+                    });
+
+                    let dayPresent = 0;
+                    let dayAbsent = 0;
+                    students.forEach(s => {
+                      const entry = getEntry(s.id, date);
+                      if (entry.isAbsent) dayAbsent++;
+                      else dayPresent++;
+                    });
 
                     return (
                       <button
                         key={date}
                         onClick={() => {
-                          setSelectedDate(new Date(date));
+                          setSelectedDate(parseIsoDate(date));
                           setIsHistoryModalOpen(false);
-                          toast.success(`Loaded discipline records for ${date}`);
+                          toast.success(isBn ? `${formattedDate} তারিখের অডিট লোড করা হয়েছে` : `Loaded discipline records for ${date}`);
                         }}
-                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                        className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer group hover:scale-[1.01] ${
                           isCurrent
-                            ? 'bg-amber-500/10 border-amber-500 text-amber-900 dark:text-amber-200'
-                            : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 hover:border-indigo-400'
+                            ? 'bg-gradient-to-br from-amber-500/15 to-amber-500/5 border-amber-500 text-slate-900 dark:text-white shadow-md'
+                            : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 hover:border-indigo-400 hover:shadow-xs'
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <span className="font-mono font-bold text-xs">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="font-mono font-black text-xs text-slate-900 dark:text-white">
                             {date}
                           </span>
-                          {isCurrent && (
+                          {isCurrent ? (
                             <span className="text-[10px] bg-amber-500 text-slate-950 font-black px-2 py-0.5 rounded-full">
                               Active Day
                             </span>
+                          ) : (
+                            <span className="text-[10.5px] font-bold text-indigo-600 dark:text-indigo-400 group-hover:underline">
+                              Open ➔
+                            </span>
                           )}
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-1">
-                          {recordedCount} custom entries recorded
+                        <p className="text-xs font-bold text-slate-700 dark:text-slate-300 mt-1">
+                          {formattedDate}
                         </p>
+                        <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 mt-2 pt-2 border-t border-slate-200/60 dark:border-slate-700/60">
+                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                            ✓ {toBn(dayPresent)} {isBn ? 'উপস্থিত' : 'Present'}
+                          </span>
+                          {dayAbsent > 0 && (
+                            <span className="text-rose-500 font-bold">
+                              • {toBn(dayAbsent)} {isBn ? 'ছুটি' : 'Leave'}
+                            </span>
+                          )}
+                        </div>
                       </button>
                     );
                   })}
