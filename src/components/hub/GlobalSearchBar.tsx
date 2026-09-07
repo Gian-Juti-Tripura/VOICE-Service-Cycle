@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Search, X, Sparkles, ChevronRight, User, BookOpen, Clock, 
   Utensils, HeartHandshake, RefreshCw, ShieldCheck, GraduationCap, 
-  Tent, Calendar, Compass, PlayCircle, Bell, Flame, Building
+  Tent, Calendar, Compass, PlayCircle, Bell, Flame, Building,
+  Video, Users, UserCheck, Megaphone
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { triggerHaptic } from '../../utils/haptics';
@@ -375,21 +376,126 @@ export const GlobalSearchBar: React.FC = () => {
   };
 
   const quickPills = [
-    { label: isBn ? '▶️ মিডিয়া' : '▶️ Media', link: '/lectures-library' },
-    { label: isBn ? '🍴 মিল' : '🍴 Meals', link: '/meals' },
-    { label: isBn ? '📿 সাধনা' : '📿 Sadhana', link: '/sadhana' },
-    { label: isBn ? '⏰ শৃঙ্খলা' : '⏰ Discipline', link: '/discipline-audit' },
-    { label: isBn ? '🔄 সেবাক্রম' : '🔄 Seva', link: '/service-cycle' },
-    { label: isBn ? '🛡️ কাউন্সেলর' : '🛡️ Counselor', link: '/counselor' },
-    { label: isBn ? '👥 ভক্ত' : '👥 Devotees', link: '/profiles' },
-    { label: isBn ? '🎓 কোর্স' : '🎓 Courses', link: '/courses' },
-    { label: isBn ? '🧭 সিলেবাস' : '🧭 Syllabus', link: '/syllabus' },
-    { label: isBn ? '🏕️ ক্যাম্প' : '🏕️ Camps', link: '/camps' },
-    { label: isBn ? '📚 লাইব্রেরি' : '📚 Library', link: '/library' },
-    { label: isBn ? '🏛️ পরিষদ' : '🏛️ Mgmt', link: '/management' },
-    { label: isBn ? '📅 পঞ্জিকা' : '📅 Calendar', link: '/calendar' },
-    { label: isBn ? '📢 নোটিশ' : '📢 Notices', link: '/announcements' },
-    { label: isBn ? '🔥 প্রচার' : '🔥 Preaching', link: '/preaching' }
+    { 
+      id: 'media',
+      labelBn: 'মিডিয়া', 
+      labelEn: 'Media', 
+      icon: Video, 
+      color: 'text-rose-400',
+      link: '/lectures-library' 
+    },
+    { 
+      id: 'meals',
+      labelBn: 'মিল', 
+      labelEn: 'Meals', 
+      icon: Utensils, 
+      color: 'text-amber-400',
+      link: '/meals' 
+    },
+    { 
+      id: 'sadhana',
+      labelBn: 'সাধনা', 
+      labelEn: 'Sadhana', 
+      icon: HeartHandshake, 
+      color: 'text-pink-400',
+      link: '/sadhana' 
+    },
+    { 
+      id: 'discipline',
+      labelBn: 'শৃঙ্খলা', 
+      labelEn: 'Discipline', 
+      icon: ShieldCheck, 
+      color: 'text-emerald-400',
+      link: '/discipline-audit' 
+    },
+    { 
+      id: 'seva',
+      labelBn: 'সেবাক্রম', 
+      labelEn: 'Seva', 
+      icon: RefreshCw, 
+      color: 'text-cyan-400',
+      link: '/service-cycle' 
+    },
+    { 
+      id: 'counselor',
+      labelBn: 'কাউন্সেলর', 
+      labelEn: 'Counselor', 
+      icon: UserCheck, 
+      color: 'text-violet-400',
+      link: '/counselor' 
+    },
+    { 
+      id: 'devotees',
+      labelBn: 'ভক্ত', 
+      labelEn: 'Devotees', 
+      icon: Users, 
+      color: 'text-blue-400',
+      link: '/profiles' 
+    },
+    { 
+      id: 'courses',
+      labelBn: 'কোর্স', 
+      labelEn: 'Courses', 
+      icon: GraduationCap, 
+      color: 'text-amber-300',
+      link: '/courses' 
+    },
+    { 
+      id: 'syllabus',
+      labelBn: 'সিলেবাস', 
+      labelEn: 'Syllabus', 
+      icon: Compass, 
+      color: 'text-orange-400',
+      link: '/syllabus' 
+    },
+    { 
+      id: 'camps',
+      labelBn: 'ক্যাম্প', 
+      labelEn: 'Camps', 
+      icon: Tent, 
+      color: 'text-emerald-400',
+      link: '/camps' 
+    },
+    { 
+      id: 'library',
+      labelBn: 'লাইব্রেরি', 
+      labelEn: 'Library', 
+      icon: BookOpen, 
+      color: 'text-yellow-400',
+      link: '/library' 
+    },
+    { 
+      id: 'management',
+      labelBn: 'পরিষদ', 
+      labelEn: 'Council', 
+      icon: Building, 
+      color: 'text-teal-400',
+      link: '/management' 
+    },
+    { 
+      id: 'calendar',
+      labelBn: 'পঞ্জিকা', 
+      labelEn: 'Calendar', 
+      icon: Calendar, 
+      color: 'text-rose-400',
+      link: '/calendar' 
+    },
+    { 
+      id: 'notices',
+      labelBn: 'নোটিশ', 
+      labelEn: 'Notices', 
+      icon: Megaphone, 
+      color: 'text-amber-400',
+      link: '/announcements' 
+    },
+    { 
+      id: 'preaching',
+      labelBn: 'প্রচার', 
+      labelEn: 'Preach', 
+      icon: Flame, 
+      color: 'text-orange-500',
+      link: '/preaching' 
+    }
   ];
 
   return (
@@ -450,17 +556,24 @@ export const GlobalSearchBar: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Search Suggestion Pills - All visible in mobile & desktop views with sleek app-like micro-chips */}
-      <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-1.5 pt-2 sm:pt-2.5 px-0.5">
-        {quickPills.map((pill, idx) => (
-          <button
-            key={idx}
-            onClick={() => handleSelectResult(pill.link)}
-            className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg sm:rounded-xl bg-slate-800/85 hover:bg-amber-500/20 active:bg-amber-500/30 text-slate-200 hover:text-amber-200 text-[10px] sm:text-[11px] font-semibold border border-slate-700/60 hover:border-amber-400/60 whitespace-nowrap transition-all duration-150 cursor-pointer shadow-xs active:scale-95 backdrop-blur-md leading-tight"
-          >
-            {pill.label}
-          </button>
-        ))}
+      {/* Quick Navigation Cards Grid - 5x3 Fixed Size Rectangular App Tiles spanning full width */}
+      <div className="w-full grid grid-cols-5 gap-1.5 sm:gap-2 pt-2.5 sm:pt-3">
+        {quickPills.map((pill) => {
+          const Icon = pill.icon;
+          return (
+            <button
+              key={pill.id}
+              onClick={() => handleSelectResult(pill.link)}
+              className="group flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 py-1 sm:py-1.5 px-0.5 sm:px-2 rounded-lg bg-slate-900/90 dark:bg-slate-950/90 hover:bg-amber-500/15 active:bg-amber-500/25 border border-slate-700/70 hover:border-amber-400/60 text-slate-200 hover:text-amber-200 transition-all duration-150 cursor-pointer shadow-xs active:scale-95 backdrop-blur-md h-[42px] sm:h-[36px] w-full min-w-0"
+              title={isBn ? pill.labelBn : pill.labelEn}
+            >
+              <Icon size={14} className={`${pill.color} group-hover:scale-110 transition-transform shrink-0`} />
+              <span className="text-[9px] sm:text-[11px] font-semibold text-slate-200 group-hover:text-amber-200 truncate leading-none tracking-tight max-w-full text-center">
+                {isBn ? pill.labelBn : pill.labelEn}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Results Dropdown Menu */}
