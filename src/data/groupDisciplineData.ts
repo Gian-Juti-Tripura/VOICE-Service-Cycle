@@ -146,16 +146,16 @@ export const INITIAL_DISCIPLINE_STUDENTS: StudentDisciplineRecord[] = [
   { id: 'member_1', name: 'CHAITANYA P.', group: 'VOICE', phone: '+880 1331-982443', cycleOrder: 2, monthlyStrikes: 0, status: 'ACTIVE' },
   { id: 'member_2', name: 'GIAN P.', group: 'VOICE', phone: '+8801571328549', cycleOrder: 3, monthlyStrikes: 0, status: 'ACTIVE' },
   { id: 'member_5', name: 'DIPEN P.', group: 'VOICE', phone: '01571422381', cycleOrder: 6, monthlyStrikes: 0, status: 'ACTIVE' },
-  { id: 'member_6', name: 'ANKON P.', group: 'VOICE', phone: '01933503979', cycleOrder: 7, monthlyStrikes: 0, status: 'ACTIVE' },
+  { id: 'member_6', name: 'ANKON P.', group: 'VOICE', phone: '01933503979', cycleOrder: 7, monthlyStrikes: 1, status: 'WARNED' },
   { id: 'member_7', name: 'ANTOR P.', group: 'VOICE', phone: '+880 1704-370139', cycleOrder: 8, monthlyStrikes: 0, status: 'ACTIVE' },
   { id: 'member_8', name: 'ROTON P.', group: 'VOICE', phone: '+880 1750-504601', cycleOrder: 9, monthlyStrikes: 0, status: 'ACTIVE' },
-  { id: 'member_9', name: 'JOY S. P.', group: 'VOICE', phone: '+880 1734-550288', cycleOrder: 10, monthlyStrikes: 0, status: 'ACTIVE' },
+  { id: 'member_9', name: 'JOY S. P.', group: 'VOICE', phone: '+880 1734-550288', cycleOrder: 10, monthlyStrikes: 1, status: 'WARNED' },
   { id: 'member_10', name: 'JOYKANT P.', group: 'VOICE', phone: '+880 1754-034183', cycleOrder: 11, monthlyStrikes: 0, status: 'ACTIVE' },
-  { id: 'member_11', name: 'BAPPI C. P.', group: 'VOICE', cycleOrder: 12, monthlyStrikes: 0, status: 'ACTIVE' },
+  { id: 'member_11', name: 'BAPPI C. P.', group: 'VOICE', cycleOrder: 12, monthlyStrikes: 1, status: 'WARNED' },
 
   // Lotus Group (Only Sangakara Das and Pranto C Das)
-  { id: 'member_3', name: 'PRANTO P. (Pranto C Das)', group: 'LOTUS', phone: '+880 1609-302008', cycleOrder: 4, monthlyStrikes: 0, status: 'ACTIVE' },
-  { id: 'member_4', name: 'SANGA P. (Sangakara Das)', group: 'LOTUS', phone: '+880 1722-711849', cycleOrder: 5, monthlyStrikes: 0, status: 'ACTIVE' },
+  { id: 'member_3', name: 'PRANTO P. (Pranto C Das)', group: 'LOTUS', phone: '+880 1609-302008', cycleOrder: 4, monthlyStrikes: 2, status: 'WARNED' },
+  { id: 'member_4', name: 'SANGA P. (Sangakara Das)', group: 'LOTUS', phone: '+880 1722-711849', cycleOrder: 5, monthlyStrikes: 1, status: 'WARNED' },
 ];
 
 export const createDefaultDailyRecordsForDate = (dateIso: string): Record<string, DailyDisciplineEntry> => {
@@ -191,13 +191,264 @@ export const createDefaultDailyRecordsForDate = (dateIso: string): Record<string
   return result;
 };
 
-// Initial Seed Data for September 1 to September 7, 2026
+// Initial Detailed Seed Data for September 1 to September 7, 2026
 export const INITIAL_DAILY_DISCIPLINE_RECORDS: Record<string, Record<string, DailyDisciplineEntry>> = {
-  '2026-09-01': createDefaultDailyRecordsForDate('2026-09-01'),
-  '2026-09-02': createDefaultDailyRecordsForDate('2026-09-02'),
-  '2026-09-03': createDefaultDailyRecordsForDate('2026-09-03'),
-  '2026-09-04': createDefaultDailyRecordsForDate('2026-09-04'),
-  '2026-09-05': createDefaultDailyRecordsForDate('2026-09-05'),
-  '2026-09-06': createDefaultDailyRecordsForDate('2026-09-06'),
-  '2026-09-07': createDefaultDailyRecordsForDate('2026-09-07')
+  '2026-09-01': {
+    ...createDefaultDailyRecordsForDate('2026-09-01'),
+    'member_11': {
+      studentId: 'member_11',
+      dateStr: '2026-09-01',
+      isAbsent: false,
+      sleptOnTime: false,
+      bedLateMinutes: 15,
+      wokeUpOnTime: true,
+      morningProgramOnTime: true,
+      mpLateMinutes: 0,
+      mangalaratiAttended: true,
+      morningClassAttended: true,
+      reason: 'Academic / Urgent Exam Study (পরীক্ষার বিশেষ প্রস্তুতি)',
+      isEmergency: false
+    },
+    'member_4': {
+      studentId: 'member_4',
+      dateStr: '2026-09-01',
+      isAbsent: false,
+      sleptOnTime: true,
+      bedLateMinutes: 0,
+      wokeUpOnTime: true,
+      morningProgramOnTime: true,
+      mpLateMinutes: 0,
+      mangalaratiAttended: true,
+      morningClassAttended: false,
+      morningClassReason: 'Morning Temple Seva Duty (সকালের বিশেষ সেবা দায়িত্ব)',
+      reason: 'Temple / VOICE Seva Duty (মন্দির বা ভয়েস বিশেষ সেবা)',
+      isEmergency: false
+    },
+    'member_3': {
+      studentId: 'member_3',
+      dateStr: '2026-09-01',
+      isAbsent: false,
+      sleptOnTime: false,
+      bedLateMinutes: 25,
+      wokeUpOnTime: true,
+      morningProgramOnTime: true,
+      mpLateMinutes: 0,
+      mangalaratiAttended: true,
+      morningClassAttended: true,
+      reason: 'Late Bedtime / Overslept (দেরিতে ঘুম / ঘুম ভাঙতে বিলম্ব)',
+      isEmergency: false
+    }
+  },
+
+  '2026-09-02': {
+    ...createDefaultDailyRecordsForDate('2026-09-02'),
+    'member_6': {
+      studentId: 'member_6',
+      dateStr: '2026-09-02',
+      isAbsent: false,
+      sleptOnTime: true,
+      bedLateMinutes: 0,
+      wokeUpOnTime: false,
+      morningProgramOnTime: false,
+      mpLateMinutes: 10,
+      mangalaratiAttended: true,
+      morningClassAttended: false,
+      morningClassReason: 'University Class / Lab (বিশ্ববিদ্যালয়ের ক্লাস / ল্যাব পরীক্ষা)',
+      reason: 'Late Bedtime / Overslept (দেরিতে ঘুম / ঘুম ভাঙতে বিলম্ব)',
+      isEmergency: false
+    },
+    'member_9': {
+      studentId: 'member_9',
+      dateStr: '2026-09-02',
+      isAbsent: false,
+      sleptOnTime: false,
+      bedLateMinutes: 30,
+      wokeUpOnTime: false,
+      morningProgramOnTime: false,
+      mpLateMinutes: 15,
+      mangalaratiAttended: false,
+      mangalaratiReason: 'Health / Sickness (অসুস্থতা / চিকিৎসা)',
+      morningClassAttended: false,
+      morningClassReason: 'Health / Sickness (অসুস্থতা / বিশ্রাম)',
+      reason: 'Health Emergency / Sickness (অসুস্থতা / স্বাস্থ্য সমস্যা)',
+      isEmergency: true
+    },
+    'member_3': {
+      studentId: 'member_3',
+      dateStr: '2026-09-02',
+      isAbsent: false,
+      sleptOnTime: false,
+      bedLateMinutes: 35,
+      wokeUpOnTime: false,
+      morningProgramOnTime: false,
+      mpLateMinutes: 15,
+      mangalaratiAttended: true,
+      morningClassAttended: true,
+      reason: 'Late Bedtime / Overslept (দেরিতে ঘুম / ঘুম ভাঙতে বিলম্ব)',
+      isEmergency: false
+    }
+  },
+
+  '2026-09-03': {
+    ...createDefaultDailyRecordsForDate('2026-09-03'),
+    'member_7': {
+      studentId: 'member_7',
+      dateStr: '2026-09-03',
+      isAbsent: false,
+      sleptOnTime: false,
+      bedLateMinutes: 20,
+      wokeUpOnTime: true,
+      morningProgramOnTime: true,
+      mpLateMinutes: 0,
+      mangalaratiAttended: true,
+      morningClassAttended: true,
+      reason: 'Academic / Urgent Exam Study (পরীক্ষার বিশেষ প্রস্তুতি)',
+      isEmergency: false
+    },
+    'member_4': {
+      studentId: 'member_4',
+      dateStr: '2026-09-03',
+      isAbsent: false,
+      sleptOnTime: false,
+      bedLateMinutes: 30,
+      wokeUpOnTime: true,
+      morningProgramOnTime: true,
+      mpLateMinutes: 0,
+      mangalaratiAttended: true,
+      morningClassAttended: true,
+      reason: 'Temple / VOICE Seva Duty (মন্দির বা ভয়েস বিশেষ সেবা)',
+      isEmergency: false
+    }
+  },
+
+  '2026-09-04': {
+    ...createDefaultDailyRecordsForDate('2026-09-04'),
+    'member_11': {
+      studentId: 'member_11',
+      dateStr: '2026-09-04',
+      isAbsent: false,
+      sleptOnTime: true,
+      bedLateMinutes: 0,
+      wokeUpOnTime: false,
+      morningProgramOnTime: false,
+      mpLateMinutes: 10,
+      mangalaratiAttended: true,
+      morningClassAttended: true,
+      reason: 'Late Bedtime / Overslept (দেরিতে ঘুম / ঘুম ভাঙতে বিলম্ব)',
+      isEmergency: false
+    },
+    'member_8': {
+      studentId: 'member_8',
+      dateStr: '2026-09-04',
+      isAbsent: false,
+      sleptOnTime: false,
+      bedLateMinutes: 15,
+      wokeUpOnTime: true,
+      morningProgramOnTime: true,
+      mpLateMinutes: 0,
+      mangalaratiAttended: true,
+      morningClassAttended: true,
+      reason: 'Temple / VOICE Seva Duty (মন্দির বা ভয়েস বিশেষ সেবা)',
+      isEmergency: false
+    },
+    'member_3': {
+      studentId: 'member_3',
+      dateStr: '2026-09-04',
+      isAbsent: false,
+      sleptOnTime: false,
+      bedLateMinutes: 45,
+      wokeUpOnTime: false,
+      morningProgramOnTime: false,
+      mpLateMinutes: 25,
+      mangalaratiAttended: false,
+      mangalaratiReason: 'Overslept / Exhaustion (দেরিতে ঘুম ভাঙা / ক্লান্তি)',
+      morningClassAttended: true,
+      reason: 'Late Bedtime / Overslept (দেরিতে ঘুম / ঘুম ভাঙতে বিলম্ব)',
+      isEmergency: false
+    }
+  },
+
+  '2026-09-05': {
+    ...createDefaultDailyRecordsForDate('2026-09-05'),
+    'member_6': {
+      studentId: 'member_6',
+      dateStr: '2026-09-05',
+      isAbsent: false,
+      sleptOnTime: false,
+      bedLateMinutes: 20,
+      wokeUpOnTime: true,
+      morningProgramOnTime: true,
+      mpLateMinutes: 0,
+      mangalaratiAttended: true,
+      morningClassAttended: true,
+      reason: 'Academic / Urgent Exam Study (পরীক্ষার বিশেষ প্রস্তুতি)',
+      isEmergency: false
+    },
+    'member_9': {
+      studentId: 'member_9',
+      dateStr: '2026-09-05',
+      isAbsent: false,
+      sleptOnTime: false,
+      bedLateMinutes: 15,
+      wokeUpOnTime: true,
+      morningProgramOnTime: true,
+      mpLateMinutes: 0,
+      mangalaratiAttended: true,
+      morningClassAttended: true,
+      reason: 'Late Bedtime / Overslept (দেরিতে ঘুম / ঘুম ভাঙতে বিলম্ব)',
+      isEmergency: false
+    },
+    'member_4': {
+      studentId: 'member_4',
+      dateStr: '2026-09-05',
+      isAbsent: false,
+      sleptOnTime: true,
+      bedLateMinutes: 0,
+      wokeUpOnTime: false,
+      morningProgramOnTime: false,
+      mpLateMinutes: 15,
+      mangalaratiAttended: true,
+      morningClassAttended: true,
+      reason: 'Late Bedtime / Overslept (দেরিতে ঘুম / ঘুম ভাঙতে বিলম্ব)',
+      isEmergency: false
+    }
+  },
+
+  '2026-09-06': {
+    ...createDefaultDailyRecordsForDate('2026-09-06'),
+    'member_7': {
+      studentId: 'member_7',
+      dateStr: '2026-09-06',
+      isAbsent: false,
+      sleptOnTime: true,
+      bedLateMinutes: 0,
+      wokeUpOnTime: true,
+      morningProgramOnTime: true,
+      mpLateMinutes: 0,
+      mangalaratiAttended: true,
+      morningClassAttended: false,
+      morningClassReason: 'University Class / Lab (বিশ্ববিদ্যালয়ের ক্লাস / ল্যাব পরীক্ষা)',
+      reason: '',
+      isEmergency: false
+    },
+    'member_3': {
+      studentId: 'member_3',
+      dateStr: '2026-09-06',
+      isAbsent: false,
+      sleptOnTime: false,
+      bedLateMinutes: 20,
+      wokeUpOnTime: true,
+      morningProgramOnTime: true,
+      mpLateMinutes: 0,
+      mangalaratiAttended: true,
+      morningClassAttended: false,
+      morningClassReason: 'Academic Exam Prep (পরীক্ষার বিশেষ প্রস্তুতি)',
+      reason: 'Academic / Urgent Exam Study (পরীক্ষার বিশেষ প্রস্তুতি)',
+      isEmergency: false
+    }
+  },
+
+  '2026-09-07': {
+    ...createDefaultDailyRecordsForDate('2026-09-07')
+  }
 };

@@ -29,8 +29,8 @@ import { exportTableToPdf } from '../../lib/exportTablePdf';
 import { triggerHaptic } from '../../utils/haptics';
 import toast from 'react-hot-toast';
 
-const STORAGE_STUDENTS_KEY = 'advaita_discipline_students_v4';
-const STORAGE_DAILY_KEY = 'advaita_discipline_daily_v4';
+const STORAGE_STUDENTS_KEY = 'advaita_discipline_students_v5';
+const STORAGE_DAILY_KEY = 'advaita_discipline_daily_v5';
 const STORAGE_AUDITOR_ROLE_KEY = 'advaita_discipline_auditor_role_v1';
 
 interface MonthlyDevoteeStats {
@@ -75,7 +75,7 @@ export const AshramDisciplineAudit: React.FC = () => {
 
   const [students, setStudents] = useState<StudentDisciplineRecord[]>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_STUDENTS_KEY) || localStorage.getItem('advaita_discipline_students_v3');
+      const saved = localStorage.getItem(STORAGE_STUDENTS_KEY);
       return saved ? JSON.parse(saved) : INITIAL_DISCIPLINE_STUDENTS;
     } catch {
       return INITIAL_DISCIPLINE_STUDENTS;
@@ -84,7 +84,7 @@ export const AshramDisciplineAudit: React.FC = () => {
 
   const [dailyRecords, setDailyRecords] = useState<Record<string, Record<string, DailyDisciplineEntry>>>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_DAILY_KEY) || localStorage.getItem('advaita_discipline_daily_v3');
+      const saved = localStorage.getItem(STORAGE_DAILY_KEY);
       const parsed = saved ? JSON.parse(saved) : {};
       return { ...INITIAL_DAILY_DISCIPLINE_RECORDS, ...parsed };
     } catch {
