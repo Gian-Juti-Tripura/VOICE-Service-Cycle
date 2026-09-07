@@ -375,21 +375,21 @@ export const GlobalSearchBar: React.FC = () => {
   };
 
   const quickPills = [
-    { label: isBn ? '▶️ অডিও ও ভিডিও' : '▶️ Media Library', link: '/lectures-library' },
-    { label: isBn ? '🍴 মিল ও প্রসাদ' : '🍴 Prasad Meal', link: '/meals' },
-    { label: isBn ? '📿 সাধনাপত্র' : '📿 Sadhana', link: '/sadhana' },
-    { label: isBn ? '⏰ শৃঙ্খলা অডিট' : '⏰ Discipline', link: '/discipline-audit' },
-    { label: isBn ? '🔄 সেবাক্রম' : '🔄 Seva Cycle', link: '/service-cycle' },
+    { label: isBn ? '▶️ মিডিয়া' : '▶️ Media', link: '/lectures-library' },
+    { label: isBn ? '🍴 মিল' : '🍴 Meals', link: '/meals' },
+    { label: isBn ? '📿 সাধনা' : '📿 Sadhana', link: '/sadhana' },
+    { label: isBn ? '⏰ শৃঙ্খলা' : '⏰ Discipline', link: '/discipline-audit' },
+    { label: isBn ? '🔄 সেবাক্রম' : '🔄 Seva', link: '/service-cycle' },
     { label: isBn ? '🛡️ কাউন্সেলর' : '🛡️ Counselor', link: '/counselor' },
-    { label: isBn ? '👥 ভক্ত প্রোফাইল' : '👥 Devotees', link: '/profiles' },
-    { label: isBn ? '🎓 বেদিক কোর্স' : '🎓 Courses', link: '/courses' },
-    { label: isBn ? '🧭 সিলেবাস (৮৫৪)' : '🧭 Syllabus', link: '/syllabus' },
-    { label: isBn ? '🏕️ আবাসিক ক্যাম্প' : '🏕️ Camps', link: '/camps' },
-    { label: isBn ? '📚 সেবানন্দ লাইব্রেরি' : '📚 Library', link: '/library' },
-    { label: isBn ? '🏛️ পরিচালনা পরিষদ' : '🏛️ Management', link: '/management' },
-    { label: isBn ? '📅 বৈষ্ণব পঞ্জিকা' : '📅 Calendar', link: '/calendar' },
-    { label: isBn ? '📢 ইনচার্জ নোটিশ' : '📢 Notices', link: '/announcements' },
-    { label: isBn ? '🔥 প্রচারক টুলকিট' : '🔥 Preaching', link: '/preaching' }
+    { label: isBn ? '👥 ভক্ত' : '👥 Devotees', link: '/profiles' },
+    { label: isBn ? '🎓 কোর্স' : '🎓 Courses', link: '/courses' },
+    { label: isBn ? '🧭 সিলেবাস' : '🧭 Syllabus', link: '/syllabus' },
+    { label: isBn ? '🏕️ ক্যাম্প' : '🏕️ Camps', link: '/camps' },
+    { label: isBn ? '📚 লাইব্রেরি' : '📚 Library', link: '/library' },
+    { label: isBn ? '🏛️ পরিষদ' : '🏛️ Mgmt', link: '/management' },
+    { label: isBn ? '📅 পঞ্জিকা' : '📅 Calendar', link: '/calendar' },
+    { label: isBn ? '📢 নোটিশ' : '📢 Notices', link: '/announcements' },
+    { label: isBn ? '🔥 প্রচার' : '🔥 Preaching', link: '/preaching' }
   ];
 
   return (
@@ -450,13 +450,13 @@ export const GlobalSearchBar: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Search Suggestion Pills - Responsive Scrollable Mobile, Clean Wrap Desktop */}
-      <div className="flex items-center gap-1.5 sm:gap-2 pt-2.5 overflow-x-auto sm:overflow-visible sm:flex-wrap pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden justify-start sm:justify-center px-0.5">
+      {/* Quick Search Suggestion Pills - All visible in mobile & desktop views with sleek app-like micro-chips */}
+      <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-1.5 pt-2 sm:pt-2.5 px-0.5">
         {quickPills.map((pill, idx) => (
           <button
             key={idx}
             onClick={() => handleSelectResult(pill.link)}
-            className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-amber-500/20 text-slate-200 hover:text-amber-200 text-[11px] font-semibold border border-slate-700/60 hover:border-amber-400/60 whitespace-nowrap transition-all duration-200 cursor-pointer shadow-xs active:scale-95 shrink-0 backdrop-blur-md"
+            className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg sm:rounded-xl bg-slate-800/85 hover:bg-amber-500/20 active:bg-amber-500/30 text-slate-200 hover:text-amber-200 text-[10px] sm:text-[11px] font-semibold border border-slate-700/60 hover:border-amber-400/60 whitespace-nowrap transition-all duration-150 cursor-pointer shadow-xs active:scale-95 backdrop-blur-md leading-tight"
           >
             {pill.label}
           </button>
