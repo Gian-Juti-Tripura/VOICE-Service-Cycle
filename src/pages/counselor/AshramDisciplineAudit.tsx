@@ -299,12 +299,108 @@ export const AshramDisciplineAudit: React.FC = () => {
     );
   };
 
+  // Live Automatic Strike Evaluation based on must-follow rules
+  const devoteeStrikesMap = useMemo(() => {
+    const datesSet = new Set<string>();
+    Object.keys(dailyRecords).filter(d => d.startsWith(selectedVerdictMonth)).forEach(d => datesSet.add(d));
+
+    const [vYear, vMonth] = selectedVerdictMonth.split('-').map(Number);
+    const now = new Date();
+    const isCurrentMonth = now.getFullYear() === vYear && (now.getMonth() + 1) === vMonth;
+    const daysInMonthCount = new Date(vYear, vMonth, 0).getDate();
+    const maxDay = isCurrentMonth ? now.getDate() : daysInMonthCount;
+
+    for (let day = 1; day <= maxDay; day++) {
+      const dStr = `${vYear}-${String(vMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      datesSet.add(dStr);
+    }
+
+    const monthDates = Array.from(datesSet).sort();
+
+    const map: Record<string, { 
+      autoStrikes: number; 
+      strikes: number; 
+      violations: { date: string; rules: string[] }[] 
+    }> = {};
+
+    students.forEach(student => {
+      let violationDaysCount = 0;
+      const violationList: { date: string; rules: string[] }[] = [];
+
+      monthDates.forEach(d => {
+        const entry = (dailyRecords[d] && dailyRecords[d][student.id]) || getEntry(student.id, d);
+        if (!entry || entry.isAbsent) return;
+
+        const dayRulesBroken: string[] = [];
+
+        // 1. Must-Follow Rule 1: Timely Bedtime Curfew (<=10 PM / <=11 PM)
+        if (!entry.sleptOnTime && !entry.isEmergency) {
+          dayRulesBroken.push(isBn ? `দেরিতে শয়ন (${toBn(entry.bedLateMinutes || 15)} মি. বিলম্ব)` : `Late Bedtime (${entry.bedLateMinutes || 15}m late)`);
+        }
+
+        // 2. Must-Follow Rule 2: Timely Morning Program Attendance (<=4:30 AM / <=5:00 AM)
+        if (!entry.morningProgramOnTime && !entry.isEmergency) {
+          dayRulesBroken.push(isBn ? `মর্নিং প্রোগ্রামে বিলম্ব (${toBn(entry.mpLateMinutes || 15)} মি. বিলম্ব)` : `Late MP (${entry.mpLateMinutes || 15}m late)`);
+        }
+
+        // 3. Must-Follow Rule 3: Wake-up at 4:00 AM
+        if (!entry.wokeUpOnTime && !entry.isEmergency) {
+          dayRulesBroken.push(isBn ? 'দেরিতে জাগরণ (ভোর ৪:০০ নয়)' : 'Late Wake-up (missed 4:00 AM)');
+        }
+
+        // 4. Must-Follow Rule 4: Mangalarati Attendance
+        const excusedMangal = [
+          'Health / Sickness (অসুস্থতা / চিকিৎসা)',
+          'Health Emergency / Sickness (অসুস্থতা / স্বাস্থ্য সমস্যা)',
+          'Morning Temple Seva Duty (সকালের বিশেষ সেবা দায়িত্ব)',
+          'Temple / VOICE Seva Duty (মন্দির বা ভয়েস বিশেষ সেবা)'
+        ];
+        if (!entry.mangalaratiAttended && !entry.isEmergency && (!entry.mangalaratiReason || !excusedMangal.includes(entry.mangalaratiReason))) {
+          dayRulesBroken.push(isBn ? 'অননুমোদিত মঙ্গল আরতি অনুপস্থিতি' : 'Missed Mangalarati (unexcused)');
+        }
+
+        // 5. Must-Follow Rule 5: Morning Bhagavatam Class Attendance
+        const excusedClass = [
+          'University Class / Lab (বিশ্ববিদ্যালয়ের ক্লাস / ল্যাব পরীক্ষা)',
+          'Academic Exam Prep (পরীক্ষার বিশেষ প্রস্তুতি)',
+          'Health / Sickness (অসুস্থতা / বিশ্রাম)',
+          'Health Emergency / Sickness (অসুস্থতা / স্বাস্থ্য সমস্যা)',
+          'Morning Temple Seva Duty (সকালের বিশেষ সেবা দায়িত্ব)',
+          'Temple / VOICE Seva Duty (মন্দির বা ভয়েস বিশেষ সেবা)'
+        ];
+        if (!entry.morningClassAttended && !entry.isEmergency && (!entry.morningClassReason || !excusedClass.includes(entry.morningClassReason))) {
+          dayRulesBroken.push(isBn ? 'অননুমোদিত ক্লাস অনুপস্থিতি' : 'Missed Class (unexcused)');
+        }
+
+        if (dayRulesBroken.length > 0) {
+          violationDaysCount++;
+          violationList.push({ date: d, rules: dayRulesBroken });
+        }
+      });
+
+      const autoStrikes = violationDaysCount;
+      const manualDelta = student.manualStrikeDelta ?? 0;
+      const strikes = Math.min(3, Math.max(0, autoStrikes + manualDelta));
+
+      map[student.id] = {
+        autoStrikes,
+        strikes,
+        violations: violationList
+      };
+    });
+
+    return map;
+  }, [dailyRecords, students, selectedVerdictMonth, isBn]);
+
   const handleAdjustStrikes = (studentId: string, delta: number) => {
     if (!checkPermission('strikes')) return;
 
     setStudents(prev => prev.map(s => {
       if (s.id !== studentId) return s;
-      const newStrikes = Math.max(0, Math.min(3, s.monthlyStrikes + delta));
+      const currentStrikes = devoteeStrikesMap[studentId]?.strikes ?? s.monthlyStrikes;
+      const newStrikes = Math.max(0, Math.min(3, currentStrikes + delta));
+      const autoStrikes = devoteeStrikesMap[studentId]?.autoStrikes ?? 0;
+      const manualStrikeDelta = newStrikes - autoStrikes;
       let status: StudentDisciplineRecord['status'] = 'ACTIVE';
       let group: GroupType = s.group;
 
@@ -325,7 +421,7 @@ export const AshramDisciplineAudit: React.FC = () => {
           status = 'DISMISSED';
         }
       }
-      return { ...s, group, monthlyStrikes: newStrikes, status };
+      return { ...s, group, monthlyStrikes: newStrikes, manualStrikeDelta, status };
     }));
   };
 
@@ -433,7 +529,8 @@ export const AshramDisciplineAudit: React.FC = () => {
             const reason = formatReasonText(entry.morningClassReason, isBn);
             issues.push(`Missed Class (${reason})`);
           }
-          let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
+          const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes;
+          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(sStrikes)}/৩]` : '';
           nonCompliant.push(`⚠️ *${s.name}*${strikeStr} — ${issues.join(', ')}`);
         }
       }
@@ -510,7 +607,8 @@ export const AshramDisciplineAudit: React.FC = () => {
             const reason = formatReasonText(entry.morningClassReason, isBn);
             issues.push(`Missed Class (${reason})`);
           }
-          let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
+          const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes;
+          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(sStrikes)}/৩]` : '';
           nonCompliant.push(`⚠️ *${s.name}*${strikeStr} — ${issues.join(', ')}`);
         }
       }
@@ -589,7 +687,8 @@ export const AshramDisciplineAudit: React.FC = () => {
             const r = formatReasonText(entry.morningClassReason, isBn);
             notes.push(`${isBn ? 'মর্নিং ক্লাস অনুপস্থিত' : 'Missed Class'} (${r})`);
           }
-          let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
+          const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes;
+          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(sStrikes)}/৩]` : '';
           voiceLateOrMissed.push(`⚠️ *${s.name}*${strikeStr} — ${notes.join(', ')}`);
         }
       }
@@ -619,7 +718,8 @@ export const AshramDisciplineAudit: React.FC = () => {
             const r = formatReasonText(entry.morningClassReason, isBn);
             notes.push(`${isBn ? 'মর্নিং ক্লাস অনুপস্থিত' : 'Missed Class'} (${r})`);
           }
-          let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
+          const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes;
+          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(sStrikes)}/৩]` : '';
           lotusLateOrMissed.push(`⚠️ *${s.name}*${strikeStr} — ${notes.join(', ')}`);
         }
       }
@@ -713,7 +813,8 @@ export const AshramDisciplineAudit: React.FC = () => {
       } else {
         const minStr = entry.bedLateMinutes ? ` (${entry.bedLateMinutes}m late)` : '';
         let reasonStr = entry.reason ? ` (${entry.reason})` : '';
-        let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
+        const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes;
+        let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(sStrikes)}/৩]` : '';
         voiceLate.push(`⚠️ *${s.name}*${strikeStr} — ${isBn ? 'দেরিতে শয়ন' : 'Late Bedtime'}${minStr}${reasonStr}`);
       }
     });
@@ -728,7 +829,8 @@ export const AshramDisciplineAudit: React.FC = () => {
       } else {
         const minStr = entry.bedLateMinutes ? ` (${entry.bedLateMinutes}m late)` : '';
         let reasonStr = entry.reason ? ` (${entry.reason})` : '';
-        let strikeStr = s.monthlyStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(s.monthlyStrikes)}/৩]` : '';
+        const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes;
+        let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(sStrikes)}/৩]` : '';
         lotusLate.push(`⚠️ *${s.name}*${strikeStr} — ${isBn ? 'দেরিতে শয়ন' : 'Late Bedtime'}${minStr}${reasonStr}`);
       }
     });
@@ -851,7 +953,7 @@ export const AshramDisciplineAudit: React.FC = () => {
         ? Math.round(((bedOnTimeDays + mpOnTimeDays + mangalaratiDays + classDays) / (divisor * 4)) * 100)
         : 100;
 
-      const strikes = student.monthlyStrikes;
+      const strikes = devoteeStrikesMap[student.id]?.strikes ?? student.monthlyStrikes;
 
       let verdictType: MonthlyDevoteeStats['verdictType'] = 'VOICE_SUCCESS';
       let verdictLabelEn = 'VOICE SUCCESS (Exemplary Sadhaka)';
@@ -904,7 +1006,7 @@ export const AshramDisciplineAudit: React.FC = () => {
         verdictLabelBn
       };
     });
-  }, [dailyRecords, students, selectedVerdictMonth, dateIso]);
+  }, [dailyRecords, students, selectedVerdictMonth, dateIso, devoteeStrikesMap]);
 
   const generateMonthlyVerdictReport = () => {
     const voiceStats = monthlyStats.filter(s => s.student.group === 'VOICE');
@@ -1517,32 +1619,57 @@ export const AshramDisciplineAudit: React.FC = () => {
                             </span>
                           )}
 
-                          <div className="flex items-center gap-1">
-                            <span className="text-[10px] text-slate-500 font-medium">Strikes:</span>
-                            {[1, 2, 3].map(st => (
-                              <button
-                                key={st}
-                                onClick={() => {
-                                  if (!checkPermission('strikes')) return;
-                                  handleAdjustStrikes(student.id, student.monthlyStrikes === st ? -1 : (st - student.monthlyStrikes));
-                                }}
-                                className={`w-4 h-4 rounded text-[9px] font-black flex items-center justify-center transition-all cursor-pointer ${
-                                  student.monthlyStrikes >= st
-                                    ? 'bg-rose-600 text-white shadow-xs'
-                                    : 'bg-slate-200 dark:bg-slate-800 text-slate-400 hover:bg-slate-300'
-                                }`}
-                                title={`Strike ${st}`}
-                              >
-                                {st}
-                              </button>
-                            ))}
-                          </div>
+                          {(() => {
+                            const strikeInfo = devoteeStrikesMap[student.id] || { strikes: student.monthlyStrikes, autoStrikes: 0, violations: [] };
+                            const currentStrikes = strikeInfo.strikes;
+                            return (
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-[10px] text-slate-500 font-medium">{isBn ? 'স্ট্রাইক:' : 'Strikes:'}</span>
+                                <div className="flex items-center gap-1">
+                                  {[1, 2, 3].map(st => (
+                                    <button
+                                      key={st}
+                                      onClick={() => {
+                                        if (!checkPermission('strikes')) return;
+                                        handleAdjustStrikes(student.id, currentStrikes === st ? -1 : (st - currentStrikes));
+                                      }}
+                                      className={`w-4 h-4 rounded text-[9px] font-black flex items-center justify-center transition-all cursor-pointer ${
+                                        currentStrikes >= st
+                                          ? 'bg-rose-600 text-white shadow-xs'
+                                          : 'bg-slate-200 dark:bg-slate-800 text-slate-400 hover:bg-slate-300'
+                                      }`}
+                                      title={
+                                        isBn 
+                                          ? `স্ট্রাইক ${toBn(st)} (অ্যাডমিন/অভ্যন্তরীণ ব্যবস্থাপক সমন্বয়)` 
+                                          : `Strike ${st} (Admin / Internal Manager adjustment)`
+                                      }
+                                    >
+                                      {st}
+                                    </button>
+                                  ))}
+                                </div>
 
-                          {student.monthlyStrikes >= 3 && (
-                            <span className="text-[10px] font-black text-rose-600 animate-pulse bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/30">
-                              ⚠️ Degraded to Lotus
-                            </span>
-                          )}
+                                {strikeInfo.autoStrikes > 0 && (
+                                  <span 
+                                    className="text-[9.5px] font-bold text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-950/60 px-1.5 py-0.5 rounded border border-rose-300 dark:border-rose-800 flex items-center gap-0.5 cursor-help"
+                                    title={
+                                      isBn
+                                        ? `স্বয়ংক্রিয় স্ট্রাইক কারণ:\n${strikeInfo.violations.map(v => `${v.date}: ${v.rules.join(', ')}`).join('\n')}`
+                                        : `Auto-counted strike reasons:\n${strikeInfo.violations.map(v => `${v.date}: ${v.rules.join(', ')}`).join('\n')}`
+                                    }
+                                  >
+                                    ⚡ {isBn ? 'অটো' : 'Auto'}: {toBn(strikeInfo.autoStrikes)}
+                                  </span>
+                                )}
+
+                                {currentStrikes >= 3 && (
+                                  <span className="text-[10px] font-black text-rose-600 animate-pulse bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/30">
+                                    ⚠️ Degraded to Lotus
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -1999,7 +2126,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                             </span>
                           </div>
                           <p className="text-xs text-slate-400 mt-1">
-                            {isBn ? 'মূল্যায়নকৃত দিন' : 'Evaluated'}: <span className="text-white font-bold">{presentDays + absentDays} {isBn ? 'দিন' : 'days'}</span> ({presentDays} {isBn ? 'উপস্থিত' : 'present'}, {absentDays} {isBn ? 'ছুটি' : 'leave'}) • {isBn ? 'স্ট্রাইক' : 'Strikes'}: <span className="text-amber-400 font-black">{targetStudent.monthlyStrikes}/3</span>
+                            {isBn ? 'মূল্যায়নকৃত দিন' : 'Evaluated'}: <span className="text-white font-bold">{presentDays + absentDays} {isBn ? 'দিন' : 'days'}</span> ({presentDays} {isBn ? 'উপস্থিত' : 'present'}, {absentDays} {isBn ? 'ছুটি' : 'leave'}) • {isBn ? 'স্ট্রাইক' : 'Strikes'}: <span className="text-amber-400 font-black">{devoteeStrikesMap[targetStudent.id]?.strikes ?? targetStudent.monthlyStrikes}/3</span>
                           </p>
                         </div>
                         

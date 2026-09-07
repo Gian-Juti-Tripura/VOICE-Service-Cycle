@@ -78,6 +78,7 @@ export interface StudentDisciplineRecord {
   phone?: string;
   cycleOrder?: number;
   monthlyStrikes: number; // 0 to 3
+  manualStrikeDelta?: number; // manual incharge override delta
   status: 'ACTIVE' | 'WARNED' | 'DEMOTION_DUE' | 'DISMISSED';
 }
 
