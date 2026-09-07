@@ -156,8 +156,8 @@ export const AshramDisciplineAudit: React.FC = () => {
     } else if (actionType === 'morning') {
       toast.error(
         isBn
-          ? `🔒 জাগরণ, মর্নিং প্রোগ্রাম ও মঙ্গল আরতি সম্পাদনার অধিকার শুধুমাত্র মর্নিং ইনচার্জ (জয়কান্ত রায়) এবং অ্যাডমিনের রয়েছে। (বর্তমান আইডি: ${roleTitle})`
-          : `🔒 Only Morning Program Incharge (Joykanto Roy) & Admin can edit Morning Sadhana records. (Current: ${roleTitle})`
+          ? `🔒 জাগরণ, মর্নিং প্রোগ্রাম ও মঙ্গল আরতি সম্পাদনার অধিকার শুধুমাত্র মর্নিং ইনচার্জ (দীপেন্দ্রনাথ রায়) এবং অ্যাডমিনের রয়েছে। (বর্তমান আইডি: ${roleTitle})`
+          : `🔒 Only Morning Program Incharge (Dipendranath Roy) & Admin can edit Morning Sadhana records. (Current: ${roleTitle})`
       );
     } else if (actionType === 'absence') {
       toast.error(
