@@ -11,7 +11,7 @@ export const ROLE_OPTIONS = [
   { key: 'COORDINATOR', titleEn: 'Overall Co-Ordinator (OC)', titleBn: 'সার্বিক সমন্বয়ক (ওসি)', inchargeEn: 'Utpol Das Khocon', inchargeBn: 'উৎপল দাস খোকন' },
   
   // Column 1: Ashram Operations
-  { key: 'INTERNAL_MGR', titleEn: 'Internal Manager', titleBn: 'অভ্যন্তরীণ ব্যবস্থাপক', inchargeEn: 'Joykanto Roy', inchargeBn: 'জয়কান্ত রায়' },
+  { key: 'INTERNAL_MGR', titleEn: 'Internal Manager', titleBn: 'অভ্যন্তরীণ ব্যবস্থাপক', inchargeEn: 'Dipendranath Roy', inchargeBn: 'দীপেন্দ্রনাথ রায়' },
   { key: 'MORNING_PROG', titleEn: 'Morning Programme', titleBn: 'মর্নিং প্রোগ্রাম', inchargeEn: 'Dipendranath Roy', inchargeBn: 'দীপেন্দ্রনাথ রায়' },
   { key: 'KITCHEN_INCHARGE', titleEn: 'Kitchen Incharge', titleBn: 'রান্নাঘর ইনচার্জ', inchargeEn: 'Antor Mohonto', inchargeBn: 'অন্তর মহন্ত' },
   { key: 'STUDY_CARE', titleEn: 'Study Care (Academic & Career)', titleBn: 'স্টাডি কেয়ার (শিক্ষা ও ক্যারিয়ার)', inchargeEn: 'Gian Juti Tripura + Pranto C Das', inchargeBn: 'জ্ঞান জ্যোতি ত্রিপুরা ও প্রান্ত চন্দ্র দাস' },
@@ -81,7 +81,7 @@ export const NOTICE_TEMPLATES: NoticeTemplate[] = [
     actionRequiredEn: 'Attend Sunday 8:30 PM meeting'
   },
 
-  // 2. Internal Manager (Joykanto Roy)
+  // 2. Internal Manager (Dipendranath Roy)
   {
     id: 't_int_1',
     roleKey: 'INTERNAL_MGR',
@@ -421,7 +421,7 @@ export const PostNoticeModal: React.FC<PostNoticeModalProps> = ({
                 <option value="COORDINATOR">Overall Co-Ordinator (Utpol Das Khocon)</option>
               </optgroup>
               <optgroup label="Column 1: Ashram & Daily Operations">
-                <option value="INTERNAL_MGR">Internal Manager (Joykanto Roy)</option>
+                <option value="INTERNAL_MGR">Internal Manager (Dipendranath Roy)</option>
                 <option value="MORNING_PROG">Morning Programme (Dipendranath Roy)</option>
                 <option value="KITCHEN_INCHARGE">Kitchen Incharge (Antor Mohonto)</option>
                 <option value="STUDY_CARE">Study Care (Gian Juti Tripura + Pranto C Das)</option>

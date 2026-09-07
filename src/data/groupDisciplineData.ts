@@ -52,9 +52,9 @@ export const DISCIPLINE_AUDITOR_ROLES: AuditorProfile[] = [
     key: 'INTERNAL_MANAGER',
     titleEn: 'Internal Manager',
     titleBn: 'অভ্যন্তরীণ ব্যবস্থাপক',
-    inchargeNameEn: 'Joykanto Roy (Joykant P.)',
-    inchargeNameBn: 'জয়কান্ত রায় (জয়কান্ত প্রভু)',
-    studentId: 'member_10',
+    inchargeNameEn: 'Dipendranath Roy (Dipen P.)',
+    inchargeNameBn: 'দীপেন্দ্রনাথ রায় (দীপেন প্রভু)',
+    studentId: 'member_5',
     badgeColor: 'bg-purple-600 text-white',
     descriptionEn: 'Supervisory management authority across all daily ashram discipline activities.',
     descriptionBn: 'দৈনিক আশ্রম শৃঙ্খলার সার্বিক ব্যবস্থাপনা ও পর্যালোচনার ক্ষমতাপ্রাপ্ত।'

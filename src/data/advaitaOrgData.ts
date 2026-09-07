@@ -101,7 +101,7 @@ export const DEPARTMENTS_DATA: DepartmentInfo[] = [
     branch: 1,
     nameEn: 'Internal Manager',
     nameBn: 'অভ্যন্তরীণ ব্যবস্থাপক',
-    incharge: 'Joykanto Roy',
+    incharge: 'Dipendranath Roy',
     category: 'INTERNAL',
     icon: 'ShieldCheck',
     descriptionEn: 'Ashram discipline, living standards, room inspection & daily schedule enforcement.',
