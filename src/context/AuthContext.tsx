@@ -10,6 +10,7 @@ interface AuthContextType {
   role: UserRole;
   loading: boolean;
   logout: () => Promise<void>;
+  setDirectDevoteeSession: (devoteeUser: any, userRole: UserRole) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,25 +21,47 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Check active sessions and sets the user
+    // 1. Check active Supabase sessions
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
       if (session?.user) {
+        setUser(session.user);
         fetchRole(session.user.id, session.user.email);
-      } else {
-        setRole(null);
-        setLoading(false);
+        return;
       }
+
+      // 2. Check direct verified devotee session fallback
+      const directSessionStr = localStorage.getItem('voice_direct_devotee_session');
+      if (directSessionStr) {
+        try {
+          const directData = JSON.parse(directSessionStr);
+          if (directData && directData.user) {
+            setUser(directData.user as User);
+            setRole(directData.role as UserRole);
+            setLoading(false);
+            return;
+          }
+        } catch (e) {
+          console.error("Failed to parse direct devotee session:", e);
+        }
+      }
+
+      setUser(null);
+      setRole(null);
+      setLoading(false);
     });
 
     // Listen for changes on auth state (logged in, signed out, etc.)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
       if (session?.user) {
+        setUser(session.user);
         fetchRole(session.user.id, session.user.email);
       } else {
-        setRole(null);
-        setLoading(false);
+        const directSessionStr = localStorage.getItem('voice_direct_devotee_session');
+        if (!directSessionStr) {
+          setUser(null);
+          setRole(null);
+          setLoading(false);
+        }
       }
     });
 
@@ -101,11 +124,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = async () => {
+    localStorage.removeItem('voice_direct_devotee_session');
+    localStorage.removeItem('voice_auth_role');
     await supabase.auth.signOut();
+    setUser(null);
+    setRole(null);
+  };
+
+  const setDirectDevoteeSession = (devoteeUser: any, userRole: UserRole) => {
+    setUser(devoteeUser as User);
+    setRole(userRole);
+    localStorage.setItem('voice_direct_devotee_session', JSON.stringify({
+      user: devoteeUser,
+      role: userRole
+    }));
+    localStorage.setItem('voice_auth_role', userRole || 'MEMBER');
+    setLoading(false);
   };
 
   return (
-    <AuthContext.Provider value={{ user, role, loading, logout }}>
+    <AuthContext.Provider value={{ user, role, loading, logout, setDirectDevoteeSession }}>
       {children}
     </AuthContext.Provider>
   );

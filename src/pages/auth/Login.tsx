@@ -1,18 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { 
-  Eye, EyeOff, Mail, Lock, Sparkles, ArrowLeft, ShieldCheck, 
-  UserCheck, KeyRound, Users, CheckCircle2, AlertTriangle, 
-  Phone, Copy, Check, HelpCircle, Search, X
-} from 'lucide-react';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { Eye, EyeOff, Mail, Lock, KeyRound, ArrowLeft, Phone, User, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../supabase/supabaseClient';
 import toast from 'react-hot-toast';
 import { triggerHaptic } from '../../utils/haptics';
 import { INITIAL_DEVOTEES_DATA, type DevoteeProfile } from '../../data/devoteeProfilesData';
 
-export type AuthMode = 'LOGIN' | 'SIGNUP' | 'FORGOT' | 'RESET';
+export type AuthMode = 'LOGIN' | 'SIGNUP' | 'RESET';
 
 interface LoginProps {
   defaultMode?: AuthMode;
@@ -21,285 +17,306 @@ interface LoginProps {
 export const Login: React.FC<LoginProps> = ({ defaultMode }) => {
   const { language } = useLanguage();
   const isBn = language === 'bn';
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, setDirectDevoteeSession } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [mode, setMode] = useState<AuthMode>(defaultMode || 'LOGIN');
   const [showPassword, setShowPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Form fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
 
   // Status states
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Devotee Directory Modal
-  const [showDevoteesModal, setShowDevoteesModal] = useState(false);
-  const [devoteeSearch, setDevoteeSearch] = useState('');
-  const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
-
-  // Redirect if already logged in and not in password reset recovery mode
+  // Load saved credentials if "Remember Me" was previously enabled
   useEffect(() => {
-    if (user && !authLoading && mode !== 'RESET') {
+    const isRemembered = localStorage.getItem('voice_remember_me') !== 'false';
+    setRememberMe(isRemembered);
+    if (isRemembered) {
+      const savedEmail = localStorage.getItem('voice_saved_email');
+      const savedPassword = localStorage.getItem('voice_saved_password');
+      if (savedEmail) setEmail(savedEmail);
+      if (savedPassword) setPassword(savedPassword);
+    }
+  }, []);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && !authLoading) {
       navigate('/');
     }
-  }, [user, authLoading, mode, navigate]);
+  }, [user, authLoading, navigate]);
 
-  // Check URL parameters, hash, or recovery events
-  useEffect(() => {
-    if (defaultMode) {
-      setMode(defaultMode);
+  // Handle saving credentials
+  const persistRememberMe = (userEmail: string, userPwd?: string) => {
+    if (rememberMe) {
+      localStorage.setItem('voice_remember_me', 'true');
+      localStorage.setItem('voice_saved_email', userEmail.trim().toLowerCase());
+      if (userPwd) {
+        localStorage.setItem('voice_saved_password', userPwd);
+      }
+    } else {
+      localStorage.setItem('voice_remember_me', 'false');
+      localStorage.removeItem('voice_saved_email');
+      localStorage.removeItem('voice_saved_password');
+    }
+  };
+
+  // Helper to match devotee from directory
+  const findDevoteeByEmail = (searchEmail: string): DevoteeProfile | undefined => {
+    const clean = searchEmail.trim().toLowerCase();
+    const cleanRaw = clean.split('@')[0].replace(/[^a-z0-9]/g, '');
+
+    return INITIAL_DEVOTEES_DATA.find((d) => {
+      const dEmail = d.gmail.toLowerCase();
+      if (dEmail === clean) return true;
+      const dRaw = dEmail.split('@')[0].replace(/[^a-z0-9]/g, '');
+      if (cleanRaw.includes('gian') || cleanRaw.includes('tripura')) return d.id === 'member_2';
+      return dRaw === cleanRaw || dRaw.includes(cleanRaw) || cleanRaw.includes(dRaw);
+    });
+  };
+
+  // -------------------------------------------------------------
+  // 1. DIRECT PASSWORD RESET (No email link required!)
+  // -------------------------------------------------------------
+  const handleDirectReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccessMsg('');
+
+    if (password.length < 6) {
+      setError(isBn ? 'পাসওয়ার্ড ন্যূনতম ৬ অক্ষরের হতে হবে।' : 'Password must be at least 6 characters.');
       return;
     }
 
-    const hash = window.location.hash;
-    const searchParams = new URLSearchParams(window.location.search);
-
-    if (
-      hash.includes('type=recovery') || 
-      searchParams.get('type') === 'recovery' || 
-      location.pathname === '/reset-password'
-    ) {
-      setMode('RESET');
-      toast.success(
-        isBn 
-          ? 'পাসওয়ার্ড রিকভারি মোড সক্রিয় হয়েছে। অনুগ্রহ করে নতুন পাসওয়ার্ড দিন।' 
-          : 'Password recovery mode active. Please enter your new password.'
-      );
+    if (password !== confirmPassword) {
+      setError(isBn ? 'উভয় পাসওয়ার্ড মেলেনি!' : 'Passwords do not match.');
+      return;
     }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        setMode('RESET');
+    setLoading(true);
+
+    try {
+      const cleanEmail = email.trim().toLowerCase();
+      const devotee = findDevoteeByEmail(cleanEmail);
+
+      // Verify phone number against devotee directory
+      if (devotee) {
+        const inputDigits = phone.replace(/[^0-9]/g, '').slice(-10);
+        const registeredDigits = devotee.phone.replace(/[^0-9]/g, '').slice(-10);
+
+        if (inputDigits !== registeredDigits) {
+          setError(
+            isBn 
+              ? 'নিরাপত্তা যাচাই ব্যর্থ হয়েছে! আপনার রেজিস্টার্ড ফোন নম্বর সঠিক নয়।' 
+              : 'Verification failed! The phone number does not match our registered records.'
+          );
+          setLoading(false);
+          return;
+        }
+
+        // Store custom password locally for instant subsequent logins
+        const storedPwds = JSON.parse(localStorage.getItem('voice_devotee_passwords') || '{}');
+        storedPwds[devotee.gmail.toLowerCase()] = password;
+        storedPwds[cleanEmail] = password;
+        localStorage.setItem('voice_devotee_passwords', JSON.stringify(storedPwds));
+
+        persistRememberMe(devotee.gmail, password);
+
+        // Try updating Supabase password if possible in background
+        try {
+          await supabase.auth.updateUser({ password });
+        } catch {
+          // Non-blocking
+        }
+
+        // Determine user role
+        const role = devotee.roleBadge?.includes('Admin') || devotee.id === 'member_2' || devotee.id === 'dev_caretaker'
+          ? 'ADMIN'
+          : devotee.roleBadge?.includes('Internal Manager') || devotee.id === 'member_5'
+          ? 'INTERNAL_MANAGER'
+          : 'MEMBER';
+
+        // Establish direct verified session
+        setDirectDevoteeSession({
+          id: devotee.id || `dev_${devotee.sl}`,
+          email: devotee.gmail,
+          user_metadata: { full_name: devotee.name, spiritual_name: devotee.spiritualName },
+          app_metadata: { provider: 'email' },
+          aud: 'authenticated',
+          created_at: new Date().toISOString()
+        }, role);
+
+        triggerHaptic('success');
         toast.success(
           isBn 
-            ? 'পাসওয়ার্ড রিকভারি মোড সক্রিয় হয়েছে। অনুগ্রহ করে নতুন পাসওয়ার্ড দিন।' 
-            : 'Password recovery active. Please enter your new password.'
+            ? 'পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে! স্বাগতম।' 
+            : 'Password reset successfully! Logged in.'
         );
+        navigate('/');
+        return;
       }
-    });
 
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [defaultMode, isBn, location.pathname]);
+      // If email is not in pre-registered list, try sending Supabase reset email as fallback
+      const { error: resetErr } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+        redirectTo: `${window.location.origin}/reset-password`
+      });
+      if (resetErr) throw resetErr;
 
-  // Filtered devotees for the directory modal
-  const filteredDevotees = useMemo(() => {
-    const q = devoteeSearch.trim().toLowerCase();
-    if (!q) return INITIAL_DEVOTEES_DATA;
-    return INITIAL_DEVOTEES_DATA.filter((d) => 
-      d.name.toLowerCase().includes(q) ||
-      (d.spiritualName && d.spiritualName.toLowerCase().includes(q)) ||
-      d.gmail.toLowerCase().includes(q) ||
-      d.phone.includes(q) ||
-      d.department.toLowerCase().includes(q)
-    );
-  }, [devoteeSearch]);
+      setSuccessMsg(
+        isBn 
+          ? 'পাসওয়ার্ড রিসেট লিঙ্ক আপনার ইমেইলে পাঠানো হয়েছে।' 
+          : 'Password reset link sent to your email.'
+      );
+      toast.success(isBn ? 'ইমেইল চেক করুন' : 'Please check your email');
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Failed to reset password.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Handle standard Login or Sign Up
+  // -------------------------------------------------------------
+  // 2. STANDARD LOGIN OR SIGN UP
+  // -------------------------------------------------------------
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccessMsg('');
     setLoading(true);
 
+    const cleanEmail = email.trim().toLowerCase();
+
     try {
       if (mode === 'LOGIN') {
-        const { error: signInErr } = await supabase.auth.signInWithPassword({
-          email: email.trim().toLowerCase(),
-          password
-        });
-        if (signInErr) throw signInErr;
+        // A. Check if user set a direct/custom password
+        const storedPwds = JSON.parse(localStorage.getItem('voice_devotee_passwords') || '{}');
+        const customPwd = storedPwds[cleanEmail];
+        const devotee = findDevoteeByEmail(cleanEmail);
 
-        triggerHaptic('success');
-        toast.success(isBn ? 'স্বাগতম! সফলভাবে লগইন হয়েছে।' : 'Welcome back! Logged in successfully.');
-        navigate('/');
-      } else if (mode === 'SIGNUP') {
-        const { data, error: signUpErr } = await supabase.auth.signUp({
-          email: email.trim().toLowerCase(),
+        if (customPwd && customPwd === password && devotee) {
+          const role = devotee.roleBadge?.includes('Admin') || devotee.id === 'member_2' || devotee.id === 'dev_caretaker'
+            ? 'ADMIN'
+            : devotee.roleBadge?.includes('Internal Manager') || devotee.id === 'member_5'
+            ? 'INTERNAL_MANAGER'
+            : 'MEMBER';
+
+          setDirectDevoteeSession({
+            id: devotee.id || `dev_${devotee.sl}`,
+            email: devotee.gmail,
+            user_metadata: { full_name: devotee.name, spiritual_name: devotee.spiritualName },
+            app_metadata: { provider: 'email' },
+            aud: 'authenticated',
+            created_at: new Date().toISOString()
+          }, role);
+
+          persistRememberMe(cleanEmail, password);
+          triggerHaptic('success');
+          toast.success(isBn ? 'স্বাগতম! সফলভাবে লগইন হয়েছে।' : 'Welcome back! Logged in successfully.');
+          navigate('/');
+          return;
+        }
+
+        // B. Attempt Supabase Auth login
+        const { error: signInErr } = await supabase.auth.signInWithPassword({
+          email: devotee ? devotee.gmail : cleanEmail,
           password
         });
+
+        if (!signInErr) {
+          persistRememberMe(cleanEmail, password);
+          triggerHaptic('success');
+          toast.success(isBn ? 'স্বাগতম! সফলভাবে লগইন হয়েছে।' : 'Welcome back! Logged in successfully.');
+          navigate('/');
+          return;
+        }
+
+        // C. Check default password fallback for registered devotees
+        if (password === 'voice123456' && devotee) {
+          const role = devotee.roleBadge?.includes('Admin') || devotee.id === 'member_2' || devotee.id === 'dev_caretaker'
+            ? 'ADMIN'
+            : devotee.roleBadge?.includes('Internal Manager') || devotee.id === 'member_5'
+            ? 'INTERNAL_MANAGER'
+            : 'MEMBER';
+
+          setDirectDevoteeSession({
+            id: devotee.id || `dev_${devotee.sl}`,
+            email: devotee.gmail,
+            user_metadata: { full_name: devotee.name, spiritual_name: devotee.spiritualName },
+            app_metadata: { provider: 'email' },
+            aud: 'authenticated',
+            created_at: new Date().toISOString()
+          }, role);
+
+          persistRememberMe(cleanEmail, password);
+          triggerHaptic('success');
+          toast.success(isBn ? 'স্বাগতম! সফলভাবে লগইন হয়েছে।' : 'Welcome back! Logged in successfully.');
+          navigate('/');
+          return;
+        }
+
+        // If credentials failed
+        setError(
+          isBn 
+            ? 'ইমেইল অথবা পাসওয়ার্ড সঠিক নয়। আপনি নিচে "পাসওয়ার্ড ভুলে গেছেন?" চাপ দিয়ে সরাসরি পাসওয়ার্ড রিসেট করতে পারেন।' 
+            : 'Invalid email or password. You can reset it directly below via "Forgot password?".'
+        );
+      } else if (mode === 'SIGNUP') {
+        if (password.length < 6) {
+          setError(isBn ? 'পাসওয়ার্ড ন্যূনতম ৬ অক্ষরের হতে হবে।' : 'Password must be at least 6 characters.');
+          setLoading(false);
+          return;
+        }
+        if (password !== confirmPassword) {
+          setError(isBn ? 'উভয় পাসওয়ার্ড মেলেনি!' : 'Passwords do not match.');
+          setLoading(false);
+          return;
+        }
+
+        const { data, error: signUpErr } = await supabase.auth.signUp({
+          email: cleanEmail,
+          password,
+          options: {
+            data: {
+              full_name: fullName.trim()
+            }
+          }
+        });
+
         if (signUpErr) throw signUpErr;
 
+        persistRememberMe(cleanEmail, password);
         triggerHaptic('success');
-        toast.success(isBn ? 'অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে!' : 'Account created successfully! Welcome.');
+        toast.success(isBn ? 'অ্যাকাউন্ট তৈরি সম্পন্ন হয়েছে!' : 'Account created successfully!');
         if (data.session) {
           navigate('/');
         } else {
-          setSuccessMsg(
-            isBn 
-              ? 'আপনার ইমেইলে কনফার্মেশন লিংক পাঠানো হয়েছে। অনুগ্রহ করে ইমেইল চেক করুন।' 
-              : 'Confirmation link sent to your email. Please verify your account.'
-          );
+          setSuccessMsg(isBn ? 'লগইন করতে আপনার পাসওয়ার্ড দিন।' : 'Please sign in with your credentials.');
+          setMode('LOGIN');
         }
       }
     } catch (err: any) {
       console.error(err);
-      triggerHaptic('warning');
-      const rawMsg = err.message || err.toString();
-      let friendlyMsg = rawMsg;
-      if (rawMsg.includes('Invalid login credentials')) {
-        friendlyMsg = isBn 
-          ? 'ইমেইল অথবা পাসওয়ার্ড সঠিক নয়! অনুগ্রহ করে পুনরায় চেষ্টা করুন অথবা পাসওয়ার্ড রিসেট করুন।' 
-          : 'Invalid email or password! Please check your credentials or reset your password.';
-      }
-      setError(friendlyMsg);
-      toast.error(friendlyMsg);
+      setError(err.message || 'Authentication failed');
     } finally {
       setLoading(false);
     }
-  };
-
-  // Handle sending password reset email
-  const handleSendResetEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSuccessMsg('');
-
-    const targetEmail = email.trim().toLowerCase();
-    if (!targetEmail) {
-      setError(isBn ? 'অনুগ্রহ করে আপনার রেজিস্টার্ড ইমেইল অ্যাড্রেস দিন।' : 'Please enter your registered email address.');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const redirectToUrl = `${window.location.origin}/reset-password`;
-      const { error: resetErr } = await supabase.auth.resetPasswordForEmail(targetEmail, {
-        redirectTo: redirectToUrl
-      });
-      if (resetErr) throw resetErr;
-
-      triggerHaptic('success');
-      setSuccessMsg(
-        isBn 
-          ? `একটি সিকিউর পাসওয়ার্ড রিসেট লিঙ্ক আপনার ইমেইলে (${targetEmail}) পাঠানো হয়েছে! অনুগ্রহ করে ইনবক্স অথবা স্প্যাম (Spam) ফোল্ডার চেক করুন।` 
-          : `A secure password reset link has been sent to ${targetEmail}! Please check your inbox and spam folder.`
-      );
-      toast.success(isBn ? 'পাসওয়ার্ড রিসেট লিঙ্ক পাঠানো হয়েছে!' : 'Password reset link sent!');
-    } catch (err: any) {
-      console.error(err);
-      triggerHaptic('warning');
-      const rawMsg = err.message || err.toString();
-      setError(rawMsg);
-      toast.error(rawMsg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Handle setting a new password (after clicking reset link)
-  const handleUpdatePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSuccessMsg('');
-
-    if (newPassword.length < 6) {
-      setError(isBn ? 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।' : 'Password must be at least 6 characters.');
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setError(isBn ? 'উভয় পাসওয়ার্ড মেলেনি! দয়া করে সঠিকভাবে লিখুন।' : 'Passwords do not match! Please check again.');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { error: updateErr } = await supabase.auth.updateUser({
-        password: newPassword
-      });
-      if (updateErr) throw updateErr;
-
-      triggerHaptic('success');
-      toast.success(
-        isBn 
-          ? 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে! আপনাকে স্বাগতম।' 
-          : 'Password updated successfully! Welcome back.'
-      );
-      navigate('/');
-    } catch (err: any) {
-      console.error(err);
-      triggerHaptic('warning');
-      const rawMsg = err.message || err.toString();
-      setError(rawMsg);
-      toast.error(rawMsg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Smart devotee email match detector for mistyped or alternative emails
-  const suggestedDevotee = useMemo(() => {
-    if (!email || email.trim().length < 3) return null;
-    const clean = email.trim().toLowerCase();
-    // If it already matches an official registered email, no suggestion needed
-    if (INITIAL_DEVOTEES_DATA.some((d) => d.gmail.toLowerCase() === clean)) return null;
-
-    const username = clean.split('@')[0].replace(/[^a-z0-9]/g, '');
-    return INITIAL_DEVOTEES_DATA.find((d) => {
-      const dUser = d.gmail.toLowerCase().split('@')[0].replace(/[^a-z0-9]/g, '');
-      const dName = d.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-      const dSpiritual = (d.spiritualName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-      const dAddress = (d.address || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-
-      if (username.includes('gian') || username.includes('tripura') || username.includes('gianjuti')) {
-        return d.id === 'member_2';
-      }
-      return (
-        (dUser.length > 2 && username.includes(dUser)) ||
-        (username.length > 2 && dUser.includes(username)) ||
-        (dName.length > 2 && username.includes(dName)) ||
-        (dSpiritual.length > 2 && username.includes(dSpiritual)) ||
-        (dAddress.length > 2 && username.includes(dAddress))
-      );
-    });
-  }, [email]);
-
-  const handleSelectDevotee = (devotee: DevoteeProfile) => {
-    triggerHaptic('selection');
-    setEmail(devotee.gmail);
-    setPassword('voice123456');
-    setShowDevoteesModal(false);
-    setError('');
-    toast.success(
-      isBn 
-        ? `${devotee.name}-এর রেজিস্টার্ড ইমেইল নির্বাচন করা হয়েছে` 
-        : `Selected ${devotee.name}'s email`
-    );
-  };
-
-  const handleCopyEmail = (e: React.MouseEvent, copyText: string) => {
-    e.stopPropagation();
-    triggerHaptic('selection');
-    navigator.clipboard.writeText(copyText);
-    setCopiedEmail(copyText);
-    toast.success(isBn ? 'ইমেইল কপি করা হয়েছে' : 'Email copied to clipboard');
-    setTimeout(() => setCopiedEmail(null), 2000);
-  };
-
-  const handleDemoFill = (demoEmail: string) => {
-    triggerHaptic('selection');
-    setEmail(demoEmail);
-    setPassword('voice123456');
-    setError('');
-    toast.success(isBn ? 'ডেমো তথ্য পূরণ করা হয়েছে' : 'Demo credentials filled');
   };
 
   if (authLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-5rem)]">
-        <div className="w-12 h-12 border-4 border-amber-400 border-t-amber-600 rounded-full animate-spin"></div>
-        <p className="mt-4 text-amber-300 font-medium animate-pulse text-sm">
-          {isBn ? 'লগইন যাচাই করা হচ্ছে...' : 'Verifying authentication...'}
-        </p>
+      <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-amber-500 border-t-transparent animate-spin" />
       </div>
     );
   }
@@ -307,671 +324,419 @@ export const Login: React.FC<LoginProps> = ({ defaultMode }) => {
   return (
     <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center py-10 px-4 sm:px-6 relative z-10">
       
-      {/* Background Ambience Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-80 h-80 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+      {/* Background Ambience */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Main Glassmorphic Login Card */}
-      <div className="w-full max-w-md relative">
+      {/* Main Clean Card */}
+      <div className="w-full max-w-md bg-slate-950/90 dark:bg-slate-950/95 backdrop-blur-xl border border-slate-800 dark:border-slate-800/80 rounded-2xl p-6 sm:p-8 shadow-2xl">
         
-        {/* Outer Glow Border */}
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 via-orange-500 to-indigo-600 rounded-3xl blur opacity-30 group-hover:opacity-100 transition duration-1000"></div>
-
-        <div className="relative bg-slate-950/90 dark:bg-slate-950/95 backdrop-blur-2xl border border-amber-500/30 rounded-3xl p-6 sm:p-9 shadow-2xl shadow-slate-950/80">
-          
-          {/* Header & Emblem */}
-          <div className="flex flex-col items-center text-center mb-6">
-            <div className="relative mb-3">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/20 via-orange-500/10 to-indigo-600/20 border border-amber-400/40 flex items-center justify-center shadow-lg shadow-amber-500/10">
-                <span className="text-3xl">🪷</span>
-              </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-amber-400 rounded-full border-2 border-slate-950 animate-ping" />
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-amber-400 rounded-full border-2 border-slate-950" />
-            </div>
-
-            <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-amber-200 via-amber-400 to-orange-400 bg-clip-text text-transparent tracking-tight">
-              {mode === 'LOGIN' && (isBn ? 'অদ্বৈত ভয়েস হাব' : 'Advaita VOICE Hub')}
-              {mode === 'SIGNUP' && (isBn ? 'নতুন অ্যাকাউন্ট খুলুন' : 'Create VOICE Account')}
-              {mode === 'FORGOT' && (isBn ? 'পাসওয়ার্ড রিসেট করুন' : 'Reset Password')}
-              {mode === 'RESET' && (isBn ? 'নতুন পাসওয়ার্ড তৈরি' : 'Set New Password')}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-400 font-medium mt-1">
-              {mode === 'LOGIN' && (isBn ? 'চট্টগ্রাম বিশ্ববিদ্যালয় ও ইসকন নন্দনকানন' : 'University of Chittagong & ISKCON')}
-              {mode === 'SIGNUP' && (isBn ? 'ভয়েস পরিবারের সাথে যুক্ত হোন' : 'Join the Advaita VOICE Family')}
-              {mode === 'FORGOT' && (isBn ? 'আপনার রেজিস্টার্ড ইমেইলে রিসেট লিঙ্ক যাবে' : 'We will send a reset link to your email')}
-              {mode === 'RESET' && (isBn ? 'আপনার অ্যাকাউন্টের জন্য নতুন পাসওয়ার্ড সেট করুন' : 'Choose a new password for your account')}
-            </p>
+        {/* Header */}
+        <div className="flex flex-col items-center text-center mb-6">
+          <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-3">
+            <span className="text-2xl">{mode === 'RESET' ? '🔑' : '🪷'}</span>
           </div>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-100 tracking-tight">
+            {mode === 'LOGIN' && (isBn ? 'অদ্বৈত ভয়েসে লগইন' : 'Sign in to Advaita VOICE')}
+            {mode === 'SIGNUP' && (isBn ? 'নতুন অ্যাকাউন্ট খুলুন' : 'Create VOICE Account')}
+            {mode === 'RESET' && (isBn ? 'পাসওয়ার্ড সরাসরি রিসেট' : 'Reset Password')}
+          </h1>
+          <p className="text-xs text-slate-400 mt-1">
+            {mode === 'LOGIN' && (isBn ? 'আপনার অ্যাকাউন্টে প্রবেশ করুন' : 'Enter your credentials to access your account')}
+            {mode === 'SIGNUP' && (isBn ? 'ভয়েস পরিবারের সাথে যুক্ত হোন' : 'Join the Advaita VOICE community')}
+            {mode === 'RESET' && (isBn ? 'ইমেইল চেক করার ঝামেলা ছাড়াই সরাসরি নতুন পাসওয়ার্ড দিন' : 'Set your new password directly without email confirmation')}
+          </p>
+        </div>
 
-          {/* Mode Switcher Tabs (Only for LOGIN / SIGNUP) */}
-          {(mode === 'LOGIN' || mode === 'SIGNUP') && (
-            <div className="flex p-1 bg-slate-900/90 border border-slate-800 rounded-xl mb-5">
-              <button
-                type="button"
-                onClick={() => { setMode('LOGIN'); setError(''); setSuccessMsg(''); }}
-                className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all duration-300 cursor-pointer ${
-                  mode === 'LOGIN'
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {isBn ? 'লগইন (Sign In)' : 'Sign In'}
-              </button>
-              <button
-                type="button"
-                onClick={() => { setMode('SIGNUP'); setError(''); setSuccessMsg(''); }}
-                className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all duration-300 cursor-pointer ${
-                  mode === 'SIGNUP'
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {isBn ? 'রেজিস্ট্রেশন (Sign Up)' : 'Sign Up'}
-              </button>
-            </div>
-          )}
+        {/* Mode Toggle Tabs (Sign In / Sign Up) */}
+        {mode !== 'RESET' && (
+          <div className="flex p-1 bg-slate-900 border border-slate-800 rounded-xl mb-6">
+            <button
+              type="button"
+              onClick={() => { setMode('LOGIN'); setError(''); setSuccessMsg(''); }}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                mode === 'LOGIN'
+                  ? 'bg-amber-500 text-slate-950 font-black shadow'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              {isBn ? 'লগইন (Sign In)' : 'Sign In'}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setMode('SIGNUP'); setError(''); setSuccessMsg(''); }}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                mode === 'SIGNUP'
+                  ? 'bg-amber-500 text-slate-950 font-black shadow'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              {isBn ? 'রেজিস্ট্রেশন (Sign Up)' : 'Sign Up'}
+            </button>
+          </div>
+        )}
 
-          {/* Error Banner with Direct 1-Click Reset Password Actions */}
-          {error && (
-            <div className="bg-rose-950/90 border border-rose-500/60 text-rose-200 p-4 rounded-2xl mb-4 text-xs sm:text-sm font-medium animate-fade-in shadow-xl shadow-rose-950/50 space-y-3">
-              <div className="flex items-start gap-2.5">
-                <AlertTriangle className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5" />
-                <p className="flex-1 leading-relaxed text-slate-100 font-semibold">{error}</p>
-              </div>
+        {/* Error Alert */}
+        {error && (
+          <div className="bg-rose-950/80 border border-rose-500/40 text-rose-200 px-3.5 py-2.5 rounded-xl mb-4 text-xs flex items-start gap-2 animate-fade-in">
+            <AlertCircle size={15} className="text-rose-400 shrink-0 mt-0.5" />
+            <span className="leading-relaxed">{error}</span>
+          </div>
+        )}
 
-              {mode === 'LOGIN' && (
-                <div className="pt-2 border-t border-rose-800/60 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      triggerHaptic('selection');
-                      setMode('FORGOT');
-                      setError('');
-                      setSuccessMsg('');
-                    }}
-                    className="px-3 py-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-amber-500/30 flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
-                  >
-                    <KeyRound size={13} className="text-slate-950" />
-                    <span>{isBn ? '🔑 পাসওয়ার্ড রিসেট করুন' : '🔑 Reset Password Now'}</span>
-                  </button>
+        {/* Success Alert */}
+        {successMsg && (
+          <div className="bg-emerald-950/80 border border-emerald-500/40 text-emerald-200 px-3.5 py-2.5 rounded-xl mb-4 text-xs flex items-start gap-2 animate-fade-in">
+            <CheckCircle2 size={15} className="text-emerald-400 shrink-0 mt-0.5" />
+            <span className="leading-relaxed">{successMsg}</span>
+          </div>
+        )}
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      triggerHaptic('selection');
-                      setShowDevoteesModal(true);
-                    }}
-                    className="px-3 py-1.5 bg-slate-900/90 hover:bg-slate-800 text-amber-300 font-bold text-xs rounded-xl border border-amber-500/40 flex items-center gap-1.5 transition-all cursor-pointer"
-                  >
-                    <Users size={12} className="text-amber-400" />
-                    <span>{isBn ? 'রেজিস্টার্ড ইমেইল চেক করুন' : 'Check Registered Email'}</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Success Banner */}
-          {successMsg && (
-            <div className="bg-emerald-950/80 border border-emerald-500/50 text-emerald-200 px-4 py-3 rounded-xl mb-4 text-xs sm:text-sm font-medium flex items-start gap-2.5 animate-fade-in shadow-inner">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-              <p className="flex-1 leading-relaxed">{successMsg}</p>
-            </div>
-          )}
-
-          {/* ================= FORM 1 & 2: LOGIN OR SIGN UP ================= */}
-          {(mode === 'LOGIN' || mode === 'SIGNUP') && (
-            <form onSubmit={handleAuthSubmit} className="space-y-4">
-              
-              {/* Email Field with Quick Registered Devotees Picker Button */}
+        {/* ================= 1. LOGIN / SIGNUP FORM ================= */}
+        {mode !== 'RESET' && (
+          <form onSubmit={handleAuthSubmit} autoComplete="on" className="space-y-4">
+            
+            {/* Full Name (Sign Up only) */}
+            {mode === 'SIGNUP' && (
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5" htmlFor="email">
-                    <Mail className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{isBn ? 'ইমেইল অ্যাড্রেস' : 'Email Address'}</span>
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => { triggerHaptic('selection'); setShowDevoteesModal(true); }}
-                    className="text-[11px] font-bold text-amber-300 hover:text-amber-200 bg-amber-500/15 hover:bg-amber-500/25 px-2 py-0.5 rounded-md border border-amber-500/30 flex items-center gap-1 cursor-pointer transition-colors"
-                    title={isBn ? 'রেজিস্টার্ড ভক্তদের তালিকা দেখে ইমেইল নির্বাচন করুন' : 'Browse registered devotees list'}
-                  >
-                    <Users size={12} />
-                    <span>{isBn ? 'রেজিস্টার্ড ভক্ত তালিকা' : 'Registered List'}</span>
-                  </button>
-                </div>
+                <label className="text-xs font-semibold text-slate-300" htmlFor="fullName">
+                  {isBn ? 'আপনার পূর্ণ নাম' : 'Full Name'}
+                </label>
                 <div className="relative">
-                  <input 
-                    type="email" 
-                    id="email"
-                    className="w-full bg-slate-900/90 border border-slate-700/80 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 rounded-xl px-4 py-3 text-slate-100 text-sm placeholder:text-slate-500 transition-all outline-none font-medium" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                  <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input
+                    type="text"
+                    id="fullName"
+                    name="name"
+                    autoComplete="name"
                     required
-                    disabled={loading}
-                    placeholder="utpol.acce.cu@gmail.com"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Sri Chaitanya Das"
+                    className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-600 outline-none transition-all"
                   />
                 </div>
-
-                {/* Smart Suggestion for Devotees */}
-                {suggestedDevotee && (
-                  <div className="mt-1.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-400/40 text-xs text-amber-200 flex items-center justify-between gap-2 animate-fade-in shadow-sm">
-                    <div className="flex items-center gap-2 truncate">
-                      <Sparkles size={14} className="text-amber-400 shrink-0" />
-                      <span className="truncate">
-                        {isBn ? 'আপনার রেজিস্টার্ড ইমেইল:' : 'Official email for'} <strong>{suggestedDevotee.name}</strong>: <code className="text-amber-300 font-mono font-bold text-[11px]">{suggestedDevotee.gmail}</code>
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEmail(suggestedDevotee.gmail);
-                        setPassword('voice123456');
-                        triggerHaptic('selection');
-                        toast.success(isBn ? 'সঠিক ইমেইল ও ডিফল্ট পাসওয়ার্ড বসানো হয়েছে' : 'Applied official email & default pwd');
-                      }}
-                      className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-black rounded-lg shrink-0 cursor-pointer shadow transition-transform active:scale-95"
-                    >
-                      {isBn ? 'বসিয়ে নিন' : 'Use This'}
-                    </button>
-                  </div>
-                )}
               </div>
-              
-              {/* Password Field */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5" htmlFor="password">
-                    <Lock className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{isBn ? 'পাসওয়ার্ড' : 'Password'}</span>
-                  </label>
-                  {mode === 'LOGIN' && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        triggerHaptic('selection');
-                        setMode('FORGOT');
-                        setError('');
-                        setSuccessMsg('');
-                      }}
-                      className="px-2.5 py-1 text-[11px] font-black text-amber-300 hover:text-amber-200 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 hover:border-amber-300"
-                      title={isBn ? 'পাসওয়ার্ড রিসেট করতে এখানে ক্লিক করুন' : 'Click here to reset your password'}
-                    >
-                      <KeyRound size={12} className="text-amber-400" />
-                      <span>{isBn ? 'পাসওয়ার্ড ভুলে গেছেন?' : 'Forgot Password?'}</span>
-                    </button>
-                  )}
-                </div>
-                <div className="relative">
-                  <input 
-                    type={showPassword ? 'text' : 'password'} 
-                    id="password"
-                    className="w-full bg-slate-900/90 border border-slate-700/80 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 rounded-xl pl-4 pr-11 py-3 text-slate-100 text-sm placeholder:text-slate-500 transition-all outline-none font-mono" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={loading}
-                    placeholder="••••••••••••"
-                    minLength={6}
-                  />
-                  <button 
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-400 transition-colors p-1.5 rounded-lg cursor-pointer"
-                    onClick={() => setShowPassword(!showPassword)}
-                    title={showPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-                {mode === 'LOGIN' && (
-                  <p className="text-[10.5px] text-slate-400 flex items-center gap-1 pt-0.5">
-                    <HelpCircle size={11} className="text-amber-400/80 shrink-0" />
-                    <span>{isBn ? 'ইনচার্জ কর্তৃক প্রাথমিক ডিফল্ট পাসওয়ার্ড: voice123456' : 'Default initial password: voice123456'}</span>
-                  </p>
-                )}
-              </div>
+            )}
 
-              {/* Submit Button */}
-              <button 
-                type="submit" 
-                className="w-full mt-2 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black text-sm sm:text-base py-3.5 px-6 rounded-xl shadow-lg shadow-amber-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2 relative overflow-hidden group cursor-pointer" 
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
-                    <span>{isBn ? 'যাচাই করা হচ্ছে...' : 'Processing...'}</span>
-                  </span>
-                ) : (
-                  <>
-                    <KeyRound className="w-4 h-4" />
-                    <span>
-                      {mode === 'LOGIN' 
-                        ? (isBn ? 'লগইন করুন' : 'Sign In to Hub') 
-                        : (isBn ? 'অ্যাকাউন্ট তৈরি করুন' : 'Create Account')}
-                    </span>
-                  </>
-                )}
-              </button>
-
-              {/* Dedicated Big Reset/Forgot Button */}
-              {mode === 'LOGIN' && (
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      triggerHaptic('selection');
-                      setMode('FORGOT');
-                      setError('');
-                      setSuccessMsg('');
-                    }}
-                    className="w-full py-2.5 px-4 bg-slate-900/90 hover:bg-slate-800/90 border border-amber-500/40 hover:border-amber-400 rounded-xl text-xs sm:text-sm font-bold text-amber-300 hover:text-amber-200 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm group"
-                  >
-                    <KeyRound size={15} className="text-amber-400 group-hover:rotate-12 transition-transform" />
-                    <span>{isBn ? 'পাসওয়ার্ড মনে নেই? এখানে ক্লিক করে রিসেট করুন' : 'Forgot Password? Click here to Reset'}</span>
-                  </button>
-                </div>
-              )}
-            </form>
-          )}
-
-          {/* ================= FORM 3: FORGOT PASSWORD REQUEST ================= */}
-          {mode === 'FORGOT' && (
-            <form onSubmit={handleSendResetEmail} className="space-y-4">
-              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs leading-relaxed">
-                {isBn 
-                  ? 'আপনার অ্যাকাউন্টের রেজিস্টার্ড ইমেইল অ্যাড্রেস নিচে লিখুন। আমরা আপনাকে একটি পাসওয়ার্ড রিসেট লিঙ্ক পাঠাব।' 
-                  : 'Enter your registered email address below. We will email you a secure link to reset your password.'}
-              </div>
-
-              {/* Email Field */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5" htmlFor="forgot-email">
-                    <Mail className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{isBn ? 'রেজিস্টার্ড ইমেইল অ্যাড্রেস' : 'Registered Email Address'}</span>
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => { triggerHaptic('selection'); setShowDevoteesModal(true); }}
-                    className="text-[11px] font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer transition-colors"
-                  >
-                    <Users size={12} />
-                    <span>{isBn ? 'ভক্ত তালিকা' : 'Devotees List'}</span>
-                  </button>
-                </div>
-                <input 
-                  type="email" 
-                  id="forgot-email"
-                  className="w-full bg-slate-900/90 border border-slate-700/80 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 rounded-xl px-4 py-3 text-slate-100 text-sm placeholder:text-slate-500 transition-all outline-none font-medium" 
+            {/* Email Field */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300" htmlFor="email">
+                {isBn ? 'ইমেইল অ্যাড্রেস' : 'Email address'}
+              </label>
+              <div className="relative">
+                <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input
+                  type="email"
+                  id="email"
+                  name="username"
+                  autoComplete="username"
+                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
-                  disabled={loading}
-                  placeholder="dipendra.philo.cu@gmail.com"
+                  placeholder="name@example.com"
+                  className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-600 outline-none transition-all"
                 />
-
-                {/* Smart Suggestion for Devotees in Forgot Mode */}
-                {suggestedDevotee && (
-                  <div className="mt-1.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-400/40 text-xs text-amber-200 flex items-center justify-between gap-2 animate-fade-in shadow-sm">
-                    <div className="flex items-center gap-2 truncate">
-                      <Sparkles size={14} className="text-amber-400 shrink-0" />
-                      <span className="truncate">
-                        {isBn ? 'আপনার রেজিস্টার্ড ইমেইল:' : 'Official email for'} <strong>{suggestedDevotee.name}</strong>: <code className="text-amber-300 font-mono font-bold text-[11px]">{suggestedDevotee.gmail}</code>
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEmail(suggestedDevotee.gmail);
-                        triggerHaptic('selection');
-                        toast.success(isBn ? 'সঠিক ইমেইল বসানো হয়েছে' : 'Applied official email');
-                      }}
-                      className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-black rounded-lg shrink-0 cursor-pointer shadow transition-transform active:scale-95"
-                    >
-                      {isBn ? 'বসিয়ে নিন' : 'Use This'}
-                    </button>
-                  </div>
-                )}
               </div>
+            </div>
 
-              {/* Action Buttons */}
-              <button 
-                type="submit" 
-                className="w-full mt-2 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black text-sm sm:text-base py-3.5 px-6 rounded-xl shadow-lg shadow-amber-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer" 
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
-                    <span>{isBn ? 'লিঙ্ক পাঠানো হচ্ছে...' : 'Sending Reset Link...'}</span>
-                  </span>
-                ) : (
-                  <>
-                    <Mail className="w-4 h-4" />
-                    <span>{isBn ? 'রিসেট লিঙ্ক পাঠান (Send Reset Link)' : 'Send Password Reset Link'}</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  triggerHaptic('selection');
-                  setMode('LOGIN');
-                  setError('');
-                  setSuccessMsg('');
-                }}
-                className="w-full py-2.5 text-xs sm:text-sm font-bold text-slate-400 hover:text-amber-300 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <ArrowLeft size={14} />
-                <span>{isBn ? 'লগইন পেইজে ফিরে যান' : 'Back to Sign In'}</span>
-              </button>
-
-              {/* Direct Incharge Contact Card */}
-              <div className="mt-4 p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs space-y-1.5">
-                <div className="flex items-center gap-1.5 font-bold text-amber-300">
-                  <Phone size={13} className="text-amber-400" />
-                  <span>{isBn ? 'তাৎক্ষণিক সহায়তা প্রয়োজন?' : 'Need Immediate Assistance?'}</span>
-                </div>
-                <p className="text-slate-400 leading-relaxed text-[11px]">
-                  {isBn 
-                    ? 'ইমেইল না পেলে অথবা কোনো সমস্যা হলে সরাসরি আইটি ইনচার্জ বা কেয়ারটেকারের সাথে যোগাযোগ করুন:' 
-                    : 'If you have trouble resetting your password, contact our IT Incharge or Caretaker:'}
-                </p>
-                <div className="flex items-center justify-between text-[11px] font-mono text-slate-300 pt-1">
-                  <span>Gian P. (IT): 01571328549</span>
-                  <span>Rasvihari Das: 01875835986</span>
-                </div>
+            {/* Password Field */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300" htmlFor="password">
+                {isBn ? 'পাসওয়ার্ড' : 'Password'}
+              </label>
+              <div className="relative">
+                <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  name="password"
+                  autoComplete={mode === 'LOGIN' ? 'current-password' : 'new-password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-10 py-2.5 text-sm text-slate-100 placeholder:text-slate-600 outline-none transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+                >
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
               </div>
-            </form>
-          )}
+            </div>
 
-          {/* ================= FORM 4: SET NEW PASSWORD ================= */}
-          {mode === 'RESET' && (
-            <form onSubmit={handleUpdatePassword} className="space-y-4">
-              <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-xs leading-relaxed">
-                {isBn 
-                  ? 'আপনার অ্যাকাউন্টের জন্য একটি নতুন নিরাপদ পাসওয়ার্ড সেট করুন।' 
-                  : 'Please enter a new, secure password for your VOICE account.'}
-              </div>
-
-              {/* New Password */}
+            {/* Confirm Password (Sign Up only) */}
+            {mode === 'SIGNUP' && (
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5" htmlFor="new-password">
-                  <Lock className="w-3.5 h-3.5 text-amber-400" />
-                  <span>{isBn ? 'নতুন পাসওয়ার্ড' : 'New Password'}</span>
+                <label className="text-xs font-semibold text-slate-300" htmlFor="confirmPassword">
+                  {isBn ? 'পাসওয়ার্ড নিশ্চিত করুন' : 'Confirm Password'}
                 </label>
                 <div className="relative">
-                  <input 
-                    type={showNewPassword ? 'text' : 'password'} 
-                    id="new-password"
-                    className="w-full bg-slate-900/90 border border-slate-700/80 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 rounded-xl pl-4 pr-11 py-3 text-slate-100 text-sm placeholder:text-slate-500 transition-all outline-none font-mono" 
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
+                  <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    autoComplete="new-password"
                     required
-                    disabled={loading}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    minLength={6}
+                    className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-10 py-2.5 text-sm text-slate-100 placeholder:text-slate-600 outline-none transition-all"
                   />
-                  <button 
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-400 transition-colors p-1.5 rounded-lg cursor-pointer"
-                    onClick={() => setShowNewPassword(!showNewPassword)}
-                    title={showNewPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Confirm Password */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5" htmlFor="confirm-password">
-                  <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-                  <span>{isBn ? 'পাসওয়ার্ড নিশ্চিত করুন' : 'Confirm Password'}</span>
-                </label>
-                <input 
-                  type={showNewPassword ? 'text' : 'password'} 
-                  id="confirm-password"
-                  className="w-full bg-slate-900/90 border border-slate-700/80 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 rounded-xl px-4 py-3 text-slate-100 text-sm placeholder:text-slate-500 transition-all outline-none font-mono" 
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  disabled={loading}
-                  placeholder="••••••••••••"
-                  minLength={6}
-                />
-              </div>
-
-              {/* Submit Button */}
-              <button 
-                type="submit" 
-                className="w-full mt-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-sm sm:text-base py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer" 
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
-                    <span>{isBn ? 'সংরক্ষণ করা হচ্ছে...' : 'Saving Password...'}</span>
-                  </span>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>{isBn ? 'পাসওয়ার্ড আপডেট ও লগইন' : 'Update Password & Log In'}</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  triggerHaptic('selection');
-                  setMode('LOGIN');
-                  setError('');
-                  setSuccessMsg('');
-                }}
-                className="w-full py-2.5 text-xs sm:text-sm font-bold text-slate-400 hover:text-amber-300 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <ArrowLeft size={14} />
-                <span>{isBn ? 'লগইন পেইজে ফিরে যান' : 'Back to Sign In'}</span>
-              </button>
-            </form>
-          )}
-
-          {/* Quick Demo Credentials Assistant (Only shown in LOGIN mode) */}
-          {mode === 'LOGIN' && (
-            <div className="mt-6 pt-5 border-t border-slate-800/80">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-amber-400" />
-                  <span>{isBn ? 'কুইক লগইন ও রোল' : 'Quick Role Logins'}</span>
-                </span>
-                <span className="text-[10px] text-slate-500">1-Click Fill</span>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleDemoFill('rasvihari.voice@gmail.com')}
-                  className="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/40 rounded-lg text-left text-[11px] text-slate-300 hover:text-amber-300 transition-all flex items-center gap-1.5 truncate cursor-pointer"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-                  <span className="truncate">Caretaker / Mentor</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDemoFill('gianjuti.csecu@gmail.com')}
-                  className="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/40 rounded-lg text-left text-[11px] text-slate-300 hover:text-amber-300 transition-all flex items-center gap-1.5 truncate cursor-pointer"
-                >
-                  <UserCheck className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-                  <span className="truncate">IT / Admin (Gian P.)</span>
-                </button>
-              </div>
-
-              <div className="mt-3 flex items-center justify-center">
-                <button
-                  type="button"
-                  onClick={() => { triggerHaptic('selection'); setShowDevoteesModal(true); }}
-                  className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all cursor-pointer"
-                >
-                  <Users size={13} />
-                  <span>{isBn ? 'সকল রেজিস্টার্ড ভক্তদের তালিকা দেখুন' : 'View All 14 Registered Devotees'}</span>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Back to Hub Navigation */}
-          <div className="mt-6 text-center">
-            <Link 
-              to="/"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-amber-300 transition-colors"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>{isBn ? 'হোম পেইজে ফিরে যান' : 'Return to Hub Home'}</span>
-            </Link>
-          </div>
-
-        </div>
-      </div>
-
-      {/* ================= MODAL: REGISTERED DEVOTEES DIRECTORY ================= */}
-      {showDevoteesModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="relative w-full max-w-2xl bg-slate-950 border border-amber-500/40 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-            
-            {/* Modal Header */}
-            <div className="p-4 sm:p-5 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-transparent border-b border-amber-500/30 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400">
-                  <Users size={18} />
-                </div>
-                <div>
-                  <h3 className="text-sm sm:text-base font-black text-amber-200">
-                    {isBn ? 'রেজিস্টার্ড ভক্তবৃন্দ ও ইমেইল তালিকা' : 'Registered Devotees & Login Emails'}
-                  </h3>
-                  <p className="text-[11px] text-slate-400">
-                    {isBn 
-                      ? 'লগইন করতে আপনার নামের পাশে "ইমেইল নির্বাচন" বাটনে চাপ দিন' 
-                      : 'Tap "Select Email" to automatically fill your login email'}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowDevoteesModal(false)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            {/* Modal Search Bar */}
-            <div className="p-3 sm:p-4 border-b border-slate-800/80 bg-slate-900/50">
-              <div className="relative flex items-center">
-                <Search size={15} className="absolute left-3.5 text-amber-400" />
-                <input
-                  type="text"
-                  value={devoteeSearch}
-                  onChange={(e) => setDevoteeSearch(e.target.value)}
-                  placeholder={isBn ? 'নাম, পদবি, বিভাগ বা ইমেইল দিয়ে খুঁজুন...' : 'Search by name, spiritual name, department or email...'}
-                  className="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-400 outline-none focus:border-amber-400"
-                />
-                {devoteeSearch && (
                   <button
                     type="button"
-                    onClick={() => setDevoteeSearch('')}
-                    className="absolute right-3 text-slate-400 hover:text-white"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
                   >
-                    <X size={13} />
+                    {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
-                )}
+                </div>
+              </div>
+            )}
+
+            {/* Remember Me & Forgot Password Options Row */}
+            {mode === 'LOGIN' && (
+              <div className="flex items-center justify-between text-xs pt-1">
+                <label className="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-slate-100 select-none">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 rounded border-slate-700 bg-slate-900 text-amber-500 focus:ring-amber-500/30 accent-amber-500 cursor-pointer"
+                  />
+                  <span>{isBn ? 'পাসওয়ার্ড মনে রাখুন' : 'Remember me'}</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic('selection');
+                    setMode('RESET');
+                    setError('');
+                    setSuccessMsg('');
+                    setPassword('');
+                    setConfirmPassword('');
+                  }}
+                  className="font-medium text-amber-400 hover:text-amber-300 hover:underline transition-colors cursor-pointer"
+                >
+                  {isBn ? 'পাসওয়ার্ড ভুলে গেছেন?' : 'Forgot password?'}
+                </button>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-2 py-3 bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {loading ? (
+                <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+              ) : mode === 'LOGIN' ? (
+                <span>{isBn ? 'লগইন করুন' : 'Sign In'}</span>
+              ) : (
+                <span>{isBn ? 'অ্যাকাউন্ট তৈরি করুন' : 'Create Account'}</span>
+              )}
+            </button>
+          </form>
+        )}
+
+        {/* ================= 2. DIRECT PASSWORD RESET FORM (No Email Needed) ================= */}
+        {mode === 'RESET' && (
+          <form onSubmit={handleDirectReset} autoComplete="on" className="space-y-4">
+            
+            {/* Email Field */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300" htmlFor="reset-email">
+                {isBn ? 'রেজিস্টার্ড ইমেইল অ্যাড্রেস' : 'Registered Email Address'}
+              </label>
+              <div className="relative">
+                <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input
+                  type="email"
+                  id="reset-email"
+                  name="email"
+                  autoComplete="username"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="gianjuti.csecu@gmail.com"
+                  className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-600 outline-none transition-all"
+                />
               </div>
             </div>
 
-            {/* Devotees List */}
-            <div className="p-3 sm:p-4 overflow-y-auto divide-y divide-slate-800/60 space-y-2 flex-1">
-              {filteredDevotees.map((devotee) => (
-                <div 
-                  key={devotee.id}
-                  onClick={() => handleSelectDevotee(devotee)}
-                  className="p-3 rounded-2xl bg-slate-900/60 hover:bg-amber-500/10 border border-slate-800 hover:border-amber-500/40 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+            {/* Registered Phone Field (Identity Verification) */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-300" htmlFor="reset-phone">
+                  {isBn ? 'রেজিস্টার্ড মোবাইল নম্বর (ভেরিফিকেশন)' : 'Registered Mobile Number'}
+                </label>
+                <span className="text-[10px] text-slate-500">{isBn ? 'নিরাপত্তা যাচাই' : 'Zero-email check'}</span>
+              </div>
+              <div className="relative">
+                <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input
+                  type="tel"
+                  id="reset-phone"
+                  name="tel"
+                  autoComplete="tel"
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="01571328549"
+                  className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-600 outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            {/* New Password Field */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300" htmlFor="reset-password">
+                {isBn ? 'নতুন পাসওয়ার্ড (ন্যূনতম ৬ অক্ষর)' : 'New Password (min 6 characters)'}
+              </label>
+              <div className="relative">
+                <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="reset-password"
+                  name="new-password"
+                  autoComplete="new-password"
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-10 py-2.5 text-sm text-slate-100 placeholder:text-slate-600 outline-none transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-400/30 flex items-center justify-center shrink-0 font-bold text-amber-300 text-xs">
-                      {devotee.sl === 0 && devotee.id === 'dev_caretaker' ? 'CT' : `SL:${devotee.sl}`}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition-colors">
-                          {devotee.name}
-                        </span>
-                        {devotee.spiritualName && (
-                          <span className="text-[11px] text-amber-400/90 font-serif italic">
-                            ({devotee.spiritualName})
-                          </span>
-                        )}
-                        {devotee.roleBadge && (
-                          <span className="text-[9.5px] px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-semibold border border-amber-400/30">
-                            {devotee.roleBadge}
-                          </span>
-                        )}
-                      </div>
-                      
-                      <div className="flex items-center gap-3 text-[11px] text-slate-400 mt-1 flex-wrap">
-                        <span className="flex items-center gap-1 text-slate-300 font-mono">
-                          <Mail size={11} className="text-amber-400" />
-                          {devotee.gmail}
-                        </span>
-                        <span className="flex items-center gap-1 font-mono">
-                          <Phone size={11} className="text-emerald-400" />
-                          {devotee.phone}
-                        </span>
-                        <span className="text-slate-400">
-                          {devotee.department}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                    <button
-                      type="button"
-                      onClick={(e) => handleCopyEmail(e, devotee.gmail)}
-                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs flex items-center gap-1 transition-all"
-                      title="Copy Email"
-                    >
-                      {copiedEmail === devotee.gmail ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
-                      <span className="hidden sm:inline text-[10px]">{copiedEmail === devotee.gmail ? 'Copied' : 'Copy'}</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleSelectDevotee(devotee)}
-                      className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs shadow-xs transition-all flex items-center gap-1"
-                    >
-                      <UserCheck size={13} />
-                      <span>{isBn ? 'ইমেইল নির্বাচন' : 'Select Email'}</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
             </div>
 
-            {/* Modal Footer */}
-            <div className="p-3 bg-slate-900/90 border-t border-slate-800 text-center text-xs text-slate-400 flex items-center justify-between px-4">
-              <span>{isBn ? 'মোট রেজিস্টার্ড সদস্য: ১৪ জন' : 'Total Registered Members: 14'}</span>
-              <span className="text-[11px] text-amber-400 font-mono">
-                {isBn ? 'ডিফল্ট পাসওয়ার্ড: voice123456' : 'Default initial pwd: voice123456'}
-              </span>
+            {/* Confirm New Password Field */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300" htmlFor="reset-confirm-password">
+                {isBn ? 'নতুন পাসওয়ার্ড পুনরায় লিখুন' : 'Confirm New Password'}
+              </label>
+              <div className="relative">
+                <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  id="reset-confirm-password"
+                  name="confirm-new-password"
+                  autoComplete="new-password"
+                  required
+                  minLength={6}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="w-full bg-slate-900 border border-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl pl-10 pr-10 py-2.5 text-sm text-slate-100 placeholder:text-slate-600 outline-none transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+                >
+                  {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
             </div>
 
+            {/* Remember Me Checkbox */}
+            <div className="pt-1">
+              <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300 hover:text-slate-100 select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-700 bg-slate-900 text-amber-500 focus:ring-amber-500/30 accent-amber-500 cursor-pointer"
+                />
+                <span>{isBn ? 'নতুন পাসওয়ার্ড ব্রাউজারে সেভ রাখুন' : 'Save & remember this new password'}</span>
+              </label>
+            </div>
+
+            {/* Submit Reset Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-2 py-3 bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {loading ? (
+                <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  <KeyRound size={15} />
+                  <span>{isBn ? 'সরাসরি পাসওয়ার্ড পরিবর্তন ও লগইন' : 'Update & Sign In Directly'}</span>
+                </>
+              )}
+            </button>
+
+            {/* Back to Login Button */}
+            <button
+              type="button"
+              onClick={() => {
+                triggerHaptic('selection');
+                setMode('LOGIN');
+                setError('');
+                setSuccessMsg('');
+              }}
+              className="w-full py-2 text-xs font-semibold text-slate-400 hover:text-slate-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <ArrowLeft size={14} />
+              <span>{isBn ? 'লগইন পেজে ফিরে যান' : 'Back to Sign In'}</span>
+            </button>
+          </form>
+        )}
+
+        {/* Bottom Switch between Sign In / Sign Up */}
+        {mode !== 'RESET' && (
+          <div className="mt-6 pt-5 border-t border-slate-800/80 text-center text-xs text-slate-400">
+            {mode === 'LOGIN' ? (
+              <p>
+                {isBn ? 'কোনো অ্যাকাউন্ট নেই? ' : "Don't have an account? "}
+                <button
+                  type="button"
+                  onClick={() => { setMode('SIGNUP'); setError(''); setSuccessMsg(''); }}
+                  className="font-bold text-amber-400 hover:text-amber-300 hover:underline cursor-pointer"
+                >
+                  {isBn ? 'নতুন অ্যাকাউন্ট খুলুন' : 'Sign Up'}
+                </button>
+              </p>
+            ) : (
+              <p>
+                {isBn ? 'ইতিমধ্যে অ্যাকাউন্ট আছে? ' : 'Already have an account? '}
+                <button
+                  type="button"
+                  onClick={() => { setMode('LOGIN'); setError(''); setSuccessMsg(''); }}
+                  className="font-bold text-amber-400 hover:text-amber-300 hover:underline cursor-pointer"
+                >
+                  {isBn ? 'লগইন করুন' : 'Sign In'}
+                </button>
+              </p>
+            )}
           </div>
-        </div>
-      )}
+        )}
 
+        {/* Back to Home Link */}
+        <div className="mt-4 text-center">
+          <Link
+            to="/"
+            className="text-xs text-slate-500 hover:text-slate-400 transition-colors inline-flex items-center gap-1"
+          >
+            <ArrowLeft size={12} />
+            <span>{isBn ? 'হোম পেজে ফিরুন' : 'Return to Home'}</span>
+          </Link>
+        </div>
+
+      </div>
     </div>
   );
 };
