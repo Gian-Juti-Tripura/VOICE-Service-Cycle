@@ -121,11 +121,11 @@ export const HubHome: React.FC = () => {
         >
           <div 
             style={{ backgroundColor: 'var(--advaita-primary)' }}
-            className="absolute -right-16 -bottom-16 w-80 h-80 opacity-20 rounded-full blur-3xl pointer-events-none transition-colors duration-500" 
+            className="absolute -right-16 -bottom-16 w-80 h-80 opacity-35 rounded-full blur-3xl pointer-events-none transition-colors duration-500" 
           />
           <div 
             style={{ backgroundColor: 'var(--advaita-accent)' }}
-            className="absolute -left-16 -top-16 w-80 h-80 opacity-20 rounded-full blur-3xl pointer-events-none transition-colors duration-500" 
+            className="absolute -left-16 -top-16 w-80 h-80 opacity-35 rounded-full blur-3xl pointer-events-none transition-colors duration-500" 
           />
           
           <div className="relative z-10 space-y-6 lg:space-y-8">
@@ -201,7 +201,7 @@ export const HubHome: React.FC = () => {
                         borderColor: 'var(--advaita-nav-border)',
                         color: 'var(--advaita-nav-active-text)'
                       }}
-                      className="inline-flex items-center gap-2 px-3 py-1 rounded-full font-mono text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest border backdrop-blur-md transition-colors duration-300"
+                      className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full font-mono text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest border backdrop-blur-md shadow-xs transition-colors duration-300"
                     >
                       <span 
                         style={{
@@ -218,7 +218,7 @@ export const HubHome: React.FC = () => {
                       <h1 
                         style={{
                           backgroundImage: 'var(--advaita-hero-title-gradient)',
-                          filter: 'drop-shadow(0 2px 12px var(--advaita-glow))'
+                          filter: 'drop-shadow(0 2px 10px var(--advaita-glow))'
                         }}
                         className={`text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-black tracking-wider uppercase leading-tight bg-clip-text text-transparent transition-all duration-300 ${language !== 'bn' ? 'font-cinzel' : ''}`}
                       >
@@ -233,7 +233,7 @@ export const HubHome: React.FC = () => {
                             borderColor: 'var(--advaita-nav-border)',
                             color: 'var(--advaita-nav-active-text)'
                           }}
-                          className="inline-flex items-center gap-1 font-bold px-2.5 py-0.5 rounded-lg border transition-colors duration-300"
+                          className="inline-flex items-center gap-1.5 font-bold px-3 py-1 rounded-lg border shadow-xs transition-colors duration-300"
                         >
                           <MapPin size={12} style={{ color: 'var(--advaita-primary)' }} />
                           {language === 'bn' ? 'চট্টগ্রাম বিশ্ববিদ্যালয় শাখা' : 'University of Chittagong'}
@@ -522,7 +522,7 @@ export const HubHome: React.FC = () => {
                   style={{
                     borderColor: 'var(--advaita-hero-card-border)'
                   }}
-                  className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border hover:border-[var(--advaita-primary)] flex flex-col items-center text-center space-y-2 group hover:bg-[var(--advaita-badge-bg)] transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
+                  className="p-3.5 rounded-2xl bg-white/80 dark:bg-white/5 border shadow-xs hover:shadow-md hover:border-[var(--advaita-primary)] flex flex-col items-center text-center space-y-2 group hover:bg-[var(--advaita-badge-bg)] transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
                 >
                   <div className="relative">
                     <div 
@@ -571,7 +571,7 @@ export const HubHome: React.FC = () => {
                   style={{
                     borderColor: 'var(--advaita-hero-card-border)'
                   }}
-                  className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border hover:border-[var(--advaita-primary)] flex flex-col items-center text-center space-y-2 group hover:bg-[var(--advaita-badge-bg)] transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
+                  className="p-3.5 rounded-2xl bg-white/80 dark:bg-white/5 border shadow-xs hover:shadow-md hover:border-[var(--advaita-primary)] flex flex-col items-center text-center space-y-2 group hover:bg-[var(--advaita-badge-bg)] transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
                 >
                   <div className="relative">
                     <div 
@@ -620,7 +620,7 @@ export const HubHome: React.FC = () => {
                   style={{
                     borderColor: 'var(--advaita-hero-card-border)'
                   }}
-                  className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border hover:border-[var(--advaita-primary)] flex flex-col items-center text-center space-y-2 group hover:bg-[var(--advaita-badge-bg)] transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
+                  className="p-3.5 rounded-2xl bg-white/80 dark:bg-white/5 border shadow-xs hover:shadow-md hover:border-[var(--advaita-primary)] flex flex-col items-center text-center space-y-2 group hover:bg-[var(--advaita-badge-bg)] transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
                 >
                   <div className="relative">
                     <div 
@@ -669,7 +669,7 @@ export const HubHome: React.FC = () => {
                   style={{
                     borderColor: 'var(--advaita-hero-card-border)'
                   }}
-                  className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border hover:border-[var(--advaita-primary)] flex flex-col items-center text-center space-y-2 group hover:bg-[var(--advaita-badge-bg)] transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
+                  className="p-3.5 rounded-2xl bg-white/80 dark:bg-white/5 border shadow-xs hover:shadow-md hover:border-[var(--advaita-primary)] flex flex-col items-center text-center space-y-2 group hover:bg-[var(--advaita-badge-bg)] transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
                 >
                   <div className="relative">
                     <div 

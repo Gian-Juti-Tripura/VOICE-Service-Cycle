@@ -199,16 +199,22 @@
   border-radius: 50%;
   background: repeating-conic-gradient(
     from 0deg,
-    rgba(251, 191, 36, 0.32) 0deg 8deg,
+    rgba(251, 191, 36, 0.38) 0deg 8deg,
     transparent 8deg 24deg,
-    rgba(245, 158, 11, 0.25) 24deg 32deg,
+    rgba(245, 158, 11, 0.30) 24deg 32deg,
     transparent 32deg 48deg
   );
   -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 22%, rgba(0,0,0,0.15) 52%, transparent 75%);
   mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 22%, rgba(0,0,0,0.15) 52%, transparent 75%);
   animation: rays-spin-forward 32s linear infinite;
   pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+}
+
+.dark .divine-sunrays-layer1 {
   mix-blend-mode: screen;
+  opacity: 1;
 }
 
 .divine-sunrays-layer2 {
@@ -220,16 +226,22 @@
   border-radius: 50%;
   background: repeating-conic-gradient(
     from 15deg,
-    rgba(254, 240, 138, 0.35) 0deg 6deg,
+    rgba(254, 240, 138, 0.40) 0deg 6deg,
     transparent 6deg 20deg,
-    rgba(249, 115, 22, 0.22) 20deg 26deg,
+    rgba(249, 115, 22, 0.28) 20deg 26deg,
     transparent 26deg 40deg
   );
   -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0.65) 18%, rgba(0,0,0,0.1) 46%, transparent 68%);
   mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,0.65) 18%, rgba(0,0,0,0.1) 46%, transparent 68%);
   animation: rays-spin-backward 22s linear infinite;
   pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.45;
+}
+
+.dark .divine-sunrays-layer2 {
   mix-blend-mode: screen;
+  opacity: 1;
 }
 
 /* Devotional Lighting & Effects Customization Control */
@@ -248,19 +260,19 @@
 :root {
   --advaita-primary: #f59e0b;
   --advaita-accent: #d97706;
-  --advaita-glow: rgba(245, 158, 11, 0.35);
-  --advaita-nav-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(254, 243, 199, 0.72) 45%, rgba(255, 237, 213, 0.80) 100%);
-  --advaita-nav-bottom-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(254, 243, 199, 0.75) 55%, rgba(255, 237, 213, 0.84) 100%);
-  --advaita-nav-border: rgba(245, 158, 11, 0.32);
-  --advaita-nav-active-text: #b45309;
-  --advaita-badge-bg: rgba(245, 158, 11, 0.18);
-  --advaita-hero-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(254, 243, 199, 0.88) 45%, rgba(255, 237, 213, 0.92) 100%);
-  --advaita-hero-border: rgba(245, 158, 11, 0.38);
-  --advaita-hero-shadow: 0 20px 50px rgba(245, 158, 11, 0.16);
-  --advaita-hero-card-bg: rgba(255, 255, 255, 0.82);
-  --advaita-hero-card-border: rgba(245, 158, 11, 0.28);
-  --advaita-hero-title-gradient: linear-gradient(135deg, #b45309 0%, #d97706 45%, #92400e 100%);
-  --advaita-hero-text: #0f172a;
+  --advaita-glow: rgba(245, 158, 11, 0.40);
+  --advaita-nav-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.90) 0%, rgba(254, 243, 199, 0.82) 45%, rgba(255, 237, 213, 0.88) 100%);
+  --advaita-nav-bottom-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(254, 243, 199, 0.85) 55%, rgba(255, 237, 213, 0.90) 100%);
+  --advaita-nav-border: rgba(217, 119, 6, 0.38);
+  --advaita-nav-active-text: #9a3412;
+  --advaita-badge-bg: rgba(255, 255, 255, 0.88);
+  --advaita-hero-bg: linear-gradient(135deg, #fef3c7 0%, #fde68a 35%, #fed7aa 75%, #fef08a 100%);
+  --advaita-hero-border: rgba(217, 119, 6, 0.45);
+  --advaita-hero-shadow: 0 20px 50px rgba(217, 119, 6, 0.22), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --advaita-hero-card-bg: rgba(255, 255, 255, 0.88);
+  --advaita-hero-card-border: rgba(217, 119, 6, 0.32);
+  --advaita-hero-title-gradient: linear-gradient(135deg, #78350f 0%, #9a3412 35%, #c2410c 70%, #78350f 100%);
+  --advaita-hero-text: #1e1b18;
   --advaita-hero-text-muted: #78350f;
 }
 
@@ -288,19 +300,19 @@
 [data-theme-palette="saffron"] {
   --advaita-primary: #f59e0b;
   --advaita-accent: #d97706;
-  --advaita-glow: rgba(245, 158, 11, 0.35);
-  --advaita-nav-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(254, 243, 199, 0.72) 45%, rgba(255, 237, 213, 0.80) 100%);
-  --advaita-nav-bottom-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(254, 243, 199, 0.75) 55%, rgba(255, 237, 213, 0.84) 100%);
-  --advaita-nav-border: rgba(245, 158, 11, 0.32);
-  --advaita-nav-active-text: #b45309;
-  --advaita-badge-bg: rgba(245, 158, 11, 0.18);
-  --advaita-hero-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(254, 243, 199, 0.88) 45%, rgba(255, 237, 213, 0.92) 100%);
-  --advaita-hero-border: rgba(245, 158, 11, 0.38);
-  --advaita-hero-shadow: 0 20px 50px rgba(245, 158, 11, 0.16);
-  --advaita-hero-card-bg: rgba(255, 255, 255, 0.82);
-  --advaita-hero-card-border: rgba(245, 158, 11, 0.28);
-  --advaita-hero-title-gradient: linear-gradient(135deg, #b45309 0%, #d97706 45%, #92400e 100%);
-  --advaita-hero-text: #0f172a;
+  --advaita-glow: rgba(245, 158, 11, 0.40);
+  --advaita-nav-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.90) 0%, rgba(254, 243, 199, 0.82) 45%, rgba(255, 237, 213, 0.88) 100%);
+  --advaita-nav-bottom-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(254, 243, 199, 0.85) 55%, rgba(255, 237, 213, 0.90) 100%);
+  --advaita-nav-border: rgba(217, 119, 6, 0.38);
+  --advaita-nav-active-text: #9a3412;
+  --advaita-badge-bg: rgba(255, 255, 255, 0.88);
+  --advaita-hero-bg: linear-gradient(135deg, #fef3c7 0%, #fde68a 35%, #fed7aa 75%, #fef08a 100%);
+  --advaita-hero-border: rgba(217, 119, 6, 0.45);
+  --advaita-hero-shadow: 0 20px 50px rgba(217, 119, 6, 0.22), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --advaita-hero-card-bg: rgba(255, 255, 255, 0.88);
+  --advaita-hero-card-border: rgba(217, 119, 6, 0.32);
+  --advaita-hero-title-gradient: linear-gradient(135deg, #78350f 0%, #9a3412 35%, #c2410c 70%, #78350f 100%);
+  --advaita-hero-text: #1e1b18;
   --advaita-hero-text-muted: #78350f;
 }
 .dark[data-theme-palette="saffron"],
@@ -327,19 +339,19 @@
 [data-theme-palette="lotus"] {
   --advaita-primary: #f43f5e;
   --advaita-accent: #e11d48;
-  --advaita-glow: rgba(244, 63, 94, 0.35);
-  --advaita-nav-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 241, 242, 0.75) 45%, rgba(254, 205, 211, 0.80) 100%);
-  --advaita-nav-bottom-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 241, 242, 0.78) 55%, rgba(254, 205, 211, 0.84) 100%);
-  --advaita-nav-border: rgba(244, 63, 94, 0.32);
-  --advaita-nav-active-text: #be123c;
-  --advaita-badge-bg: rgba(244, 63, 94, 0.18);
-  --advaita-hero-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 241, 242, 0.88) 45%, rgba(254, 205, 211, 0.92) 100%);
-  --advaita-hero-border: rgba(244, 63, 94, 0.38);
-  --advaita-hero-shadow: 0 20px 50px rgba(244, 63, 94, 0.16);
-  --advaita-hero-card-bg: rgba(255, 255, 255, 0.82);
-  --advaita-hero-card-border: rgba(244, 63, 94, 0.28);
-  --advaita-hero-title-gradient: linear-gradient(135deg, #be123c 0%, #e11d48 45%, #9f1239 100%);
-  --advaita-hero-text: #0f172a;
+  --advaita-glow: rgba(244, 63, 94, 0.40);
+  --advaita-nav-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 241, 242, 0.85) 45%, rgba(254, 205, 211, 0.88) 100%);
+  --advaita-nav-bottom-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 241, 242, 0.88) 55%, rgba(254, 205, 211, 0.90) 100%);
+  --advaita-nav-border: rgba(225, 29, 72, 0.38);
+  --advaita-nav-active-text: #9f1239;
+  --advaita-badge-bg: rgba(255, 255, 255, 0.88);
+  --advaita-hero-bg: linear-gradient(135deg, #ffe4e6 0%, #fecdd3 35%, #fda4af 75%, #ffe4e6 100%);
+  --advaita-hero-border: rgba(225, 29, 72, 0.42);
+  --advaita-hero-shadow: 0 20px 50px rgba(225, 29, 72, 0.22), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --advaita-hero-card-bg: rgba(255, 255, 255, 0.88);
+  --advaita-hero-card-border: rgba(225, 29, 72, 0.30);
+  --advaita-hero-title-gradient: linear-gradient(135deg, #881337 0%, #be123c 35%, #e11d48 70%, #881337 100%);
+  --advaita-hero-text: #190e14;
   --advaita-hero-text-muted: #881337;
 }
 .dark[data-theme-palette="lotus"],
@@ -366,19 +378,19 @@
 [data-theme-palette="emerald"] {
   --advaita-primary: #10b981;
   --advaita-accent: #059669;
-  --advaita-glow: rgba(16, 185, 129, 0.35);
-  --advaita-nav-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(236, 253, 245, 0.75) 45%, rgba(209, 250, 229, 0.82) 100%);
-  --advaita-nav-bottom-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(236, 253, 245, 0.78) 55%, rgba(209, 250, 229, 0.85) 100%);
-  --advaita-nav-border: rgba(16, 185, 129, 0.32);
-  --advaita-nav-active-text: #047857;
-  --advaita-badge-bg: rgba(16, 185, 129, 0.18);
-  --advaita-hero-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(236, 253, 245, 0.88) 45%, rgba(209, 250, 229, 0.92) 100%);
-  --advaita-hero-border: rgba(16, 185, 129, 0.38);
-  --advaita-hero-shadow: 0 20px 50px rgba(16, 185, 129, 0.16);
-  --advaita-hero-card-bg: rgba(255, 255, 255, 0.82);
-  --advaita-hero-card-border: rgba(16, 185, 129, 0.28);
-  --advaita-hero-title-gradient: linear-gradient(135deg, #047857 0%, #059669 45%, #065f46 100%);
-  --advaita-hero-text: #0f172a;
+  --advaita-glow: rgba(16, 185, 129, 0.40);
+  --advaita-nav-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.90) 0%, rgba(236, 253, 245, 0.85) 45%, rgba(209, 250, 229, 0.88) 100%);
+  --advaita-nav-bottom-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(236, 253, 245, 0.88) 55%, rgba(209, 250, 229, 0.90) 100%);
+  --advaita-nav-border: rgba(5, 150, 105, 0.38);
+  --advaita-nav-active-text: #065f46;
+  --advaita-badge-bg: rgba(255, 255, 255, 0.88);
+  --advaita-hero-bg: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 35%, #86efac 75%, #d1fae5 100%);
+  --advaita-hero-border: rgba(5, 150, 105, 0.42);
+  --advaita-hero-shadow: 0 20px 50px rgba(5, 150, 105, 0.22), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --advaita-hero-card-bg: rgba(255, 255, 255, 0.88);
+  --advaita-hero-card-border: rgba(5, 150, 105, 0.30);
+  --advaita-hero-title-gradient: linear-gradient(135deg, #064e3b 0%, #047857 35%, #059669 70%, #064e3b 100%);
+  --advaita-hero-text: #062018;
   --advaita-hero-text-muted: #064e3b;
 }
 .dark[data-theme-palette="emerald"],
@@ -405,19 +417,19 @@
 [data-theme-palette="ocean"] {
   --advaita-primary: #3b82f6;
   --advaita-accent: #2563eb;
-  --advaita-glow: rgba(59, 130, 246, 0.35);
-  --advaita-nav-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(239, 246, 255, 0.75) 45%, rgba(219, 234, 254, 0.84) 100%);
-  --advaita-nav-bottom-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(239, 246, 255, 0.78) 55%, rgba(219, 234, 254, 0.86) 100%);
-  --advaita-nav-border: rgba(59, 130, 246, 0.32);
-  --advaita-nav-active-text: #1d4ed8;
-  --advaita-badge-bg: rgba(59, 130, 246, 0.18);
-  --advaita-hero-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(239, 246, 255, 0.88) 45%, rgba(219, 234, 254, 0.92) 100%);
-  --advaita-hero-border: rgba(59, 130, 246, 0.38);
-  --advaita-hero-shadow: 0 20px 50px rgba(59, 130, 246, 0.16);
-  --advaita-hero-card-bg: rgba(255, 255, 255, 0.82);
-  --advaita-hero-card-border: rgba(59, 130, 246, 0.28);
-  --advaita-hero-title-gradient: linear-gradient(135deg, #1d4ed8 0%, #2563eb 45%, #1e40af 100%);
-  --advaita-hero-text: #0f172a;
+  --advaita-glow: rgba(59, 130, 246, 0.40);
+  --advaita-nav-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.90) 0%, rgba(239, 246, 255, 0.85) 45%, rgba(219, 234, 254, 0.88) 100%);
+  --advaita-nav-bottom-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(239, 246, 255, 0.88) 55%, rgba(219, 234, 254, 0.90) 100%);
+  --advaita-nav-border: rgba(37, 99, 235, 0.38);
+  --advaita-nav-active-text: #1e40af;
+  --advaita-badge-bg: rgba(255, 255, 255, 0.88);
+  --advaita-hero-bg: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 35%, #93c5fd 75%, #dbeafe 100%);
+  --advaita-hero-border: rgba(37, 99, 235, 0.42);
+  --advaita-hero-shadow: 0 20px 50px rgba(37, 99, 235, 0.22), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --advaita-hero-card-bg: rgba(255, 255, 255, 0.88);
+  --advaita-hero-card-border: rgba(37, 99, 235, 0.30);
+  --advaita-hero-title-gradient: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 35%, #2563eb 70%, #1e3a8a 100%);
+  --advaita-hero-text: #0b1528;
   --advaita-hero-text-muted: #1e3a8a;
 }
 .dark[data-theme-palette="ocean"],
@@ -444,19 +456,19 @@
 [data-theme-palette="royal"] {
   --advaita-primary: #8b5cf6;
   --advaita-accent: #7c3aed;
-  --advaita-glow: rgba(139, 92, 246, 0.35);
-  --advaita-nav-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(245, 243, 255, 0.75) 45%, rgba(237, 233, 254, 0.84) 100%);
-  --advaita-nav-bottom-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(245, 243, 255, 0.78) 55%, rgba(237, 233, 254, 0.86) 100%);
-  --advaita-nav-border: rgba(139, 92, 246, 0.32);
-  --advaita-nav-active-text: #6d28d9;
-  --advaita-badge-bg: rgba(139, 92, 246, 0.18);
-  --advaita-hero-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(245, 243, 255, 0.88) 45%, rgba(237, 233, 254, 0.92) 100%);
-  --advaita-hero-border: rgba(139, 92, 246, 0.38);
-  --advaita-hero-shadow: 0 20px 50px rgba(139, 92, 246, 0.16);
-  --advaita-hero-card-bg: rgba(255, 255, 255, 0.82);
-  --advaita-hero-card-border: rgba(139, 92, 246, 0.28);
-  --advaita-hero-title-gradient: linear-gradient(135deg, #6d28d9 0%, #7c3aed 45%, #5b21b6 100%);
-  --advaita-hero-text: #0f172a;
+  --advaita-glow: rgba(139, 92, 246, 0.40);
+  --advaita-nav-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.90) 0%, rgba(245, 243, 255, 0.85) 45%, rgba(237, 233, 254, 0.88) 100%);
+  --advaita-nav-bottom-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(245, 243, 255, 0.88) 55%, rgba(237, 233, 254, 0.90) 100%);
+  --advaita-nav-border: rgba(124, 58, 237, 0.38);
+  --advaita-nav-active-text: #5b21b6;
+  --advaita-badge-bg: rgba(255, 255, 255, 0.88);
+  --advaita-hero-bg: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 35%, #d8b4fe 75%, #ede9fe 100%);
+  --advaita-hero-border: rgba(124, 58, 237, 0.42);
+  --advaita-hero-shadow: 0 20px 50px rgba(124, 58, 237, 0.22), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --advaita-hero-card-bg: rgba(255, 255, 255, 0.88);
+  --advaita-hero-card-border: rgba(124, 58, 237, 0.30);
+  --advaita-hero-title-gradient: linear-gradient(135deg, #4c1d95 0%, #6d28d9 35%, #7c3aed 70%, #4c1d95 100%);
+  --advaita-hero-text: #160d26;
   --advaita-hero-text-muted: #4c1d95;
 }
 .dark[data-theme-palette="royal"],
@@ -483,19 +495,19 @@
 [data-theme-palette="sunrise"] {
   --advaita-primary: #f97316;
   --advaita-accent: #ea580c;
-  --advaita-glow: rgba(249, 115, 22, 0.35);
-  --advaita-nav-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 247, 237, 0.75) 45%, rgba(254, 215, 170, 0.84) 100%);
-  --advaita-nav-bottom-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 247, 237, 0.78) 55%, rgba(254, 215, 170, 0.86) 100%);
-  --advaita-nav-border: rgba(249, 115, 22, 0.32);
-  --advaita-nav-active-text: #c2410c;
-  --advaita-badge-bg: rgba(249, 115, 22, 0.18);
-  --advaita-hero-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 247, 237, 0.88) 45%, rgba(254, 215, 170, 0.92) 100%);
-  --advaita-hero-border: rgba(249, 115, 22, 0.38);
-  --advaita-hero-shadow: 0 20px 50px rgba(249, 115, 22, 0.16);
-  --advaita-hero-card-bg: rgba(255, 255, 255, 0.82);
-  --advaita-hero-card-border: rgba(249, 115, 22, 0.28);
-  --advaita-hero-title-gradient: linear-gradient(135deg, #c2410c 0%, #ea580c 45%, #9a3412 100%);
-  --advaita-hero-text: #0f172a;
+  --advaita-glow: rgba(249, 115, 22, 0.40);
+  --advaita-nav-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.90) 0%, rgba(255, 247, 237, 0.85) 45%, rgba(254, 215, 170, 0.88) 100%);
+  --advaita-nav-bottom-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 247, 237, 0.88) 55%, rgba(254, 215, 170, 0.90) 100%);
+  --advaita-nav-border: rgba(234, 88, 12, 0.38);
+  --advaita-nav-active-text: #9a3412;
+  --advaita-badge-bg: rgba(255, 255, 255, 0.88);
+  --advaita-hero-bg: linear-gradient(135deg, #ffedd5 0%, #fed7aa 35%, #fdba74 75%, #fed7aa 100%);
+  --advaita-hero-border: rgba(234, 88, 12, 0.45);
+  --advaita-hero-shadow: 0 20px 50px rgba(234, 88, 12, 0.22), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --advaita-hero-card-bg: rgba(255, 255, 255, 0.88);
+  --advaita-hero-card-border: rgba(234, 88, 12, 0.32);
+  --advaita-hero-title-gradient: linear-gradient(135deg, #7c2d12 0%, #c2410c 35%, #ea580c 70%, #7c2d12 100%);
+  --advaita-hero-text: #1e110a;
   --advaita-hero-text-muted: #7c2d12;
 }
 .dark[data-theme-palette="sunrise"],
