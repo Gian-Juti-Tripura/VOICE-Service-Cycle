@@ -216,10 +216,11 @@ export const Navbar: React.FC = () => {
   return (
     <nav 
       style={{
-        backgroundColor: 'var(--advaita-nav-bg)',
-        borderColor: 'var(--advaita-nav-border)'
+        background: 'var(--advaita-nav-bg)',
+        borderColor: 'var(--advaita-nav-border)',
+        boxShadow: '0 4px 20px -2px var(--advaita-glow)'
       }}
-      className="sticky top-0 z-50 backdrop-blur-2xl shadow-xs border-b transition-colors duration-500"
+      className="sticky top-0 z-50 backdrop-blur-2xl backdrop-saturate-150 border-b transition-all duration-500"
     >
       <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-1 sm:gap-2">
         
@@ -263,7 +264,7 @@ export const Navbar: React.FC = () => {
           <div className="relative">
             <button 
               onClick={() => setNotifOpen(!notifOpen)}
-              className="relative p-1.5 sm:p-2 rounded-xl bg-slate-100/90 hover:bg-slate-200 text-slate-600 hover:text-rose-600 dark:bg-slate-800/90 dark:text-slate-300 dark:hover:text-amber-400 transition-all border border-slate-200/60 dark:border-slate-700/60 cursor-pointer"
+              className="relative p-1.5 sm:p-2 rounded-xl bg-white/60 hover:bg-white/90 text-slate-700 hover:text-rose-600 dark:bg-slate-800/60 dark:text-slate-300 dark:hover:text-amber-400 transition-all border border-slate-200/60 dark:border-slate-700/60 hover:border-[var(--advaita-primary)] backdrop-blur-md cursor-pointer shadow-2xs"
               title="Notifications"
             >
               <Bell size={15} />
@@ -427,7 +428,7 @@ export const Navbar: React.FC = () => {
           {/* Language Switch Flip Trigger (Flips between BN <-> EN one at a time) */}
           <button 
             onClick={toggleLanguage}
-            className="flex items-center gap-1 px-1.5 py-1 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100/90 border border-slate-200/60 dark:bg-slate-800/90 dark:border-slate-700/60 hover:border-[var(--advaita-primary)] font-bold text-slate-700 dark:text-slate-300 transition-all cursor-pointer active:scale-95 shrink-0 group select-none shadow-2xs"
+            className="flex items-center gap-1 px-1.5 py-1 sm:px-2.5 sm:py-1.5 rounded-xl bg-white/60 hover:bg-white/90 dark:bg-slate-800/60 dark:hover:bg-slate-800/90 backdrop-blur-md border border-slate-200/60 dark:border-slate-700/60 hover:border-[var(--advaita-primary)] font-bold text-slate-700 dark:text-slate-300 transition-all cursor-pointer active:scale-95 shrink-0 group select-none shadow-2xs"
             title={language === 'bn' ? 'Switch to English (EN)' : 'বাংলায় দেখুন (BN)'}
             aria-label="Flip Language"
           >
@@ -447,7 +448,7 @@ export const Navbar: React.FC = () => {
           {/* Theme & Visual Style Trigger */}
           <button 
             onClick={() => setThemeModalOpen(true)}
-            className="flex items-center gap-1 p-1.5 sm:px-2 sm:py-1.5 rounded-xl bg-slate-100/90 border border-slate-200/60 dark:bg-slate-800/90 dark:border-slate-700/60 hover:border-[var(--advaita-primary)] text-slate-700 dark:text-slate-300 transition-all group cursor-pointer shrink-0 shadow-2xs"
+            className="flex items-center gap-1 p-1.5 sm:px-2 sm:py-1.5 rounded-xl bg-white/60 hover:bg-white/90 dark:bg-slate-800/60 dark:hover:bg-slate-800/90 backdrop-blur-md border border-slate-200/60 dark:border-slate-700/60 hover:border-[var(--advaita-primary)] text-slate-700 dark:text-slate-300 transition-all group cursor-pointer shrink-0 shadow-2xs"
             title={language === 'bn' ? 'থিম ও আলোকসজ্জা কাস্টমাইজ করুন' : 'Customize Theme & Effects'}
             aria-label="Customize Theme & Effects"
           >
@@ -513,7 +514,7 @@ export const Navbar: React.FC = () => {
           {/* Mobile Menu Button (3-bar hamburger) */}
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-1.5 rounded-xl bg-slate-100/90 text-slate-600 hover:text-slate-900 dark:bg-slate-800/90 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60 cursor-pointer shrink-0 transition-colors"
+            className="lg:hidden p-1.5 rounded-xl bg-white/60 hover:bg-white/90 text-slate-600 hover:text-slate-900 dark:bg-slate-800/60 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60 hover:border-[var(--advaita-primary)] backdrop-blur-md cursor-pointer shrink-0 transition-colors shadow-2xs"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X size={16} /> : <Menu size={16} />}
@@ -525,10 +526,10 @@ export const Navbar: React.FC = () => {
       {mobileMenuOpen && (
         <div 
           style={{
-            backgroundColor: 'var(--advaita-nav-bg)',
+            background: 'var(--advaita-nav-bg)',
             borderColor: 'var(--advaita-nav-border)'
           }}
-          className="lg:hidden px-4 pt-2 pb-4 space-y-2 backdrop-blur-2xl border-b shadow-xl animate-fade-in"
+          className="lg:hidden px-4 pt-2 pb-4 space-y-2 backdrop-blur-2xl backdrop-saturate-150 border-b shadow-xl animate-fade-in"
         >
           
           {/* Mobile Profile Trigger Card */}

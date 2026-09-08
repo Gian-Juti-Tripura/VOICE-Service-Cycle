@@ -77,10 +77,11 @@ export const BottomNavBar: React.FC = () => {
     <nav 
       aria-label="Bottom Navigation"
       style={{
-        backgroundColor: 'var(--advaita-nav-bg)',
-        borderColor: 'var(--advaita-nav-border)'
+        background: 'var(--advaita-nav-bottom-bg)',
+        borderColor: 'var(--advaita-nav-border)',
+        boxShadow: '0 -8px 24px -2px var(--advaita-glow), 0 -2px 10px rgba(0,0,0,0.06)'
       }}
-      className="block md:hidden fixed bottom-0 left-0 right-0 z-40 border-t backdrop-blur-xl px-1 py-1 shadow-[0_-4px_25px_rgba(0,0,0,0.06)] dark:shadow-[0_-10px_35px_rgba(0,0,0,0.6)] transition-colors duration-500 pb-safe"
+      className="block md:hidden fixed bottom-0 left-0 right-0 z-40 border-t backdrop-blur-2xl backdrop-saturate-150 px-1 py-1 transition-all duration-500 pb-safe"
     >
       <div className="max-w-md mx-auto flex items-center justify-between">
         {navItems.map((item) => {
