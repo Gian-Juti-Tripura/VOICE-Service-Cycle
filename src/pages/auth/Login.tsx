@@ -236,6 +236,33 @@ export const Login: React.FC<LoginProps> = ({ defaultMode }) => {
     }
   };
 
+  // Smart devotee email match detector for mistyped or alternative emails
+  const suggestedDevotee = useMemo(() => {
+    if (!email || email.trim().length < 3) return null;
+    const clean = email.trim().toLowerCase();
+    // If it already matches an official registered email, no suggestion needed
+    if (INITIAL_DEVOTEES_DATA.some((d) => d.gmail.toLowerCase() === clean)) return null;
+
+    const username = clean.split('@')[0].replace(/[^a-z0-9]/g, '');
+    return INITIAL_DEVOTEES_DATA.find((d) => {
+      const dUser = d.gmail.toLowerCase().split('@')[0].replace(/[^a-z0-9]/g, '');
+      const dName = d.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const dSpiritual = (d.spiritualName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const dAddress = (d.address || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+      if (username.includes('gian') || username.includes('tripura') || username.includes('gianjuti')) {
+        return d.id === 'member_2';
+      }
+      return (
+        (dUser.length > 2 && username.includes(dUser)) ||
+        (username.length > 2 && dUser.includes(username)) ||
+        (dName.length > 2 && username.includes(dName)) ||
+        (dSpiritual.length > 2 && username.includes(dSpiritual)) ||
+        (dAddress.length > 2 && username.includes(dAddress))
+      );
+    });
+  }, [email]);
+
   const handleSelectDevotee = (devotee: DevoteeProfile) => {
     triggerHaptic('selection');
     setEmail(devotee.gmail);
@@ -344,11 +371,43 @@ export const Login: React.FC<LoginProps> = ({ defaultMode }) => {
             </div>
           )}
 
-          {/* Error Banner */}
+          {/* Error Banner with Direct 1-Click Reset Password Actions */}
           {error && (
-            <div className="bg-rose-950/80 border border-rose-500/50 text-rose-200 px-4 py-3 rounded-xl mb-4 text-xs sm:text-sm font-medium flex items-start gap-2.5 animate-fade-in shadow-inner">
-              <AlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
-              <p className="flex-1 leading-relaxed">{error}</p>
+            <div className="bg-rose-950/90 border border-rose-500/60 text-rose-200 p-4 rounded-2xl mb-4 text-xs sm:text-sm font-medium animate-fade-in shadow-xl shadow-rose-950/50 space-y-3">
+              <div className="flex items-start gap-2.5">
+                <AlertTriangle className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5" />
+                <p className="flex-1 leading-relaxed text-slate-100 font-semibold">{error}</p>
+              </div>
+
+              {mode === 'LOGIN' && (
+                <div className="pt-2 border-t border-rose-800/60 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic('selection');
+                      setMode('FORGOT');
+                      setError('');
+                      setSuccessMsg('');
+                    }}
+                    className="px-3 py-1.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-amber-500/30 flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                  >
+                    <KeyRound size={13} className="text-slate-950" />
+                    <span>{isBn ? '🔑 পাসওয়ার্ড রিসেট করুন' : '🔑 Reset Password Now'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic('selection');
+                      setShowDevoteesModal(true);
+                    }}
+                    className="px-3 py-1.5 bg-slate-900/90 hover:bg-slate-800 text-amber-300 font-bold text-xs rounded-xl border border-amber-500/40 flex items-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <Users size={12} className="text-amber-400" />
+                    <span>{isBn ? 'রেজিস্টার্ড ইমেইল চেক করুন' : 'Check Registered Email'}</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -374,11 +433,11 @@ export const Login: React.FC<LoginProps> = ({ defaultMode }) => {
                   <button
                     type="button"
                     onClick={() => { triggerHaptic('selection'); setShowDevoteesModal(true); }}
-                    className="text-[11px] font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer transition-colors"
+                    className="text-[11px] font-bold text-amber-300 hover:text-amber-200 bg-amber-500/15 hover:bg-amber-500/25 px-2 py-0.5 rounded-md border border-amber-500/30 flex items-center gap-1 cursor-pointer transition-colors"
                     title={isBn ? 'রেজিস্টার্ড ভক্তদের তালিকা দেখে ইমেইল নির্বাচন করুন' : 'Browse registered devotees list'}
                   >
                     <Users size={12} />
-                    <span>{isBn ? 'ভক্ত তালিকা' : 'Devotees List'}</span>
+                    <span>{isBn ? 'রেজিস্টার্ড ভক্ত তালিকা' : 'Registered List'}</span>
                   </button>
                 </div>
                 <div className="relative">
@@ -393,6 +452,30 @@ export const Login: React.FC<LoginProps> = ({ defaultMode }) => {
                     placeholder="utpol.acce.cu@gmail.com"
                   />
                 </div>
+
+                {/* Smart Suggestion for Devotees */}
+                {suggestedDevotee && (
+                  <div className="mt-1.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-400/40 text-xs text-amber-200 flex items-center justify-between gap-2 animate-fade-in shadow-sm">
+                    <div className="flex items-center gap-2 truncate">
+                      <Sparkles size={14} className="text-amber-400 shrink-0" />
+                      <span className="truncate">
+                        {isBn ? 'আপনার রেজিস্টার্ড ইমেইল:' : 'Official email for'} <strong>{suggestedDevotee.name}</strong>: <code className="text-amber-300 font-mono font-bold text-[11px]">{suggestedDevotee.gmail}</code>
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmail(suggestedDevotee.gmail);
+                        setPassword('voice123456');
+                        triggerHaptic('selection');
+                        toast.success(isBn ? 'সঠিক ইমেইল ও ডিফল্ট পাসওয়ার্ড বসানো হয়েছে' : 'Applied official email & default pwd');
+                      }}
+                      className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-black rounded-lg shrink-0 cursor-pointer shadow transition-transform active:scale-95"
+                    >
+                      {isBn ? 'বসিয়ে নিন' : 'Use This'}
+                    </button>
+                  </div>
+                )}
               </div>
               
               {/* Password Field */}
@@ -411,9 +494,11 @@ export const Login: React.FC<LoginProps> = ({ defaultMode }) => {
                         setError('');
                         setSuccessMsg('');
                       }}
-                      className="text-[11px] font-bold text-amber-400 hover:text-amber-300 hover:underline transition-colors cursor-pointer"
+                      className="px-2.5 py-1 text-[11px] font-black text-amber-300 hover:text-amber-200 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 hover:border-amber-300"
+                      title={isBn ? 'পাসওয়ার্ড রিসেট করতে এখানে ক্লিক করুন' : 'Click here to reset your password'}
                     >
-                      {isBn ? 'পাসওয়ার্ড ভুলে গেছেন?' : 'Forgot Password?'}
+                      <KeyRound size={12} className="text-amber-400" />
+                      <span>{isBn ? 'পাসওয়ার্ড ভুলে গেছেন?' : 'Forgot Password?'}</span>
                     </button>
                   )}
                 </div>
@@ -468,6 +553,25 @@ export const Login: React.FC<LoginProps> = ({ defaultMode }) => {
                   </>
                 )}
               </button>
+
+              {/* Dedicated Big Reset/Forgot Button */}
+              {mode === 'LOGIN' && (
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic('selection');
+                      setMode('FORGOT');
+                      setError('');
+                      setSuccessMsg('');
+                    }}
+                    className="w-full py-2.5 px-4 bg-slate-900/90 hover:bg-slate-800/90 border border-amber-500/40 hover:border-amber-400 rounded-xl text-xs sm:text-sm font-bold text-amber-300 hover:text-amber-200 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm group"
+                  >
+                    <KeyRound size={15} className="text-amber-400 group-hover:rotate-12 transition-transform" />
+                    <span>{isBn ? 'পাসওয়ার্ড মনে নেই? এখানে ক্লিক করে রিসেট করুন' : 'Forgot Password? Click here to Reset'}</span>
+                  </button>
+                </div>
+              )}
             </form>
           )}
 
@@ -506,6 +610,29 @@ export const Login: React.FC<LoginProps> = ({ defaultMode }) => {
                   disabled={loading}
                   placeholder="dipendra.philo.cu@gmail.com"
                 />
+
+                {/* Smart Suggestion for Devotees in Forgot Mode */}
+                {suggestedDevotee && (
+                  <div className="mt-1.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-400/40 text-xs text-amber-200 flex items-center justify-between gap-2 animate-fade-in shadow-sm">
+                    <div className="flex items-center gap-2 truncate">
+                      <Sparkles size={14} className="text-amber-400 shrink-0" />
+                      <span className="truncate">
+                        {isBn ? 'আপনার রেজিস্টার্ড ইমেইল:' : 'Official email for'} <strong>{suggestedDevotee.name}</strong>: <code className="text-amber-300 font-mono font-bold text-[11px]">{suggestedDevotee.gmail}</code>
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmail(suggestedDevotee.gmail);
+                        triggerHaptic('selection');
+                        toast.success(isBn ? 'সঠিক ইমেইল বসানো হয়েছে' : 'Applied official email');
+                      }}
+                      className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-black rounded-lg shrink-0 cursor-pointer shadow transition-transform active:scale-95"
+                    >
+                      {isBn ? 'বসিয়ে নিন' : 'Use This'}
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}
