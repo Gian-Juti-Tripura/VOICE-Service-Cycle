@@ -148,7 +148,7 @@ export const INITIAL_DISCIPLINE_STUDENTS: StudentDisciplineRecord[] = [
   { id: 'member_2', name: 'GIAN P.', group: 'VOICE', phone: '+8801571328549', cycleOrder: 3, monthlyStrikes: 0, status: 'ACTIVE' },
   { id: 'member_5', name: 'DIPEN P.', group: 'VOICE', phone: '01571422381', cycleOrder: 6, monthlyStrikes: 0, status: 'ACTIVE' },
   { id: 'member_6', name: 'ANKON P.', group: 'VOICE', phone: '01933503979', cycleOrder: 7, monthlyStrikes: 1, status: 'WARNED' },
-  { id: 'member_7', name: 'ANTOR P.', group: 'VOICE', phone: '+880 1704-370139', cycleOrder: 8, monthlyStrikes: 0, status: 'ACTIVE' },
+  { id: 'member_7', name: 'ANTOR P.', group: 'VOICE', phone: '+880 1704-370139', cycleOrder: 8, monthlyStrikes: 1, status: 'WARNED' },
   { id: 'member_8', name: 'ROTON P.', group: 'VOICE', phone: '+880 1750-504601', cycleOrder: 9, monthlyStrikes: 0, status: 'ACTIVE' },
   { id: 'member_9', name: 'JOY S. P.', group: 'VOICE', phone: '+880 1734-550288', cycleOrder: 10, monthlyStrikes: 1, status: 'WARNED' },
   { id: 'member_10', name: 'JOYKANT P.', group: 'VOICE', phone: '+880 1754-034183', cycleOrder: 11, monthlyStrikes: 0, status: 'ACTIVE' },
@@ -156,7 +156,7 @@ export const INITIAL_DISCIPLINE_STUDENTS: StudentDisciplineRecord[] = [
 
   // Lotus Group (Only Sangakara Das and Pranto C Das)
   { id: 'member_3', name: 'PRANTO P. (Pranto C Das)', group: 'LOTUS', phone: '+880 1609-302008', cycleOrder: 4, monthlyStrikes: 2, status: 'WARNED' },
-  { id: 'member_4', name: 'SANGA P. (Sangakara Das)', group: 'LOTUS', phone: '+880 1722-711849', cycleOrder: 5, monthlyStrikes: 1, status: 'WARNED' },
+  { id: 'member_4', name: 'SANGA P. (Sangakara Das)', group: 'LOTUS', phone: '+880 1722-711849', cycleOrder: 5, monthlyStrikes: 2, status: 'WARNED' },
 ];
 
 export const createDefaultDailyRecordsForDate = (dateIso: string): Record<string, DailyDisciplineEntry> => {
@@ -196,22 +196,75 @@ export const createDefaultDailyRecordsForDate = (dateIso: string): Record<string
 export const INITIAL_DAILY_DISCIPLINE_RECORDS: Record<string, Record<string, DailyDisciplineEntry>> = {
   '2026-09-01': {
     ...createDefaultDailyRecordsForDate('2026-09-01'),
-    'member_11': {
-      studentId: 'member_11',
+    // Utpol Das Khocon Prabhu: Absent
+    'member_0': {
+      studentId: 'member_0',
+      dateStr: '2026-09-01',
+      isAbsent: true,
+      absenceReason: 'Out of town / Home Leave (গ্রামের বাড়ি / বাইরে অবস্থান)',
+      sleptOnTime: true,
+      bedLateMinutes: 0,
+      wokeUpOnTime: true,
+      morningProgramOnTime: true,
+      mpLateMinutes: 0,
+      mangalaratiAttended: false,
+      mangalaratiReason: 'Leave / Absent',
+      morningClassAttended: false,
+      morningClassReason: 'Leave / Absent',
+      reason: '',
+      isEmergency: false
+    },
+    // Chaitanya Shacesuto Das Prabhu: Absent
+    'member_1': {
+      studentId: 'member_1',
+      dateStr: '2026-09-01',
+      isAbsent: true,
+      absenceReason: 'Out of town / Home Leave (গ্রামের বাড়ি / বাইরে অবস্থান)',
+      sleptOnTime: true,
+      bedLateMinutes: 0,
+      wokeUpOnTime: true,
+      morningProgramOnTime: true,
+      mpLateMinutes: 0,
+      mangalaratiAttended: false,
+      mangalaratiReason: 'Leave / Absent',
+      morningClassAttended: false,
+      morningClassReason: 'Leave / Absent',
+      reason: '',
+      isEmergency: false
+    },
+    // Dipendranath Prabhu (Dipen P.): Not in bed at night (Exam study - approved exception). Morning program all on time!
+    'member_5': {
+      studentId: 'member_5',
       dateStr: '2026-09-01',
       isAbsent: false,
       sleptOnTime: false,
-      bedLateMinutes: 15,
+      bedLateMinutes: 30,
       wokeUpOnTime: true,
       morningProgramOnTime: true,
       mpLateMinutes: 0,
       mangalaratiAttended: true,
       morningClassAttended: true,
       reason: 'Academic / Urgent Exam Study (পরীক্ষার বিশেষ প্রস্তুতি)',
+      isEmergency: true
+    },
+    // Antor Kumar Mohanta Prabhu (Antor P.): In bed at night. Morning: Late Wake (>4:00 AM), Late to MP (>4:30 AM)
+    'member_7': {
+      studentId: 'member_7',
+      dateStr: '2026-09-01',
+      isAbsent: false,
+      sleptOnTime: true,
+      bedLateMinutes: 0,
+      wokeUpOnTime: false,
+      morningProgramOnTime: false,
+      mpLateMinutes: 15,
+      mangalaratiAttended: true,
+      morningClassAttended: true,
+      reason: 'Late Bedtime / Overslept (দেরিতে ঘুম / ঘুম ভাঙতে বিলম্ব)',
       isEmergency: false
     },
-    'member_4': {
-      studentId: 'member_4',
+    // Bappi Chandra Sarkar Prabhu (Bappi C. P.): In bed at night, Morning Program on time!
+    'member_11': {
+      studentId: 'member_11',
       dateStr: '2026-09-01',
       isAbsent: false,
       sleptOnTime: true,
@@ -220,17 +273,32 @@ export const INITIAL_DAILY_DISCIPLINE_RECORDS: Record<string, Record<string, Dai
       morningProgramOnTime: true,
       mpLateMinutes: 0,
       mangalaratiAttended: true,
-      morningClassAttended: false,
-      morningClassReason: 'Morning Temple Seva Duty (সকালের বিশেষ সেবা দায়িত্ব)',
-      reason: 'Temple / VOICE Seva Duty (মন্দির বা ভয়েস বিশেষ সেবা)',
+      morningClassAttended: true,
+      reason: '',
       isEmergency: false
     },
+    // Pranto Chandra Das Prabhu (Pranto P. - Lotus): In bed at night, Morning Program on time!
     'member_3': {
       studentId: 'member_3',
       dateStr: '2026-09-01',
       isAbsent: false,
+      sleptOnTime: true,
+      bedLateMinutes: 0,
+      wokeUpOnTime: true,
+      morningProgramOnTime: true,
+      mpLateMinutes: 0,
+      mangalaratiAttended: true,
+      morningClassAttended: true,
+      reason: '',
+      isEmergency: false
+    },
+    // Sangakara Das Prabhu (Sanga P. - Lotus): Not in bed at night (19 min late). Morning Program on time!
+    'member_4': {
+      studentId: 'member_4',
+      dateStr: '2026-09-01',
+      isAbsent: false,
       sleptOnTime: false,
-      bedLateMinutes: 25,
+      bedLateMinutes: 19,
       wokeUpOnTime: true,
       morningProgramOnTime: true,
       mpLateMinutes: 0,
