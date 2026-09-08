@@ -1213,155 +1213,377 @@ export const HubHome: React.FC = () => {
         </div>
 
         {/* ================= 5. AUTHENTIC 4-YEAR VOICE SYLLABUS & CAMPS MATRIX ================= */}
-        <div className="rounded-[32px] p-6 sm:p-8 lg:p-10 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950/90 text-white shadow-2xl space-y-6 border border-amber-500/25 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div 
+          style={{
+            background: 'var(--advaita-hero-bg)',
+            borderColor: 'var(--advaita-hero-border)',
+            boxShadow: 'var(--advaita-hero-shadow)'
+          }}
+          className="rounded-[32px] p-6 sm:p-8 lg:p-10 text-[var(--advaita-hero-text)] shadow-2xl space-y-7 border backdrop-blur-xl relative overflow-hidden transition-all duration-500"
+        >
+          {/* Multi-Blend Ambient Glow Flares */}
+          <div className="absolute -top-12 -right-12 w-96 h-96 bg-gradient-to-bl from-amber-400/25 via-orange-400/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-12 -left-12 w-96 h-96 bg-gradient-to-tr from-purple-500/20 via-pink-500/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-r from-emerald-500/10 via-sky-500/10 to-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
           
-          <div className="text-center space-y-2 max-w-2xl mx-auto relative z-10">
-            <span className="inline-block px-3.5 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-indigo-500/20 border border-amber-400/30 text-amber-300 text-xs font-mono font-black uppercase tracking-widest shadow-sm">
-              VOICE Syllabus
+          {/* Header Section */}
+          <div className="text-center space-y-2.5 max-w-2xl mx-auto relative z-10">
+            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 via-rose-500/15 to-indigo-500/15 border border-amber-400/40 dark:border-amber-400/30 text-amber-900 dark:text-amber-300 text-xs font-mono font-black uppercase tracking-widest shadow-xs">
+              <Sparkles size={13} className="text-amber-500 animate-spin-slow" />
+              <span>VOICE Syllabus</span>
             </span>
-            <h3 className="text-xl sm:text-3xl font-black text-white tracking-tight">
+            <h3 className="text-xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight font-cinzel">
               {language === 'bn' ? '৪-বর্ষীয় ভয়েস সিলেবাস ও কোর্স-ক্যাম্প কাঠামো' : '4-Year VOICE Academic & Camp Progression Roadmap'}
             </h3>
-            <p className="text-xs sm:text-sm text-amber-200/80 font-serif italic">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-amber-200/90 font-serif italic max-w-xl mx-auto leading-relaxed">
               "Introducing Krishna Consciousness to youths by one time seminars on Art of Mind Control, Power of Habit, Stress Management etc."
             </p>
           </div>
 
-          {/* 4 Years Golden Plaque Grid */}
-          <div className="space-y-5 relative z-10">
+          {/* 4 Years Colorful Plaque Grid */}
+          <div className="space-y-6 relative z-10">
             
-            {/* --- FIRST YEAR --- */}
-            <div className="space-y-2.5">
+            {/* --- FIRST YEAR: SUNRISE SAFFRON & GOLD BLEND --- */}
+            <div className="space-y-3">
               <div className="text-center">
-                <span className="text-xs font-black uppercase tracking-widest text-amber-300 font-mono px-3.5 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 shadow-2xs">
-                  FIRST YEAR
+                <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest font-mono px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/20 border border-amber-500/40 text-amber-900 dark:text-amber-300 shadow-xs">
+                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                  <span>{language === 'bn' ? 'প্রথম বর্ষ • ভিত্তি গঠন (FIRST YEAR)' : 'FIRST YEAR • Foundational Awakening'}</span>
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Course Plaque */}
-                <div className="p-4.5 rounded-2xl bg-slate-900/80 border border-amber-400/35 shadow-lg backdrop-blur-md space-y-2.5">
-                  <div className="text-center pb-2 border-b border-amber-400/20">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider font-mono">COURSE</span>
+                <div className="p-4.5 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-500/12 via-amber-500/5 to-orange-500/12 dark:from-amber-950/40 dark:via-slate-900/80 dark:to-orange-950/30 border border-amber-400/40 dark:border-amber-400/30 shadow-md backdrop-blur-md space-y-3 transition-all hover:shadow-lg hover:border-amber-400/60">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-amber-400/30 dark:border-amber-400/20">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-black text-amber-900 dark:text-amber-300 uppercase tracking-wider font-mono">
+                      <BookOpen size={14} className="text-amber-600 dark:text-amber-400" />
+                      <span>{language === 'bn' ? 'কোর্স (COURSES)' : 'COURSES'}</span>
+                    </span>
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-400/30 font-mono">
+                      3 Modules
+                    </span>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-center text-slate-200 font-medium">
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Discover Yourself (DYS)</li>
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Spiritual Scientist (SS)</li>
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Positive Thinker (PT)</li>
+                  <ul className="space-y-2 text-xs font-medium">
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-amber-400/25 dark:border-white/10 hover:border-amber-400 hover:bg-amber-500/10 dark:hover:bg-amber-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/syllabus')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Discover Yourself (DYS)</span>
+                      </div>
+                      <span className="text-[10px] text-amber-700 dark:text-amber-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-amber-400/25 dark:border-white/10 hover:border-amber-400 hover:bg-amber-500/10 dark:hover:bg-amber-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/syllabus')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Spiritual Scientist (SS)</span>
+                      </div>
+                      <span className="text-[10px] text-amber-700 dark:text-amber-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-amber-400/25 dark:border-white/10 hover:border-amber-400 hover:bg-amber-500/10 dark:hover:bg-amber-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/syllabus')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Positive Thinker (PT)</span>
+                      </div>
+                      <span className="text-[10px] text-amber-700 dark:text-amber-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
                   </ul>
                 </div>
                 {/* Camp Plaque */}
-                <div className="p-4.5 rounded-2xl bg-slate-900/80 border border-amber-400/35 shadow-lg backdrop-blur-md space-y-2.5">
-                  <div className="text-center pb-2 border-b border-amber-400/20">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider font-mono">CAMP</span>
+                <div className="p-4.5 sm:p-5 rounded-2xl bg-gradient-to-br from-orange-500/12 via-amber-500/5 to-rose-500/12 dark:from-orange-950/40 dark:via-slate-900/80 dark:to-rose-950/30 border border-orange-400/40 dark:border-orange-400/30 shadow-md backdrop-blur-md space-y-3 transition-all hover:shadow-lg hover:border-orange-400/60">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-orange-400/30 dark:border-orange-400/20">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-black text-orange-900 dark:text-orange-300 uppercase tracking-wider font-mono">
+                      <Tent size={14} className="text-orange-600 dark:text-orange-400" />
+                      <span>{language === 'bn' ? 'ক্যাম্প (CAMPS)' : 'CAMPS'}</span>
+                    </span>
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-900 dark:text-orange-300 border border-orange-400/30 font-mono">
+                      4 Retreats
+                    </span>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-center text-slate-200 font-medium">
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Sankalpa</li>
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Sphurti</li>
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Utsaha</li>
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Utkarsha</li>
+                  <ul className="space-y-2 text-xs font-medium">
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-orange-400/25 dark:border-white/10 hover:border-orange-400 hover:bg-orange-500/10 dark:hover:bg-orange-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/camps')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Sankalpa Camp</span>
+                      </div>
+                      <span className="text-[10px] text-orange-700 dark:text-orange-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-orange-400/25 dark:border-white/10 hover:border-orange-400 hover:bg-orange-500/10 dark:hover:bg-orange-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/camps')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Sphurti Camp</span>
+                      </div>
+                      <span className="text-[10px] text-orange-700 dark:text-orange-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-orange-400/25 dark:border-white/10 hover:border-orange-400 hover:bg-orange-500/10 dark:hover:bg-orange-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/camps')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Utsaha Camp</span>
+                      </div>
+                      <span className="text-[10px] text-orange-700 dark:text-orange-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-orange-400/25 dark:border-white/10 hover:border-orange-400 hover:bg-orange-500/10 dark:hover:bg-orange-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/camps')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Utkarsha Camp</span>
+                      </div>
+                      <span className="text-[10px] text-orange-700 dark:text-orange-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
                   </ul>
                 </div>
               </div>
             </div>
 
-            {/* --- SECOND YEAR --- */}
-            <div className="space-y-2.5">
+            {/* --- SECOND YEAR: SACRED GOVARDHAN & EMERALD BLEND --- */}
+            <div className="space-y-3">
               <div className="text-center">
-                <span className="text-xs font-black uppercase tracking-widest text-amber-300 font-mono px-3.5 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 shadow-2xs">
-                  SECOND YEAR
+                <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest font-mono px-4 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-emerald-500/20 border border-emerald-500/40 text-emerald-900 dark:text-emerald-300 shadow-xs">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>{language === 'bn' ? 'দ্বিতীয় বর্ষ • সাধনা ও গভীরতা (SECOND YEAR)' : 'SECOND YEAR • Deepening Sadhana & Training'}</span>
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Course Plaque */}
-                <div className="p-4.5 rounded-2xl bg-slate-900/80 border border-amber-400/35 shadow-lg backdrop-blur-md space-y-2.5">
-                  <div className="text-center pb-2 border-b border-amber-400/20">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider font-mono">COURSE</span>
+                <div className="p-4.5 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-500/12 via-teal-500/5 to-emerald-500/12 dark:from-emerald-950/40 dark:via-slate-900/80 dark:to-teal-950/30 border border-emerald-400/40 dark:border-emerald-400/30 shadow-md backdrop-blur-md space-y-3 transition-all hover:shadow-lg hover:border-emerald-400/60">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-emerald-400/30 dark:border-emerald-400/20">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider font-mono">
+                      <GraduationCap size={14} className="text-emerald-600 dark:text-emerald-400" />
+                      <span>{language === 'bn' ? 'কোর্স (COURSES)' : 'COURSES'}</span>
+                    </span>
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-900 dark:text-emerald-300 border border-emerald-400/30 font-mono">
+                      2 Modules
+                    </span>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-center text-slate-200 font-medium">
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Self Manager (SM)</li>
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Hearing Srila Prabhupada-100 Lecture</li>
+                  <ul className="space-y-2 text-xs font-medium">
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-emerald-400/25 dark:border-white/10 hover:border-emerald-400 hover:bg-emerald-500/10 dark:hover:bg-emerald-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/syllabus')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Self Manager (SM)</span>
+                      </div>
+                      <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-emerald-400/25 dark:border-white/10 hover:border-emerald-400 hover:bg-emerald-500/10 dark:hover:bg-emerald-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/syllabus')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Hearing Srila Prabhupada-100 Lectures</span>
+                      </div>
+                      <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
                   </ul>
                 </div>
                 {/* Camp Plaque */}
-                <div className="p-4.5 rounded-2xl bg-slate-900/80 border border-amber-400/35 shadow-lg backdrop-blur-md space-y-2.5">
-                  <div className="text-center pb-2 border-b border-amber-400/20">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider font-mono">CAMP</span>
+                <div className="p-4.5 sm:p-5 rounded-2xl bg-gradient-to-br from-teal-500/12 via-cyan-500/5 to-emerald-500/12 dark:from-teal-950/40 dark:via-slate-900/80 dark:to-cyan-950/30 border border-teal-400/40 dark:border-teal-400/30 shadow-md backdrop-blur-md space-y-3 transition-all hover:shadow-lg hover:border-teal-400/60">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-teal-400/30 dark:border-teal-400/20">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-black text-teal-900 dark:text-teal-300 uppercase tracking-wider font-mono">
+                      <Compass size={14} className="text-teal-600 dark:text-teal-400" />
+                      <span>{language === 'bn' ? 'ক্যাম্প (CAMPS)' : 'CAMPS'}</span>
+                    </span>
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-900 dark:text-teal-300 border border-teal-400/30 font-mono">
+                      5 Retreats
+                    </span>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-center text-slate-200 font-medium">
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">SRCGD</li>
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Nistha Camp</li>
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Follow up Training Workshop (FTW)</li>
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Facilitator Empowerment Course (FEC)</li>
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">DYS Preachers Training</li>
+                  <ul className="space-y-2 text-xs font-medium">
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-teal-400/25 dark:border-white/10 hover:border-teal-400 hover:bg-teal-500/10 dark:hover:bg-teal-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/camps')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-teal-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">SRCGD Camp</span>
+                      </div>
+                      <span className="text-[10px] text-teal-700 dark:text-teal-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-teal-400/25 dark:border-white/10 hover:border-teal-400 hover:bg-teal-500/10 dark:hover:bg-teal-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/camps')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-teal-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Nistha Camp</span>
+                      </div>
+                      <span className="text-[10px] text-teal-700 dark:text-teal-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-teal-400/25 dark:border-white/10 hover:border-teal-400 hover:bg-teal-500/10 dark:hover:bg-teal-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/camps')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-teal-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Follow up Training Workshop (FTW)</span>
+                      </div>
+                      <span className="text-[10px] text-teal-700 dark:text-teal-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-teal-400/25 dark:border-white/10 hover:border-teal-400 hover:bg-teal-500/10 dark:hover:bg-teal-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/camps')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-teal-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Facilitator Empowerment Course (FEC)</span>
+                      </div>
+                      <span className="text-[10px] text-teal-700 dark:text-teal-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-teal-400/25 dark:border-white/10 hover:border-teal-400 hover:bg-teal-500/10 dark:hover:bg-teal-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/camps')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-teal-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">DYS Preachers Training</span>
+                      </div>
+                      <span className="text-[10px] text-teal-700 dark:text-teal-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
                   </ul>
                 </div>
               </div>
             </div>
 
-            {/* --- THIRD YEAR --- */}
-            <div className="space-y-2.5">
+            {/* --- THIRD YEAR: YAMUNA BLUE & OCEAN SAPPHIRE BLEND --- */}
+            <div className="space-y-3">
               <div className="text-center">
-                <span className="text-xs font-black uppercase tracking-widest text-amber-300 font-mono px-3.5 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 shadow-2xs">
-                  THIRD YEAR
+                <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest font-mono px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border border-blue-500/40 text-blue-900 dark:text-blue-300 shadow-xs">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                  <span>{language === 'bn' ? 'তৃতীয় বর্ষ • নেতৃত্ব ও বৈষ্ণব আশ্রয় (THIRD YEAR)' : 'THIRD YEAR • Leadership & Vaishnava Association'}</span>
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Course Plaque */}
-                <div className="p-4.5 rounded-2xl bg-slate-900/80 border border-amber-400/35 shadow-lg backdrop-blur-md space-y-2.5">
-                  <div className="text-center pb-2 border-b border-amber-400/20">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider font-mono">COURSE</span>
+                <div className="p-4.5 sm:p-5 rounded-2xl bg-gradient-to-br from-blue-500/12 via-sky-500/5 to-indigo-500/12 dark:from-blue-950/40 dark:via-slate-900/80 dark:to-indigo-950/30 border border-blue-400/40 dark:border-blue-400/30 shadow-md backdrop-blur-md space-y-3 transition-all hover:shadow-lg hover:border-blue-400/60">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-blue-400/30 dark:border-blue-400/20">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-black text-blue-900 dark:text-blue-300 uppercase tracking-wider font-mono">
+                      <BookOpen size={14} className="text-blue-600 dark:text-blue-400" />
+                      <span>{language === 'bn' ? 'কোর্স (COURSES)' : 'COURSES'}</span>
+                    </span>
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-900 dark:text-blue-300 border border-blue-400/30 font-mono">
+                      2 Modules
+                    </span>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-center text-slate-200 font-medium">
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Proactive Leader</li>
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Hearing Srila Prabhupada &amp; Gurumaharaj 100 Lecture</li>
+                  <ul className="space-y-2 text-xs font-medium">
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-blue-400/25 dark:border-white/10 hover:border-blue-400 hover:bg-blue-500/10 dark:hover:bg-blue-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/syllabus')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Proactive Leader</span>
+                      </div>
+                      <span className="text-[10px] text-blue-700 dark:text-blue-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-blue-400/25 dark:border-white/10 hover:border-blue-400 hover:bg-blue-500/10 dark:hover:bg-blue-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/syllabus')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Hearing Srila Prabhupada & Gurumaharaj 100 Lectures</span>
+                      </div>
+                      <span className="text-[10px] text-blue-700 dark:text-blue-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
                   </ul>
                 </div>
                 {/* Camp Plaque */}
-                <div className="p-4.5 rounded-2xl bg-slate-900/80 border border-amber-400/35 shadow-lg backdrop-blur-md space-y-2.5">
-                  <div className="text-center pb-2 border-b border-amber-400/20">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider font-mono">CAMP</span>
+                <div className="p-4.5 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-500/12 via-violet-500/5 to-blue-500/12 dark:from-indigo-950/40 dark:via-slate-900/80 dark:to-violet-950/30 border border-indigo-400/40 dark:border-indigo-400/30 shadow-md backdrop-blur-md space-y-3 transition-all hover:shadow-lg hover:border-indigo-400/60">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-indigo-400/30 dark:border-indigo-400/20">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-black text-indigo-900 dark:text-indigo-300 uppercase tracking-wider font-mono">
+                      <Flame size={14} className="text-indigo-600 dark:text-indigo-400" />
+                      <span>{language === 'bn' ? 'ক্যাম্প (CAMPS)' : 'CAMPS'}</span>
+                    </span>
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-900 dark:text-indigo-300 border border-indigo-400/30 font-mono">
+                      2 Retreats
+                    </span>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-center text-slate-200 font-medium">
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Ashraya Camp</li>
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Gauranga Sabha Camp &amp; Nityananda Sabha Camp</li>
+                  <ul className="space-y-2 text-xs font-medium">
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-indigo-400/25 dark:border-white/10 hover:border-indigo-400 hover:bg-indigo-500/10 dark:hover:bg-indigo-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/camps')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Ashraya Camp</span>
+                      </div>
+                      <span className="text-[10px] text-indigo-700 dark:text-indigo-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-indigo-400/25 dark:border-white/10 hover:border-indigo-400 hover:bg-indigo-500/10 dark:hover:bg-indigo-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/camps')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Gauranga Sabha & Nityananda Sabha Camp</span>
+                      </div>
+                      <span className="text-[10px] text-indigo-700 dark:text-indigo-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
                   </ul>
                 </div>
               </div>
             </div>
 
-            {/* --- FOURTH YEAR --- */}
-            <div className="space-y-2.5">
+            {/* --- FOURTH YEAR: ROYAL PURPLE & LOTUS ROSE BLEND --- */}
+            <div className="space-y-3">
               <div className="text-center">
-                <span className="text-xs font-black uppercase tracking-widest text-amber-300 font-mono px-3.5 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 shadow-2xs">
-                  FOURTH YEAR
+                <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest font-mono px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-rose-500/20 border border-purple-500/40 text-purple-900 dark:text-purple-300 shadow-xs">
+                  <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                  <span>{language === 'bn' ? 'চতুর্থ বর্ষ • পূর্ণ সমর্পণ ও আত্মউন্নয়ন (FOURTH YEAR)' : 'FOURTH YEAR • Surrender, Personality & Acharya Dedication'}</span>
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Course Plaque */}
-                <div className="p-4.5 rounded-2xl bg-slate-900/80 border border-amber-400/35 shadow-lg backdrop-blur-md space-y-2.5">
-                  <div className="text-center pb-2 border-b border-amber-400/20">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider font-mono">COURSE</span>
+                <div className="p-4.5 sm:p-5 rounded-2xl bg-gradient-to-br from-purple-500/12 via-fuchsia-500/5 to-pink-500/12 dark:from-purple-950/40 dark:via-slate-900/80 dark:to-fuchsia-950/30 border border-purple-400/40 dark:border-purple-400/30 shadow-md backdrop-blur-md space-y-3 transition-all hover:shadow-lg hover:border-purple-400/60">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-purple-400/30 dark:border-purple-400/20">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-black text-purple-900 dark:text-purple-300 uppercase tracking-wider font-mono">
+                      <GraduationCap size={14} className="text-purple-600 dark:text-purple-400" />
+                      <span>{language === 'bn' ? 'কোর্স (COURSES)' : 'COURSES'}</span>
+                    </span>
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-900 dark:text-purple-300 border border-purple-400/30 font-mono">
+                      3 Modules
+                    </span>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-center text-slate-200 font-medium">
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Proactive Leader</li>
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Personality Development Course</li>
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Hearing Srila Prabhupada &amp; Gurumaharaj 100 Lecture</li>
+                  <ul className="space-y-2 text-xs font-medium">
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-purple-400/25 dark:border-white/10 hover:border-purple-400 hover:bg-purple-500/10 dark:hover:bg-purple-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/syllabus')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Proactive Leader</span>
+                      </div>
+                      <span className="text-[10px] text-purple-700 dark:text-purple-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-purple-400/25 dark:border-white/10 hover:border-purple-400 hover:bg-purple-500/10 dark:hover:bg-purple-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/syllabus')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Personality Development Course</span>
+                      </div>
+                      <span className="text-[10px] text-purple-700 dark:text-purple-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-purple-400/25 dark:border-white/10 hover:border-purple-400 hover:bg-purple-500/10 dark:hover:bg-purple-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/syllabus')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Hearing Srila Prabhupada & Gurumaharaj 100 Lectures</span>
+                      </div>
+                      <span className="text-[10px] text-purple-700 dark:text-purple-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
                   </ul>
                 </div>
                 {/* Camp Plaque */}
-                <div className="p-4.5 rounded-2xl bg-slate-900/80 border border-amber-400/35 shadow-lg backdrop-blur-md space-y-2.5">
-                  <div className="text-center pb-2 border-b border-amber-400/20">
-                    <span className="text-xs font-black text-amber-300 uppercase tracking-wider font-mono">CAMP</span>
+                <div className="p-4.5 sm:p-5 rounded-2xl bg-gradient-to-br from-rose-500/12 via-pink-500/5 to-purple-500/12 dark:from-rose-950/40 dark:via-slate-900/80 dark:to-pink-950/30 border border-rose-400/40 dark:border-rose-400/30 shadow-md backdrop-blur-md space-y-3 transition-all hover:shadow-lg hover:border-rose-400/60">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-rose-400/30 dark:border-rose-400/20">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-black text-rose-900 dark:text-rose-300 uppercase tracking-wider font-mono">
+                      <Tent size={14} className="text-rose-600 dark:text-rose-400" />
+                      <span>{language === 'bn' ? 'ক্যাম্প (CAMPS)' : 'CAMPS'}</span>
+                    </span>
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-900 dark:text-rose-300 border border-rose-400/30 font-mono">
+                      2 Retreats
+                    </span>
                   </div>
-                  <ul className="space-y-1.5 text-xs text-center text-slate-200 font-medium">
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Sharanagati Camp</li>
-                    <li className="p-2 rounded-xl bg-white/5 border border-white/5">Gauranga Sabha Camp &amp; Nityananda Sabha Camp</li>
+                  <ul className="space-y-2 text-xs font-medium">
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-rose-400/25 dark:border-white/10 hover:border-rose-400 hover:bg-rose-500/10 dark:hover:bg-rose-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/camps')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Sharanagati Camp</span>
+                      </div>
+                      <span className="text-[10px] text-rose-700 dark:text-rose-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
+                    <li className="p-2.5 rounded-xl bg-white/80 dark:bg-white/5 border border-rose-400/25 dark:border-white/10 hover:border-rose-400 hover:bg-rose-500/10 dark:hover:bg-rose-500/15 transition-all flex items-center justify-between shadow-2xs group text-slate-800 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/camps')}>
+                      <div className="flex items-center gap-2.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 group-hover:scale-125 transition-transform shrink-0" />
+                        <span className="font-bold">Gauranga Sabha & Nityananda Sabha Camp</span>
+                      </div>
+                      <span className="text-[10px] text-rose-700 dark:text-rose-400 font-mono font-bold group-hover:translate-x-0.5 transition-transform">→</span>
+                    </li>
                   </ul>
                 </div>
               </div>
             </div>
 
+          </div>
+
+          {/* Bottom Interactive Action Bar */}
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3 relative z-10 border-t border-amber-500/20 dark:border-white/10">
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/syllabus'); }}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-xs font-black uppercase tracking-wider shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer"
+            >
+              <BookOpen size={14} />
+              <span>{language === 'bn' ? 'সম্পূর্ণ সিলেবাস দেখুন' : 'Explore Full Interactive Syllabus'}</span>
+              <ArrowRight size={13} />
+            </button>
+            <button
+              onClick={() => { triggerHaptic('selection'); navigate('/camps'); }}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-black uppercase tracking-wider shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer"
+            >
+              <Tent size={14} />
+              <span>{language === 'bn' ? 'ক্যাম্প ডিরেক্টরি দেখুন' : 'Explore Camp Directory & Modules'}</span>
+              <ArrowRight size={13} />
+            </button>
           </div>
         </div>
 
