@@ -209,11 +209,11 @@ export const Navbar: React.FC = () => {
 
   return (
     <nav className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl shadow-sm border-b border-slate-200/80 dark:border-slate-800 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-2">
         
         {/* Brand Official VOICE Logo */}
-        <Link to="/" className="flex items-center gap-2.5 min-w-0 group shrink-0">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-1 shadow-sm group-hover:scale-105 group-hover:shadow-amber-500/20 transition-all flex items-center justify-center overflow-hidden">
+        <Link to="/" className="flex items-center gap-2 sm:gap-2.5 min-w-0 group shrink">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-1 shadow-sm group-hover:scale-105 group-hover:shadow-amber-500/20 transition-all flex items-center justify-center overflow-hidden shrink-0">
             <img 
               src="/voice-logo-transparent.png" 
               className="w-full h-full object-contain dark:hidden" 
@@ -236,7 +236,8 @@ export const Navbar: React.FC = () => {
         </Link>
         
         {/* Nav Items & Controls */}
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+
           
           {/* Main Desktop Links */}
           <div className="hidden lg:flex items-center gap-1 mr-2">
@@ -410,31 +411,37 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Language Switch Trigger */}
+          {/* Language Switch Flip Trigger (Flips between BN <-> EN one at a time) */}
           <button 
             onClick={toggleLanguage}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-100/90 border border-slate-200/60 dark:bg-slate-800/90 dark:border-slate-700/60 text-xs font-extrabold text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-amber-400 transition-all cursor-pointer"
-            title="Toggle Language"
+            className="flex items-center gap-1 px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100/90 border border-slate-200/60 dark:bg-slate-800/90 dark:border-slate-700/60 text-xs font-black text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-amber-400 transition-all cursor-pointer active:scale-95 shrink-0 group select-none shadow-2xs"
+            title={language === 'bn' ? 'Switch to English (EN)' : 'বাংলায় দেখুন (BN)'}
+            aria-label="Flip Language"
           >
-            <Globe size={13} className="text-rose-500 dark:text-amber-400" />
-            <span className={language === 'bn' ? 'font-black text-rose-600 dark:text-amber-400' : ''}>BN</span>
-            <span className="text-slate-300 dark:text-slate-600 text-[10px]">|</span>
-            <span className={language === 'en' ? 'font-black text-rose-600 dark:text-amber-400' : ''}>EN</span>
+            <Globe size={13} className="text-rose-500 dark:text-amber-400 group-hover:rotate-45 transition-transform duration-300 shrink-0" />
+            <span 
+              key={language}
+              className="font-black text-rose-600 dark:text-amber-400 text-xs tracking-wider uppercase animate-lang-flip inline-block min-w-[20px] text-center"
+            >
+              {language === 'bn' ? 'BN' : 'EN'}
+            </span>
           </button>
 
           {/* Theme & Visual Style Trigger */}
           <button 
             onClick={() => setThemeModalOpen(true)}
-            className="flex items-center gap-1.5 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100/90 border border-slate-200/60 dark:bg-slate-800/90 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 transition-all group cursor-pointer"
+            className="flex items-center gap-1 p-1.5 sm:px-2 sm:py-1.5 rounded-xl bg-slate-100/90 border border-slate-200/60 dark:bg-slate-800/90 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 transition-all group cursor-pointer shrink-0"
             title={language === 'bn' ? 'থিম ও আলোকসজ্জা কাস্টমাইজ করুন' : 'Customize Theme & Effects'}
             aria-label="Customize Theme & Effects"
           >
             <Palette size={14} className="text-amber-500 group-hover:rotate-12 transition-transform shrink-0" />
-            {isDark ? (
-              <Moon size={14} className="text-amber-300" />
-            ) : (
-              <Sun size={14} className="text-amber-500" />
-            )}
+            <span className="hidden sm:inline-flex items-center">
+              {isDark ? (
+                <Moon size={14} className="text-amber-300" />
+              ) : (
+                <Sun size={14} className="text-amber-500" />
+              )}
+            </span>
           </button>
 
           {/* User Profile Avatar Trigger (Always accessible on Mobile & Desktop) */}
@@ -456,7 +463,7 @@ export const Navbar: React.FC = () => {
 
           {/* User Auth Action Pill (Desktop) */}
           {user ? (
-            <div className="hidden sm:flex items-center gap-1">
+            <div className="hidden sm:flex items-center gap-1 shrink-0">
               <Link 
                 to="/member" 
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs font-extrabold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20 transition-colors"
@@ -476,17 +483,17 @@ export const Navbar: React.FC = () => {
           ) : (
             <Link 
               to="/login"
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 text-white text-xs font-black shadow-xs hover:opacity-95 transition-all"
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 text-white text-xs font-black shadow-xs hover:opacity-95 transition-all shrink-0"
             >
               <User size={13} />
               <span>{language === 'bn' ? 'লগইন' : 'Login'}</span>
             </Link>
           )}
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button (3-bar hamburger) */}
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-1.5 rounded-xl bg-slate-100/90 text-slate-600 hover:text-rose-600 dark:bg-slate-800/90 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60 cursor-pointer"
+            className="lg:hidden p-1.5 rounded-xl bg-slate-100/90 text-slate-600 hover:text-rose-600 dark:bg-slate-800/90 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60 cursor-pointer shrink-0 transition-colors"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
@@ -547,6 +554,29 @@ export const Navbar: React.FC = () => {
             </div>
             <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-xl bg-white/80 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 uppercase shadow-2xs">
               {themeSettings.palette}
+            </span>
+          </button>
+
+          {/* Mobile Language Flip Card */}
+          <button
+            onClick={toggleLanguage}
+            className="w-full flex items-center justify-between p-2.5 rounded-2xl bg-rose-500/10 dark:bg-rose-500/15 border border-rose-500/30 text-left transition-all hover:bg-rose-500/20 cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-full bg-rose-500/15 text-rose-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <Globe size={18} />
+              </div>
+              <div>
+                <div className="text-xs font-black text-slate-900 dark:text-white">
+                  {language === 'bn' ? 'ভাষা: বাংলা (BN)' : 'Language: English (EN)'}
+                </div>
+                <div className="text-[10px] text-slate-500">
+                  {language === 'bn' ? 'ইংরেজিতে পরিবর্তন করতে ট্যাপ করুন' : 'Tap to switch to Bengali'}
+                </div>
+              </div>
+            </div>
+            <span className="text-[10px] font-mono font-black px-2.5 py-1 rounded-xl bg-white/80 dark:bg-slate-800 text-rose-600 dark:text-amber-400 uppercase shadow-2xs">
+              {language === 'bn' ? 'BN ⇄ EN' : 'EN ⇄ BN'}
             </span>
           </button>
 
