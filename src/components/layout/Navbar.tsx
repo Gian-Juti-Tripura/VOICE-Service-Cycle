@@ -6,11 +6,13 @@ import { getStoredNotices, type ManagerAnnouncement } from '../../utils/noticesS
 import { 
   Sun, Moon, Globe, LogOut, User,
   Sparkles, Bell, Menu, X, CheckCircle2,
-  Settings, ArrowRight, Calendar, Megaphone, AlertCircle
+  Settings, ArrowRight, Calendar, Megaphone, AlertCircle, Palette
 } from 'lucide-react';
 import { NotificationSettingsModal } from '../notifications/NotificationSettingsModal';
 import { UserProfileModal } from '../profile/UserProfileModal';
+import { ThemeCustomizerModal } from '../theme/ThemeCustomizerModal';
 import { getUserProfile, PROFILE_UPDATED_EVENT, type UserProfileState } from '../../utils/userProfile';
+import { getThemeSettings, THEME_UPDATED_EVENT, isDarkEffective, type ThemeSettingsState } from '../../utils/themeSettings';
 
 interface DynamicNotification {
   id: string;
@@ -81,6 +83,19 @@ export const Navbar: React.FC = () => {
   const [notifOpen, setNotifOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [themeModalOpen, setThemeModalOpen] = useState(false);
+  const [themeSettings, setThemeSettings] = useState<ThemeSettingsState>(() => getThemeSettings());
+
+  useEffect(() => {
+    const handleThemeUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<ThemeSettingsState>;
+      if (customEvent.detail) {
+        setThemeSettings(customEvent.detail);
+      }
+    };
+    window.addEventListener(THEME_UPDATED_EVENT, handleThemeUpdate);
+    return () => window.removeEventListener(THEME_UPDATED_EVENT, handleThemeUpdate);
+  }, []);
 
   const fallbackDevoteeName = user?.user_metadata?.full_name || 
                               user?.email?.split('@')[0] || 
@@ -146,21 +161,7 @@ export const Navbar: React.FC = () => {
     }))
   ];
 
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    return (localStorage.getItem('theme') as 'light' | 'dark') || 
-           (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  });
-
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  const isDark = isDarkEffective(themeSettings.mode);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -421,16 +422,18 @@ export const Navbar: React.FC = () => {
             <span className={language === 'en' ? 'font-black text-rose-600 dark:text-amber-400' : ''}>EN</span>
           </button>
 
-          {/* Theme Switch Trigger */}
+          {/* Theme & Visual Style Trigger */}
           <button 
-            onClick={toggleTheme}
-            className="p-1.5 sm:p-2 rounded-xl bg-slate-100/90 border border-slate-200/60 dark:bg-slate-800/90 dark:border-slate-700/60 text-slate-600 hover:text-amber-500 dark:text-amber-400 transition-all group cursor-pointer"
-            title="Toggle Theme"
+            onClick={() => setThemeModalOpen(true)}
+            className="flex items-center gap-1.5 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100/90 border border-slate-200/60 dark:bg-slate-800/90 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 transition-all group cursor-pointer"
+            title={language === 'bn' ? 'থিম ও আলোকসজ্জা কাস্টমাইজ করুন' : 'Customize Theme & Effects'}
+            aria-label="Customize Theme & Effects"
           >
-            {theme === 'dark' ? (
-              <Moon size={15} className="group-hover:rotate-45 transition-transform" />
+            <Palette size={14} className="text-amber-500 group-hover:rotate-12 transition-transform shrink-0" />
+            {isDark ? (
+              <Moon size={14} className="text-amber-300" />
             ) : (
-              <Sun size={15} className="group-hover:rotate-90 transition-transform" />
+              <Sun size={14} className="text-amber-500" />
             )}
           </button>
 
@@ -521,6 +524,32 @@ export const Navbar: React.FC = () => {
             </span>
           </button>
 
+          {/* Mobile Theme Customizer Card */}
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              setThemeModalOpen(true);
+            }}
+            className="w-full flex items-center justify-between p-2.5 rounded-2xl bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/30 text-left transition-all hover:bg-indigo-500/20 cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                <Palette size={18} />
+              </div>
+              <div>
+                <div className="text-xs font-black text-slate-900 dark:text-white">
+                  {language === 'bn' ? 'থিম ও ভিজ্যুয়াল স্টাইল' : 'Theme & Visual Style'}
+                </div>
+                <div className="text-[10px] text-slate-500">
+                  {language === 'bn' ? '৬টি কালার থিম ও আলোকসজ্জা' : '6 Personal Color Themes & Effects'}
+                </div>
+              </div>
+            </div>
+            <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-xl bg-white/80 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 uppercase shadow-2xs">
+              {themeSettings.palette}
+            </span>
+          </button>
+
           {NAV_LINKS.map(link => (
             <NavLink key={link.to} {...link} />
           ))}
@@ -570,6 +599,12 @@ export const Navbar: React.FC = () => {
       <UserProfileModal
         isOpen={profileModalOpen}
         onClose={() => setProfileModalOpen(false)}
+      />
+
+      {/* Theme Customizer Modal */}
+      <ThemeCustomizerModal
+        isOpen={themeModalOpen}
+        onClose={() => setThemeModalOpen(false)}
       />
     </nav>
   );

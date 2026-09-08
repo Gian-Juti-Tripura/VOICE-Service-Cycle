@@ -1,4 +1,5 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { getThemeSettings, THEME_UPDATED_EVENT, type ThemeSettingsState } from '../../utils/themeSettings';
 
 interface Petal {
   id: number;
@@ -31,7 +32,21 @@ const FLOWER_ICONS = [
 ];
 
 export const FallingFlowers: React.FC = () => {
+  const [enabled, setEnabled] = useState<boolean>(() => getThemeSettings().flowerShower);
+
+  useEffect(() => {
+    const handleUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<ThemeSettingsState>;
+      if (customEvent.detail) {
+        setEnabled(customEvent.detail.flowerShower);
+      }
+    };
+    window.addEventListener(THEME_UPDATED_EVENT, handleUpdate);
+    return () => window.removeEventListener(THEME_UPDATED_EVENT, handleUpdate);
+  }, []);
+
   const petals: Petal[] = useMemo(() => {
+    if (!enabled) return [];
     // 32 delicate, small floating flower petals & sacred elements
     return Array.from({ length: 32 }, (_, i) => {
       const flower = FLOWER_ICONS[i % FLOWER_ICONS.length];
@@ -63,6 +78,8 @@ export const FallingFlowers: React.FC = () => {
       };
     });
   }, []);
+
+  if (!enabled) return null;
 
   return (
     <div 

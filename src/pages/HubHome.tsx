@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { GlobalSearchBar } from '../components/hub/GlobalSearchBar';
 import { VisitorWelcomeModal } from '../components/hub/VisitorWelcomeModal';
@@ -13,12 +13,33 @@ import {
   Bell, ArrowRight, Zap, X
 } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
+import { 
+  getThemeSettings, 
+  getActivePaletteConfig, 
+  THEME_UPDATED_EVENT, 
+  type ThemeSettingsState 
+} from '../utils/themeSettings';
 
 export const HubHome: React.FC = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const [showIskconCenters, setShowIskconCenters] = useState(false);
   const [selectedDeityModal, setSelectedDeityModal] = useState<'RADHA_MADHAV' | 'GAURA_NITAI' | 'BOTH' | null>(null);
+
+  const [themeSettings, setThemeSettings] = useState<ThemeSettingsState>(() => getThemeSettings());
+
+  useEffect(() => {
+    const handleUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<ThemeSettingsState>;
+      if (customEvent.detail) {
+        setThemeSettings(customEvent.detail);
+      }
+    };
+    window.addEventListener(THEME_UPDATED_EVENT, handleUpdate);
+    return () => window.removeEventListener(THEME_UPDATED_EVENT, handleUpdate);
+  }, []);
+
+  const activePalette = getActivePaletteConfig(themeSettings.palette);
 
   // Closest 3 Upcoming Festivals from August 2026 onwards in compact format
   const CLOSEST_UPCOMING_FESTIVALS = [
@@ -61,16 +82,22 @@ export const HubHome: React.FC = () => {
       <VisitorWelcomeModal />
 
       {/* ================= DISTINCT STYLISH ITALIC BANNER: DARE TO BE RARE & GLOBAL SEARCH BAR ================= */}
-      <div className="w-full bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-b border-indigo-500/30 py-4 px-4 sm:px-6 lg:px-8 shadow-lg transition-colors duration-300">
+      <div 
+        className={`w-full bg-gradient-to-r ${
+          themeSettings.mode === 'light' 
+            ? activePalette.lightBannerGradient 
+            : activePalette.darkBannerGradient
+        } border-b border-amber-400/40 dark:border-indigo-500/30 py-4 px-4 sm:px-6 lg:px-8 shadow-lg transition-all duration-500`}
+      >
         <div className="max-w-4xl lg:max-w-5xl mx-auto space-y-3.5">
           
           {/* Dare to be Rare Title Header */}
           <div className="flex items-center justify-center gap-3 sm:gap-4">
-            <div className="h-[1px] flex-1 max-w-xs bg-gradient-to-r from-transparent via-amber-400/40 to-amber-400/90" />
-            <span className="text-xs sm:text-sm md:text-base font-serif italic tracking-[0.25em] font-extrabold bg-gradient-to-r from-amber-300 via-orange-200 to-amber-300 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(245,158,11,0.3)] select-none">
+            <div className="h-[1px] flex-1 max-w-xs bg-gradient-to-r from-transparent via-amber-300/60 to-amber-300" />
+            <span className="text-xs sm:text-sm md:text-base font-serif italic tracking-[0.25em] font-extrabold text-amber-100 drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)] select-none">
               ✦ Dare to be Rare ✦
             </span>
-            <div className="h-[1px] flex-1 max-w-xs bg-gradient-to-l from-transparent via-amber-400/40 to-amber-400/90" />
+            <div className="h-[1px] flex-1 max-w-xs bg-gradient-to-l from-transparent via-amber-300/60 to-amber-300" />
           </div>
 
           {/* Majestic Global Search Bar */}
@@ -100,14 +127,18 @@ export const HubHome: React.FC = () => {
                   {/* Official IYF Emblem Logo with Illuminating Light Rays & Glowing Aura */}
                   <div className="relative shrink-0 group flex items-center justify-center">
                     {/* Divine Sunbeams & Illuminating Light Rays reaching across the screen */}
-                    <div className="divine-sunrays-layer1" />
-                    <div className="divine-sunrays-layer2" />
+                    {themeSettings.lightingEffects && (
+                      <>
+                        <div className="divine-sunrays-layer1" />
+                        <div className="divine-sunrays-layer2" />
 
-                    {/* Layer 1: Ambient Pulsing Golden Glow Aura */}
-                    <div className="absolute -inset-4 rounded-full bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-300 opacity-90 blur-2xl animate-glow-aura pointer-events-none" />
+                        {/* Layer 1: Ambient Pulsing Golden Glow Aura */}
+                        <div className="absolute -inset-4 rounded-full bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-300 opacity-90 blur-2xl animate-glow-aura pointer-events-none" />
 
-                    {/* Layer 2: Rotating Radiant Halo Ring */}
-                    <div className="absolute -inset-2 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-300 to-orange-500 opacity-95 blur-md animate-aura-spin pointer-events-none" />
+                        {/* Layer 2: Rotating Radiant Halo Ring */}
+                        <div className="absolute -inset-2 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-300 to-orange-500 opacity-95 blur-md animate-aura-spin pointer-events-none" />
+                      </>
+                    )}
 
                     {/* Main Circular Emblem Container */}
                     <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1 bg-gradient-to-tr from-amber-300 via-yellow-200 to-amber-500 shadow-[0_0_45px_rgba(251,191,36,0.85)] transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_0_60px_rgba(251,191,36,1)]">

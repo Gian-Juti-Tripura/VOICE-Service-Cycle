@@ -507,10 +507,10 @@ export const GlobalSearchBar: React.FC = () => {
         {/* Glowing Aura Effect */}
         <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 via-orange-500 to-indigo-600 rounded-2xl blur-xs opacity-75 group-hover:opacity-100 group-focus-within:opacity-100 transition duration-300 pointer-events-none" />
 
-        <div className="relative flex items-center bg-slate-900/95 dark:bg-slate-950/95 border border-amber-400/40 rounded-2xl shadow-2xl backdrop-blur-xl">
+        <div className="relative flex items-center bg-white/95 dark:bg-slate-950/95 border border-amber-400/60 dark:border-amber-400/40 rounded-2xl shadow-xl backdrop-blur-xl">
           
           {/* Left Search Icon */}
-          <div className="pl-4 pr-2 text-amber-400 flex items-center justify-center shrink-0">
+          <div className="pl-4 pr-2 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
             <Search size={18} className="animate-pulse" />
           </div>
 
@@ -529,7 +529,7 @@ export const GlobalSearchBar: React.FC = () => {
                 ? (typeof window !== 'undefined' && window.innerWidth < 640 ? 'ভয়েস হাব অনুসন্ধান করুন...' : 'যেকোনো বিষয় খুঁজুন... (উদাঃ ডিওয়াইএস, সাধনা, মিল)') 
                 : (typeof window !== 'undefined' && window.innerWidth < 640 ? 'Search VOICE Hub...' : 'Search anything across VOICE... (e.g. DYS, Sadhana, Meals)')
             }
-            className="w-full py-3 sm:py-3.5 pr-8 sm:pr-20 bg-transparent text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none font-medium"
+            className="w-full py-3 sm:py-3.5 pr-8 sm:pr-20 bg-transparent text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none font-semibold"
           />
 
           {/* Right Action Icons: Clear Button + Keyboard Shortcut Badge */}
@@ -541,13 +541,13 @@ export const GlobalSearchBar: React.FC = () => {
                   setQuery('');
                   inputRef.current?.focus();
                 }}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 title="Clear Search"
               >
                 <X size={15} />
               </button>
             ) : (
-              <span className="hidden sm:inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-300 font-bold">
+              <span className="hidden sm:inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-mono text-slate-600 dark:text-slate-300 font-bold">
                 ⌘K
               </span>
             )}
@@ -564,11 +564,11 @@ export const GlobalSearchBar: React.FC = () => {
             <button
               key={pill.id}
               onClick={() => handleSelectResult(pill.link)}
-              className="group flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 py-1 sm:py-1.5 px-0.5 sm:px-2 rounded-lg bg-slate-900/90 dark:bg-slate-950/90 hover:bg-amber-500/15 active:bg-amber-500/25 border border-slate-700/70 hover:border-amber-400/60 text-slate-200 hover:text-amber-200 transition-all duration-150 cursor-pointer shadow-xs active:scale-95 backdrop-blur-md h-[42px] sm:h-[36px] w-full min-w-0"
+              className="group flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 py-1 sm:py-1.5 px-0.5 sm:px-2 rounded-xl bg-white/95 dark:bg-slate-900/90 hover:bg-amber-50 dark:hover:bg-amber-500/15 active:bg-amber-100 dark:active:bg-amber-500/25 border border-slate-200/90 dark:border-slate-800 hover:border-amber-400/80 dark:hover:border-amber-400/60 text-slate-800 dark:text-slate-200 hover:text-amber-700 dark:hover:text-amber-300 transition-all duration-150 cursor-pointer shadow-xs active:scale-95 backdrop-blur-md h-[44px] sm:h-[38px] w-full min-w-0"
               title={isBn ? pill.labelBn : pill.labelEn}
             >
               <Icon size={14} className={`${pill.color} group-hover:scale-110 transition-transform shrink-0`} />
-              <span className="text-[9px] sm:text-[11px] font-semibold text-slate-200 group-hover:text-amber-200 truncate leading-none tracking-tight max-w-full text-center">
+              <span className="text-[9.5px] sm:text-[11px] font-bold text-slate-700 dark:text-slate-200 group-hover:text-amber-700 dark:group-hover:text-amber-300 truncate leading-none tracking-tight max-w-full text-center">
                 {isBn ? pill.labelBn : pill.labelEn}
               </span>
             </button>
@@ -578,22 +578,22 @@ export const GlobalSearchBar: React.FC = () => {
 
       {/* Results Dropdown Menu */}
       {isOpen && query.trim().length > 0 && (
-        <div className="absolute left-0 right-0 top-full mt-2 rounded-2xl bg-slate-900/98 dark:bg-slate-950/98 border border-amber-400/30 shadow-2xl backdrop-blur-2xl overflow-hidden divide-y divide-slate-800/80 animate-scale-in z-50 max-h-[75vh] sm:max-h-96 overflow-y-auto">
+        <div className="absolute left-0 right-0 top-full mt-2 rounded-2xl bg-white/98 dark:bg-slate-950/98 border border-amber-400/50 dark:border-amber-400/30 shadow-2xl backdrop-blur-2xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800/80 animate-scale-in z-50 max-h-[75vh] sm:max-h-96 overflow-y-auto">
           
-          <div className="p-2.5 bg-black/40 flex items-center justify-between text-[11px] font-bold text-amber-300 font-mono">
+          <div className="p-2.5 bg-amber-500/10 dark:bg-black/40 flex items-center justify-between text-[11px] font-bold text-amber-700 dark:text-amber-300 font-mono">
             <span className="flex items-center gap-1.5">
-              <Sparkles size={13} className="text-amber-400" />
+              <Sparkles size={13} className="text-amber-500" />
               <span>{isBn ? `অনুসন্ধান ফলাফল (${searchResults.length})` : `Matching Results (${searchResults.length})`}</span>
             </span>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400">
               {isBn ? 'ক্লিক করে সরাসরি প্রবেশ করুন' : 'Tap to Navigate'}
             </span>
           </div>
 
           {searchResults.length === 0 ? (
             <div className="p-8 text-center space-y-2">
-              <Search size={28} className="mx-auto text-slate-600 animate-bounce" />
-              <p className="text-xs text-slate-400 font-medium">
+              <Search size={28} className="mx-auto text-slate-400 dark:text-slate-600 animate-bounce" />
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                 {isBn 
                   ? `"${query}" এর সাথে মেলানো কোনো তথ্য পাওয়া যায়নি। অন্য কিছু দিয়ে চেষ্টা করুন।`
                   : `No results found matching "${query}". Try searching for modules, devotees or courses.`}
@@ -607,33 +607,33 @@ export const GlobalSearchBar: React.FC = () => {
                   <button
                     key={item.id}
                     onClick={() => handleSelectResult(item.link)}
-                    className="w-full text-left p-3 rounded-xl hover:bg-white/10 active:bg-amber-500/20 transition-all flex items-start gap-3 group cursor-pointer"
+                    className="w-full text-left p-3 rounded-xl hover:bg-amber-50/80 dark:hover:bg-white/10 active:bg-amber-500/20 transition-all flex items-start gap-3 group cursor-pointer"
                   >
                     
                     {/* Icon Box */}
-                    <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-400/30 text-amber-300 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-amber-500 group-hover:text-slate-950 transition-all shadow-xs mt-0.5">
+                    <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-400/30 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0 group-hover:scale-105 group-hover:bg-amber-500 group-hover:text-slate-950 transition-all shadow-xs mt-0.5">
                       <IconComponent size={17} />
                     </div>
 
                     {/* Text Details */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="text-xs sm:text-sm font-black text-white group-hover:text-amber-300 transition-colors truncate">
+                        <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors truncate">
                           {isBn ? item.titleBn : item.titleEn}
                         </h4>
                         
-                        <span className="text-[9.5px] font-mono font-bold px-2 py-0.2 rounded-md bg-amber-400/15 text-amber-300 border border-amber-400/30">
+                        <span className="text-[9.5px] font-mono font-bold px-2 py-0.2 rounded-md bg-amber-400/15 text-amber-700 dark:text-amber-300 border border-amber-400/30">
                           {isBn ? item.categoryBn : item.categoryEn}
                         </span>
                       </div>
 
-                      <p className="text-[11px] text-slate-400 line-clamp-1 mt-0.5 group-hover:text-slate-300">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5 group-hover:text-slate-700 dark:group-hover:text-slate-300">
                         {isBn ? item.descBn : item.descEn}
                       </p>
                     </div>
 
                     {/* Arrow Pointer */}
-                    <ChevronRight size={15} className="text-slate-500 group-hover:text-amber-300 group-hover:translate-x-1 transition-all shrink-0 mt-2" />
+                    <ChevronRight size={15} className="text-slate-400 dark:text-slate-500 group-hover:text-amber-500 group-hover:translate-x-1 transition-all shrink-0 mt-2" />
                   </button>
                 );
               })}

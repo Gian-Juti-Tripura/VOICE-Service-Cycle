@@ -1,15 +1,17 @@
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useEffect, Suspense, lazy, type ReactNode } from 'react';
+import { useEffect, useState, Suspense, lazy, type ReactNode } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import Navbar from './components/layout/Navbar';
 import FloatingActionBar from './components/layout/FloatingActionBar';
 import { BottomNavBar } from './components/layout/BottomNavBar';
 import { FallingFlowers } from './components/effects/FallingFlowers';
+import { CornerThemeButton } from './components/theme/CornerThemeButton';
 import { InstallPromptBanner } from './components/pwa/InstallPromptBanner';
 import { Toaster } from 'react-hot-toast';
 import { initializeOneSignal } from './utils/onesignal';
 import { scheduleDailyNotifications } from './utils/notificationScheduler';
+import { getThemeSettings, applyThemeToDOM, THEME_UPDATED_EVENT, type ThemeSettingsState } from './utils/themeSettings';
 
 // Lazy Loaded Modules (Instant First Paint & Ultra-Small Initial Bundle)
 const HubHome = lazy(() => import('./pages/HubHome'));
@@ -89,6 +91,22 @@ const ProtectedRoute = ({
 
 const AppContent = () => {
   const { user } = useAuth();
+  const [themeSettings, setThemeSettings] = useState<ThemeSettingsState>(() => getThemeSettings());
+
+  useEffect(() => {
+    applyThemeToDOM(themeSettings);
+  }, []);
+
+  useEffect(() => {
+    const handleUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<ThemeSettingsState>;
+      if (customEvent.detail) {
+        setThemeSettings(customEvent.detail);
+      }
+    };
+    window.addEventListener(THEME_UPDATED_EVENT, handleUpdate);
+    return () => window.removeEventListener(THEME_UPDATED_EVENT, handleUpdate);
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -99,22 +117,26 @@ const AppContent = () => {
   return (
     <div className="flex flex-col min-h-screen relative">
       {/* Divine Sri Krishna & Vrindavan Peacock Background Atmosphere */}
-      <div 
-        aria-hidden="true"
-        className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
-      >
-        <img 
-          src="/krishna_vrindavan_bg.jpg" 
-          alt="Sri Krishna Background" 
-          className="w-full h-full object-cover object-center opacity-45 dark:opacity-55 transition-opacity duration-700 fixed inset-0"
-        />
-        <div className="fixed inset-0 bg-slate-900/30 dark:bg-slate-950/50 pointer-events-none" />
-      </div>
+      {themeSettings.backgroundAtmosphere && (
+        <div 
+          aria-hidden="true"
+          className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
+        >
+          <img 
+            src="/krishna_vrindavan_bg.jpg" 
+            alt="Sri Krishna Background" 
+            className="w-full h-full object-cover object-center opacity-30 dark:opacity-45 transition-opacity duration-700 fixed inset-0"
+          />
+          {/* Pristine & Vibrant Lighting Atmosphere: Warm Sacred Ivory Wash in Light Mode, Midnight Obsidian in Dark Mode */}
+          <div className="fixed inset-0 bg-gradient-to-b from-amber-50/80 via-white/85 to-amber-100/70 dark:bg-slate-950/75 pointer-events-none transition-colors duration-500" />
+        </div>
+      )}
 
       <FallingFlowers />
       <Navbar />
       <FloatingActionBar />
       <BottomNavBar />
+      <CornerThemeButton />
       <InstallPromptBanner />
       <main className="flex-1 pb-16 relative z-10">
         <Toaster position="top-center" />

@@ -221,6 +221,18 @@
   mix-blend-mode: screen;
 }
 
+/* Devotional Lighting & Effects Customization Control */
+[data-lighting="off"] .divine-sunrays-layer1,
+[data-lighting="off"] .divine-sunrays-layer2,
+[data-lighting="off"] .animate-glow-aura,
+[data-lighting="off"] .animate-aura-spin {
+  display: none !important;
+}
+
+[data-flowers="off"] .flower-petal {
+  display: none !important;
+}
+
 /* Clean, Ink-Saving Print Media Styles */
 @media print {
   @page {
