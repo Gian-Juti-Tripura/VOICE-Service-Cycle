@@ -111,9 +111,22 @@ export const HubHome: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
         {/* ================= 1. MAJESTIC HERO SECTION WITH IYF LOGO & RESTYLED NAMES ================= */}
-        <div className="relative overflow-hidden rounded-[32px] p-6 sm:p-8 lg:p-10 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950/90 text-white shadow-[0_25px_60px_rgba(0,0,0,0.45)] border border-amber-500/25">
-          <div className="absolute -right-16 -bottom-16 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -left-16 -top-16 w-80 h-80 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div 
+          style={{
+            background: 'var(--advaita-hero-bg)',
+            borderColor: 'var(--advaita-hero-border)',
+            boxShadow: 'var(--advaita-hero-shadow)'
+          }}
+          className="relative overflow-hidden rounded-[32px] p-6 sm:p-8 lg:p-10 text-[var(--advaita-hero-text)] border backdrop-blur-xl transition-all duration-500"
+        >
+          <div 
+            style={{ backgroundColor: 'var(--advaita-primary)' }}
+            className="absolute -right-16 -bottom-16 w-80 h-80 opacity-20 rounded-full blur-3xl pointer-events-none transition-colors duration-500" 
+          />
+          <div 
+            style={{ backgroundColor: 'var(--advaita-accent)' }}
+            className="absolute -left-16 -top-16 w-80 h-80 opacity-20 rounded-full blur-3xl pointer-events-none transition-colors duration-500" 
+          />
           
           <div className="relative z-10 space-y-6 lg:space-y-8">
             
@@ -134,25 +147,46 @@ export const HubHome: React.FC = () => {
                         <div className="divine-sunrays-layer1" />
                         <div className="divine-sunrays-layer2" />
 
-                        {/* Layer 1: Ambient Pulsing Golden Glow Aura */}
-                        <div className="absolute -inset-4 rounded-full bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-300 opacity-90 blur-2xl animate-glow-aura pointer-events-none" />
+                        {/* Layer 1: Ambient Pulsing Glow Aura */}
+                        <div 
+                          style={{
+                            background: 'linear-gradient(135deg, var(--advaita-primary), var(--advaita-accent))'
+                          }}
+                          className="absolute -inset-4 rounded-full opacity-85 blur-2xl animate-glow-aura pointer-events-none transition-all duration-500" 
+                        />
 
                         {/* Layer 2: Rotating Radiant Halo Ring */}
-                        <div className="absolute -inset-2 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-300 to-orange-500 opacity-95 blur-md animate-aura-spin pointer-events-none" />
+                        <div 
+                          style={{
+                            background: 'linear-gradient(to top right, var(--advaita-primary), var(--advaita-accent))'
+                          }}
+                          className="absolute -inset-2 rounded-full opacity-90 blur-md animate-aura-spin pointer-events-none transition-all duration-500" 
+                        />
                       </>
                     )}
 
                     {/* Main Circular Emblem Container */}
-                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1 bg-gradient-to-tr from-amber-300 via-yellow-200 to-amber-500 shadow-[0_0_45px_rgba(251,191,36,0.85)] transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_0_60px_rgba(251,191,36,1)]">
+                    <div 
+                      style={{
+                        boxShadow: '0 0 45px var(--advaita-glow)',
+                        background: 'linear-gradient(135deg, var(--advaita-primary), var(--advaita-accent))'
+                      }}
+                      className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1 transition-all duration-300 group-hover:scale-105"
+                    >
                       <img 
                         src="/assets/iyf_logo.png" 
                         alt="ISKCON Youth Forum (IYF)" 
-                        className="w-full h-full object-cover rounded-full bg-slate-950 ring-2 ring-yellow-300/80"
+                        className="w-full h-full object-cover rounded-full bg-slate-950 ring-2 ring-white/60"
                       />
                     </div>
 
-                    {/* High-Contrast Golden Badge */}
-                    <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-slate-950 font-black text-[9px] uppercase font-mono shadow-md border border-white/90 whitespace-nowrap z-10">
+                    {/* High-Contrast Sacred Theme Badge */}
+                    <div 
+                      style={{
+                        background: 'linear-gradient(135deg, var(--advaita-primary), var(--advaita-accent))'
+                      }}
+                      className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-white font-black text-[9px] uppercase font-mono shadow-md border border-white/90 whitespace-nowrap z-10 transition-all duration-300"
+                    >
                       IYF • VOICE
                     </div>
                   </div>
@@ -161,25 +195,54 @@ export const HubHome: React.FC = () => {
                   <div className="space-y-2 text-center sm:text-left flex-1 min-w-0">
                     
                     {/* Prestigious Eyebrow: Full Meaning of VOICE */}
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 font-mono text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest border border-amber-400/25 backdrop-blur-md">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shadow-[0_0_6px_rgba(251,191,36,0.9)]" />
+                    <div 
+                      style={{
+                        backgroundColor: 'var(--advaita-badge-bg)',
+                        borderColor: 'var(--advaita-nav-border)',
+                        color: 'var(--advaita-nav-active-text)'
+                      }}
+                      className="inline-flex items-center gap-2 px-3 py-1 rounded-full font-mono text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest border backdrop-blur-md transition-colors duration-300"
+                    >
+                      <span 
+                        style={{
+                          backgroundColor: 'var(--advaita-primary)',
+                          boxShadow: '0 0 6px var(--advaita-glow)'
+                        }}
+                        className="w-1.5 h-1.5 rounded-full animate-pulse" 
+                      />
                       <span>{language === 'bn' ? 'বৈদিক ওয়েসিস ফর ইন্সপায়ারেশন, কালচার অ্যান্ড এডুকেশন' : 'Vedic Oasis for Inspiration, Culture & Education'}</span>
                     </div>
                     
                     {/* Main Heading Styled as "ADVAITA VOICE HUB" */}
                     <div className="space-y-1">
-                      <h1 className={`text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-black tracking-wider uppercase leading-tight bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent drop-shadow-[0_2px_15px_rgba(245,158,11,0.35)] ${language !== 'bn' ? 'font-cinzel' : ''}`}>
+                      <h1 
+                        style={{
+                          backgroundImage: 'var(--advaita-hero-title-gradient)',
+                          filter: 'drop-shadow(0 2px 12px var(--advaita-glow))'
+                        }}
+                        className={`text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-black tracking-wider uppercase leading-tight bg-clip-text text-transparent transition-all duration-300 ${language !== 'bn' ? 'font-cinzel' : ''}`}
+                      >
                         {language === 'bn' ? 'অদ্বৈত ভয়েস হাব' : 'ADVAITA VOICE HUB'}
                       </h1>
                       
                       {/* University Affiliation & Sacred Motto Bar */}
-                      <div className="flex items-center justify-center sm:justify-start flex-wrap gap-2 text-xs sm:text-sm font-semibold text-amber-300/90 font-mono">
-                        <span className="inline-flex items-center gap-1 text-amber-300 font-bold bg-white/5 px-2.5 py-0.5 rounded-lg border border-white/10">
-                          <MapPin size={12} className="text-amber-400" />
+                      <div className="flex items-center justify-center sm:justify-start flex-wrap gap-2 text-xs sm:text-sm font-semibold font-mono">
+                        <span 
+                          style={{
+                            backgroundColor: 'var(--advaita-badge-bg)',
+                            borderColor: 'var(--advaita-nav-border)',
+                            color: 'var(--advaita-nav-active-text)'
+                          }}
+                          className="inline-flex items-center gap-1 font-bold px-2.5 py-0.5 rounded-lg border transition-colors duration-300"
+                        >
+                          <MapPin size={12} style={{ color: 'var(--advaita-primary)' }} />
                           {language === 'bn' ? 'চট্টগ্রাম বিশ্ববিদ্যালয় শাখা' : 'University of Chittagong'}
                         </span>
-                        <span className="text-white/30 hidden sm:inline">•</span>
-                        <span className="text-amber-200/90 font-serif italic text-xs sm:text-sm">
+                        <span className="opacity-40 hidden sm:inline">•</span>
+                        <span 
+                          style={{ color: 'var(--advaita-hero-text-muted)' }}
+                          className="font-serif italic text-xs sm:text-sm transition-colors duration-300"
+                        >
                           "{language === 'bn' ? VOICE_HANDBOOK_DATA.mottoBn : VOICE_HANDBOOK_DATA.mottoEn}"
                         </span>
                       </div>
@@ -189,31 +252,62 @@ export const HubHome: React.FC = () => {
                 </div>
 
                 {/* Srila Prabhupada Oasis Quote & Founder-Acharya Tribute Box */}
-                <div className="p-4 sm:p-5 rounded-3xl bg-slate-950/60 border border-amber-400/25 backdrop-blur-md flex flex-col sm:flex-row items-center gap-4 shadow-xl flex-1 justify-center">
+                <div 
+                  style={{
+                    background: 'var(--advaita-hero-card-bg)',
+                    borderColor: 'var(--advaita-hero-card-border)'
+                  }}
+                  className="p-4 sm:p-5 rounded-3xl border backdrop-blur-md flex flex-col sm:flex-row items-center gap-4 shadow-xl flex-1 justify-center transition-all duration-300"
+                >
                   <div className="relative shrink-0">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 border-amber-400/80 shadow-lg ring-4 ring-amber-500/20">
+                    <div 
+                      style={{
+                        borderColor: 'var(--advaita-primary)',
+                        boxShadow: '0 0 20px var(--advaita-glow)'
+                      }}
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 shadow-lg transition-all duration-300"
+                    >
                       <img
                         src="/assets/srila_prabhupada.jpg"
                         alt="His Divine Grace A.C. Bhaktivedanta Swami Srila Prabhupada"
                         className="w-full h-full object-cover object-top"
                       />
                     </div>
-                    <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:-right-1 px-2 py-0.2 rounded-md bg-amber-500 text-slate-950 text-[8.5px] font-black uppercase tracking-wider whitespace-nowrap shadow-sm">
+                    <div 
+                      style={{
+                        background: 'linear-gradient(135deg, var(--advaita-primary), var(--advaita-accent))'
+                      }}
+                      className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:-right-1 px-2 py-0.2 rounded-md text-white text-[8.5px] font-black uppercase tracking-wider whitespace-nowrap shadow-sm transition-all duration-300"
+                    >
                       Founder-Acharya
                     </div>
                   </div>
 
                   <div className="flex-1 space-y-1.5 text-center sm:text-left">
                     <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                      <span className="text-xs font-black text-amber-300 tracking-wide uppercase font-serif">
+                      <span 
+                        style={{ color: 'var(--advaita-nav-active-text)' }}
+                        className="text-xs font-black tracking-wide uppercase font-serif transition-colors duration-300"
+                      >
                         {language === 'bn' ? 'শ্রীল প্রভুপাদ বাণী ও আদর্শ' : 'His Divine Grace A.C. Bhaktivedanta Swami Prabhupada'}
                       </span>
-                      <span className="text-[10px] text-amber-200/70 font-mono hidden sm:inline">• ISKCON Founder-Acharya</span>
+                      <span 
+                        style={{ color: 'var(--advaita-hero-text-muted)' }}
+                        className="text-[10px] font-mono hidden sm:inline transition-colors duration-300"
+                      >
+                        • ISKCON Founder-Acharya
+                      </span>
                     </div>
-                    <p className="italic text-xs sm:text-sm text-slate-200 leading-relaxed font-serif">
+                    <p 
+                      style={{ color: 'var(--advaita-hero-text)' }}
+                      className="italic text-xs sm:text-sm leading-relaxed font-serif transition-colors duration-300"
+                    >
                       "{language === 'bn' ? VOICE_HANDBOOK_DATA.oasisQuoteBn : VOICE_HANDBOOK_DATA.oasisQuoteEn}"
                     </p>
-                    <div className="text-center sm:text-right text-[11px] font-bold text-amber-400/90 font-mono">
+                    <div 
+                      style={{ color: 'var(--advaita-nav-active-text)' }}
+                      className="text-center sm:text-right text-[11px] font-bold font-mono transition-colors duration-300"
+                    >
                       — {language === 'bn' ? VOICE_HANDBOOK_DATA.oasisSourceBn : VOICE_HANDBOOK_DATA.oasisSourceEn}
                     </div>
                   </div>
@@ -223,25 +317,53 @@ export const HubHome: React.FC = () => {
 
               {/* RIGHT COLUMN: Presiding Deities Divine Darshan Card */}
               <div className="lg:col-span-5 flex flex-col">
-                <div className="relative overflow-hidden rounded-3xl p-4 sm:p-5 bg-gradient-to-b from-slate-950/90 via-slate-950/80 to-indigo-950/70 border border-amber-400/40 backdrop-blur-xl space-y-4 shadow-[0_10px_40px_rgba(0,0,0,0.6)] h-full flex flex-col justify-between">
+                <div 
+                  style={{
+                    background: 'var(--advaita-hero-card-bg)',
+                    borderColor: 'var(--advaita-hero-card-border)'
+                  }}
+                  className="relative overflow-hidden rounded-3xl p-4 sm:p-5 border backdrop-blur-xl space-y-4 shadow-xl h-full flex flex-col justify-between transition-all duration-300"
+                >
                   {/* Ambient Altar Glow Background */}
-                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-72 h-36 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
-                  <div className="absolute -bottom-10 right-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
+                  <div 
+                    style={{ backgroundColor: 'var(--advaita-primary)' }}
+                    className="absolute -top-12 left-1/2 -translate-x-1/2 w-72 h-36 opacity-15 rounded-full blur-3xl pointer-events-none transition-colors duration-500" 
+                  />
+                  <div 
+                    style={{ backgroundColor: 'var(--advaita-accent)' }}
+                    className="absolute -bottom-10 right-0 w-48 h-48 opacity-15 rounded-full blur-2xl pointer-events-none transition-colors duration-500" 
+                  />
 
                   {/* Header Title */}
-                  <div className="relative z-10 flex items-center justify-between gap-2 border-b border-amber-400/20 pb-2.5">
+                  <div 
+                    style={{ borderColor: 'var(--advaita-hero-card-border)' }}
+                    className="relative z-10 flex items-center justify-between gap-2 border-b pb-2.5"
+                  >
                     <div className="flex items-center gap-2">
-                      <span className="text-amber-400 text-sm animate-pulse">🪔</span>
+                      <span className="text-sm animate-pulse">🪔</span>
                       <div>
-                        <h2 className="text-xs sm:text-sm font-black text-amber-200 font-serif tracking-wide flex items-center gap-1.5">
+                        <h2 
+                          style={{ color: 'var(--advaita-nav-active-text)' }}
+                          className="text-xs sm:text-sm font-black font-serif tracking-wide flex items-center gap-1.5 transition-colors duration-300"
+                        >
                           <span>{language === 'bn' ? 'শ্রীশ্রী রাধামাধব ও শ্রীশ্রী গৌর নিতাই নিত্য দর্শন' : 'Presiding Deities Divine Darshan'}</span>
                         </h2>
-                        <p className="text-[9.5px] sm:text-[10.5px] text-amber-300/80 font-mono">
+                        <p 
+                          style={{ color: 'var(--advaita-hero-text-muted)' }}
+                          className="text-[9.5px] sm:text-[10.5px] font-mono transition-colors duration-300"
+                        >
                           Radhamadhav Temple & Gour Nitai Ashram, CU
                         </p>
                       </div>
                     </div>
-                    <span className="text-[9.5px] sm:text-[10px] text-amber-300 font-bold bg-amber-500/20 px-2.5 py-1 rounded-full border border-amber-400/40 shadow-xs flex items-center gap-1">
+                    <span 
+                      style={{
+                        backgroundColor: 'var(--advaita-badge-bg)',
+                        color: 'var(--advaita-nav-active-text)',
+                        borderColor: 'var(--advaita-nav-border)'
+                      }}
+                      className="text-[9.5px] sm:text-[10px] font-bold px-2.5 py-1 rounded-full border shadow-xs flex items-center gap-1 transition-all duration-300"
+                    >
                       <span>✨</span>
                       <span>{language === 'bn' ? 'দর্শন মন্ত্র' : 'Tap for Mantras'}</span>
                     </span>
@@ -255,12 +377,21 @@ export const HubHome: React.FC = () => {
                       onClick={() => { triggerHaptic('selection'); setSelectedDeityModal('RADHA_MADHAV'); }}
                       className="group flex flex-col items-center cursor-pointer active:scale-95 transition-all"
                     >
-                      <div className="relative w-full aspect-[3/4] rounded-2xl p-1 bg-gradient-to-tr from-amber-400/60 via-yellow-300/40 to-amber-500/60 shadow-[0_0_25px_rgba(251,191,36,0.35)] group-hover:shadow-[0_0_40px_rgba(251,191,36,0.7)] group-hover:border-amber-300 transition-all duration-300">
+                      <div 
+                        style={{
+                          boxShadow: '0 0 25px var(--advaita-glow)',
+                          background: 'linear-gradient(135deg, var(--advaita-primary), var(--advaita-accent))'
+                        }}
+                        className="relative w-full aspect-[3/4] rounded-2xl p-1 transition-all duration-300 group-hover:scale-105"
+                      >
                         {/* Glowing Aura Behind Frame */}
-                        <div className="absolute -inset-2 rounded-2xl bg-gradient-to-tr from-amber-500/30 via-yellow-400/40 to-amber-600/30 blur-md opacity-75 group-hover:opacity-100 group-hover:blur-lg transition-all animate-glow-aura pointer-events-none" />
+                        <div 
+                          style={{ backgroundColor: 'var(--advaita-primary)' }}
+                          className="absolute -inset-2 rounded-2xl opacity-40 blur-md group-hover:opacity-75 group-hover:blur-lg transition-all animate-glow-aura pointer-events-none" 
+                        />
                         
                         {/* Deity Image Container */}
-                        <div className="relative w-full h-full rounded-xl overflow-hidden bg-slate-950 ring-1 ring-amber-300/50">
+                        <div className="relative w-full h-full rounded-xl overflow-hidden bg-slate-950 ring-1 ring-white/40">
                           <img
                             src="/assets/sri_sri_radha_madhava.jpg"
                             alt="Sri Sri Radha Madhava"
@@ -269,10 +400,16 @@ export const HubHome: React.FC = () => {
                         </div>
                       </div>
                       <div className="mt-2.5 text-center">
-                        <h3 className="text-xs sm:text-sm font-black text-amber-200 font-serif leading-tight group-hover:text-amber-100 transition-colors drop-shadow-xs">
+                        <h3 
+                          style={{ color: 'var(--advaita-nav-active-text)' }}
+                          className="text-xs sm:text-sm font-black font-serif leading-tight transition-colors drop-shadow-xs"
+                        >
                           {language === 'bn' ? 'শ্রীশ্রী রাধামাধব' : 'Sri Sri Radha Madhav'}
                         </h3>
-                        <p className="text-[9.5px] sm:text-[10px] text-amber-300/70 font-serif italic mt-0.5">
+                        <p 
+                          style={{ color: 'var(--advaita-hero-text-muted)' }}
+                          className="text-[9.5px] sm:text-[10px] font-serif italic mt-0.5 transition-colors"
+                        >
                           {language === 'bn' ? 'নিত্য যুগলকিশোর' : 'Divine Couple'}
                         </p>
                       </div>
@@ -283,12 +420,21 @@ export const HubHome: React.FC = () => {
                       onClick={() => { triggerHaptic('selection'); setSelectedDeityModal('GAURA_NITAI'); }}
                       className="group flex flex-col items-center cursor-pointer active:scale-95 transition-all"
                     >
-                      <div className="relative w-full aspect-[3/4] rounded-2xl p-1 bg-gradient-to-tr from-amber-400/60 via-yellow-300/40 to-amber-500/60 shadow-[0_0_25px_rgba(251,191,36,0.35)] group-hover:shadow-[0_0_40px_rgba(251,191,36,0.7)] group-hover:border-amber-300 transition-all duration-300">
+                      <div 
+                        style={{
+                          boxShadow: '0 0 25px var(--advaita-glow)',
+                          background: 'linear-gradient(135deg, var(--advaita-primary), var(--advaita-accent))'
+                        }}
+                        className="relative w-full aspect-[3/4] rounded-2xl p-1 transition-all duration-300 group-hover:scale-105"
+                      >
                         {/* Glowing Aura Behind Frame */}
-                        <div className="absolute -inset-2 rounded-2xl bg-gradient-to-tr from-amber-500/30 via-yellow-400/40 to-amber-600/30 blur-md opacity-75 group-hover:opacity-100 group-hover:blur-lg transition-all animate-glow-aura pointer-events-none" />
+                        <div 
+                          style={{ backgroundColor: 'var(--advaita-primary)' }}
+                          className="absolute -inset-2 rounded-2xl opacity-40 blur-md group-hover:opacity-75 group-hover:blur-lg transition-all animate-glow-aura pointer-events-none" 
+                        />
                         
                         {/* Deity Image Container */}
-                        <div className="relative w-full h-full rounded-xl overflow-hidden bg-slate-950 ring-1 ring-amber-300/50">
+                        <div className="relative w-full h-full rounded-xl overflow-hidden bg-slate-950 ring-1 ring-white/40">
                           <img
                             src="/assets/sri_sri_gaura_nitai.jpg"
                             alt="Sri Sri Gaura Nitai"
@@ -297,10 +443,16 @@ export const HubHome: React.FC = () => {
                         </div>
                       </div>
                       <div className="mt-2.5 text-center">
-                        <h3 className="text-xs sm:text-sm font-black text-amber-200 font-serif leading-tight group-hover:text-amber-100 transition-colors drop-shadow-xs">
+                        <h3 
+                          style={{ color: 'var(--advaita-nav-active-text)' }}
+                          className="text-xs sm:text-sm font-black font-serif leading-tight transition-colors drop-shadow-xs"
+                        >
                           {language === 'bn' ? 'শ্রীশ্রী গৌর নিতাই' : 'Sri Sri Gaura Nitai'}
                         </h3>
-                        <p className="text-[9.5px] sm:text-[10px] text-amber-300/70 font-serif italic mt-0.5">
+                        <p 
+                          style={{ color: 'var(--advaita-hero-text-muted)' }}
+                          className="text-[9.5px] sm:text-[10px] font-serif italic mt-0.5 transition-colors"
+                        >
                           {language === 'bn' ? 'পরম করুণ অবতারদ্বয়' : 'Merciful Lords'}
                         </p>
                       </div>
@@ -309,8 +461,17 @@ export const HubHome: React.FC = () => {
                   </div>
 
                   {/* Radiant Maha-Mantra */}
-                  <div className="relative z-10 pt-2 text-center border-t border-amber-400/15">
-                    <p className="text-[11px] sm:text-xs text-amber-300 font-serif italic tracking-wide drop-shadow-[0_0_10px_rgba(251,191,36,0.4)]">
+                  <div 
+                    style={{ borderColor: 'var(--advaita-hero-card-border)' }}
+                    className="relative z-10 pt-2 text-center border-t"
+                  >
+                    <p 
+                      style={{ 
+                        color: 'var(--advaita-nav-active-text)',
+                        textShadow: '0 0 12px var(--advaita-glow)'
+                      }}
+                      className="text-[11px] sm:text-xs font-serif italic tracking-wide transition-all duration-300"
+                    >
                       "হরে কৃষ্ণ হরে কৃষ্ণ কৃষ্ণ কৃষ্ণ হরে হরে • হরে রাম হরে রাম রাম রাম হরে হরে"
                     </p>
                   </div>
@@ -320,18 +481,33 @@ export const HubHome: React.FC = () => {
             </div>
 
             {/* ================= 4 SPIRITUAL GUARDIANS & PILLARS IN EXACT ORDER ================= */}
-            <div className="p-4 sm:p-6 rounded-3xl bg-slate-950/60 border border-amber-400/25 backdrop-blur-md space-y-3 shadow-xl">
-              <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2 flex-wrap">
+            <div 
+              style={{
+                background: 'var(--advaita-hero-card-bg)',
+                borderColor: 'var(--advaita-hero-card-border)'
+              }}
+              className="p-4 sm:p-6 rounded-3xl border backdrop-blur-md space-y-3 shadow-xl transition-all duration-300"
+            >
+              <div 
+                style={{ borderColor: 'var(--advaita-hero-card-border)' }}
+                className="flex items-center justify-between gap-2 border-b pb-2 flex-wrap"
+              >
                 <div className="flex items-center gap-2">
-                  <Sparkles size={15} className="text-amber-400" />
-                  <span className="text-xs sm:text-sm font-black text-amber-200 tracking-wide uppercase font-serif">
+                  <Sparkles size={15} style={{ color: 'var(--advaita-primary)' }} />
+                  <span 
+                    style={{ color: 'var(--advaita-nav-active-text)' }}
+                    className="text-xs sm:text-sm font-black tracking-wide uppercase font-serif transition-colors duration-300"
+                  >
                     {language === 'bn' ? 'আমাদের পরম আধ্যাত্মিক অভিভাবক ও পথপ্রদর্শক' : 'Spiritual Guardians & Lineage of VOICE'}
                   </span>
                 </div>
                 <Link
                   to="/profiles?tab=lineage"
                   onClick={() => triggerHaptic('selection')}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider transition-all shadow-md hover:scale-105 active:scale-95 cursor-pointer"
+                  style={{
+                    background: 'linear-gradient(135deg, var(--advaita-primary), var(--advaita-accent))'
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-white text-xs font-black uppercase tracking-wider transition-all shadow-md hover:scale-105 active:scale-95 cursor-pointer"
                 >
                   <span>{language === 'bn' ? 'বিস্তারিত জানুন (Know More)' : 'Know More'}</span>
                   <ArrowRight size={13} />
@@ -343,24 +519,47 @@ export const HubHome: React.FC = () => {
                 {/* 1. Srila Prabhupada */}
                 <button
                   onClick={() => { triggerHaptic('selection'); navigate('/profiles?tab=lineage&person=sp_prabhupada'); }}
-                  className="p-3.5 rounded-2xl bg-white/5 border border-amber-400/20 hover:border-amber-400/70 flex flex-col items-center text-center space-y-2 group hover:bg-amber-400/5 transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
+                  style={{
+                    borderColor: 'var(--advaita-hero-card-border)'
+                  }}
+                  className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border hover:border-[var(--advaita-primary)] flex flex-col items-center text-center space-y-2 group hover:bg-[var(--advaita-badge-bg)] transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
                 >
                   <div className="relative">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-amber-400 ring-4 ring-amber-500/20 shadow-md group-hover:scale-105 transition-transform duration-300">
+                    <div 
+                      style={{
+                        borderColor: 'var(--advaita-primary)',
+                        boxShadow: '0 0 15px var(--advaita-glow)'
+                      }}
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 shadow-md group-hover:scale-105 transition-transform duration-300"
+                    >
                       <img src="/assets/srila_prabhupada_white.png" alt="Srila Prabhupada" className="w-full h-full object-cover object-top" />
                     </div>
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full bg-amber-500 text-slate-950 text-[8px] font-black uppercase whitespace-nowrap shadow-xs">
+                    <span 
+                      style={{
+                        background: 'linear-gradient(135deg, var(--advaita-primary), var(--advaita-accent))'
+                      }}
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full text-white text-[8px] font-black uppercase whitespace-nowrap shadow-xs"
+                    >
                       1. Founder-Acharya
                     </span>
                   </div>
                   <div className="w-full">
-                    <h4 className="text-xs sm:text-sm font-black text-white leading-tight font-serif mt-1 group-hover:text-amber-300 transition-colors">
+                    <h4 
+                      style={{ color: 'var(--advaita-hero-text)' }}
+                      className="text-xs sm:text-sm font-black leading-tight font-serif mt-1 group-hover:text-[var(--advaita-primary)] transition-colors"
+                    >
                       {language === 'bn' ? 'শ্রীল প্রভুপাদ' : 'Srila Prabhupada'}
                     </h4>
-                    <p className="text-[9.5px] text-amber-300 font-medium truncate">
+                    <p 
+                      style={{ color: 'var(--advaita-nav-active-text)' }}
+                      className="text-[9.5px] font-medium truncate mt-0.5"
+                    >
                       HDG A.C. Bhaktivedanta Swami
                     </p>
-                    <span className="inline-block mt-1.5 text-[9.5px] font-bold text-amber-400/80 group-hover:text-amber-300 group-hover:underline">
+                    <span 
+                      style={{ color: 'var(--advaita-primary)' }}
+                      className="inline-block mt-1.5 text-[9.5px] font-bold group-hover:underline"
+                    >
                       {language === 'bn' ? 'বিস্তারিত জানুন →' : 'Know More →'}
                     </span>
                   </div>
@@ -369,24 +568,47 @@ export const HubHome: React.FC = () => {
                 {/* 2. HH Jayapataka Swami Gurumaharaja */}
                 <button
                   onClick={() => { triggerHaptic('selection'); navigate('/profiles?tab=lineage&person=hh_jayapataka_swami'); }}
-                  className="p-3.5 rounded-2xl bg-white/5 border border-amber-400/20 hover:border-amber-400/70 flex flex-col items-center text-center space-y-2 group hover:bg-amber-400/5 transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
+                  style={{
+                    borderColor: 'var(--advaita-hero-card-border)'
+                  }}
+                  className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border hover:border-[var(--advaita-primary)] flex flex-col items-center text-center space-y-2 group hover:bg-[var(--advaita-badge-bg)] transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
                 >
                   <div className="relative">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-amber-400 ring-4 ring-amber-500/20 shadow-md group-hover:scale-105 transition-transform duration-300">
+                    <div 
+                      style={{
+                        borderColor: 'var(--advaita-primary)',
+                        boxShadow: '0 0 15px var(--advaita-glow)'
+                      }}
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 shadow-md group-hover:scale-105 transition-transform duration-300"
+                    >
                       <img src="/assets/hh_jayapataka_swami.jpg" alt="HH Jayapataka Swami Gurumaharaja" className="w-full h-full object-cover object-top" />
                     </div>
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full bg-amber-500 text-slate-950 text-[8px] font-black uppercase whitespace-nowrap shadow-xs">
+                    <span 
+                      style={{
+                        background: 'linear-gradient(135deg, var(--advaita-primary), var(--advaita-accent))'
+                      }}
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full text-white text-[8px] font-black uppercase whitespace-nowrap shadow-xs"
+                    >
                       2. Guru Maharaja
                     </span>
                   </div>
                   <div className="w-full">
-                    <h4 className="text-xs sm:text-sm font-black text-white leading-tight font-serif mt-1 group-hover:text-amber-300 transition-colors">
+                    <h4 
+                      style={{ color: 'var(--advaita-hero-text)' }}
+                      className="text-xs sm:text-sm font-black leading-tight font-serif mt-1 group-hover:text-[var(--advaita-primary)] transition-colors"
+                    >
                       {language === 'bn' ? 'জয়পতাকা স্বামী মহারাজ' : 'HH Jayapataka Swami'}
                     </h4>
-                    <p className="text-[9.5px] text-amber-300 font-medium truncate">
+                    <p 
+                      style={{ color: 'var(--advaita-nav-active-text)' }}
+                      className="text-[9.5px] font-medium truncate mt-0.5"
+                    >
                       {language === 'bn' ? 'জিবিসি • আধ্যাত্মিক গুরুদেব' : 'ISKCON GBC • Spiritual Master'}
                     </p>
-                    <span className="inline-block mt-1.5 text-[9.5px] font-bold text-amber-400/80 group-hover:text-amber-300 group-hover:underline">
+                    <span 
+                      style={{ color: 'var(--advaita-primary)' }}
+                      className="inline-block mt-1.5 text-[9.5px] font-bold group-hover:underline"
+                    >
                       {language === 'bn' ? 'বিস্তারিত জানুন →' : 'Know More →'}
                     </span>
                   </div>
@@ -395,24 +617,47 @@ export const HubHome: React.FC = () => {
                 {/* 3. HH Bhakti Purushottama Swami Maharaj */}
                 <button
                   onClick={() => { triggerHaptic('selection'); navigate('/profiles?tab=lineage&person=hh_bhakti_purusottama_swami'); }}
-                  className="p-3.5 rounded-2xl bg-white/5 border border-amber-400/20 hover:border-amber-400/70 flex flex-col items-center text-center space-y-2 group hover:bg-amber-400/5 transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
+                  style={{
+                    borderColor: 'var(--advaita-hero-card-border)'
+                  }}
+                  className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border hover:border-[var(--advaita-primary)] flex flex-col items-center text-center space-y-2 group hover:bg-[var(--advaita-badge-bg)] transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
                 >
                   <div className="relative">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-amber-400 ring-4 ring-amber-500/20 shadow-md group-hover:scale-105 transition-transform duration-300">
+                    <div 
+                      style={{
+                        borderColor: 'var(--advaita-primary)',
+                        boxShadow: '0 0 15px var(--advaita-glow)'
+                      }}
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 shadow-md group-hover:scale-105 transition-transform duration-300"
+                    >
                       <img src="/assets/hh_bhaktipurusottam_swami.png" alt="HH Bhakti Purushottama Swami Maharaj" className="w-full h-full object-cover object-top" />
                     </div>
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full bg-amber-500 text-slate-950 text-[8px] font-black uppercase whitespace-nowrap shadow-xs">
+                    <span 
+                      style={{
+                        background: 'linear-gradient(135deg, var(--advaita-primary), var(--advaita-accent))'
+                      }}
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full text-white text-[8px] font-black uppercase whitespace-nowrap shadow-xs"
+                    >
                       3. Spiritual Mentor
                     </span>
                   </div>
                   <div className="w-full">
-                    <h4 className="text-xs sm:text-sm font-black text-white leading-tight font-serif mt-1 group-hover:text-amber-300 transition-colors">
+                    <h4 
+                      style={{ color: 'var(--advaita-hero-text)' }}
+                      className="text-xs sm:text-sm font-black leading-tight font-serif mt-1 group-hover:text-[var(--advaita-primary)] transition-colors"
+                    >
                       {language === 'bn' ? 'ভক্তিপুরুষোত্তম স্বামী' : 'HH Bhakti Purusottam Swami'}
                     </h4>
-                    <p className="text-[9.5px] text-amber-300 font-medium truncate">
+                    <p 
+                      style={{ color: 'var(--advaita-nav-active-text)' }}
+                      className="text-[9.5px] font-medium truncate mt-0.5"
+                    >
                       {language === 'bn' ? 'জিবিসি • মায়াপুর ডিরেক্টর' : 'ISKCON GBC • Mayapur Director'}
                     </p>
-                    <span className="inline-block mt-1.5 text-[9.5px] font-bold text-amber-400/80 group-hover:text-amber-300 group-hover:underline">
+                    <span 
+                      style={{ color: 'var(--advaita-primary)' }}
+                      className="inline-block mt-1.5 text-[9.5px] font-bold group-hover:underline"
+                    >
                       {language === 'bn' ? 'বিস্তারিত জানুন →' : 'Know More →'}
                     </span>
                   </div>
@@ -421,24 +666,47 @@ export const HubHome: React.FC = () => {
                 {/* 4. HG Radheshyam Das Prabhu */}
                 <button
                   onClick={() => { triggerHaptic('selection'); navigate('/profiles?tab=lineage&person=hg_radheshyam_prabhu'); }}
-                  className="p-3.5 rounded-2xl bg-white/5 border border-amber-400/20 hover:border-amber-400/70 flex flex-col items-center text-center space-y-2 group hover:bg-amber-400/5 transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
+                  style={{
+                    borderColor: 'var(--advaita-hero-card-border)'
+                  }}
+                  className="p-3.5 rounded-2xl bg-black/5 dark:bg-white/5 border hover:border-[var(--advaita-primary)] flex flex-col items-center text-center space-y-2 group hover:bg-[var(--advaita-badge-bg)] transition-all duration-300 cursor-pointer text-left w-full hover:-translate-y-1"
                 >
                   <div className="relative">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-amber-400 ring-4 ring-amber-500/20 shadow-md group-hover:scale-105 transition-transform duration-300">
+                    <div 
+                      style={{
+                        borderColor: 'var(--advaita-primary)',
+                        boxShadow: '0 0 15px var(--advaita-glow)'
+                      }}
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 shadow-md group-hover:scale-105 transition-transform duration-300"
+                    >
                       <img src="/assets/hg_radheshyam_prabhu.png" alt="HG Radheshyam Das Prabhu" className="w-full h-full object-cover object-top" />
                     </div>
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full bg-amber-500 text-slate-950 text-[8px] font-black uppercase whitespace-nowrap shadow-xs">
+                    <span 
+                      style={{
+                        background: 'linear-gradient(135deg, var(--advaita-primary), var(--advaita-accent))'
+                      }}
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.2 rounded-full text-white text-[8px] font-black uppercase whitespace-nowrap shadow-xs"
+                    >
                       4. VOICE Architect
                     </span>
                   </div>
                   <div className="w-full">
-                    <h4 className="text-xs sm:text-sm font-black text-white leading-tight font-serif mt-1 group-hover:text-amber-300 transition-colors">
+                    <h4 
+                      style={{ color: 'var(--advaita-hero-text)' }}
+                      className="text-xs sm:text-sm font-black leading-tight font-serif mt-1 group-hover:text-[var(--advaita-primary)] transition-colors"
+                    >
                       {language === 'bn' ? 'রাধেশ্যাম দাস প্রভু' : 'HG Radheshyam Das'}
                     </h4>
-                    <p className="text-[9.5px] text-amber-300 font-medium truncate">
+                    <p 
+                      style={{ color: 'var(--advaita-nav-active-text)' }}
+                      className="text-[9.5px] font-medium truncate mt-0.5"
+                    >
                       {language === 'bn' ? 'আইআইটি বোম্বে • ভয়েস প্রতিষ্ঠাতা' : 'IIT Bombay • VOICE Founder'}
                     </p>
-                    <span className="inline-block mt-1.5 text-[9.5px] font-bold text-amber-400/80 group-hover:text-amber-300 group-hover:underline">
+                    <span 
+                      style={{ color: 'var(--advaita-primary)' }}
+                      className="inline-block mt-1.5 text-[9.5px] font-bold group-hover:underline"
+                    >
                       {language === 'bn' ? 'বিস্তারিত জানুন →' : 'Know More →'}
                     </span>
                   </div>
