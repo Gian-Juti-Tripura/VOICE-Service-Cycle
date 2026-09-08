@@ -10,6 +10,8 @@ import type { Member, DailyAssignment } from '../../types';
 import { calculateDailyAssignments } from '../../utils/cycleEngine';
 
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { UserProfileModal } from '../../components/profile/UserProfileModal';
+import { getUserProfile, PROFILE_UPDATED_EVENT, type UserProfileState } from '../../utils/userProfile';
 
 const MemberDashboard: React.FC = () => {
   const { t, language } = useLanguage();
@@ -21,6 +23,24 @@ const MemberDashboard: React.FC = () => {
   const [selectedMemberId, setSelectedMemberId] = useState('');
   const [phonePin, setPhonePin] = useState('');
   const [linking, setLinking] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+
+  const fallbackDevoteeName = user?.user_metadata?.full_name || 
+                              user?.email?.split('@')[0] || 
+                              (language === 'bn' ? 'জ্ঞান জ্যোতি ত্রিপুরা' : 'Gian Juti Tripura');
+
+  const [userProfile, setUserProfile] = useState<UserProfileState>(() => getUserProfile(fallbackDevoteeName));
+
+  useEffect(() => {
+    const handleProfileUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<UserProfileState>;
+      if (customEvent.detail) {
+        setUserProfile(customEvent.detail);
+      }
+    };
+    window.addEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdate);
+    return () => window.removeEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdate);
+  }, []);
   
   const [todayAssignments, setTodayAssignments] = useState<DailyAssignment[]>([]);
   const [tomorrowAssignments, setTomorrowAssignments] = useState<DailyAssignment[]>([]);
@@ -289,14 +309,33 @@ const MemberDashboard: React.FC = () => {
             {/* Guest / External Student Welcome Banner */}
             <div className="rounded-[28px] p-6 sm:p-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 font-bold text-lg">
-                    {user?.email?.charAt(0).toUpperCase() || 'G'}
+                <div className="flex items-center gap-3.5">
+                  <div 
+                    onClick={() => setProfileModalOpen(true)}
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ring-2 ring-amber-500/50 shadow-md overflow-hidden cursor-pointer shrink-0 relative group bg-slate-100 dark:bg-slate-800"
+                    title={language === 'bn' ? 'ছবি ও নাম পরিবর্তন' : 'Edit photo & name'}
+                  >
+                    <img 
+                      src={userProfile.avatarUrl} 
+                      alt={userProfile.displayName} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                    />
+                    <span className="absolute bottom-0 right-0 p-1 bg-amber-500 text-slate-950 rounded-tl-lg text-[9px] shadow-xs">
+                      📷
+                    </span>
                   </div>
                   <div>
-                    <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
-                      {user?.user_metadata?.full_name || user?.email?.split('@')[0] || (language === 'bn' ? 'সম্মানিত অতিথি ভক্ত' : 'Guest Devotee')}
-                    </h2>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                        {userProfile.displayName}
+                      </h2>
+                      <button
+                        onClick={() => setProfileModalOpen(true)}
+                        className="text-xs text-amber-600 dark:text-amber-400 hover:underline font-bold cursor-pointer"
+                      >
+                        ({language === 'bn' ? 'এডিট' : 'Edit'})
+                      </button>
+                    </div>
                     <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
                       <span className="w-2 h-2 rounded-full bg-amber-500"></span>
                       {language === 'bn' ? 'আইওয়াইএফ যুব শিক্ষার্থী / অতিথি' : 'IYF Youth Student / Guest'}
@@ -305,6 +344,13 @@ const MemberDashboard: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setProfileModalOpen(true)}
+                    className="px-3.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                  >
+                    <span>📷</span>
+                    <span>{language === 'bn' ? 'প্রোফাইল ফটো ও নাম' : 'Profile & Photo'}</span>
+                  </button>
                   <span className="text-[11px] px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 font-mono text-slate-600 dark:text-slate-400 font-bold">
                     {user?.email}
                   </span>
@@ -415,6 +461,58 @@ const MemberDashboard: React.FC = () => {
           </div>
         )}
 
+        {/* Linked Devotee Profile Banner (For Resident Members) */}
+        {myMember && (
+          <div className="rounded-[28px] p-5 sm:p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div 
+                onClick={() => setProfileModalOpen(true)}
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ring-2 ring-amber-500/50 shadow-md overflow-hidden cursor-pointer shrink-0 relative group bg-slate-100 dark:bg-slate-800"
+                title={language === 'bn' ? 'ছবি ও নাম পরিবর্তন' : 'Edit photo & name'}
+              >
+                <img 
+                  src={userProfile.avatarUrl} 
+                  alt={userProfile.displayName} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                />
+                <span className="absolute bottom-0 right-0 p-1 bg-amber-500 text-slate-950 rounded-tl-lg text-[9px] shadow-xs">
+                  📷
+                </span>
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                    {userProfile.displayName}
+                  </h2>
+                  <button
+                    onClick={() => setProfileModalOpen(true)}
+                    className="text-xs text-amber-600 dark:text-amber-400 hover:underline font-bold cursor-pointer"
+                  >
+                    ({language === 'bn' ? 'এডিট' : 'Edit'})
+                  </button>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 mt-0.5">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>{myMember.fullName} • {language === 'bn' ? 'আবাসিক ভক্ত' : 'Resident Devotee'}</span>
+                  </span>
+                  {myMember.phone && (
+                    <span className="text-[11px] text-slate-400 font-bold">• {myMember.phone}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setProfileModalOpen(true)}
+              className="px-4 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 self-start sm:self-auto"
+            >
+              <span>📷</span>
+              <span>{language === 'bn' ? 'প্রোফাইল ফটো ও নাম এডিট' : 'Edit Photo & Name'}</span>
+            </button>
+          </div>
+        )}
+
         {/* Daily Service Cards Grid (For Linked Resident Members) */}
         {myMember && (
           <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
@@ -473,6 +571,12 @@ const MemberDashboard: React.FC = () => {
         )}
 
       </div>
+
+      {/* Devotee Profile Modal */}
+      <UserProfileModal
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+      />
     </div>
   );
 };

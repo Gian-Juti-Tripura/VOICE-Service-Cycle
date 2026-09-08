@@ -9,6 +9,8 @@ import {
   Settings, ArrowRight, Calendar, Megaphone, AlertCircle
 } from 'lucide-react';
 import { NotificationSettingsModal } from '../notifications/NotificationSettingsModal';
+import { UserProfileModal } from '../profile/UserProfileModal';
+import { getUserProfile, PROFILE_UPDATED_EVENT, type UserProfileState } from '../../utils/userProfile';
 
 interface DynamicNotification {
   id: string;
@@ -78,6 +80,25 @@ export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+
+  const fallbackDevoteeName = user?.user_metadata?.full_name || 
+                              user?.email?.split('@')[0] || 
+                              (language === 'bn' ? 'জ্ঞান জ্যোতি ত্রিপুরা' : 'Gian Juti Tripura');
+
+  const [userProfile, setUserProfile] = useState<UserProfileState>(() => getUserProfile(fallbackDevoteeName));
+
+  // Keep profile synchronized across app
+  useEffect(() => {
+    const handleProfileUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<UserProfileState>;
+      if (customEvent.detail) {
+        setUserProfile(customEvent.detail);
+      }
+    };
+    window.addEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdate);
+    return () => window.removeEventListener(PROFILE_UPDATED_EVENT, handleProfileUpdate);
+  }, []);
   
   const [readNotifIds, setReadNotifIds] = useState<string[]>(() => {
     try {
@@ -413,6 +434,23 @@ export const Navbar: React.FC = () => {
             )}
           </button>
 
+          {/* User Profile Avatar Trigger (Always accessible on Mobile & Desktop) */}
+          <button
+            onClick={() => setProfileModalOpen(true)}
+            className="relative p-0.5 rounded-full ring-2 ring-amber-500/40 hover:ring-amber-500 active:scale-95 transition-all cursor-pointer group bg-slate-100 dark:bg-slate-800 shrink-0"
+            title={language === 'bn' ? `${userProfile.displayName} (প্রোফাইল ও ফটো)` : `Profile: ${userProfile.displayName}`}
+            aria-label="Devotee Profile"
+          >
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden shadow-xs bg-amber-500/10">
+              <img 
+                src={userProfile.avatarUrl} 
+                alt={userProfile.displayName}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+              />
+            </div>
+            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full" />
+          </button>
+
           {/* User Auth Action Pill (Desktop) */}
           {user ? (
             <div className="hidden sm:flex items-center gap-1">
@@ -455,7 +493,34 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden px-4 pt-2 pb-4 space-y-1.5 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 shadow-xl animate-fade-in">
+        <div className="lg:hidden px-4 pt-2 pb-4 space-y-2 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 shadow-xl animate-fade-in">
+          
+          {/* Mobile Profile Trigger Card */}
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              setProfileModalOpen(true);
+            }}
+            className="w-full flex items-center justify-between p-2.5 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 text-left transition-all hover:bg-amber-500/20 cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-amber-500/50 shrink-0 bg-slate-100 dark:bg-slate-800">
+                <img src={userProfile.avatarUrl} alt={userProfile.displayName} className="w-full h-full object-cover" />
+              </div>
+              <div>
+                <div className="text-xs font-black text-slate-900 dark:text-white line-clamp-1">
+                  {userProfile.displayName}
+                </div>
+                <div className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                  {language === 'bn' ? 'ছবি ও নাম পরিবর্তন করুন' : 'Edit Photo & Name'}
+                </div>
+              </div>
+            </div>
+            <span className="text-[11px] text-amber-700 dark:text-amber-300 font-extrabold px-2.5 py-1 bg-white/80 dark:bg-slate-800 rounded-xl shadow-2xs">
+              {language === 'bn' ? 'প্রোফাইল' : 'Profile'}
+            </span>
+          </button>
+
           {NAV_LINKS.map(link => (
             <NavLink key={link.to} {...link} />
           ))}
@@ -499,6 +564,12 @@ export const Navbar: React.FC = () => {
       <NotificationSettingsModal
         isOpen={settingsOpen}
         onClose={() => setSettingsOpen(false)}
+      />
+
+      {/* Devotee Profile Modal */}
+      <UserProfileModal
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
       />
     </nav>
   );
