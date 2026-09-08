@@ -7,7 +7,7 @@ import {
   UserPlus, Trash2, ArrowRightLeft,
   Moon, Sun, Clock, AlertCircle, Edit, Save, X, Send,
   Flame, BookOpen, History, Award,
-  Download, Shield
+  Download, Shield, Eye
 } from 'lucide-react';
 import { 
   type GroupType, 
@@ -114,6 +114,8 @@ export const AshramDisciplineAudit: React.FC = () => {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
   });
 
+  const [previewReport, setPreviewReport] = useState<{ title: string; content: string } | null>(null);
+
   useEffect(() => {
     localStorage.setItem(STORAGE_STUDENTS_KEY, JSON.stringify(students));
   }, [students]);
@@ -200,14 +202,18 @@ export const AshramDisciplineAudit: React.FC = () => {
   };
 
   const formatReasonText = (reason?: string, bn = isBn) => {
-    if (!reason) return bn ? 'অনুপস্থিত / ছুটি' : 'Leave / Absent';
+    if (!reason) return bn ? 'ছুটি / অনুপস্থিত' : 'On Leave';
     if (bn) {
       const match = reason.match(/\((.*?)\)/);
       if (match && match[1]) return match[1].trim();
-      return reason;
+      return reason.replace('Out of town / Home Leave', 'গ্রামের বাড়ি / ছুটি');
     } else {
       const parts = reason.split('(');
-      return parts[0].trim() || reason;
+      let text = parts[0].trim() || reason;
+      if (text === 'Out of town / Home Leave') return 'Home Leave';
+      if (text === 'Health / Hospital / Sickness') return 'Health / Sickness';
+      if (text === 'University Exam / Academic') return 'Exam / Academic';
+      return text;
     }
   };
 
@@ -499,11 +505,13 @@ export const AshramDisciplineAudit: React.FC = () => {
     const voiceStudents = students.filter(s => s.group === 'VOICE');
     const compliant: string[] = [];
     const nonCompliant: string[] = [];
+    const onLeave: string[] = [];
 
     voiceStudents.forEach(s => {
       const entry = getEntry(s.id);
       if (entry.isAbsent) {
-        compliant.push(`${s.name}(${isBn ? 'ছুটি' : 'Absent'})`);
+        const reason = formatReasonText(entry.absenceReason, isBn);
+        onLeave.push(`*${s.name}* — ${reason}`);
       } else {
         const wakeAndMpGood = entry.wokeUpOnTime && entry.morningProgramOnTime && entry.mangalaratiAttended && entry.morningClassAttended;
         const bedGood = entry.sleptOnTime || entry.isEmergency;
@@ -515,11 +523,11 @@ export const AshramDisciplineAudit: React.FC = () => {
           const issues: string[] = [];
           if (!entry.wokeUpOnTime) issues.push(isBn ? 'দেরিতে জাগরণ (>৪:০০ AM)' : 'Late Wake (>4:00 AM)');
           if (!entry.morningProgramOnTime) {
-            const minStr = entry.mpLateMinutes ? ` (${entry.mpLateMinutes}m)` : '';
+            const minStr = entry.mpLateMinutes ? ` (${toBn(entry.mpLateMinutes)}m)` : '';
             issues.push(isBn ? `মর্নিং প্রোগ্রামে বিলম্ব (>৪:৩০ AM)${minStr}` : `Late to MP (>4:30 AM)${minStr}`);
           }
           if (!entry.sleptOnTime && !entry.isEmergency) {
-            const minStr = entry.bedLateMinutes ? ` (${entry.bedLateMinutes}m)` : '';
+            const minStr = entry.bedLateMinutes ? ` (${toBn(entry.bedLateMinutes)}m)` : '';
             issues.push(isBn ? `দেরিতে শয়ন (>১০:০০ PM)${minStr}` : `Late Bedtime (>10:00 PM)${minStr}`);
           }
           if (!entry.mangalaratiAttended) {
@@ -531,9 +539,9 @@ export const AshramDisciplineAudit: React.FC = () => {
             issues.push(isBn ? `ক্লাসে অনুপস্থিত (${reason})` : `Missed Class (${reason})`);
           }
           const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes;
-          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(sStrikes)}/৩]` : '';
-          const reasonStr = entry.reason ? ` — *${isBn ? 'কারণ' : 'Reason'}:* ${entry.reason}` : '';
-          nonCompliant.push(`❌ *${s.name}*${strikeStr} (${issues.join(', ')})${reasonStr}`);
+          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক ' + toBn(sStrikes) + '/৩' : 'Strike ' + sStrikes + '/3'}]` : '';
+          const reasonStr = entry.reason ? ` — _${isBn ? 'কারণ' : 'Reason'}:_ ${formatReasonText(entry.reason, isBn)}` : '';
+          nonCompliant.push(`*${s.name}*${strikeStr} (${issues.join(', ')})${reasonStr}`);
         }
       }
     });
@@ -542,7 +550,8 @@ export const AshramDisciplineAudit: React.FC = () => {
       ? `🌟 *অদ্বৈত ভয়েস — মর্নিং প্রোগ্রাম ও শৃঙ্খলা প্রতিবেদন* 🌟\n` 
       : `🌟 *ADVAITA VOICE — MORNING PROGRAM & DISCIPLINE REPORT* 🌟\n`;
     report += `📅 *${isBn ? 'তারিখ' : 'Date'}:* ${dateFormatted}\n`;
-    report += `📋 *${isBn ? 'গ্রুপ' : 'Group'}:* ${isBn ? 'ভয়েস গ্রুপ (শয়ন: <= ১০:০০ PM | জাগরণ: ৪:০০ AM | এমপি: <= ৪:৩০ AM)' : 'VOICE Group (Bed: <= 10:00 PM | Wake: 4:00 AM | MP: <= 4:30 AM)'}\n\n`;
+    report += `📋 *${isBn ? 'গ্রুপ' : 'Group'}:* ${isBn ? 'ভয়েস গ্রুপ (শয়ন: ≤ ১০:০০ PM | জাগরণ: ৪:০০ AM | এমপি: ≤ ৪:৩০ AM)' : 'VOICE Group (Bed: ≤ 10:00 PM | Wake: 4:00 AM | MP: ≤ 4:30 AM)'}\n`;
+    report += `───────────────────────────\n`;
 
     report += `✅ *${isBn ? 'সকল নিয়ম পালনকারী' : 'All Rules Followed'} (${isBn ? 'সময়মতো' : 'On Time'} - ${toBn(compliant.length)}/${toBn(voiceStudents.length)}):*\n`;
     if (compliant.length === 0) {
@@ -552,18 +561,22 @@ export const AshramDisciplineAudit: React.FC = () => {
         report += `   ${toBn(i + 1)}. ${name}\n`;
       });
     }
-    report += `\n`;
 
-    report += `⚠️ *${isBn ? 'নিয়ম লঙ্ঘন / ব্যতিক্রম' : 'Rule Breaches / Exceptions'} (${toBn(nonCompliant.length)}):*\n`;
-    if (nonCompliant.length === 0) {
-      report += `   🎉 ${isBn ? 'সকল ভক্ত সময়মতো সকল নিয়ম পালন করেছেন!' : 'All students followed rules on time!'}\n`;
-    } else {
+    if (nonCompliant.length > 0) {
+      report += `\n⚠️ *${isBn ? 'নিয়ম লঙ্ঘন / ব্যতিক্রম' : 'Rule Breaches / Exceptions'} (${toBn(nonCompliant.length)}):*\n`;
       nonCompliant.forEach((item, i) => {
         report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
-    report += `\n`;
 
+    if (onLeave.length > 0) {
+      report += `\n🕊️ *${isBn ? 'ছুটি / অনুপস্থিত' : 'On Leave / Excused'} (${toBn(onLeave.length)}):*\n`;
+      onLeave.forEach((item, i) => {
+        report += `   ${toBn(i + 1)}. ${item}\n`;
+      });
+    }
+
+    report += `───────────────────────────\n`;
     report += `🙏 *${isBn ? 'রিপোর্ট প্রেরক' : 'Reported by'}:* ${isBn ? 'মর্নিং প্রোগ্রাম ইনচার্জ (ভয়েস গ্রুপ)' : 'Morning Program Incharge (VOICE Group)'}\n`;
     return report;
   };
@@ -572,21 +585,23 @@ export const AshramDisciplineAudit: React.FC = () => {
     const lotusStudents = students.filter(s => s.group === 'LOTUS');
     const compliant: string[] = [];
     const nonCompliant: string[] = [];
+    const onLeave: string[] = [];
 
     lotusStudents.forEach(s => {
       const entry = getEntry(s.id);
       if (entry.isAbsent) {
-        compliant.push(`${s.name}(${isBn ? 'ছুটি' : 'Absent'})`);
+        const reason = formatReasonText(entry.absenceReason, isBn);
+        onLeave.push(`*${s.name}* — ${reason}`);
       } else {
         const wakeAndMpGood = entry.wokeUpOnTime && entry.morningProgramOnTime && entry.mangalaratiAttended && entry.morningClassAttended;
         if (wakeAndMpGood) {
           compliant.push(s.name);
         } else {
           const issues: string[] = [];
-          if (!entry.wokeUpOnTime) issues.push(isBn ? 'দেরিতে জাগরণ' : 'Late Wake');
+          if (!entry.wokeUpOnTime) issues.push(isBn ? 'দেরিতে জাগরণ' : 'Wake Late');
           if (!entry.morningProgramOnTime) {
-            const minStr = entry.mpLateMinutes ? ` (${entry.mpLateMinutes}m late)` : '';
-            issues.push(isBn ? `মর্নিং প্রোগ্রামে বিলম্ব (>৫:০০ AM)${minStr}` : `Late to MP (>5:00 AM)${minStr}`);
+            const minStr = entry.mpLateMinutes ? ` (${toBn(entry.mpLateMinutes)}m)` : '';
+            issues.push(isBn ? `এমপিতে বিলম্ব (>৫:০০ AM)${minStr}` : `Late to MP (>5:00 AM)${minStr}`);
           }
           if (!entry.mangalaratiAttended) {
             const reason = formatReasonText(entry.mangalaratiReason, isBn);
@@ -597,9 +612,9 @@ export const AshramDisciplineAudit: React.FC = () => {
             issues.push(isBn ? `ক্লাসে অনুপস্থিত (${reason})` : `Missed Class (${reason})`);
           }
           const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes;
-          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(sStrikes)}/৩]` : '';
-          const reasonStr = entry.reason ? ` — *${isBn ? 'কারণ' : 'Reason'}:* ${entry.reason}` : '';
-          nonCompliant.push(`❌ *${s.name}*${strikeStr} (${issues.join(', ')})${reasonStr}`);
+          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক ' + toBn(sStrikes) + '/৩' : 'Strike ' + sStrikes + '/3'}]` : '';
+          const reasonStr = entry.reason ? ` — _${isBn ? 'কারণ' : 'Reason'}:_ ${formatReasonText(entry.reason, isBn)}` : '';
+          nonCompliant.push(`*${s.name}*${strikeStr} (${issues.join(', ')})${reasonStr}`);
         }
       }
     });
@@ -608,7 +623,8 @@ export const AshramDisciplineAudit: React.FC = () => {
       ? `🪷 *অদ্বৈত ভয়েস — লোটাস গ্রুপ সাধনা ও শৃঙ্খলা প্রতিবেদন* 🪷\n` 
       : `🪷 *ADVAITA VOICE — LOTUS GROUP DISCIPLINE REPORT* 🪷\n`;
     report += `📅 *${isBn ? 'তারিখ' : 'Date'}:* ${dateFormatted}\n`;
-    report += `📋 *${isBn ? 'গ্রুপ' : 'Group'}:* ${isBn ? 'লোটাস গ্রুপ (শয়ন: <= ১১:০০ PM | এমপি: <= ৫:০০ AM)' : 'Lotus Group (Bed: <= 11:00 PM | MP: <= 5:00 AM)'}\n\n`;
+    report += `📋 *${isBn ? 'গ্রুপ' : 'Group'}:* ${isBn ? 'লোটাস গ্রুপ (শয়ন: ≤ ১১:০০ PM | এমপি: ≤ ৫:০০ AM)' : 'Lotus Group (Bed: ≤ 11:00 PM | MP: ≤ 5:00 AM)'}\n`;
+    report += `───────────────────────────\n`;
 
     report += `✅ *${isBn ? 'সকল নিয়ম পালনকারী' : 'All Rules Followed'} (${isBn ? 'সময়মতো' : 'On Time'} - ${toBn(compliant.length)}/${toBn(lotusStudents.length)}):*\n`;
     if (compliant.length === 0) {
@@ -618,18 +634,22 @@ export const AshramDisciplineAudit: React.FC = () => {
         report += `   ${toBn(i + 1)}. ${name}\n`;
       });
     }
-    report += `\n`;
 
-    report += `⚠️ *${isBn ? 'নিয়ম লঙ্ঘন / ব্যতিক্রম' : 'Rule Breaches / Exceptions'} (${toBn(nonCompliant.length)}):*\n`;
-    if (nonCompliant.length === 0) {
-      report += `   🎉 ${isBn ? 'সকল ভক্ত সময়মতো নিয়ম পালন করেছেন!' : 'All students followed rules on time!'}\n`;
-    } else {
+    if (nonCompliant.length > 0) {
+      report += `\n⚠️ *${isBn ? 'নিয়ম লঙ্ঘন / ব্যতিক্রম' : 'Rule Breaches / Exceptions'} (${toBn(nonCompliant.length)}):*\n`;
       nonCompliant.forEach((item, i) => {
         report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
-    report += `\n`;
 
+    if (onLeave.length > 0) {
+      report += `\n🕊️ *${isBn ? 'ছুটি / অনুপস্থিত' : 'On Leave / Excused'} (${toBn(onLeave.length)}):*\n`;
+      onLeave.forEach((item, i) => {
+        report += `   ${toBn(i + 1)}. ${item}\n`;
+      });
+    }
+
+    report += `───────────────────────────\n`;
     report += `🙏 *${isBn ? 'রিপোর্ট প্রেরক' : 'Reported by'}:* ${isBn ? 'কাউন্সেলর ডেস্ক (অদ্বৈত ভয়েস)' : 'Counselor Desk (Advaita VOICE)'}\n`;
     return report;
   };
@@ -650,17 +670,17 @@ export const AshramDisciplineAudit: React.FC = () => {
       const entry = getEntry(s.id);
       if (entry.isAbsent) {
         const reason = formatReasonText(entry.absenceReason, isBn);
-        voiceAbsent.push(`🔴 *${s.name}* (${isBn ? 'ছুটি' : 'Leave/Absent'}) — *${isBn ? 'কারণ' : 'Reason'}:* ${reason}`);
+        voiceAbsent.push(`*${s.name}* — ${reason}`);
       } else {
         const isPerfect = entry.wokeUpOnTime && entry.morningProgramOnTime && entry.mangalaratiAttended && entry.morningClassAttended;
         if (isPerfect) {
           voiceOnTime.push(s.name);
         } else {
           const notes: string[] = [];
-          if (!entry.wokeUpOnTime) notes.push(isBn ? 'দেরিতে ঘুম থেকে ওঠা' : 'Wake Late');
+          if (!entry.wokeUpOnTime) notes.push(isBn ? 'দেরিতে জাগরণ' : 'Wake Late');
           if (!entry.morningProgramOnTime) {
-            const minStr = entry.mpLateMinutes ? ` (${entry.mpLateMinutes}m)` : '';
-            notes.push(`${isBn ? 'মর্নিং প্রোগ্রামে বিলম্ব' : 'MP Late'}${minStr}`);
+            const minStr = entry.mpLateMinutes ? ` (${toBn(entry.mpLateMinutes)}m)` : '';
+            notes.push(`${isBn ? 'এমপিতে বিলম্ব' : 'MP Late'}${minStr}`);
           }
           if (!entry.mangalaratiAttended) {
             const r = formatReasonText(entry.mangalaratiReason, isBn);
@@ -668,11 +688,11 @@ export const AshramDisciplineAudit: React.FC = () => {
           }
           if (!entry.morningClassAttended) {
             const r = formatReasonText(entry.morningClassReason, isBn);
-            notes.push(`${isBn ? 'মর্নিং ক্লাস অনুপস্থিত' : 'Missed Class'} (${r})`);
+            notes.push(`${isBn ? 'ক্লাস অনুপস্থিত' : 'Missed Class'} (${r})`);
           }
           const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes;
-          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(sStrikes)}/৩]` : '';
-          voiceLateOrMissed.push(`⚠️ *${s.name}*${strikeStr} — ${notes.join(', ')}`);
+          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক ' + toBn(sStrikes) + '/৩' : 'Strike ' + sStrikes + '/3'}]` : '';
+          voiceLateOrMissed.push(`*${s.name}*${strikeStr} — ${notes.join(', ')}`);
         }
       }
     });
@@ -681,17 +701,17 @@ export const AshramDisciplineAudit: React.FC = () => {
       const entry = getEntry(s.id);
       if (entry.isAbsent) {
         const reason = formatReasonText(entry.absenceReason, isBn);
-        lotusAbsent.push(`🔴 *${s.name}* (${isBn ? 'ছুটি' : 'Leave/Absent'}) — *${isBn ? 'কারণ' : 'Reason'}:* ${reason}`);
+        lotusAbsent.push(`*${s.name}* — ${reason}`);
       } else {
         const isPerfect = entry.wokeUpOnTime && entry.morningProgramOnTime && entry.mangalaratiAttended && entry.morningClassAttended;
         if (isPerfect) {
           lotusOnTime.push(s.name);
         } else {
           const notes: string[] = [];
-          if (!entry.wokeUpOnTime) notes.push(isBn ? 'দেরিতে ঘুম থেকে ওঠা' : 'Wake Late');
+          if (!entry.wokeUpOnTime) notes.push(isBn ? 'দেরিতে জাগরণ' : 'Wake Late');
           if (!entry.morningProgramOnTime) {
-            const minStr = entry.mpLateMinutes ? ` (${entry.mpLateMinutes}m)` : '';
-            notes.push(`${isBn ? 'মর্নিং প্রোগ্রামে বিলম্ব' : 'MP Late'}${minStr}`);
+            const minStr = entry.mpLateMinutes ? ` (${toBn(entry.mpLateMinutes)}m)` : '';
+            notes.push(`${isBn ? 'এমপিতে বিলম্ব' : 'MP Late'}${minStr}`);
           }
           if (!entry.mangalaratiAttended) {
             const r = formatReasonText(entry.mangalaratiReason, isBn);
@@ -699,11 +719,11 @@ export const AshramDisciplineAudit: React.FC = () => {
           }
           if (!entry.morningClassAttended) {
             const r = formatReasonText(entry.morningClassReason, isBn);
-            notes.push(`${isBn ? 'মর্নিং ক্লাস অনুপস্থিত' : 'Missed Class'} (${r})`);
+            notes.push(`${isBn ? 'ক্লাস অনুপস্থিত' : 'Missed Class'} (${r})`);
           }
           const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes;
-          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক' : 'Strike'} ${toBn(sStrikes)}/৩]` : '';
-          lotusLateOrMissed.push(`⚠️ *${s.name}*${strikeStr} — ${notes.join(', ')}`);
+          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক ' + toBn(sStrikes) + '/৩' : 'Strike ' + sStrikes + '/3'}]` : '';
+          lotusLateOrMissed.push(`*${s.name}*${strikeStr} — ${notes.join(', ')}`);
         }
       }
     });
@@ -714,12 +734,13 @@ export const AshramDisciplineAudit: React.FC = () => {
     const totalStudents = students.length;
 
     let report = isBn
-      ? `🌅 *অদ্বৈত ভয়েস — প্রাতঃকালীন সাধনা ও উপস্থিতি সমন্বিত প্রতিবেদন* 🌅\n`
-      : `🌅 *ADVAITA VOICE — MORNING PROGRAM COMBINED REPORT* 🌅\n`;
+      ? `🌅 *অদ্বৈত ভয়েস — প্রাতঃকালীন সাধনা ও উপস্থিতি প্রতিবেদন* 🌅\n`
+      : `🌅 *ADVAITA VOICE — MORNING PROGRAM REPORT* 🌅\n`;
     report += `📅 *${isBn ? 'তারিখ' : 'Date'}:* ${dateFormatted}\n`;
-    report += `🏛️ *${isBn ? 'উপস্থিতি ও সময়ানুবর্তিতা' : 'Attendance & Punctuality'}:* ${toBn(totalOnTime)}/${toBn(totalStudents)} ${isBn ? 'জন সময়মতো উপস্থিত' : 'Present on Time'}${totalAbsent > 0 ? ` (${toBn(totalAbsent)} ${isBn ? 'জন ছুটি/অনুপস্থিত' : 'Leave/Absent'})` : ''}\n\n`;
+    report += `📊 *${isBn ? 'উপস্থিতি' : 'Attendance'}:* ${toBn(totalOnTime)}/${toBn(totalStudents)} ${isBn ? 'সময়মতো' : 'On-Time'}${totalAbsent > 0 ? ` • ${toBn(totalAbsent)} ${isBn ? 'ছুটি' : 'on Leave'}` : ''}\n`;
+    report += `───────────────────────────\n`;
 
-    report += `🌟 *১. ${isBn ? 'ভয়েস গ্রুপ' : 'VOICE GROUP'} (${isBn ? 'মর্নিং প্রোগ্রাম লক্ষ্য' : 'MP Target'}: <= 4:30 AM | ${isBn ? 'ক্লাস' : 'Class'}: 7:00 AM)*\n`;
+    report += `🌟 *${toBn(1)}. ${isBn ? 'ভয়েস গ্রুপ' : 'VOICE GROUP'}* _(${isBn ? 'টার্গেট: ≤ ৪:৩০ AM | ক্লাস: ৭:০০ AM' : 'MP: ≤ 4:30 AM | Class: 7:00 AM'})_\n\n`;
     report += `✅ *${isBn ? 'সময়মতো সম্পন্ন' : 'Completed On-Time'} (${toBn(voiceOnTime.length)}/${toBn(voiceStudents.length)}):*\n`;
     if (voiceOnTime.length === 0) {
       report += `   _${isBn ? 'কেউ নেই' : 'None'}_\n`;
@@ -730,21 +751,21 @@ export const AshramDisciplineAudit: React.FC = () => {
     }
 
     if (voiceLateOrMissed.length > 0) {
-      report += `⚠️ *${isBn ? 'দেরি বা অপূর্ণ' : 'Late / Incomplete'} (${toBn(voiceLateOrMissed.length)}):*\n`;
+      report += `\n⚠️ *${isBn ? 'দেরি বা অপূর্ণ' : 'Late / Incomplete'} (${toBn(voiceLateOrMissed.length)}):*\n`;
       voiceLateOrMissed.forEach((item, i) => {
         report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
 
     if (voiceAbsent.length > 0) {
-      report += `🔴 *${isBn ? 'ছুটি / অনুপস্থিত' : 'Leave / Absent'} (${toBn(voiceAbsent.length)}):*\n`;
+      report += `\n🕊️ *${isBn ? 'ছুটি / অনুপস্থিত' : 'On Leave / Absent'} (${toBn(voiceAbsent.length)}):*\n`;
       voiceAbsent.forEach((item, i) => {
         report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
-    report += `\n`;
+    report += `\n───────────────────────────\n`;
 
-    report += `🪷 *২. ${isBn ? 'লোটাস গ্রুপ' : 'LOTUS GROUP'} (${isBn ? 'মর্নিং প্রোগ্রাম লক্ষ্য' : 'MP Target'}: <= 5:00 AM | ${isBn ? 'ক্লাস' : 'Class'}: 7:00 AM)*\n`;
+    report += `🪷 *${toBn(2)}. ${isBn ? 'লোটাস গ্রুপ' : 'LOTUS GROUP'}* _(${isBn ? 'টার্গেট: ≤ ৫:০০ AM | ক্লাস: ৭:০০ AM' : 'MP: ≤ 5:00 AM | Class: 7:00 AM'})_\n\n`;
     report += `✅ *${isBn ? 'সময়মতো সম্পন্ন' : 'Completed On-Time'} (${toBn(lotusOnTime.length)}/${toBn(lotusStudents.length)}):*\n`;
     if (lotusOnTime.length === 0) {
       report += `   _${isBn ? 'কেউ নেই' : 'None'}_\n`;
@@ -755,22 +776,22 @@ export const AshramDisciplineAudit: React.FC = () => {
     }
 
     if (lotusLateOrMissed.length > 0) {
-      report += `⚠️ *${isBn ? 'দেরি বা অপূর্ণ' : 'Late / Incomplete'} (${toBn(lotusLateOrMissed.length)}):*\n`;
+      report += `\n⚠️ *${isBn ? 'দেরি বা অপূর্ণ' : 'Late / Incomplete'} (${toBn(lotusLateOrMissed.length)}):*\n`;
       lotusLateOrMissed.forEach((item, i) => {
         report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
 
     if (lotusAbsent.length > 0) {
-      report += `🔴 *${isBn ? 'ছুটি / অনুপস্থিত' : 'Leave / Absent'} (${toBn(lotusAbsent.length)}):*\n`;
+      report += `\n🕊️ *${isBn ? 'ছুটি / অনুপস্থিত' : 'On Leave / Absent'} (${toBn(lotusAbsent.length)}):*\n`;
       lotusAbsent.forEach((item, i) => {
         report += `   ${toBn(i + 1)}. ${item}\n`;
       });
     }
-    report += `\n`;
+    report += `\n───────────────────────────\n`;
 
-    report += `📊 *${isBn ? 'সারসংক্ষেপ' : 'Summary'}:* ${toBn(totalOnTime)} ${isBn ? 'জন সম্পূর্ণ অন-টাইম' : 'Fully On-Time'}, ${toBn(totalPresent - totalOnTime)} ${isBn ? 'জন বিলম্ব/আংশিক' : 'Late/Partial'}, ${toBn(totalAbsent)} ${isBn ? 'জন ছুটি' : 'Leave'}\n`;
-    report += `🙏 *${isBn ? 'রিপোর্ট প্রেরণকারী' : 'Reported by'}:* ${isBn ? 'মর্নিং প্রোগ্রাম ইনচার্জ (অদ্বৈত ভয়েস)' : 'Morning Program Incharge (Advaita VOICE)'}\n`;
+    report += `📊 *${isBn ? 'সারসংক্ষেপ' : 'Summary'}:* ${toBn(totalOnTime)} ${isBn ? 'অন-টাইম' : 'On-Time'} • ${toBn(totalPresent - totalOnTime)} ${isBn ? 'বিলম্ব/আংশিক' : 'Late/Partial'} • ${toBn(totalAbsent)} ${isBn ? 'ছুটি' : 'on Leave'}\n`;
+    report += `🙏 *${isBn ? 'রিপোর্ট প্রেরক' : 'Reported by'}:* ${isBn ? 'মর্নিং প্রোগ্রাম ইনচার্জ (অদ্বৈত ভয়েস)' : 'Morning Program Incharge (Advaita VOICE)'}\n`;
     return report;
   };
 
@@ -789,10 +810,11 @@ export const AshramDisciplineAudit: React.FC = () => {
       const entry = getEntry(s.id);
       if (entry.isAbsent) {
         totalAbsent++;
-        voiceDevoteesList.push(`   ${toBn(i + 1)}. ${s.name}: ${isBn ? 'অনুপস্থিত' : 'Absent'}`);
+        const reason = formatReasonText(entry.absenceReason, isBn);
+        voiceDevoteesList.push(`   ${toBn(i + 1)}. *${s.name}* — ${isBn ? 'ছুটি / অনুপস্থিত' : 'On Leave'} (${reason})`);
       } else if (entry.sleptOnTime) {
         totalCompliant++;
-        voiceDevoteesList.push(`   ${toBn(i + 1)}. ${s.name}: ${isBn ? 'শয়নে উপস্থিত (বিছানায়)' : 'In bed'}`);
+        voiceDevoteesList.push(`   ${toBn(i + 1)}. *${s.name}* — ${isBn ? 'শয়নে উপস্থিত (বিছানায়)' : 'In bed'}`);
       } else {
         totalNonCompliant++;
         let note = '';
@@ -803,7 +825,7 @@ export const AshramDisciplineAudit: React.FC = () => {
         } else if (entry.reason) {
           note = ` (${formatReasonText(entry.reason, isBn)})`;
         }
-        voiceDevoteesList.push(`   ${toBn(i + 1)}. ${s.name}: ${isBn ? 'বিছানায় নেই' : 'Not in bed.'}${note}`);
+        voiceDevoteesList.push(`   ${toBn(i + 1)}. *${s.name}* — ${isBn ? 'বিছানায় নেই' : 'Not in bed'}${note}`);
       }
     });
 
@@ -811,10 +833,11 @@ export const AshramDisciplineAudit: React.FC = () => {
       const entry = getEntry(s.id);
       if (entry.isAbsent) {
         totalAbsent++;
-        lotusDevoteesList.push(`   ${toBn(i + 1)}. ${s.name}: ${isBn ? 'অনুপস্থিত' : 'Absent'}`);
+        const reason = formatReasonText(entry.absenceReason, isBn);
+        lotusDevoteesList.push(`   ${toBn(i + 1)}. *${s.name}* — ${isBn ? 'ছুটি / অনুপস্থিত' : 'On Leave'} (${reason})`);
       } else if (entry.sleptOnTime) {
         totalCompliant++;
-        lotusDevoteesList.push(`   ${toBn(i + 1)}. ${s.name}: ${isBn ? 'শয়নে উপস্থিত (বিছানায়)' : 'In bed'}`);
+        lotusDevoteesList.push(`   ${toBn(i + 1)}. *${s.name}* — ${isBn ? 'শয়নে উপস্থিত (বিছানায়)' : 'In bed'}`);
       } else {
         totalNonCompliant++;
         let note = '';
@@ -825,7 +848,7 @@ export const AshramDisciplineAudit: React.FC = () => {
         } else if (entry.reason) {
           note = ` (${formatReasonText(entry.reason, isBn)})`;
         }
-        lotusDevoteesList.push(`   ${toBn(i + 1)}. ${s.name}: ${isBn ? 'বিছানায় নেই' : 'Not in bed.'}${note}`);
+        lotusDevoteesList.push(`   ${toBn(i + 1)}. *${s.name}* — ${isBn ? 'বিছানায় নেই' : 'Not in bed'}${note}`);
       }
     });
 
@@ -835,15 +858,17 @@ export const AshramDisciplineAudit: React.FC = () => {
       ? `🌙 *অদ্বৈত ভয়েস — নৈশ শৃঙ্খলা ও নিরাপত্তা সমন্বিত প্রতিবেদন* 🌙\n`
       : `🌙 *ADVAITA VOICE — NIGHT DISCIPLINE & SECURITY REPORT* 🌙\n`;
     report += `📅 *${isBn ? 'তারিখ' : 'Date'}:* ${dateFormatted}\n`;
-    report += `🔒 *${isBn ? 'কারফিউ ও শয়ন মানদণ্ড' : 'Curfew & Bedtime Compliance'}:* ${toBn(totalCompliant)}/${toBn(totalStudents)} ${isBn ? 'জন সময়মতো শয়ন' : 'Slept On Time'}${totalAbsent > 0 ? ` (${toBn(totalAbsent)} ${isBn ? 'জন নৈশ ছুটি' : 'Night Leave/Absent'})` : ''}\n\n`;
+    report += `🔒 *${isBn ? 'কারফিউ ও শয়ন মানদণ্ড' : 'Curfew & Bedtime Compliance'}:* ${toBn(totalCompliant)}/${toBn(totalStudents)} ${isBn ? 'সময়মতো শয়ন' : 'Slept On Time'}${totalAbsent > 0 ? ` • ${toBn(totalAbsent)} ${isBn ? 'নৈশ ছুটি' : 'on Leave'}` : ''}\n`;
+    report += `───────────────────────────\n`;
 
-    report += `🌟 *${isBn ? '১. ভয়েস ভক্তবৃন্দ (পর্যবেক্ষণ: ১০:১০ PM)' : '1. VOICE Devotees (Observed at 10:10 PM)'}:*\n`;
+    report += `🌟 *${toBn(1)}. ${isBn ? 'ভয়েস ভক্তবৃন্দ (পর্যবেক্ষণ: ১০:১০ PM)' : 'VOICE Devotees (Observed at 10:10 PM)'}:*\n`;
     report += voiceDevoteesList.join('\n') + '\n\n';
 
-    report += `🪷 *${isBn ? '২. লোটাস ভক্তবৃন্দ (পর্যবেক্ষণ: ১১:০০ PM)' : '2. Lotus Devotees (Observed at 11:00 PM)'}:*\n`;
-    report += lotusDevoteesList.join('\n') + '\n\n';
+    report += `🪷 *${toBn(2)}. ${isBn ? 'লোটাস ভক্তবৃন্দ (পর্যবেক্ষণ: ১১:০০ PM)' : 'Lotus Devotees (Observed at 11:00 PM)'}:*\n`;
+    report += lotusDevoteesList.join('\n') + '\n';
+    report += `───────────────────────────\n`;
 
-    report += `📊 *${isBn ? 'সারসংক্ষেপ' : 'Summary'}:* ${toBn(totalCompliant)} ${isBn ? 'জন সময়মতো শয়ন' : 'Slept On-Time'}, ${toBn(totalNonCompliant)} ${isBn ? 'জন অনিয়ম/ব্যতিক্রম' : 'Late/Exception'}, ${toBn(totalAbsent)} ${isBn ? 'জন নৈশ ছুটি' : 'Night Leave'}\n`;
+    report += `📊 *${isBn ? 'সারসংক্ষেপ' : 'Summary'}:* ${toBn(totalCompliant)} ${isBn ? 'জন সময়মতো শয়ন' : 'Slept On-Time'} • ${toBn(totalNonCompliant)} ${isBn ? 'জন অনিয়ম/ব্যতিক্রম' : 'Late/Exception'} • ${toBn(totalAbsent)} ${isBn ? 'জন নৈশ ছুটি' : 'on Leave'}\n`;
     report += `🙏 *${isBn ? 'রিপোর্ট প্রেরক' : 'Reported by'}:* ${isBn ? 'সিকিউরিটি ম্যানেজার (অদ্বৈত ভয়েস)' : 'Security Manager (Advaita VOICE)'}\n`;
     return report;
   };
@@ -967,25 +992,30 @@ export const AshramDisciplineAudit: React.FC = () => {
       ? `📊 *অদ্বৈত ভয়েস — মাসিক সাধনা ও শৃঙ্খলা মূল্যায়ন প্রতিবেদন* 📊\n`
       : `📊 *ADVAITA VOICE — MONTHLY DISCIPLINE & SADHANA VERDICT* 📊\n`;
     report += `📅 *${isBn ? 'মূল্যায়ন মাস' : 'Evaluation Month'}:* ${monthFormatted}\n`;
-    report += `🏛️ *${isBn ? 'আশ্রম' : 'Ashram'}:* Advaita VOICE (Chittagong University)\n\n`;
+    report += `🏛️ *${isBn ? 'আশ্রম' : 'Ashram'}:* Advaita VOICE (Chittagong University)\n`;
+    report += `───────────────────────────\n`;
 
-    report += `🌟 *১. ${isBn ? 'ভয়েস গ্রুপ মূল্যায়ন' : 'VOICE GROUP EVALUATION'} (${toBn(voiceStats.length)} ${isBn ? 'জন' : 'Devotees'})*\n`;
+    report += `🌟 *${toBn(1)}. ${isBn ? 'ভয়েস গ্রুপ মূল্যায়ন' : 'VOICE GROUP EVALUATION'} (${toBn(voiceStats.length)} ${isBn ? 'জন' : 'Devotees'})*\n\n`;
     voiceStats.forEach((st, i) => {
+      const strikeDisplay = isBn ? `${toBn(st.totalStrikes)}/৩` : `${st.totalStrikes}/3`;
       report += `${toBn(i + 1)}. *${st.student.name}*\n`;
-      report += `   • ${isBn ? 'সাফল্যের হার' : 'Success Rate'}: *${toBn(st.overallSuccessRate)}%* (${isBn ? 'উপস্থিত' : 'Present'}: ${toBn(st.presentDays)}/${toBn(st.totalDaysEvaluated)} ${isBn ? 'দিন' : 'days'})\n`;
+      report += `   • ${isBn ? 'সাফল্য' : 'Success Rate'}: *${toBn(st.overallSuccessRate)}%* (${isBn ? 'উপস্থিত' : 'Present'}: ${toBn(st.presentDays)}/${toBn(st.totalDaysEvaluated)} ${isBn ? 'দিন' : 'days'})\n`;
       report += `   • ${isBn ? 'শয়ন' : 'Bed'}: ${toBn(st.bedSuccessRate)}% | ${isBn ? 'মর্নিং' : 'MP'}: ${toBn(st.mpSuccessRate)}% | ${isBn ? 'মঙ্গল আরতি' : 'Mangalarati'}: ${toBn(st.mangalaratiRate)}% | ${isBn ? 'ক্লাস' : 'Class'}: ${toBn(st.classRate)}%\n`;
-      report += `   • ${isBn ? 'স্ট্রাইক' : 'Strikes'}: ${toBn(st.totalStrikes)}/৩\n`;
-      report += `   • ${isBn ? 'চূড়ান্ত সিদ্ধান্ত' : 'Final Verdict'}: ${st.verdictType === 'VOICE_SUCCESS' ? '🟢' : st.verdictType === 'VOICE_WARNING' ? '🟡' : '🔴'} *${isBn ? st.verdictLabelBn : st.verdictLabelEn}*\n\n`;
+      report += `   • ${isBn ? 'স্ট্রাইক' : 'Strikes'}: ${strikeDisplay}\n`;
+      report += `   • ${isBn ? 'চূড়ান্ত সিদ্ধান্ত' : 'Final Verdict'}: *${isBn ? st.verdictLabelBn : st.verdictLabelEn}*\n\n`;
     });
+    report += `───────────────────────────\n`;
 
-    report += `🪷 *২. ${isBn ? 'লোটাস গ্রুপ মূল্যায়ন' : 'LOTUS GROUP EVALUATION'} (${toBn(lotusStats.length)} ${isBn ? 'জন' : 'Devotees'})*\n`;
+    report += `🪷 *${toBn(2)}. ${isBn ? 'লোটাস গ্রুপ মূল্যায়ন' : 'LOTUS GROUP EVALUATION'} (${toBn(lotusStats.length)} ${isBn ? 'জন' : 'Devotees'})*\n\n`;
     lotusStats.forEach((st, i) => {
+      const strikeDisplay = isBn ? `${toBn(st.totalStrikes)}/৩` : `${st.totalStrikes}/3`;
       report += `${toBn(i + 1)}. *${st.student.name}*\n`;
-      report += `   • ${isBn ? 'সাফল্যের হার' : 'Success Rate'}: *${toBn(st.overallSuccessRate)}%* (${isBn ? 'উপস্থিত' : 'Present'}: ${toBn(st.presentDays)}/${toBn(st.totalDaysEvaluated)} ${isBn ? 'দিন' : 'days'})\n`;
+      report += `   • ${isBn ? 'সাফল্য' : 'Success Rate'}: *${toBn(st.overallSuccessRate)}%* (${isBn ? 'উপস্থিত' : 'Present'}: ${toBn(st.presentDays)}/${toBn(st.totalDaysEvaluated)} ${isBn ? 'দিন' : 'days'})\n`;
       report += `   • ${isBn ? 'শয়ন' : 'Bed'}: ${toBn(st.bedSuccessRate)}% | ${isBn ? 'মর্নিং' : 'MP'}: ${toBn(st.mpSuccessRate)}% | ${isBn ? 'মঙ্গল আরতি' : 'Mangalarati'}: ${toBn(st.mangalaratiRate)}% | ${isBn ? 'ক্লাস' : 'Class'}: ${toBn(st.classRate)}%\n`;
-      report += `   • ${isBn ? 'স্ট্রাইক' : 'Strikes'}: ${toBn(st.totalStrikes)}/৩\n`;
-      report += `   • ${isBn ? 'চূড়ান্ত সিদ্ধান্ত' : 'Final Verdict'}: 🪷 *${isBn ? st.verdictLabelBn : st.verdictLabelEn}*\n\n`;
+      report += `   • ${isBn ? 'স্ট্রাইক' : 'Strikes'}: ${strikeDisplay}\n`;
+      report += `   • ${isBn ? 'চূড়ান্ত সিদ্ধান্ত' : 'Final Verdict'}: *${isBn ? st.verdictLabelBn : st.verdictLabelEn}*\n\n`;
     });
+    report += `───────────────────────────\n`;
 
     report += `🙏 *${isBn ? 'প্রতিবেদন অনুমোদন' : 'Approved by'}:* ${isBn ? 'কাউন্সেলর ও ম্যানেজমেন্ট বোর্ড (অদ্বৈত ভয়েস)' : 'Counselor & Management Board (Advaita VOICE)'}\n`;
     return report;
@@ -1333,6 +1363,21 @@ export const AshramDisciplineAudit: React.FC = () => {
                 <button
                   onClick={() => {
                     triggerHaptic('selection');
+                    setPreviewReport({
+                      title: isBn ? '🌟 ভয়েস গ্রুপ রিপোর্ট প্রিভিউ' : '🌟 VOICE Group Report Preview',
+                      content: generateVoiceReport()
+                    });
+                  }}
+                  className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer"
+                  title="Preview WhatsApp Report"
+                >
+                  <Eye size={13} className="text-amber-500" />
+                  <span>Preview</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    triggerHaptic('selection');
                     copyToClipboard(generateVoiceReport(), 'VOICE');
                   }}
                   className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer"
@@ -1364,6 +1409,21 @@ export const AshramDisciplineAudit: React.FC = () => {
                 >
                   <Send size={13} />
                   <span>Lotus WhatsApp</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    triggerHaptic('selection');
+                    setPreviewReport({
+                      title: isBn ? '🪷 লোটাস গ্রুপ রিপোর্ট প্রিভিউ' : '🪷 Lotus Group Report Preview',
+                      content: generateLotusReport()
+                    });
+                  }}
+                  className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer"
+                  title="Preview WhatsApp Report"
+                >
+                  <Eye size={13} className="text-indigo-400" />
+                  <span>Preview</span>
                 </button>
 
                 <button
@@ -1432,6 +1492,20 @@ export const AshramDisciplineAudit: React.FC = () => {
                 <button
                   onClick={() => {
                     triggerHaptic('selection');
+                    setPreviewReport({
+                      title: isBn ? '🌅 মর্নিং প্রোগ্রাম রিপোর্ট প্রিভিউ' : '🌅 Morning Program Report Preview',
+                      content: generateMorningProgramCombinedReport()
+                    });
+                  }}
+                  className="inline-flex items-center justify-center gap-1 px-2.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/15 text-xs font-bold transition-all cursor-pointer"
+                  title="Preview WhatsApp Card"
+                >
+                  <Eye size={13} className="text-amber-300" />
+                  <span>Preview</span>
+                </button>
+                <button
+                  onClick={() => {
+                    triggerHaptic('selection');
                     copyToClipboard(generateMorningProgramCombinedReport(), 'MP');
                   }}
                   className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/15 text-xs font-bold transition-all cursor-pointer"
@@ -1468,6 +1542,20 @@ export const AshramDisciplineAudit: React.FC = () => {
                 >
                   <Send size={13} />
                   <span>Send WhatsApp</span>
+                </button>
+                <button
+                  onClick={() => {
+                    triggerHaptic('selection');
+                    setPreviewReport({
+                      title: isBn ? '🌙 নৈশ শৃঙ্খলা ও নিরাপত্তা রিপোর্ট প্রিভিউ' : '🌙 Night Discipline & Security Report Preview',
+                      content: generateSecurityManagerCombinedReport()
+                    });
+                  }}
+                  className="inline-flex items-center justify-center gap-1 px-2.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/15 text-xs font-bold transition-all cursor-pointer"
+                  title="Preview WhatsApp Card"
+                >
+                  <Eye size={13} className="text-indigo-300" />
+                  <span>Preview</span>
                 </button>
                 <button
                   onClick={() => {
@@ -1518,7 +1606,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                     <div className="flex items-center gap-3 min-w-[240px]">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shrink-0 ${
                         isAbsent
-                          ? 'bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30'
+                          ? 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-500/30'
                           : isVoice 
                             ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30' 
                             : 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30'
@@ -1548,14 +1636,15 @@ export const AshramDisciplineAudit: React.FC = () => {
                                 absenceReason: !isAbsent ? (entry.absenceReason || 'Out of town / Home Leave (গ্রামের বাড়ি / বাইরে অবস্থান)') : ''
                               });
                             }}
-                            className={`px-2 py-0.5 rounded-lg text-[10px] font-black transition-all cursor-pointer border ${
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all cursor-pointer border ${
                               isAbsent
-                                ? 'bg-rose-500 text-white border-rose-600 shadow-xs'
-                                : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 hover:bg-emerald-100'
+                                ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 border-amber-300 dark:border-amber-700 shadow-xs'
+                                : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 hover:bg-emerald-100/60'
                             }`}
-                            title="Click to toggle Present / Absent status"
+                            title="Click to toggle Present / On Leave status"
                           >
-                            <span>{isAbsent ? '🔴 Absent' : '🟢 Present'}</span>
+                            <span className={`w-2 h-2 rounded-full shrink-0 ${isAbsent ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`} />
+                            <span>{isAbsent ? (isBn ? 'ছুটি' : 'On Leave') : (isBn ? 'উপস্থিত' : 'Present')}</span>
                           </button>
                         </div>
 
@@ -1623,8 +1712,9 @@ export const AshramDisciplineAudit: React.FC = () => {
 
                     {isAbsent ? (
                       <div className="flex-1 max-w-2xl p-2.5 rounded-xl bg-amber-500/10 dark:bg-amber-950/30 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center gap-2 animate-fade-in">
-                        <span className="text-xs font-black text-amber-800 dark:text-amber-300 shrink-0 flex items-center gap-1">
-                          <span>🔴 Reason for Absence:</span>
+                        <span className="text-xs font-bold text-amber-900 dark:text-amber-200 shrink-0 flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                          <span>{isBn ? 'ছুটির কারণ:' : 'Reason for Leave:'}</span>
                         </span>
                         <select
                           disabled={!canEditAbsence}
@@ -2109,8 +2199,9 @@ export const AshramDisciplineAudit: React.FC = () => {
                               </div>
 
                               {entry.isAbsent ? (
-                                <span className="text-rose-600 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 px-2.5 py-1 rounded-lg text-xs w-fit">
-                                  🔴 {isBn ? 'অনুপস্থিত / ছুটি' : 'Absent / Leave'}: {formatReasonText(entry.absenceReason, isBn)}
+                                <span className="inline-flex items-center gap-1.5 text-amber-700 dark:text-amber-300 font-bold bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 px-2.5 py-1 rounded-lg text-xs w-fit">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                                  <span>{isBn ? 'ছুটি / অনুপস্থিত' : 'On Leave'}: {formatReasonText(entry.absenceReason, isBn)}</span>
                                 </span>
                               ) : (
                                 <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
@@ -2523,6 +2614,68 @@ export const AshramDisciplineAudit: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* WhatsApp Report Live Preview Modal */}
+      {previewReport && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl p-5 sm:p-6 max-w-lg w-full shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                  <Send size={15} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-white">
+                    {previewReport.title}
+                  </h3>
+                  <p className="text-[10px] text-slate-400 font-medium">
+                    {isBn ? 'হোয়াটসঅ্যাপে যেরকম প্রদর্শিত হবে' : 'WhatsApp Formatted Preview'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setPreviewReport(null)}
+                className="p-1.5 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* WhatsApp Chat Bubble Preview */}
+            <div className="flex-1 overflow-y-auto pr-1">
+              <div className="bg-[#0b141a] rounded-2xl p-4 border border-emerald-900/40 shadow-inner">
+                <div className="bg-[#005c4b]/30 border border-emerald-500/30 rounded-2xl p-3.5 sm:p-4 text-emerald-50 shadow-sm">
+                  <pre className="whitespace-pre-wrap font-sans text-xs sm:text-[12.5px] leading-relaxed select-text font-normal text-slate-100">
+                    {previewReport.content}
+                  </pre>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 pt-2 border-t border-slate-800">
+              <button
+                onClick={() => {
+                  shareToWhatsAppOrSystem({ text: previewReport.content, successMessage: 'Sharing report...' });
+                }}
+                className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black shadow-md transition-all cursor-pointer"
+              >
+                <Send size={14} />
+                <span>{isBn ? 'হোয়াটসঅ্যাপে শেয়ার করুন' : 'Share to WhatsApp'}</span>
+              </button>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(previewReport.content);
+                  toast.success(isBn ? 'রিপোর্ট কপি হয়েছে!' : 'Report copied to clipboard!');
+                }}
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all cursor-pointer"
+              >
+                <Copy size={14} />
+                <span>{isBn ? 'কপি' : 'Copy'}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

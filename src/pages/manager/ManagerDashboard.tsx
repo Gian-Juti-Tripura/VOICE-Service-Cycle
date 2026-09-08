@@ -191,9 +191,9 @@ const ManagerDashboard: React.FC = () => {
 
     const absentAssignments = assignments.filter(a => a.isAbsent);
     if (absentAssignments.length > 0) {
-      text += `🔴 *Absent:*\n`;
+      text += `🕊️ *On Leave / Absent:*\n`;
       absentAssignments.forEach(a => {
-        text += `   - ${a.member.fullName.trim()} (${a.absenceReason || 'No reason specified'})\n`;
+        text += `   • ${a.member.fullName.trim()} (${a.absenceReason || 'On Leave'})\n`;
       });
       text += `\n`;
     }
