@@ -196,10 +196,15 @@ export const Navbar: React.FC = () => {
       <Link 
         to={to} 
         onClick={() => setMobileMenuOpen(false)}
+        style={{
+          color: isActive ? 'var(--advaita-nav-active-text)' : undefined,
+          backgroundColor: isActive ? 'var(--advaita-badge-bg)' : undefined,
+          borderColor: isActive ? 'var(--advaita-nav-border)' : undefined
+        }}
         className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 ${
           isActive 
-            ? 'bg-gradient-to-r from-rose-600/15 to-amber-600/15 text-rose-700 dark:text-amber-400 shadow-xs border border-rose-500/20' 
-            : 'text-slate-600 hover:bg-slate-100/70 hover:text-rose-600 dark:text-slate-300 dark:hover:bg-slate-800/60 dark:hover:text-amber-400'
+            ? 'shadow-xs border font-extrabold' 
+            : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/60'
         }`}
       >
         {language === 'bn' ? labelBn : labelEn}
@@ -208,12 +213,18 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl shadow-sm border-b border-slate-200/80 dark:border-slate-800 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-1.5 sm:gap-2">
+    <nav 
+      style={{
+        backgroundColor: 'var(--advaita-nav-bg)',
+        borderColor: 'var(--advaita-nav-border)'
+      }}
+      className="sticky top-0 z-50 backdrop-blur-2xl shadow-xs border-b transition-colors duration-500"
+    >
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-1 sm:gap-2">
         
         {/* Brand Official VOICE Logo */}
-        <Link to="/" className="flex items-center gap-2 sm:gap-2.5 min-w-0 group shrink">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-1 shadow-sm group-hover:scale-105 group-hover:shadow-amber-500/20 transition-all flex items-center justify-center overflow-hidden shrink-0">
+        <Link to="/" className="flex items-center gap-1.5 sm:gap-2 min-w-0 group shrink-0">
+          <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-0.5 sm:p-1 shadow-sm group-hover:scale-105 transition-all flex items-center justify-center overflow-hidden shrink-0">
             <img 
               src="/voice-logo-transparent.png" 
               className="w-full h-full object-contain dark:hidden" 
@@ -226,17 +237,17 @@ export const Navbar: React.FC = () => {
             />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="font-bold text-xs sm:text-base text-slate-900 dark:text-white truncate tracking-tight">
-              ADVAITA <span className="text-amber-600 dark:text-amber-400 font-black">VOICE</span>
+            <span className="font-medium sm:font-bold text-[10.5px] sm:text-sm md:text-base text-slate-800 dark:text-white whitespace-nowrap tracking-tight">
+              ADVAITA <span style={{ color: 'var(--advaita-primary)' }} className="font-bold">VOICE</span>
             </span>
-            <span className="hidden sm:block text-[9.5px] text-slate-500 dark:text-slate-400 font-semibold tracking-wider uppercase -mt-0.5 truncate">
+            <span className="hidden sm:block text-[9px] text-slate-500 dark:text-slate-400 font-medium tracking-wider uppercase -mt-0.5 truncate">
               {language === 'bn' ? 'চট্টগ্রাম বিশ্ববিদ্যালয়' : 'Chittagong University'}
             </span>
           </div>
         </Link>
         
         {/* Nav Items & Controls */}
-        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
 
           
           {/* Main Desktop Links */}
@@ -414,14 +425,15 @@ export const Navbar: React.FC = () => {
           {/* Language Switch Flip Trigger (Flips between BN <-> EN one at a time) */}
           <button 
             onClick={toggleLanguage}
-            className="flex items-center gap-1 px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100/90 border border-slate-200/60 dark:bg-slate-800/90 dark:border-slate-700/60 text-xs font-black text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-amber-400 transition-all cursor-pointer active:scale-95 shrink-0 group select-none shadow-2xs"
+            className="flex items-center gap-1 px-1.5 py-1 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100/90 border border-slate-200/60 dark:bg-slate-800/90 dark:border-slate-700/60 font-bold text-slate-700 dark:text-slate-300 transition-all cursor-pointer active:scale-95 shrink-0 group select-none shadow-2xs"
             title={language === 'bn' ? 'Switch to English (EN)' : 'বাংলায় দেখুন (BN)'}
             aria-label="Flip Language"
           >
-            <Globe size={13} className="text-rose-500 dark:text-amber-400 group-hover:rotate-45 transition-transform duration-300 shrink-0" />
+            <Globe size={12} style={{ color: 'var(--advaita-primary)' }} className="group-hover:rotate-45 transition-transform duration-300 shrink-0" />
             <span 
               key={language}
-              className="font-black text-rose-600 dark:text-amber-400 text-xs tracking-wider uppercase animate-lang-flip inline-block min-w-[20px] text-center"
+              style={{ color: 'var(--advaita-primary)' }}
+              className="font-black text-[10px] sm:text-xs tracking-wider uppercase animate-lang-flip inline-block min-w-[16px] text-center"
             >
               {language === 'bn' ? 'BN' : 'EN'}
             </span>
@@ -430,16 +442,16 @@ export const Navbar: React.FC = () => {
           {/* Theme & Visual Style Trigger */}
           <button 
             onClick={() => setThemeModalOpen(true)}
-            className="flex items-center gap-1 p-1.5 sm:px-2 sm:py-1.5 rounded-xl bg-slate-100/90 border border-slate-200/60 dark:bg-slate-800/90 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 transition-all group cursor-pointer shrink-0"
+            className="flex items-center gap-1 p-1.5 sm:px-2 sm:py-1.5 rounded-xl bg-slate-100/90 border border-slate-200/60 dark:bg-slate-800/90 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 transition-all group cursor-pointer shrink-0"
             title={language === 'bn' ? 'থিম ও আলোকসজ্জা কাস্টমাইজ করুন' : 'Customize Theme & Effects'}
             aria-label="Customize Theme & Effects"
           >
-            <Palette size={14} className="text-amber-500 group-hover:rotate-12 transition-transform shrink-0" />
+            <Palette size={13} style={{ color: 'var(--advaita-primary)' }} className="group-hover:rotate-12 transition-transform shrink-0" />
             <span className="hidden sm:inline-flex items-center">
               {isDark ? (
-                <Moon size={14} className="text-amber-300" />
+                <Moon size={13} style={{ color: 'var(--advaita-accent)' }} />
               ) : (
-                <Sun size={14} className="text-amber-500" />
+                <Sun size={13} style={{ color: 'var(--advaita-accent)' }} />
               )}
             </span>
           </button>
@@ -447,11 +459,14 @@ export const Navbar: React.FC = () => {
           {/* User Profile Avatar Trigger (Always accessible on Mobile & Desktop) */}
           <button
             onClick={() => setProfileModalOpen(true)}
-            className="relative p-0.5 rounded-full ring-2 ring-amber-500/40 hover:ring-amber-500 active:scale-95 transition-all cursor-pointer group bg-slate-100 dark:bg-slate-800 shrink-0"
+            style={{
+              boxShadow: '0 0 0 2px var(--advaita-primary)'
+            }}
+            className="relative p-0.5 rounded-full hover:scale-105 active:scale-95 transition-all cursor-pointer group bg-slate-100 dark:bg-slate-800 shrink-0"
             title={language === 'bn' ? `${userProfile.displayName} (প্রোফাইল ও ফটো)` : `Profile: ${userProfile.displayName}`}
             aria-label="Devotee Profile"
           >
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden shadow-xs bg-amber-500/10">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full overflow-hidden shadow-xs bg-slate-100 dark:bg-slate-800">
               <img 
                 src={userProfile.avatarUrl} 
                 alt={userProfile.displayName}
@@ -493,17 +508,23 @@ export const Navbar: React.FC = () => {
           {/* Mobile Menu Button (3-bar hamburger) */}
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-1.5 rounded-xl bg-slate-100/90 text-slate-600 hover:text-rose-600 dark:bg-slate-800/90 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60 cursor-pointer shrink-0 transition-colors"
+            className="lg:hidden p-1.5 rounded-xl bg-slate-100/90 text-slate-600 hover:text-slate-900 dark:bg-slate-800/90 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60 cursor-pointer shrink-0 transition-colors"
             aria-label="Toggle navigation menu"
           >
-            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            {mobileMenuOpen ? <X size={16} /> : <Menu size={16} />}
           </button>
         </div>
       </div>
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden px-4 pt-2 pb-4 space-y-2 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 shadow-xl animate-fade-in">
+        <div 
+          style={{
+            backgroundColor: 'var(--advaita-nav-bg)',
+            borderColor: 'var(--advaita-nav-border)'
+          }}
+          className="lg:hidden px-4 pt-2 pb-4 space-y-2 backdrop-blur-2xl border-b shadow-xl animate-fade-in"
+        >
           
           {/* Mobile Profile Trigger Card */}
           <button

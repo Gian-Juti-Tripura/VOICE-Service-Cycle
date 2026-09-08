@@ -11,7 +11,7 @@ import { InstallPromptBanner } from './components/pwa/InstallPromptBanner';
 import { Toaster } from 'react-hot-toast';
 import { initializeOneSignal } from './utils/onesignal';
 import { scheduleDailyNotifications } from './utils/notificationScheduler';
-import { getThemeSettings, applyThemeToDOM, THEME_UPDATED_EVENT, type ThemeSettingsState } from './utils/themeSettings';
+import { getThemeSettings, applyThemeToDOM, THEME_UPDATED_EVENT, isDarkEffective, type ThemeSettingsState } from './utils/themeSettings';
 
 // Lazy Loaded Modules (Instant First Paint & Ultra-Small Initial Bundle)
 const HubHome = lazy(() => import('./pages/HubHome'));
@@ -127,8 +127,16 @@ const AppContent = () => {
             alt="Sri Krishna Background" 
             className="w-full h-full object-cover object-center opacity-30 dark:opacity-45 transition-opacity duration-700 fixed inset-0"
           />
-          {/* Pristine & Vibrant Lighting Atmosphere: Warm Sacred Ivory Wash in Light Mode, Midnight Obsidian in Dark Mode */}
-          <div className="fixed inset-0 bg-gradient-to-b from-amber-50/80 via-white/85 to-amber-100/70 dark:bg-slate-950/75 pointer-events-none transition-colors duration-500" />
+          {/* Pristine & Vibrant Lighting Atmosphere: Dynamic Theme Aura in Light & Dark Modes */}
+          <div 
+            style={{
+              backgroundColor: isDarkEffective(themeSettings.mode) ? 'rgba(3, 7, 18, 0.84)' : 'rgba(255, 255, 255, 0.88)',
+              backgroundImage: isDarkEffective(themeSettings.mode)
+                ? `radial-gradient(circle at 50% 0%, var(--advaita-glow) 0%, transparent 65%)`
+                : `radial-gradient(circle at 50% 0%, var(--advaita-glow) 0%, transparent 70%), linear-gradient(to bottom, var(--advaita-nav-bg), rgba(255,255,255,0.92))`
+            }}
+            className="fixed inset-0 pointer-events-none transition-all duration-700" 
+          />
         </div>
       )}
 

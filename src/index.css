@@ -244,6 +244,155 @@
   display: none !important;
 }
 
+/* ================= ADVAITA VOICE COMPREHENSIVE THEME SYSTEM ================= */
+:root {
+  --advaita-primary: #f59e0b;
+  --advaita-accent: #d97706;
+  --advaita-glow: rgba(245, 158, 11, 0.3);
+  --advaita-nav-bg: rgba(255, 251, 235, 0.95);
+  --advaita-nav-border: rgba(245, 158, 11, 0.28);
+  --advaita-nav-active-text: #b45309;
+  --advaita-badge-bg: rgba(245, 158, 11, 0.15);
+}
+
+.dark,
+:root.dark {
+  --advaita-primary: #fbbf24;
+  --advaita-accent: #f59e0b;
+  --advaita-glow: rgba(251, 191, 36, 0.35);
+  --advaita-nav-bg: rgba(15, 12, 10, 0.95);
+  --advaita-nav-border: rgba(245, 158, 11, 0.22);
+  --advaita-nav-active-text: #fde68a;
+  --advaita-badge-bg: rgba(245, 158, 11, 0.2);
+}
+
+/* 1. Saffron (Vedic Saffron & Gold) */
+[data-theme-palette="saffron"] {
+  --advaita-primary: #f59e0b;
+  --advaita-accent: #d97706;
+  --advaita-glow: rgba(245, 158, 11, 0.3);
+  --advaita-nav-bg: rgba(255, 251, 235, 0.95);
+  --advaita-nav-border: rgba(245, 158, 11, 0.28);
+  --advaita-nav-active-text: #b45309;
+  --advaita-badge-bg: rgba(245, 158, 11, 0.15);
+}
+.dark[data-theme-palette="saffron"],
+[data-theme-palette="saffron"].dark {
+  --advaita-primary: #fbbf24;
+  --advaita-accent: #f59e0b;
+  --advaita-glow: rgba(251, 191, 36, 0.35);
+  --advaita-nav-bg: rgba(15, 12, 10, 0.95);
+  --advaita-nav-border: rgba(245, 158, 11, 0.22);
+  --advaita-nav-active-text: #fde68a;
+  --advaita-badge-bg: rgba(245, 158, 11, 0.2);
+}
+
+/* 2. Lotus (Vrindavan Rose & Lotus) */
+[data-theme-palette="lotus"] {
+  --advaita-primary: #f43f5e;
+  --advaita-accent: #e11d48;
+  --advaita-glow: rgba(244, 63, 94, 0.3);
+  --advaita-nav-bg: rgba(255, 241, 242, 0.95);
+  --advaita-nav-border: rgba(244, 63, 94, 0.28);
+  --advaita-nav-active-text: #be123c;
+  --advaita-badge-bg: rgba(244, 63, 94, 0.15);
+}
+.dark[data-theme-palette="lotus"],
+[data-theme-palette="lotus"].dark {
+  --advaita-primary: #fb7185;
+  --advaita-accent: #f43f5e;
+  --advaita-glow: rgba(251, 113, 133, 0.35);
+  --advaita-nav-bg: rgba(19, 7, 12, 0.95);
+  --advaita-nav-border: rgba(244, 63, 94, 0.22);
+  --advaita-nav-active-text: #fecdd3;
+  --advaita-badge-bg: rgba(244, 63, 94, 0.2);
+}
+
+/* 3. Emerald (Govardhan & Sacred Tulasi) */
+[data-theme-palette="emerald"] {
+  --advaita-primary: #10b981;
+  --advaita-accent: #059669;
+  --advaita-glow: rgba(16, 185, 129, 0.3);
+  --advaita-nav-bg: rgba(236, 253, 245, 0.95);
+  --advaita-nav-border: rgba(16, 185, 129, 0.28);
+  --advaita-nav-active-text: #047857;
+  --advaita-badge-bg: rgba(16, 185, 129, 0.15);
+}
+.dark[data-theme-palette="emerald"],
+[data-theme-palette="emerald"].dark {
+  --advaita-primary: #34d399;
+  --advaita-accent: #10b981;
+  --advaita-glow: rgba(52, 211, 153, 0.35);
+  --advaita-nav-bg: rgba(6, 20, 16, 0.95);
+  --advaita-nav-border: rgba(16, 185, 129, 0.22);
+  --advaita-nav-active-text: #a7f3d0;
+  --advaita-badge-bg: rgba(16, 185, 129, 0.2);
+}
+
+/* 4. Ocean (Yamuna & Shyam Sundar Blue) */
+[data-theme-palette="ocean"] {
+  --advaita-primary: #3b82f6;
+  --advaita-accent: #2563eb;
+  --advaita-glow: rgba(59, 130, 246, 0.3);
+  --advaita-nav-bg: rgba(239, 246, 255, 0.95);
+  --advaita-nav-border: rgba(59, 130, 246, 0.28);
+  --advaita-nav-active-text: #1d4ed8;
+  --advaita-badge-bg: rgba(59, 130, 246, 0.15);
+}
+.dark[data-theme-palette="ocean"],
+[data-theme-palette="ocean"].dark {
+  --advaita-primary: #60a5fa;
+  --advaita-accent: #3b82f6;
+  --advaita-glow: rgba(96, 165, 250, 0.35);
+  --advaita-nav-bg: rgba(7, 14, 29, 0.95);
+  --advaita-nav-border: rgba(59, 130, 246, 0.22);
+  --advaita-nav-active-text: #bfdbfe;
+  --advaita-badge-bg: rgba(59, 130, 246, 0.2);
+}
+
+/* 5. Royal (Navadvipa Royal Purple) */
+[data-theme-palette="royal"] {
+  --advaita-primary: #8b5cf6;
+  --advaita-accent: #7c3aed;
+  --advaita-glow: rgba(139, 92, 246, 0.3);
+  --advaita-nav-bg: rgba(245, 243, 255, 0.95);
+  --advaita-nav-border: rgba(139, 92, 246, 0.28);
+  --advaita-nav-active-text: #6d28d9;
+  --advaita-badge-bg: rgba(139, 92, 246, 0.15);
+}
+.dark[data-theme-palette="royal"],
+[data-theme-palette="royal"].dark {
+  --advaita-primary: #a78bfa;
+  --advaita-accent: #8b5cf6;
+  --advaita-glow: rgba(167, 139, 250, 0.35);
+  --advaita-nav-bg: rgba(15, 8, 28, 0.95);
+  --advaita-nav-border: rgba(139, 92, 246, 0.22);
+  --advaita-nav-active-text: #ddd6fe;
+  --advaita-badge-bg: rgba(139, 92, 246, 0.2);
+}
+
+/* 6. Sunrise (Braja Dawn & Radiant Marigold) */
+[data-theme-palette="sunrise"] {
+  --advaita-primary: #f97316;
+  --advaita-accent: #ea580c;
+  --advaita-glow: rgba(249, 115, 22, 0.3);
+  --advaita-nav-bg: rgba(255, 247, 237, 0.95);
+  --advaita-nav-border: rgba(249, 115, 22, 0.28);
+  --advaita-nav-active-text: #c2410c;
+  --advaita-badge-bg: rgba(249, 115, 22, 0.15);
+}
+.dark[data-theme-palette="sunrise"],
+[data-theme-palette="sunrise"].dark {
+  --advaita-primary: #fb923c;
+  --advaita-accent: #f97316;
+  --advaita-glow: rgba(251, 146, 60, 0.35);
+  --advaita-nav-bg: rgba(22, 10, 6, 0.95);
+  --advaita-nav-border: rgba(249, 115, 22, 0.22);
+  --advaita-nav-active-text: #fed7aa;
+  --advaita-badge-bg: rgba(249, 115, 22, 0.2);
+}
+
+
 /* Clean, Ink-Saving Print Media Styles */
 @media print {
   @page {
