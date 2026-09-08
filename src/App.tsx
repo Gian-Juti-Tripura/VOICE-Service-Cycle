@@ -146,7 +146,7 @@ const AppContent = () => {
       <BottomNavBar />
       <CornerThemeButton />
       <InstallPromptBanner />
-      <main className="flex-1 pb-16 relative z-10">
+      <main className="flex-1 pb-28 sm:pb-20 relative z-10">
         <Toaster position="top-center" />
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
