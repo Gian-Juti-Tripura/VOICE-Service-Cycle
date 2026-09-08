@@ -392,6 +392,55 @@
   --advaita-badge-bg: rgba(249, 115, 22, 0.2);
 }
 
+/* ================= SACRED & NATURAL TYPOGRAPHY & TEXT EFFECTS ================= */
+.font-cinzel {
+  font-family: 'Cinzel', 'Noto Serif Bengali', Georgia, serif, system-ui, sans-serif;
+}
+
+.brand-text-advaita {
+  font-family: 'Cinzel', Georgia, serif;
+  letter-spacing: 0.05em;
+  text-rendering: optimizeLegibility;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+/* Radiant Theme Dynamic Text Gradient with Aura Shadow */
+.theme-text-gradient {
+  background: linear-gradient(135deg, var(--advaita-primary) 0%, var(--advaita-accent) 60%, var(--advaita-primary) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 1px 3px var(--advaita-glow));
+  display: inline-block;
+  transition: filter 0.3s ease, transform 0.2s ease;
+}
+
+.theme-text-gradient:hover {
+  filter: drop-shadow(0 2px 8px var(--advaita-glow));
+}
+
+/* Luminous Sacred Text Shadow */
+.text-luminous-glow {
+  text-shadow: 0 0 12px var(--advaita-glow), 0 0 2px var(--advaita-primary);
+}
+
+/* Natural Shimmering Golden Slogan */
+@keyframes gold-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.text-shimmer-slogan {
+  background: linear-gradient(90deg, #fef3c7 0%, #fde68a 25%, #ffffff 50%, #fde68a 75%, #fef3c7 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gold-shimmer 8s ease-in-out infinite;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45));
+}
+
 
 /* Clean, Ink-Saving Print Media Styles */
 @media print {

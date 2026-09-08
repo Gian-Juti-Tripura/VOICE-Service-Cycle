@@ -126,9 +126,12 @@ export const BottomNavBar: React.FC = () => {
               </div>
 
               <span 
-                style={{ color: isActive ? 'var(--advaita-nav-active-text)' : undefined }}
+                style={{ 
+                  color: isActive ? 'var(--advaita-nav-active-text)' : undefined,
+                  textShadow: isActive ? '0 0 8px var(--advaita-glow)' : undefined
+                }}
                 className={`text-[9.5px] tracking-tight transition-all leading-tight truncate max-w-[56px] mt-0.5 ${
-                  isActive ? 'font-black' : 'text-slate-500 dark:text-slate-400'
+                  isActive ? 'font-black' : 'text-slate-500 dark:text-slate-400 font-medium'
                 }`}
               >
                 {item.label}

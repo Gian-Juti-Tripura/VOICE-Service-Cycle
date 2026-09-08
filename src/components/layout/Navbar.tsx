@@ -199,7 +199,8 @@ export const Navbar: React.FC = () => {
         style={{
           color: isActive ? 'var(--advaita-nav-active-text)' : undefined,
           backgroundColor: isActive ? 'var(--advaita-badge-bg)' : undefined,
-          borderColor: isActive ? 'var(--advaita-nav-border)' : undefined
+          borderColor: isActive ? 'var(--advaita-nav-border)' : undefined,
+          boxShadow: isActive ? '0 0 12px var(--advaita-glow)' : undefined
         }}
         className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 ${
           isActive 
@@ -237,11 +238,12 @@ export const Navbar: React.FC = () => {
             />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="font-medium sm:font-bold text-[10.5px] sm:text-sm md:text-base text-slate-800 dark:text-white whitespace-nowrap tracking-tight">
-              ADVAITA <span style={{ color: 'var(--advaita-primary)' }} className="font-bold">VOICE</span>
+            <span className="text-[10.5px] sm:text-sm md:text-base font-bold whitespace-nowrap tracking-wide leading-none flex items-center gap-1">
+              <span className="brand-text-advaita text-slate-800 dark:text-slate-100">ADVAITA</span>
+              <span className="theme-text-gradient font-black tracking-normal">VOICE</span>
             </span>
-            <span className="hidden sm:block text-[9px] text-slate-500 dark:text-slate-400 font-medium tracking-wider uppercase -mt-0.5 truncate">
-              {language === 'bn' ? 'চট্টগ্রাম বিশ্ববিদ্যালয়' : 'Chittagong University'}
+            <span className="hidden sm:block text-[9px] text-slate-500 dark:text-slate-400 font-medium tracking-widest uppercase mt-1 truncate">
+              {language === 'bn' ? 'চট্টগ্রাম বিশ্ববিদ্যালয় শাখা' : 'Chittagong University'}
             </span>
           </div>
         </Link>
@@ -425,14 +427,17 @@ export const Navbar: React.FC = () => {
           {/* Language Switch Flip Trigger (Flips between BN <-> EN one at a time) */}
           <button 
             onClick={toggleLanguage}
-            className="flex items-center gap-1 px-1.5 py-1 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100/90 border border-slate-200/60 dark:bg-slate-800/90 dark:border-slate-700/60 font-bold text-slate-700 dark:text-slate-300 transition-all cursor-pointer active:scale-95 shrink-0 group select-none shadow-2xs"
+            className="flex items-center gap-1 px-1.5 py-1 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100/90 border border-slate-200/60 dark:bg-slate-800/90 dark:border-slate-700/60 hover:border-[var(--advaita-primary)] font-bold text-slate-700 dark:text-slate-300 transition-all cursor-pointer active:scale-95 shrink-0 group select-none shadow-2xs"
             title={language === 'bn' ? 'Switch to English (EN)' : 'বাংলায় দেখুন (BN)'}
             aria-label="Flip Language"
           >
             <Globe size={12} style={{ color: 'var(--advaita-primary)' }} className="group-hover:rotate-45 transition-transform duration-300 shrink-0" />
             <span 
               key={language}
-              style={{ color: 'var(--advaita-primary)' }}
+              style={{ 
+                color: 'var(--advaita-primary)',
+                textShadow: '0 0 8px var(--advaita-glow)'
+              }}
               className="font-black text-[10px] sm:text-xs tracking-wider uppercase animate-lang-flip inline-block min-w-[16px] text-center"
             >
               {language === 'bn' ? 'BN' : 'EN'}
@@ -442,7 +447,7 @@ export const Navbar: React.FC = () => {
           {/* Theme & Visual Style Trigger */}
           <button 
             onClick={() => setThemeModalOpen(true)}
-            className="flex items-center gap-1 p-1.5 sm:px-2 sm:py-1.5 rounded-xl bg-slate-100/90 border border-slate-200/60 dark:bg-slate-800/90 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 transition-all group cursor-pointer shrink-0"
+            className="flex items-center gap-1 p-1.5 sm:px-2 sm:py-1.5 rounded-xl bg-slate-100/90 border border-slate-200/60 dark:bg-slate-800/90 dark:border-slate-700/60 hover:border-[var(--advaita-primary)] text-slate-700 dark:text-slate-300 transition-all group cursor-pointer shrink-0 shadow-2xs"
             title={language === 'bn' ? 'থিম ও আলোকসজ্জা কাস্টমাইজ করুন' : 'Customize Theme & Effects'}
             aria-label="Customize Theme & Effects"
           >

@@ -94,8 +94,10 @@ export const HubHome: React.FC = () => {
           {/* Dare to be Rare Title Header */}
           <div className="flex items-center justify-center gap-3 sm:gap-4">
             <div className="h-[1px] flex-1 max-w-xs bg-gradient-to-r from-transparent via-amber-300/60 to-amber-300" />
-            <span className="text-xs sm:text-sm md:text-base font-serif italic tracking-[0.25em] font-extrabold text-amber-100 drop-shadow-[0_2px_10px_rgba(0,0,0,0.3)] select-none">
-              ✦ Dare to be Rare ✦
+            <span className="text-xs sm:text-sm md:text-base font-serif italic tracking-[0.22em] font-extrabold text-shimmer-slogan select-none flex items-center gap-1.5">
+              <span className="text-amber-300 text-[10px] sm:text-xs animate-pulse">✦</span>
+              <span>Dare to be Rare</span>
+              <span className="text-amber-300 text-[10px] sm:text-xs animate-pulse">✦</span>
             </span>
             <div className="h-[1px] flex-1 max-w-xs bg-gradient-to-l from-transparent via-amber-300/60 to-amber-300" />
           </div>
@@ -166,7 +168,7 @@ export const HubHome: React.FC = () => {
                     
                     {/* Main Heading Styled as "ADVAITA VOICE HUB" */}
                     <div className="space-y-1">
-                      <h1 className="text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-black tracking-wider uppercase leading-tight bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent drop-shadow-[0_2px_15px_rgba(245,158,11,0.35)]">
+                      <h1 className={`text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-black tracking-wider uppercase leading-tight bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent drop-shadow-[0_2px_15px_rgba(245,158,11,0.35)] ${language !== 'bn' ? 'font-cinzel' : ''}`}>
                         {language === 'bn' ? 'অদ্বৈত ভয়েস হাব' : 'ADVAITA VOICE HUB'}
                       </h1>
                       
