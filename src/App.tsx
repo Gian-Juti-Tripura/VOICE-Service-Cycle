@@ -135,6 +135,7 @@ const AppContent = () => {
             
             {/* Auth */}
             <Route path="/login" element={<Login />} />
+            <Route path="/reset-password" element={<Login defaultMode="RESET" />} />
             
             {/* Sadhana Module */}
             <Route path="/sadhana" element={<SadhanaTracker />} />
