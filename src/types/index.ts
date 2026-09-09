@@ -40,3 +40,23 @@ export interface DailyAssignment {
   replacementMember?: Member; // If someone else is replacing them
   isReplacementFor?: Member; // If this member is replacing someone else for this service
 }
+
+export interface EmergencyAssignment {
+  service: ServiceDefinition;
+  member: Member;
+  isCustomAssigned?: boolean;
+}
+
+export interface EmergencyDevoteeSchedule {
+  member: Member;
+  services: ServiceDefinition[];
+  totalDuties: number;
+}
+
+export interface EmergencyRosterConfig {
+  dateStr: string;
+  presentMemberIds: string[];
+  activeServiceIds: string[];
+  customServiceAssignments?: Record<string, string>; // serviceId -> memberId
+}
+

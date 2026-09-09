@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
-import { Calendar, Users, Briefcase, Shield, UserCheck, ArrowLeft } from 'lucide-react';
+import { Calendar, Users, Briefcase, Shield, UserCheck, ArrowLeft, ShieldAlert } from 'lucide-react';
 
 export const ServiceCycleHeader: React.FC<{ title?: string; subtitle?: string }> = ({ 
   title, 
@@ -28,6 +28,14 @@ export const ServiceCycleHeader: React.FC<{ title?: string; subtitle?: string }>
       labelBn: 'দৈনিক রোস্টার',
       icon: Calendar,
       show: true,
+    },
+    {
+      to: '/manager/emergency',
+      labelEn: 'Emergency Chart (≤6)',
+      labelBn: 'জরুরী চার্ট (≤৬)',
+      icon: ShieldAlert,
+      show: true,
+      isEmergency: true,
     },
     {
       to: '/manager/members',
@@ -99,11 +107,16 @@ export const ServiceCycleHeader: React.FC<{ title?: string; subtitle?: string }>
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 shrink-0 ${
                 isActive
                   ? 'bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 shadow-sm border border-amber-500/20 font-black'
+                  : item.isEmergency
+                  ? 'text-amber-700 dark:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-white/50 dark:hover:bg-slate-700/50'
               }`}
             >
-              <Icon size={15} className={isActive ? 'text-amber-600 dark:text-amber-400' : 'opacity-70'} />
+              <Icon size={15} className={isActive ? 'text-amber-600 dark:text-amber-400' : item.isEmergency ? 'text-amber-600 dark:text-amber-400' : 'opacity-70'} />
               <span>{language === 'bn' ? item.labelBn : item.labelEn}</span>
+              {item.isEmergency && (
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
+              )}
             </Link>
           );
         })}

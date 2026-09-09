@@ -40,6 +40,7 @@ const MemberEdit = lazy(() => import('./pages/manager/MemberEdit'));
 const ServicesList = lazy(() => import('./pages/manager/ServicesList'));
 const ServiceEdit = lazy(() => import('./pages/manager/ServiceEdit'));
 const SettingsDashboard = lazy(() => import('./pages/manager/SettingsDashboard'));
+const EmergencyRosterPage = lazy(() => import('./pages/manager/EmergencyRosterPage'));
 const MemberDashboard = lazy(() => import('./pages/member/MemberDashboard'));
 
 const LoadingFallback = () => (
@@ -207,6 +208,18 @@ const AppContent = () => {
                   <ManagerDashboard />
                 </ProtectedRoute>
               } 
+            />
+            <Route 
+              path="/manager/emergency" 
+              element={
+                <ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN', 'MEMBER']}>
+                  <EmergencyRosterPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/emergency-roster" 
+              element={<Navigate to="/manager/emergency" replace />} 
             />
             <Route path="/members" element={<ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}><MembersList /></ProtectedRoute>} />
             <Route path="/manager/members" element={<ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}><MembersList /></ProtectedRoute>} />

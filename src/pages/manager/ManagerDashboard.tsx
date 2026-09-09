@@ -7,7 +7,8 @@ import { useSupabaseSync } from '../../hooks/useSupabaseSync';
 import type { Member, DailyAssignment, AssignmentOverride } from '../../types';
 import { calculateDailyAssignments } from '../../utils/cycleEngine';
 import { seedInitialData } from '../../utils/seedData';
-import { ChevronLeft, ChevronRight, Calendar, Edit2, X, Copy, Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, Calendar, Edit2, X, Copy, Check, ShieldAlert, ArrowRight } from 'lucide-react';
 
 import { createPortal } from 'react-dom';
 
@@ -264,6 +265,36 @@ const ManagerDashboard: React.FC = () => {
 
       {error && (
         <div className="mb-8 p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl">{error}</div>
+      )}
+
+      {/* Emergency Notice Banner when active members <= 6 */}
+      {members.filter(m => m.isActive).length > 0 && members.filter(m => m.isActive).length <= 6 && (
+        <div className="mb-8 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-rose-500/10 to-primary-500/10 border border-amber-500/30 dark:border-amber-400/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 backdrop-blur-md shadow-xs animate-fade-in">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+              <ShieldAlert size={22} className="animate-pulse" />
+            </div>
+            <div>
+              <h4 className="text-sm font-black text-slate-900 dark:text-slate-100">
+                {language === 'bn' 
+                  ? `আশ্রমে সক্রিয় সদস্য সংখ্যা বর্তমানে ${members.filter(m => m.isActive).length} জন (≤৬ জন)`
+                  : `Active ashram members currently count ${members.filter(m => m.isActive).length} (≤6 Devotees)`}
+              </h4>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                {language === 'bn'
+                  ? 'সকল সেবা শূন্যস্থান ছাড়া ভক্তদের মাঝে সুষমভাবে সমান বণ্টন করতে জরুরী সেবা চার্ট ব্যবহার করুন।'
+                  : 'Use the Emergency Service Chart for perfectly balanced, equal duty distribution without gaps.'}
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/manager/emergency"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all shadow-xs shrink-0 self-end sm:self-auto"
+          >
+            <span>{language === 'bn' ? 'জরুরী সেবা চার্টে যান' : 'Open Emergency Chart'}</span>
+            <ArrowRight size={14} />
+          </Link>
+        </div>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
