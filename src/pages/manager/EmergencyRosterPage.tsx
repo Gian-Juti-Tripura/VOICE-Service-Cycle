@@ -615,6 +615,14 @@ export const EmergencyRosterPage: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Cohesive Duty Bundle Tag */}
+                  {(schedule.bundleTitleBn || schedule.bundleTitleEn) && (
+                    <div className="mb-3 px-3 py-1.5 rounded-xl bg-amber-500/10 dark:bg-amber-400/10 border border-amber-500/25 text-amber-800 dark:text-amber-300 text-xs font-black flex items-center gap-1.5 shadow-2xs">
+                      <span>📌</span>
+                      <span className="truncate">{isBn ? schedule.bundleTitleBn : schedule.bundleTitleEn}</span>
+                    </div>
+                  )}
+
                   {/* Duty List for Devotee */}
                   <div className="space-y-2.5">
                     {schedule.services.length === 0 ? (

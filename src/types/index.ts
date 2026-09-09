@@ -54,6 +54,8 @@ export interface EmergencyDevoteeSchedule {
   services: ServiceDefinition[];
   totalDuties: number;
   totalPoints: number;
+  bundleTitleBn?: string;
+  bundleTitleEn?: string;
 }
 
 export interface EmergencyRosterConfig {
