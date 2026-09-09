@@ -9,6 +9,10 @@ import { calculateDailyAssignments } from '../../utils/cycleEngine';
 import { seedInitialData } from '../../utils/seedData';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Calendar, Edit2, X, Copy, Check, ShieldAlert, ArrowRight } from 'lucide-react';
+import { 
+  calculateEmergencyAssignments, 
+  generateEmergencyWhatsAppMessage 
+} from '../../utils/emergencyCycleEngine';
 
 import { createPortal } from 'react-dom';
 
@@ -227,6 +231,45 @@ const ManagerDashboard: React.FC = () => {
     }
   };
 
+  const [emergencyCopied, setEmergencyCopied] = useState(false);
+
+  const absentMemberIds = overrides
+    .filter(o => (o.dateStr === selectedDateIso || o.dateStr === 'CONTINUOUS') && (o.status === 'ABSENT' || o.status === 'REPLACED'))
+    .map(o => o.memberId);
+
+  const presentDevotees = members.filter(m => m.isActive && !absentMemberIds.includes(m.id));
+  const isEmergencyNoticeActive = presentDevotees.length <= 6 || members.filter(m => m.isActive).length <= 6;
+
+  const handleCopyEmergencyWhatsApp = async () => {
+    try {
+      const servicesData = await localDb.getServices();
+      const emergencyRes = calculateEmergencyAssignments(selectedDate, presentDevotees, servicesData);
+      const text = generateEmergencyWhatsAppMessage(selectedDate, emergencyRes.devoteeSchedules, language);
+
+      await navigator.clipboard.writeText(text);
+      setEmergencyCopied(true);
+      setTimeout(() => setEmergencyCopied(false), 2200);
+    } catch {
+      try {
+        const servicesData = await localDb.getServices();
+        const emergencyRes = calculateEmergencyAssignments(selectedDate, presentDevotees, servicesData);
+        const text = generateEmergencyWhatsAppMessage(selectedDate, emergencyRes.devoteeSchedules, language);
+
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        setEmergencyCopied(true);
+        setTimeout(() => setEmergencyCopied(false), 2200);
+      } catch (err) {
+        console.error('Failed to copy emergency roster', err);
+        alert("Failed to copy emergency roster.");
+      }
+    }
+  };
+
   const activeCount = assignments.filter(a => !a.isAbsent && !a.isReplacementFor).length;
   const absentCount = assignments.filter(a => a.isAbsent).length;
   const replacementCount = assignments.filter(a => a.isReplacementFor).length;
@@ -267,8 +310,8 @@ const ManagerDashboard: React.FC = () => {
         <div className="mb-8 p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl">{error}</div>
       )}
 
-      {/* Emergency Notice Banner when active members <= 6 */}
-      {members.filter(m => m.isActive).length > 0 && members.filter(m => m.isActive).length <= 6 && (
+      {/* Emergency Notice Banner when active or present members <= 6 */}
+      {isEmergencyNoticeActive && presentDevotees.length > 0 && (
         <div className="mb-8 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-rose-500/10 to-primary-500/10 border border-amber-500/30 dark:border-amber-400/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 backdrop-blur-md shadow-xs animate-fade-in">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
@@ -277,23 +320,25 @@ const ManagerDashboard: React.FC = () => {
             <div>
               <h4 className="text-sm font-black text-slate-900 dark:text-slate-100">
                 {language === 'bn' 
-                  ? `আশ্রমে সক্রিয় সদস্য সংখ্যা বর্তমানে ${members.filter(m => m.isActive).length} জন (≤৬ জন)`
-                  : `Active ashram members currently count ${members.filter(m => m.isActive).length} (≤6 Devotees)`}
+                  ? `আশ্রমে বর্তমানে ${presentDevotees.length} জন ভক্ত উপস্থিত (${absentCount} জন অনুপস্থিত)`
+                  : `Currently ${presentDevotees.length} Devotees Present in Ashram (${absentCount} Absent)`}
               </h4>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                 {language === 'bn'
-                  ? 'সকল সেবা শূন্যস্থান ছাড়া ভক্তদের মাঝে সুষমভাবে সমান বণ্টন করতে জরুরী সেবা চার্ট ব্যবহার করুন।'
-                  : 'Use the Emergency Service Chart for perfectly balanced, equal duty distribution without gaps.'}
+                  ? 'স্বাভাবিক রোস্টারে কিছু সেবা বাদ পড়েছে। সকল ১২টি সেবা দায়িত্বের কাঠিন্য (Difficulty Level) অনুযায়ী সবার মাঝে সুষমভাবে বণ্টন করতে জরুরী চার্ট ব্যবহার করুন।'
+                  : 'In standard rotation, some services are left unassigned. Use the Emergency Chart to distribute all 12 services equally by difficulty level.'}
               </p>
             </div>
           </div>
-          <Link
-            to="/manager/emergency"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all shadow-xs shrink-0 self-end sm:self-auto"
-          >
-            <span>{language === 'bn' ? 'জরুরী সেবা চার্টে যান' : 'Open Emergency Chart'}</span>
-            <ArrowRight size={14} />
-          </Link>
+          <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+            <Link
+              to="/manager/emergency"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all shadow-xs"
+            >
+              <span>{language === 'bn' ? '১২টি সেবার সুষম জরুরী চার্ট খুলুন' : 'Open 12-Service Emergency Chart'}</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
         </div>
       )}
 
@@ -319,7 +364,17 @@ const ManagerDashboard: React.FC = () => {
       <div className="glass-card p-6 lg:p-8">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Assignments for {selectedDateIso}</h3>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {isEmergencyNoticeActive && presentDevotees.length > 0 && (
+              <button 
+                onClick={handleCopyEmergencyWhatsApp} 
+                className="flex items-center gap-2 bg-amber-500/15 text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors border border-amber-500/30"
+                title={language === 'bn' ? 'সকল ১২টি সেবার সুষম বার্তা কপি করুন' : 'Export 100% 12-Service Balanced Emergency Roster'}
+              >
+                {emergencyCopied ? <Check size={16} className="text-emerald-600" /> : <ShieldAlert size={16} className="text-amber-600" />}
+                <span>{emergencyCopied ? (language === 'bn' ? 'কপি হয়েছে!' : 'Copied!') : (language === 'bn' ? '১২-সেবা সুষম চার্ট এক্সপোর্ট' : '12-Service Balanced Export')}</span>
+              </button>
+            )}
             <button 
               onClick={handleCopyWhatsApp} 
               className="flex items-center gap-2 bg-[#25D366]/10 text-[#075E54] hover:bg-[#25D366]/20 px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors border border-[#25D366]/30"

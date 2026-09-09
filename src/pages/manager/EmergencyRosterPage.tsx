@@ -6,7 +6,8 @@ import { localDb } from '../../utils/localDb';
 import type { Member, ServiceDefinition } from '../../types';
 import { 
   calculateEmergencyAssignments, 
-  generateEmergencyWhatsAppMessage 
+  generateEmergencyWhatsAppMessage,
+  getServiceDifficultyMeta
 } from '../../utils/emergencyCycleEngine';
 import { 
   ShieldAlert, 
@@ -68,9 +69,10 @@ export const EmergencyRosterPage: React.FC = () => {
   const loadBaseData = async () => {
     setLoading(true);
     try {
-      const [membersData, servicesData] = await Promise.all([
+      const [membersData, servicesData, overridesData] = await Promise.all([
         localDb.getMembers(),
-        localDb.getServices()
+        localDb.getServices(),
+        localDb.getOverridesByDate(selectedDateIso)
       ]);
 
       const sortedM = [...membersData].sort((a, b) => a.cycleOrder - b.cycleOrder);
@@ -87,9 +89,7 @@ export const EmergencyRosterPage: React.FC = () => {
           if (Array.isArray(parsed.presentMemberIds) && parsed.presentMemberIds.length > 0) {
             setPresentMemberIds(parsed.presentMemberIds);
           } else {
-            // Default: select up to first 6 active members
-            const defaultPresent = sortedM.filter(m => m.isActive).slice(0, 6).map(m => m.id);
-            setPresentMemberIds(defaultPresent);
+            initializeDefaults(sortedM, sortedS, overridesData);
           }
           if (Array.isArray(parsed.activeServiceIds) && parsed.activeServiceIds.length > 0) {
             setActiveServiceIds(parsed.activeServiceIds);
@@ -102,10 +102,10 @@ export const EmergencyRosterPage: React.FC = () => {
             setCustomAssignments({});
           }
         } catch {
-          initializeDefaults(sortedM, sortedS);
+          initializeDefaults(sortedM, sortedS, overridesData);
         }
       } else {
-        initializeDefaults(sortedM, sortedS);
+        initializeDefaults(sortedM, sortedS, overridesData);
       }
     } catch (err) {
       console.error('Failed to load emergency data:', err);
@@ -114,10 +114,14 @@ export const EmergencyRosterPage: React.FC = () => {
     }
   };
 
-  const initializeDefaults = (mList: Member[], sList: ServiceDefinition[]) => {
-    // Default: choose active members, capped at 6 (or all active if <= 6)
-    const activeM = mList.filter(m => m.isActive);
-    const defaultPresent = (activeM.length <= 6 ? activeM : activeM.slice(0, 6)).map(m => m.id);
+  const initializeDefaults = (mList: Member[], sList: ServiceDefinition[], oList: any[] = []) => {
+    // Exclude members marked ABSENT for this date
+    const absentIds = oList
+      .filter(o => (o.dateStr === selectedDateIso || o.dateStr === 'CONTINUOUS') && (o.status === 'ABSENT' || o.status === 'REPLACED'))
+      .map(o => o.memberId);
+
+    const activePresentM = mList.filter(m => m.isActive && !absentIds.includes(m.id));
+    const defaultPresent = (activePresentM.length <= 6 ? activePresentM : activePresentM.slice(0, 6)).map(m => m.id);
     setPresentMemberIds(defaultPresent);
     setActiveServiceIds(sList.filter(s => s.isActive).map(s => s.id));
     setCustomAssignments({});
@@ -526,15 +530,15 @@ export const EmergencyRosterPage: React.FC = () => {
 
         <div className="p-4 sm:p-5 rounded-2xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 shadow-xs flex flex-col items-center justify-center text-center">
           <span className="text-3xl sm:text-4xl font-black text-amber-600 dark:text-amber-400">
-            {summary.minDutiesPerMember === summary.maxDutiesPerMember
-              ? summary.minDutiesPerMember
-              : `${summary.minDutiesPerMember}-${summary.maxDutiesPerMember}`}
+            {summary.minPointsPerMember === summary.maxPointsPerMember
+              ? summary.minPointsPerMember.toFixed(1)
+              : `${summary.minPointsPerMember.toFixed(1)}-${summary.maxPointsPerMember.toFixed(1)}`}
           </span>
           <span className="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-1">
-            {isBn ? 'সেবা/ভক্ত (সুষম বণ্টন)' : 'Duties / Devotee'}
+            {isBn ? 'শ্রম স্কোর / ভক্ত' : 'Workload Pts / Devotee'}
           </span>
           <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 mt-1 bg-emerald-500/10 px-2 py-0.5 rounded-md">
-            {summary.isBalanced ? (isBn ? '১০০% সমান বণ্টন' : '100% Balanced') : (isBn ? 'কাস্টম বিন্যাস' : 'Custom')}
+            {summary.isBalanced ? (isBn ? 'কাঠিন্য অনুযায়ী সুষম' : 'Difficulty Balanced') : (isBn ? 'কাস্টম' : 'Custom')}
           </span>
         </div>
 
@@ -601,9 +605,14 @@ export const EmergencyRosterPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <span className="px-2.5 py-1 rounded-xl text-xs font-black bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                      {schedule.totalDuties} {isBn ? 'সেবা' : 'Duties'}
-                    </span>
+                    <div className="flex flex-col items-end">
+                      <span className="px-2.5 py-0.5 rounded-xl text-xs font-black bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                        {schedule.totalDuties} {isBn ? 'সেবা' : 'Duties'}
+                      </span>
+                      <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-0.5">
+                        {schedule.totalPoints.toFixed(1)} {isBn ? 'পয়েন্ট' : 'pts load'}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Duty List for Devotee */}
@@ -615,6 +624,17 @@ export const EmergencyRosterPage: React.FC = () => {
                     ) : (
                       schedule.services.map(service => {
                         const isCustom = customAssignments[service.id] === member.id;
+                        const meta = getServiceDifficultyMeta(service.id);
+                        
+                        // Badge color styles
+                        const diffBadgeStyle = meta.difficulty === 'HEAVY'
+                          ? 'bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/30'
+                          : meta.difficulty === 'MEDIUM_HIGH'
+                          ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30'
+                          : meta.difficulty === 'MEDIUM'
+                          ? 'bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30'
+                          : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30';
+
                         return (
                           <div 
                             key={service.id}
@@ -625,13 +645,19 @@ export const EmergencyRosterPage: React.FC = () => {
                             }`}
                           >
                             <div className="flex items-start justify-between gap-2">
-                              <div className="flex items-center gap-2">
-                                <span className="px-2 py-0.5 text-[10px] font-black rounded-md bg-amber-500 text-white shadow-2xs">
+                              <div className="flex items-start gap-2">
+                                <span className="px-2 py-0.5 text-[10px] font-black rounded-md bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs shrink-0 mt-0.5">
                                   #{service.id}
                                 </span>
-                                <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">
-                                  {isBn ? service.nameBn.split(' (+ ')[0] : service.nameEn.split(' (+ ')[0]}
-                                </h4>
+                                <div>
+                                  <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                                    {isBn ? service.nameBn.split(' (+ ')[0] : service.nameEn.split(' (+ ')[0]}
+                                  </h4>
+                                  <span className={`inline-flex items-center gap-1 text-[9px] font-black px-1.5 py-0.5 rounded border mt-1 ${diffBadgeStyle}`}>
+                                    {meta.difficulty === 'HEAVY' ? '🔴' : meta.difficulty === 'MEDIUM_HIGH' ? '🟠' : meta.difficulty === 'MEDIUM' ? '🟡' : '🟢'}
+                                    <span>{isBn ? meta.labelBn : meta.labelEn}</span>
+                                  </span>
+                                </div>
                               </div>
 
                               {(role === 'INTERNAL_MANAGER' || role === 'ADMIN') && (
@@ -729,6 +755,14 @@ export const EmergencyRosterPage: React.FC = () => {
                       <div className="flex items-center gap-2 text-[11px] text-slate-400 font-medium mt-0.5">
                         <Clock size={11} className="text-amber-600 dark:text-amber-400" />
                         <span>{service.timing}</span>
+                        {(() => {
+                          const meta = getServiceDifficultyMeta(service.id);
+                          return (
+                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 ml-1">
+                              • {isBn ? meta.labelBn : meta.labelEn}
+                            </span>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>

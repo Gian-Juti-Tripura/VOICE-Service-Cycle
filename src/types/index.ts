@@ -18,6 +18,8 @@ export interface ServiceDefinition {
   descEn: string;
   timing: string;
   isActive: boolean;
+  difficulty?: 'HEAVY' | 'MEDIUM_HIGH' | 'MEDIUM' | 'LIGHT_MEDIUM' | 'LIGHT';
+  weight?: number;
 }
 
 export interface AssignmentOverride {
@@ -51,6 +53,7 @@ export interface EmergencyDevoteeSchedule {
   member: Member;
   services: ServiceDefinition[];
   totalDuties: number;
+  totalPoints: number;
 }
 
 export interface EmergencyRosterConfig {
