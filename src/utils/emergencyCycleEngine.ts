@@ -128,7 +128,29 @@ export const SERVICE_DIFFICULTY_MAP: Record<string, ServiceWorkloadMeta> = {
   }
 };
 
-export const getServiceDifficultyMeta = (serviceId: string): ServiceWorkloadMeta => {
+/** Label/color lookup per difficulty level — used by UI and getServiceDifficultyMeta */
+export const DIFFICULTY_LABELS: Record<string, { labelBn: string; labelEn: string; color: string; defaultWeight: number }> = {
+  LIGHT:        { labelBn: 'সহজ',           labelEn: 'Light',        color: 'teal',    defaultWeight: 1.0 },
+  LIGHT_MEDIUM: { labelBn: 'সহজ-মাঝারি',   labelEn: 'Light-Medium', color: 'emerald', defaultWeight: 1.5 },
+  MEDIUM:       { labelBn: 'মাঝারি',        labelEn: 'Medium',       color: 'blue',    defaultWeight: 2.0 },
+  MEDIUM_HIGH:  { labelBn: 'মাঝারি-কঠিন',  labelEn: 'Med-Heavy',    color: 'amber',   defaultWeight: 2.5 },
+  HEAVY:        { labelBn: 'কঠিন',          labelEn: 'Heavy',        color: 'rose',    defaultWeight: 3.0 },
+};
+
+export const getServiceDifficultyMeta = (serviceId: string, service?: ServiceDefinition): ServiceWorkloadMeta => {
+  // If the service object has difficulty set from DB, build meta from it
+  if (service?.difficulty && service?.weight != null) {
+    const fallback = SERVICE_DIFFICULTY_MAP[serviceId] || SERVICE_DIFFICULTY_MAP['1'];
+    return {
+      difficulty: service.difficulty,
+      weight: service.weight,
+      labelBn: DIFFICULTY_LABELS[service.difficulty]?.labelBn || fallback.labelBn,
+      labelEn: DIFFICULTY_LABELS[service.difficulty]?.labelEn || fallback.labelEn,
+      color: DIFFICULTY_LABELS[service.difficulty]?.color || fallback.color,
+      categoryBn: fallback.categoryBn,
+      categoryEn: fallback.categoryEn
+    };
+  }
   return SERVICE_DIFFICULTY_MAP[serviceId] || {
     difficulty: 'MEDIUM',
     weight: 2.0,
@@ -138,6 +160,17 @@ export const getServiceDifficultyMeta = (serviceId: string): ServiceWorkloadMeta
     categoryBn: 'সাধারণ সেবা',
     categoryEn: 'General Service'
   };
+};
+
+/** Returns the effective workload weight for a service — DB value takes priority */
+export const getEffectiveWeight = (service: ServiceDefinition): number => {
+  if (service.weight != null) return service.weight;
+  return SERVICE_DIFFICULTY_MAP[service.id]?.weight ?? 2.0;
+};
+
+/** Returns true if ALL active services have their difficulty rank set in DB */
+export const allServicesHaveDifficulty = (services: ServiceDefinition[]): boolean => {
+  return services.filter(s => s.isActive).every(s => s.difficulty != null && s.difficulty !== undefined);
 };
 
 /**
@@ -371,15 +404,15 @@ export const calculateEmergencyAssignments = (
   services: ServiceDefinition[],
   customAssignments: Record<string, string> = {}
 ): EmergencyCalculationResult => {
-  // Attach difficulty metadata to active services
+  // Attach difficulty metadata to active services — DB values take priority over hardcoded map
   const activeServices = [...services]
     .filter(s => s.isActive)
     .map(s => {
-      const meta = getServiceDifficultyMeta(s.id);
+      const meta = getServiceDifficultyMeta(s.id, s);
       return {
         ...s,
-        difficulty: meta.difficulty,
-        weight: meta.weight
+        difficulty: s.difficulty ?? meta.difficulty,
+        weight: s.weight ?? meta.weight
       };
     });
 

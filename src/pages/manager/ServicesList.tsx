@@ -9,6 +9,7 @@ import { ServiceCycleHeader } from '../../components/layout/ServiceCycleHeader';
 import { exportTableToPdf } from '../../lib/exportTablePdf';
 import { triggerHaptic } from '../../utils/haptics';
 import toast from 'react-hot-toast';
+import { DIFFICULTY_LABELS } from '../../utils/emergencyCycleEngine';
 
 export default function ServicesList() {
   const { language } = useLanguage();
@@ -161,6 +162,7 @@ export default function ServicesList() {
                   <th className="p-4">Slot</th>
                   <th className="p-4">Service Name (EN / BN)</th>
                   <th className="p-4">Timing</th>
+                  <th className="p-4">⚖️ Difficulty</th>
                   <th className="p-4">Status</th>
                   {isManagerOrAdmin && <th className="p-4 text-right">Actions</th>}
                 </tr>
@@ -188,6 +190,32 @@ export default function ServicesList() {
                         <Clock size={12} className="text-amber-500" />
                         {service.timing}
                       </span>
+                    </td>
+                    <td className="p-4">
+                      {service.difficulty ? (() => {
+                        const d = DIFFICULTY_LABELS[service.difficulty!];
+                        const colorMap: Record<string, string> = {
+                          teal:    'bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800',
+                          emerald: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+                          blue:    'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+                          amber:   'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+                          rose:    'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800',
+                        };
+                        const emojiMap: Record<string, string> = {
+                          teal: '🟢', emerald: '🟡', blue: '🔵', amber: '🟠', rose: '🔴',
+                        };
+                        return (
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${colorMap[d.color] ?? ''}`}>
+                            <span>{emojiMap[d.color] ?? '⚪'}</span>
+                            <span>{language === 'bn' ? d.labelBn : d.labelEn}</span>
+                            <span className="opacity-60">({service.weight ?? d.defaultWeight}pt)</span>
+                          </span>
+                        );
+                      })() : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500">
+                          ⚪ {language === 'bn' ? 'সেট করা হয়নি' : 'Not set'}
+                        </span>
+                      )}
                     </td>
                     <td className="p-4">
                       {service.isActive !== false ? (

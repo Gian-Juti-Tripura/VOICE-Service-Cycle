@@ -239,7 +239,9 @@ export const localDb = {
             descBn: s.desc_bn || canonical?.descBn || '',
             descEn: s.desc_en || canonical?.descEn || '',
             timing: s.timing || canonical?.timing || '',
-            isActive: true
+            isActive: true,
+            difficulty: s.difficulty || undefined,
+            weight: s.weight != null ? Number(s.weight) : undefined
           });
         }
       });
@@ -291,7 +293,9 @@ export const localDb = {
       desc_bn: service.descBn,
       desc_en: service.descEn,
       timing: service.timing,
-      is_active: service.isActive
+      is_active: service.isActive,
+      difficulty: service.difficulty || null,
+      weight: service.weight != null ? service.weight : null
     });
   },
 
