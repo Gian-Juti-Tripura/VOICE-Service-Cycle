@@ -1125,16 +1125,16 @@ export const AshramDisciplineAudit: React.FC = () => {
           </button>
         </div>
 
-        <div className="relative overflow-hidden rounded-[32px] p-6 sm:p-8 bg-gradient-to-br from-indigo-950 via-slate-900 to-amber-950 text-white shadow-xl border border-white/15">
-          <div className="relative z-10 space-y-4">
+        <div className="relative overflow-hidden rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 bg-gradient-to-br from-indigo-950 via-slate-900 to-amber-950 text-white shadow-xl border border-white/15">
+          <div className="relative z-10 space-y-3">
             
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 text-amber-300 font-mono text-[10.5px] font-extrabold uppercase tracking-wider border border-white/15">
-                  <Sparkles size={12} className="text-amber-400" />
-                  <span>Advaita VOICE • Complete Ashram Sadhana & Discipline</span>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div className="space-y-0.5">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-amber-300 font-mono text-[10px] font-extrabold uppercase tracking-wider border border-white/15">
+                  <Sparkles size={11} className="text-amber-400" />
+                  <span>Advaita VOICE • Ashram Discipline</span>
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">
                   {isBn ? 'ভয়েস ও লোটাস গ্রুপ অডিট ও রিপোর্ট' : 'VOICE & Lotus Group Daily Discipline Audit'}
                 </h1>
                 <p className="text-xs sm:text-sm text-amber-200/90 font-serif italic">
@@ -1174,35 +1174,34 @@ export const AshramDisciplineAudit: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-400/20 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-amber-300 font-mono uppercase">
-                    🌟 VOICE Group (Morning Program Incharge)
+            {/* Minimal Group Info: Titles and (Features in brackets) */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 pt-1">
+              <div className="flex-1 flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-400/20 text-xs">
+                <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                  <span className="font-black text-amber-300">
+                    🌟 {isBn ? 'ভয়েস গ্রুপ' : 'VOICE Group'}
                   </span>
-                  <span className="text-[10px] font-bold bg-amber-400/20 text-amber-200 px-2 py-0.5 rounded-full">
-                    {voiceCount} Devotees
+                  <span className="text-[11px] text-amber-100/80 font-medium">
+                    ({isBn ? '১০টা শয়ন, ৪টা জাগরণ, ৪:৩০ এমপি, মঙ্গলারতি ও ক্লাস' : 'Bed ≤ 10 PM, Wake 4 AM, MP ≤ 4:30 AM, Mangalarati & Class'})
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed font-normal">
-                  • <strong>Bed:</strong> &le; 10:00 PM &nbsp;|&nbsp; <strong>Wake:</strong> 4:00 AM &nbsp;|&nbsp; <strong>MP:</strong> &le; 4:30 AM &nbsp;|&nbsp; <strong>Mangalarati & Class</strong><br/>
-                  • <em>Live Strikes:</em> 3 strikes within month triggers automatic demotion to Lotus Group.
-                </p>
+                <span className="text-[10px] font-mono font-bold bg-amber-400/20 text-amber-200 px-2 py-0.5 rounded-full shrink-0">
+                  {voiceCount} {isBn ? 'জন' : ''}
+                </span>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-400/20 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-indigo-300 font-mono uppercase">
-                    🪷 Lotus Group (Security Manager)
+              <div className="flex-1 flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-400/20 text-xs">
+                <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                  <span className="font-black text-indigo-300">
+                    🪷 {isBn ? 'লোটাস গ্রুপ' : 'Lotus Group'}
                   </span>
-                  <span className="text-[10px] font-bold bg-indigo-400/20 text-indigo-200 px-2 py-0.5 rounded-full">
-                    {lotusCount} Devotees
+                  <span className="text-[11px] text-indigo-100/80 font-medium">
+                    ({isBn ? '১১টা শয়ন, ৫টা এমপি, মঙ্গলারতি ও ক্লাস' : 'Bed ≤ 11 PM, MP ≤ 5:00 AM, Mangalarati & Class'})
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed font-normal">
-                  • <strong>Bed:</strong> &le; 11:00 PM &nbsp;|&nbsp; <strong>MP:</strong> &le; 5:00 AM &nbsp;|&nbsp; <strong>Mangalarati & Class</strong><br/>
-                  • <em>Promotion:</em> &ge; 90% success rate with &le; 1 strike qualifies for promotion to VOICE.
-                </p>
+                <span className="text-[10px] font-mono font-bold bg-indigo-400/20 text-indigo-200 px-2 py-0.5 rounded-full shrink-0">
+                  {lotusCount} {isBn ? 'জন' : ''}
+                </span>
               </div>
             </div>
 
