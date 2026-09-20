@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import { 
   ArrowLeft, Calendar, Check, Copy, 
   Sparkles, ChevronLeft, ChevronRight, 
   UserPlus, Trash2, ArrowRightLeft,
   Moon, Sun, Clock, AlertCircle, Edit, Save, X, Send,
   Flame, BookOpen, History, Award,
-  Download, Shield, Eye
+  Download, Shield, Eye, Lock
 } from 'lucide-react';
 import { 
   type GroupType, 
@@ -56,8 +57,13 @@ interface MonthlyDevoteeStats {
 
 export const AshramDisciplineAudit: React.FC = () => {
   const { language } = useLanguage();
+  const { role: authRole } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date(2026, 8, 7, 12, 0, 0));
   const [activeTab, setActiveTab] = useState<GroupType | 'ALL'>('VOICE');
+
+  // Only ADMIN and INTERNAL_MANAGER can use the role-switcher and make edits.
+  // Everyone else (MEMBER / null) is forced to pure read-only VIEWER.
+  const isPrivileged = authRole === 'ADMIN' || authRole === 'INTERNAL_MANAGER';
 
   // Role-Based Auditor Identity State
   const [activeAuditorRole, setActiveAuditorRole] = useState<DisciplineAuditorRole>(() => {
@@ -68,6 +74,9 @@ export const AshramDisciplineAudit: React.FC = () => {
       return 'ADMIN';
     }
   });
+
+  // Effective auditor role — non-privileged users are always forced to VIEWER
+  const effectiveAuditorRole: DisciplineAuditorRole = isPrivileged ? activeAuditorRole : 'VIEWER';
 
   // Track active custom minute inputs for Bedtime and MP
   const [customBedActive, setCustomBedActive] = useState<Record<string, boolean>>({});
@@ -131,22 +140,22 @@ export const AshramDisciplineAudit: React.FC = () => {
   const dateIso = selectedDate.toISOString().split('T')[0];
   const isBn = language === 'bn';
 
-  // Permission Evaluation
-  const canEditBedtime = activeAuditorRole === 'ADMIN' || activeAuditorRole === 'SECURITY_MANAGER' || activeAuditorRole === 'INTERNAL_MANAGER';
-  const canEditMorning = activeAuditorRole === 'ADMIN' || activeAuditorRole === 'MORNING_INCHARGE' || activeAuditorRole === 'INTERNAL_MANAGER';
-  const canEditAbsence = activeAuditorRole === 'ADMIN' || activeAuditorRole === 'SECURITY_MANAGER' || activeAuditorRole === 'INTERNAL_MANAGER';
-  const canEditStrikes = activeAuditorRole === 'ADMIN' || activeAuditorRole === 'INTERNAL_MANAGER';
-  const canManageDevotees = activeAuditorRole === 'ADMIN';
+  // Permission Evaluation — uses effectiveAuditorRole so non-privileged users are always VIEWER
+  const canEditBedtime = effectiveAuditorRole === 'ADMIN' || effectiveAuditorRole === 'SECURITY_MANAGER' || effectiveAuditorRole === 'INTERNAL_MANAGER';
+  const canEditMorning = effectiveAuditorRole === 'ADMIN' || effectiveAuditorRole === 'MORNING_INCHARGE' || effectiveAuditorRole === 'INTERNAL_MANAGER';
+  const canEditAbsence = effectiveAuditorRole === 'ADMIN' || effectiveAuditorRole === 'SECURITY_MANAGER' || effectiveAuditorRole === 'INTERNAL_MANAGER';
+  const canEditStrikes = effectiveAuditorRole === 'ADMIN' || effectiveAuditorRole === 'INTERNAL_MANAGER';
+  const canManageDevotees = effectiveAuditorRole === 'ADMIN';
 
   const checkPermission = (actionType: 'bedtime' | 'morning' | 'absence' | 'strikes' | 'manage'): boolean => {
-    if (activeAuditorRole === 'ADMIN') return true;
+    if (effectiveAuditorRole === 'ADMIN') return true;
     if (actionType === 'bedtime' && canEditBedtime) return true;
     if (actionType === 'morning' && canEditMorning) return true;
     if (actionType === 'absence' && canEditAbsence) return true;
     if (actionType === 'strikes' && canEditStrikes) return true;
     if (actionType === 'manage' && canManageDevotees) return true;
 
-    const curProfile = DISCIPLINE_AUDITOR_ROLES.find(r => r.key === activeAuditorRole);
+    const curProfile = DISCIPLINE_AUDITOR_ROLES.find(r => r.key === effectiveAuditorRole);
     const roleTitle = isBn ? curProfile?.titleBn : curProfile?.titleEn;
 
     if (actionType === 'bedtime') {
@@ -256,11 +265,11 @@ export const AshramDisciplineAudit: React.FC = () => {
   };
 
   const handleMarkAllOnTime = (group: GroupType) => {
-    if (activeAuditorRole === 'VIEWER') {
+    if (effectiveAuditorRole === 'VIEWER') {
       checkPermission('manage');
       return;
     }
-    if (activeAuditorRole === 'SECURITY_MANAGER') {
+    if (effectiveAuditorRole === 'SECURITY_MANAGER') {
       toast.error(
         isBn 
           ? '🔒 সিকিউরিটি ম্যানেজার হিসেবে আপনি শুধুমাত্র শয়নের সময় নিয়ন্ত্রণ করতে পারবেন।' 
@@ -1182,11 +1191,39 @@ export const AshramDisciplineAudit: React.FC = () => {
         </div>
 
         {/* Role-Based Auditor Identity Switcher Banner */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-md space-y-3">
+        <div className={`rounded-3xl p-4 sm:p-5 border shadow-md space-y-3 ${
+          !isPrivileged
+            ? 'bg-slate-50 dark:bg-slate-900/60 border-slate-300 dark:border-slate-700 opacity-90'
+            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'
+        }`}>
+
+          {/* Non-privileged: strict read-only banner */}
+          {!isPrivileged && (
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700">
+              <div className="w-9 h-9 rounded-xl bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0">
+                <Lock size={18} />
+              </div>
+              <div>
+                <p className="text-sm font-black text-slate-600 dark:text-slate-400">
+                  {isBn ? '🔒 শুধুমাত্র দেখার অনুমতি' : '🔒 Read-Only Access'}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-500 mt-0.5">
+                  {isBn
+                    ? 'এই অডিট পৃষ্ঠায় সম্পাদনার অধিকার শুধুমাত্র মর্নিং প্রোগ্রাম ইনচার্জ, সিকিউরিটি ম্যানেজার ও অ্যাডমিনের জন্য সংরক্ষিত।'
+                    : 'Editing is strictly restricted to Morning Program Incharge, Security Manager, and Admin only. You may view reports freely.'}
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
-                <Shield size={20} />
+              <div className={`w-10 h-10 rounded-2xl border flex items-center justify-center shrink-0 ${
+                isPrivileged
+                  ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30'
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-400 border-slate-300 dark:border-slate-700'
+              }`}>
+                {isPrivileged ? <Shield size={20} /> : <Lock size={20} />}
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -1194,52 +1231,56 @@ export const AshramDisciplineAudit: React.FC = () => {
                     {isBn ? 'দায়িত্বপ্রাপ্ত ইনচার্জ ও রোল নিয়ন্ত্রণ' : 'Discipline Auditor & Access Role'}
                   </h2>
                   <span className={`px-2 py-0.5 rounded-full text-[10.5px] font-black ${
-                    DISCIPLINE_AUDITOR_ROLES.find(r => r.key === activeAuditorRole)?.badgeColor || 'bg-slate-700 text-white'
+                    isPrivileged
+                      ? DISCIPLINE_AUDITOR_ROLES.find(r => r.key === effectiveAuditorRole)?.badgeColor || 'bg-slate-700 text-white'
+                      : 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
                   }`}>
-                    {isBn 
-                      ? DISCIPLINE_AUDITOR_ROLES.find(r => r.key === activeAuditorRole)?.titleBn 
-                      : DISCIPLINE_AUDITOR_ROLES.find(r => r.key === activeAuditorRole)?.titleEn}
+                    {isBn
+                      ? DISCIPLINE_AUDITOR_ROLES.find(r => r.key === effectiveAuditorRole)?.titleBn
+                      : DISCIPLINE_AUDITOR_ROLES.find(r => r.key === effectiveAuditorRole)?.titleEn}
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-0.5">
-                  👤 {isBn 
-                    ? DISCIPLINE_AUDITOR_ROLES.find(r => r.key === activeAuditorRole)?.inchargeNameBn 
-                    : DISCIPLINE_AUDITOR_ROLES.find(r => r.key === activeAuditorRole)?.inchargeNameEn}
+                <p className={`text-xs sm:text-sm font-bold mt-0.5 ${isPrivileged ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'}`}>
+                  👤 {isBn
+                    ? DISCIPLINE_AUDITOR_ROLES.find(r => r.key === effectiveAuditorRole)?.inchargeNameBn
+                    : DISCIPLINE_AUDITOR_ROLES.find(r => r.key === effectiveAuditorRole)?.inchargeNameEn}
                   <span className="text-slate-400 dark:text-slate-500 font-normal ml-2 hidden sm:inline">
-                    — {isBn 
-                      ? DISCIPLINE_AUDITOR_ROLES.find(r => r.key === activeAuditorRole)?.descriptionBn 
-                      : DISCIPLINE_AUDITOR_ROLES.find(r => r.key === activeAuditorRole)?.descriptionEn}
+                    — {isBn
+                      ? DISCIPLINE_AUDITOR_ROLES.find(r => r.key === effectiveAuditorRole)?.descriptionBn
+                      : DISCIPLINE_AUDITOR_ROLES.find(r => r.key === effectiveAuditorRole)?.descriptionEn}
                   </span>
                 </p>
               </div>
             </div>
 
-            {/* Role Select Control */}
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 hidden sm:inline">
-                {isBn ? 'সক্রিয় আইডি:' : 'Active Role:'}
-              </span>
-              <select
-                value={activeAuditorRole}
-                onChange={(e) => {
-                  const newRole = e.target.value as DisciplineAuditorRole;
-                  setActiveAuditorRole(newRole);
-                  const p = DISCIPLINE_AUDITOR_ROLES.find(r => r.key === newRole);
-                  toast.success(
-                    isBn
-                      ? `সক্রিয় রোল পরিবর্তন করা হয়েছে: ${p?.titleBn} (${p?.inchargeNameBn})`
-                      : `Switched active auditor to: ${p?.titleEn} (${p?.inchargeNameEn})`
-                  );
-                }}
-                className="w-full sm:w-auto bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 cursor-pointer"
-              >
-                {DISCIPLINE_AUDITOR_ROLES.map(r => (
-                  <option key={r.key} value={r.key}>
-                    {r.key === 'ADMIN' ? '👑' : r.key === 'MORNING_INCHARGE' ? '🌅' : r.key === 'SECURITY_MANAGER' ? '🌙' : r.key === 'INTERNAL_MANAGER' ? '📋' : '👁️'} {isBn ? r.titleBn : r.titleEn} ({isBn ? r.inchargeNameBn : r.inchargeNameEn})
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Role Select Control — only visible to privileged users */}
+            {isPrivileged && (
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 hidden sm:inline">
+                  {isBn ? 'সক্রিয় আইডি:' : 'Active Role:'}
+                </span>
+                <select
+                  value={activeAuditorRole}
+                  onChange={(e) => {
+                    const newRole = e.target.value as DisciplineAuditorRole;
+                    setActiveAuditorRole(newRole);
+                    const p = DISCIPLINE_AUDITOR_ROLES.find(r => r.key === newRole);
+                    toast.success(
+                      isBn
+                        ? `সক্রিয় রোল পরিবর্তন করা হয়েছে: ${p?.titleBn} (${p?.inchargeNameBn})`
+                        : `Switched active auditor to: ${p?.titleEn} (${p?.inchargeNameEn})`
+                    );
+                  }}
+                  className="w-full sm:w-auto bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 cursor-pointer"
+                >
+                  {DISCIPLINE_AUDITOR_ROLES.map(r => (
+                    <option key={r.key} value={r.key}>
+                      {r.key === 'ADMIN' ? '👑' : r.key === 'MORNING_INCHARGE' ? '🌅' : r.key === 'SECURITY_MANAGER' ? '🌙' : r.key === 'INTERNAL_MANAGER' ? '📋' : '👁️'} {isBn ? r.titleBn : r.titleEn} ({isBn ? r.inchargeNameBn : r.inchargeNameEn})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
           {/* Quick Permission Status Pills */}
@@ -1286,13 +1327,14 @@ export const AshramDisciplineAudit: React.FC = () => {
               {canManageDevotees ? '✅' : '🔒'} {isBn ? 'ভক্ত তালিকা পরিবর্তন' : 'Devotee Registry'}
             </span>
 
-            {activeAuditorRole === 'VIEWER' && (
+            {effectiveAuditorRole === 'VIEWER' && (
               <span className="text-amber-600 dark:text-amber-400 font-black ml-auto">
                 👁️ {isBn ? 'শুধুমাত্র দেখার সুযোগ (রিপোর্ট ও ভার্ডিক্ট উন্মুক্ত)' : 'View Only Mode (Read & Reports Enabled)'}
               </span>
             )}
           </div>
         </div>
+
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
           
