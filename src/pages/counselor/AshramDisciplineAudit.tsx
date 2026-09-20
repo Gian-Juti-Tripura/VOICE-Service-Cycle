@@ -1117,30 +1117,12 @@ export const AshramDisciplineAudit: React.FC = () => {
             <span>{isBn ? 'হাব হোমে ফিরে যান' : 'Back to Hub Home'}</span>
           </Link>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            <button
-              onClick={() => setIsHistoryModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs border border-amber-400/30 transition-all cursor-pointer shadow-xs"
-            >
-              <History size={14} className="text-amber-400" />
-              <span>{isBn ? 'অডিট হিস্ট্রি ও লগ' : 'Audit History Log'}</span>
-            </button>
-
-            <button
-              onClick={() => setIsMonthlyVerdictModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-md transition-all cursor-pointer"
-            >
-              <Award size={14} />
-              <span>{isBn ? 'মাসিক মূল্যায়ন ও ভার্ডিক্ট' : 'Monthly Verdict & Report'}</span>
-            </button>
-
-            <button
-              onClick={handleResetToDefault}
-              className="text-[10px] text-slate-400 hover:text-slate-600 underline font-bold px-1 cursor-pointer"
-            >
-              Reset 12 Devotees
-            </button>
-          </div>
+          <button
+            onClick={handleResetToDefault}
+            className="text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 underline font-bold px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          >
+            Reset 12 Devotees
+          </button>
         </div>
 
         <div className="relative overflow-hidden rounded-[32px] p-6 sm:p-8 bg-gradient-to-br from-indigo-950 via-slate-900 to-amber-950 text-white shadow-xl border border-white/15">
@@ -1225,6 +1207,63 @@ export const AshramDisciplineAudit: React.FC = () => {
             </div>
 
           </div>
+        </div>
+
+        {/* Two Major Feature Action Cards: Side by Side Professional Boxes */}
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          {/* Card 1: Audit History & Log */}
+          <button
+            type="button"
+            onClick={() => setIsHistoryModalOpen(true)}
+            className="group relative overflow-hidden text-left p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-500/60 dark:hover:border-amber-500/50 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer active:scale-[0.99] flex flex-col justify-between gap-3 sm:gap-4"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200">
+                <History size={22} className="sm:w-6 sm:h-6" />
+              </div>
+              <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">
+                {isBn ? 'লগ ও টাইমলাইন' : 'Audit Trail'}
+              </span>
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                  {isBn ? 'অডিট হিস্ট্রি ও লগ' : 'Audit History Log'}
+                </h3>
+                <ChevronRight size={15} className="text-slate-400 group-hover:text-amber-500 group-hover:translate-x-0.5 transition-all shrink-0" />
+              </div>
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium line-clamp-2">
+                {isBn ? 'সকল ভক্তের অতীত সাধনা, উপস্থিতি ও অনিয়ম পর্যালোচনার পূর্ণ লগ।' : 'Complete timeline of past sadhana entries, absences & violation logs.'}
+              </p>
+            </div>
+          </button>
+
+          {/* Card 2: Monthly Verdict & Report */}
+          <button
+            type="button"
+            onClick={() => setIsMonthlyVerdictModalOpen(true)}
+            className="group relative overflow-hidden text-left p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-white dark:to-slate-900 border border-amber-500/40 dark:border-amber-500/35 hover:border-amber-500 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer active:scale-[0.99] flex flex-col justify-between gap-3 sm:gap-4"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center shrink-0 group-hover:scale-105 shadow-md transition-transform duration-200">
+                <Award size={22} className="sm:w-6 sm:h-6" />
+              </div>
+              <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/30">
+                {isBn ? 'মাসিক মূল্যায়ন' : 'Monthly'}
+              </span>
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                  {isBn ? 'মাসিক মূল্যায়ন ও ভার্ডিক্ট' : 'Monthly Verdict & Report'}
+                </h3>
+                <ChevronRight size={15} className="text-amber-500 group-hover:translate-x-0.5 transition-all shrink-0" />
+              </div>
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium line-clamp-2">
+                {isBn ? 'সাফল্য হার, পদোন্নতি ও অবনমন মানদণ্ড এবং পূর্ণ মাসিক রিপোর্ট।' : 'Performance analytics, promotion/demotion criteria & WhatsApp report.'}
+              </p>
+            </div>
+          </button>
         </div>
 
         {/* Role-Based Auditor Identity Switcher Banner */}
