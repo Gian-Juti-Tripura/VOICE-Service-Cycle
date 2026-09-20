@@ -125,6 +125,11 @@ export const AshramDisciplineAudit: React.FC = () => {
 
   const [previewReport, setPreviewReport] = useState<{ title: string; content: string } | null>(null);
 
+  // Strike Warning & Management Modal state - prevents accidental 1-click edits
+  const [strikeModalStudentId, setStrikeModalStudentId] = useState<string | null>(null);
+  const [pendingStrikeCount, setPendingStrikeCount] = useState<number>(0);
+  const [strikeWarningAck, setStrikeWarningAck] = useState<boolean>(false);
+
   useEffect(() => {
     localStorage.setItem(STORAGE_STUDENTS_KEY, JSON.stringify(students));
   }, [students]);
@@ -144,7 +149,7 @@ export const AshramDisciplineAudit: React.FC = () => {
   const canEditBedtime = effectiveAuditorRole === 'ADMIN' || effectiveAuditorRole === 'SECURITY_MANAGER' || effectiveAuditorRole === 'INTERNAL_MANAGER';
   const canEditMorning = effectiveAuditorRole === 'ADMIN' || effectiveAuditorRole === 'MORNING_INCHARGE' || effectiveAuditorRole === 'INTERNAL_MANAGER';
   const canEditAbsence = effectiveAuditorRole === 'ADMIN' || effectiveAuditorRole === 'SECURITY_MANAGER' || effectiveAuditorRole === 'INTERNAL_MANAGER';
-  const canEditStrikes = effectiveAuditorRole === 'ADMIN' || effectiveAuditorRole === 'INTERNAL_MANAGER';
+  const canEditStrikes = effectiveAuditorRole === 'ADMIN' || effectiveAuditorRole === 'MORNING_INCHARGE';
   const canManageDevotees = effectiveAuditorRole === 'ADMIN';
 
   const checkPermission = (actionType: 'bedtime' | 'morning' | 'absence' | 'strikes' | 'manage'): boolean => {
@@ -179,8 +184,8 @@ export const AshramDisciplineAudit: React.FC = () => {
     } else if (actionType === 'strikes') {
       toast.error(
         isBn
-          ? `🔒 স্ট্রাইক সমন্বয় করার অধিকার শুধুমাত্র অ্যাডমিন ও অভ্যন্তরীণ ব্যবস্থাপকের রয়েছে।`
-          : `🔒 Only Admin and Internal Manager can adjust strikes.`
+          ? `🔒 স্ট্রাইক সমন্বয় করার অধিকার শুধুমাত্র অ্যাডমিন ও মর্নিং প্রোগ্রাম ইনচার্জের রয়েছে।`
+          : `🔒 Only Admin and Morning Program Incharge can adjust strikes.`
       );
     } else {
       toast.error(
@@ -395,7 +400,8 @@ export const AshramDisciplineAudit: React.FC = () => {
 
       const autoStrikes = violationDaysCount;
       const manualDelta = student.manualStrikeDelta ?? 0;
-      const strikes = Math.min(3, Math.max(0, autoStrikes + manualDelta));
+      // Continuous strike count - no cap at 3
+      const strikes = Math.max(0, autoStrikes + manualDelta);
 
       map[student.id] = {
         autoStrikes,
@@ -407,15 +413,29 @@ export const AshramDisciplineAudit: React.FC = () => {
     return map;
   }, [dailyRecords, students, selectedVerdictMonth, isBn]);
 
-  const handleAdjustStrikes = (studentId: string, delta: number) => {
+  // Open Strike Warning & Management Modal (Restricted to Admin & Morning Incharge)
+  const handleOpenStrikeModal = (studentId: string) => {
     if (!checkPermission('strikes')) return;
+    const current = devoteeStrikesMap[studentId]?.strikes ?? (students.find(s => s.id === studentId)?.monthlyStrikes || 0);
+    setStrikeModalStudentId(studentId);
+    setPendingStrikeCount(current);
+    setStrikeWarningAck(false);
+  };
+
+  // Confirm strike change inside modal - allows continuous counting (4, 5, 6+)
+  const handleConfirmStrikeUpdate = () => {
+    if (!strikeModalStudentId || !checkPermission('strikes')) return;
+
+    const targetStudent = students.find(s => s.id === strikeModalStudentId);
+    if (!targetStudent) return;
+
+    const currentStrikes = devoteeStrikesMap[strikeModalStudentId]?.strikes ?? targetStudent.monthlyStrikes;
+    const autoStrikes = devoteeStrikesMap[strikeModalStudentId]?.autoStrikes ?? 0;
+    const newStrikes = Math.max(0, pendingStrikeCount); // Continuous counting without cap
+    const manualStrikeDelta = newStrikes - autoStrikes;
 
     setStudents(prev => prev.map(s => {
-      if (s.id !== studentId) return s;
-      const currentStrikes = devoteeStrikesMap[studentId]?.strikes ?? s.monthlyStrikes;
-      const newStrikes = Math.max(0, Math.min(3, currentStrikes + delta));
-      const autoStrikes = devoteeStrikesMap[studentId]?.autoStrikes ?? 0;
-      const manualStrikeDelta = newStrikes - autoStrikes;
+      if (s.id !== strikeModalStudentId) return s;
       let status: StudentDisciplineRecord['status'] = 'ACTIVE';
       let group: GroupType = s.group;
 
@@ -428,16 +448,33 @@ export const AshramDisciplineAudit: React.FC = () => {
           group = 'LOTUS';
           toast.error(
             isBn
-              ? `⚠️ ${s.name} ৩টি স্ট্রাইক পূর্ণ করায় স্বয়ংক্রিয়ভাবে লোটাস গ্রুপে অবনমিত করা হয়েছে!`
-              : `⚠️ ${s.name} accumulated 3 strikes and was automatically degraded to Lotus Group!`,
-            { duration: 5000 }
+              ? `⚠️ ${s.name} ${toBn(newStrikes)}টি স্ট্রাইক পূর্ণ করায় লোটাস গ্রুপে অবনমিত করা হয়েছে!`
+              : `⚠️ ${s.name} reached ${newStrikes} strikes and was automatically degraded to Lotus Group!`,
+            { duration: 6000 }
           );
         } else {
-          status = 'DISMISSED';
+          status = newStrikes >= 5 ? 'DISMISSED' : 'DEMOTION_DUE';
+          if (newStrikes >= 5) {
+            toast.error(
+              isBn
+                ? `🚨 ${s.name} ${toBn(newStrikes)}টি স্ট্রাইক পেয়েছেন — আশ্রম বহিষ্কারের পর্যালোচনা পর্যায়!`
+                : `🚨 ${s.name} reached ${newStrikes} strikes — ashram dismissal review level!`,
+              { duration: 6000 }
+            );
+          }
         }
       }
+
       return { ...s, group, monthlyStrikes: newStrikes, manualStrikeDelta, status };
     }));
+
+    toast.success(
+      isBn
+        ? `✅ ${targetStudent.name}-এর স্ট্রাইক সফলভাবে সমন্বয় করা হয়েছে: ${toBn(currentStrikes)} ➔ ${toBn(newStrikes)}`
+        : `✅ Successfully updated strikes for ${targetStudent.name}: ${currentStrikes} ➔ ${newStrikes}`
+    );
+
+    setStrikeModalStudentId(null);
   };
 
   const handleSwitchGroup = (studentId: string) => {
@@ -548,7 +585,7 @@ export const AshramDisciplineAudit: React.FC = () => {
             issues.push(isBn ? `ক্লাসে অনুপস্থিত (${reason})` : `Missed Class (${reason})`);
           }
           const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes;
-          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক ' + toBn(sStrikes) + '/৩' : 'Strike ' + sStrikes + '/3'}]` : '';
+          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক ' + toBn(sStrikes) : 'Strike ' + sStrikes}]` : '';
           const reasonStr = entry.reason ? ` — _${isBn ? 'কারণ' : 'Reason'}:_ ${formatReasonText(entry.reason, isBn)}` : '';
           nonCompliant.push(`*${s.name}*${strikeStr} (${issues.join(', ')})${reasonStr}`);
         }
@@ -621,7 +658,7 @@ export const AshramDisciplineAudit: React.FC = () => {
             issues.push(isBn ? `ক্লাসে অনুপস্থিত (${reason})` : `Missed Class (${reason})`);
           }
           const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes;
-          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক ' + toBn(sStrikes) + '/৩' : 'Strike ' + sStrikes + '/3'}]` : '';
+          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক ' + toBn(sStrikes) : 'Strike ' + sStrikes}]` : '';
           const reasonStr = entry.reason ? ` — _${isBn ? 'কারণ' : 'Reason'}:_ ${formatReasonText(entry.reason, isBn)}` : '';
           nonCompliant.push(`*${s.name}*${strikeStr} (${issues.join(', ')})${reasonStr}`);
         }
@@ -700,7 +737,7 @@ export const AshramDisciplineAudit: React.FC = () => {
             notes.push(`${isBn ? 'ক্লাস অনুপস্থিত' : 'Missed Class'} (${r})`);
           }
           const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes;
-          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক ' + toBn(sStrikes) + '/৩' : 'Strike ' + sStrikes + '/3'}]` : '';
+          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক ' + toBn(sStrikes) : 'Strike ' + sStrikes}]` : '';
           voiceLateOrMissed.push(`*${s.name}*${strikeStr} — ${notes.join(', ')}`);
         }
       }
@@ -731,7 +768,7 @@ export const AshramDisciplineAudit: React.FC = () => {
             notes.push(`${isBn ? 'ক্লাস অনুপস্থিত' : 'Missed Class'} (${r})`);
           }
           const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes;
-          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক ' + toBn(sStrikes) + '/৩' : 'Strike ' + sStrikes + '/3'}]` : '';
+          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক ' + toBn(sStrikes) : 'Strike ' + sStrikes}]` : '';
           lotusLateOrMissed.push(`*${s.name}*${strikeStr} — ${notes.join(', ')}`);
         }
       }
@@ -1006,7 +1043,7 @@ export const AshramDisciplineAudit: React.FC = () => {
 
     report += `🌟 *${toBn(1)}. ${isBn ? 'ভয়েস গ্রুপ মূল্যায়ন' : 'VOICE GROUP EVALUATION'} (${toBn(voiceStats.length)} ${isBn ? 'জন' : 'Devotees'})*\n\n`;
     voiceStats.forEach((st, i) => {
-      const strikeDisplay = isBn ? `${toBn(st.totalStrikes)}/৩` : `${st.totalStrikes}/3`;
+      const strikeDisplay = isBn ? `${toBn(st.totalStrikes)}টি` : `${st.totalStrikes} strike${st.totalStrikes !== 1 ? 's' : ''}`;
       report += `${toBn(i + 1)}. *${st.student.name}*\n`;
       report += `   • ${isBn ? 'সাফল্য' : 'Success Rate'}: *${toBn(st.overallSuccessRate)}%* (${isBn ? 'উপস্থিত' : 'Present'}: ${toBn(st.presentDays)}/${toBn(st.totalDaysEvaluated)} ${isBn ? 'দিন' : 'days'})\n`;
       report += `   • ${isBn ? 'শয়ন' : 'Bed'}: ${toBn(st.bedSuccessRate)}% | ${isBn ? 'মর্নিং' : 'MP'}: ${toBn(st.mpSuccessRate)}% | ${isBn ? 'মঙ্গল আরতি' : 'Mangalarati'}: ${toBn(st.mangalaratiRate)}% | ${isBn ? 'ক্লাস' : 'Class'}: ${toBn(st.classRate)}%\n`;
@@ -1017,7 +1054,7 @@ export const AshramDisciplineAudit: React.FC = () => {
 
     report += `🪷 *${toBn(2)}. ${isBn ? 'লোটাস গ্রুপ মূল্যায়ন' : 'LOTUS GROUP EVALUATION'} (${toBn(lotusStats.length)} ${isBn ? 'জন' : 'Devotees'})*\n\n`;
     lotusStats.forEach((st, i) => {
-      const strikeDisplay = isBn ? `${toBn(st.totalStrikes)}/৩` : `${st.totalStrikes}/3`;
+      const strikeDisplay = isBn ? `${toBn(st.totalStrikes)}টি` : `${st.totalStrikes} strike${st.totalStrikes !== 1 ? 's' : ''}`;
       report += `${toBn(i + 1)}. *${st.student.name}*\n`;
       report += `   • ${isBn ? 'সাফল্য' : 'Success Rate'}: *${toBn(st.overallSuccessRate)}%* (${isBn ? 'উপস্থিত' : 'Present'}: ${toBn(st.presentDays)}/${toBn(st.totalDaysEvaluated)} ${isBn ? 'দিন' : 'days'})\n`;
       report += `   • ${isBn ? 'শয়ন' : 'Bed'}: ${toBn(st.bedSuccessRate)}% | ${isBn ? 'মর্নিং' : 'MP'}: ${toBn(st.mpSuccessRate)}% | ${isBn ? 'মঙ্গল আরতি' : 'Mangalarati'}: ${toBn(st.mangalaratiRate)}% | ${isBn ? 'ক্লাস' : 'Class'}: ${toBn(st.classRate)}%\n`;
@@ -1316,7 +1353,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                 ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30' 
                 : 'bg-slate-100 dark:bg-slate-800 text-slate-400 line-through'
             }`}>
-              {canEditStrikes ? '✅' : '🔒'} {isBn ? 'স্ট্রাইক সমন্বয়' : 'Strikes'}
+              {canEditStrikes ? '✅' : '🔒'} {isBn ? 'স্ট্রাইক সমন্বয় (অ্যাডমিন ও মর্নিং ইনচার্জ)' : 'Strikes (Admin & Morning Incharge)'}
             </span>
 
             <span className={`px-2 py-0.5 rounded-md font-semibold flex items-center gap-1 ${
@@ -1711,29 +1748,41 @@ export const AshramDisciplineAudit: React.FC = () => {
                             return (
                               <div className="flex items-center gap-1.5 flex-wrap">
                                 <span className="text-[10px] text-slate-500 font-medium">{isBn ? 'স্ট্রাইক:' : 'Strikes:'}</span>
-                                <div className="flex items-center gap-1">
-                                  {[1, 2, 3].map(st => (
-                                    <button
-                                      key={st}
-                                      onClick={() => {
-                                        if (!checkPermission('strikes')) return;
-                                        handleAdjustStrikes(student.id, currentStrikes === st ? -1 : (st - currentStrikes));
-                                      }}
-                                      className={`w-4 h-4 rounded text-[9px] font-black flex items-center justify-center transition-all cursor-pointer ${
-                                        currentStrikes >= st
-                                          ? 'bg-rose-600 text-white shadow-xs'
-                                          : 'bg-slate-200 dark:bg-slate-800 text-slate-400 hover:bg-slate-300'
-                                      }`}
-                                      title={
-                                        isBn 
-                                          ? `স্ট্রাইক ${toBn(st)} (অ্যাডমিন/অভ্যন্তরীণ ব্যবস্থাপক সমন্বয়)` 
-                                          : `Strike ${st} (Admin / Internal Manager adjustment)`
-                                      }
-                                    >
-                                      {st}
-                                    </button>
-                                  ))}
-                                </div>
+
+                                {/* Non-accidental Strike Badge: Click opens Disciplinary Warning Modal */}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (canEditStrikes) {
+                                      handleOpenStrikeModal(student.id);
+                                    } else {
+                                      toast(
+                                        isBn
+                                          ? `বর্তমান স্ট্রাইক: ${toBn(currentStrikes)}টি। পরিবর্তনের অধিকার শুধুমাত্র অ্যাডমিন ও মর্নিং ইনচার্জের।`
+                                          : `Current strikes: ${currentStrikes}. Only Admin & Morning Incharge can adjust.`,
+                                        { icon: '🔒' }
+                                      );
+                                    }
+                                  }}
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-black flex items-center gap-1 transition-all cursor-pointer shadow-xs ${
+                                    currentStrikes === 0
+                                      ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
+                                      : currentStrikes <= 2
+                                      ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500/25'
+                                      : currentStrikes <= 4
+                                      ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30 hover:bg-rose-500/25'
+                                      : 'bg-red-700/20 text-red-800 dark:text-red-300 border border-red-700/40 hover:bg-red-700/30 animate-pulse'
+                                  }`}
+                                  title={
+                                    canEditStrikes
+                                      ? (isBn ? `স্ট্রাইক: ${toBn(currentStrikes)}টি — সতর্কতা ও সমন্বয় করতে ক্লিক করুন` : `Strikes: ${currentStrikes} — Click to manage warning & adjustment`)
+                                      : (isBn ? `স্ট্রাইক: ${toBn(currentStrikes)}টি (শুধুমাত্র অ্যাডমিন ও মর্নিং ইনচার্জ সমন্বয় করতে পারেন)` : `Strikes: ${currentStrikes} (Read-only. Only Admin & Morning Incharge can adjust)`)
+                                  }
+                                >
+                                  <span>{currentStrikes === 0 ? '✅' : currentStrikes <= 2 ? '⚠️' : currentStrikes <= 4 ? '🚨' : '💀'}</span>
+                                  <span>{isBn ? `${toBn(currentStrikes)} স্ট্রাইক` : `${currentStrikes} Strike${currentStrikes !== 1 ? 's' : ''}`}</span>
+                                  {canEditStrikes && <Edit size={10} className="ml-0.5 opacity-70" />}
+                                </button>
 
                                 {strikeInfo.autoStrikes > 0 && (
                                   <span 
@@ -1748,9 +1797,15 @@ export const AshramDisciplineAudit: React.FC = () => {
                                   </span>
                                 )}
 
-                                {currentStrikes >= 3 && (
+                                {currentStrikes >= 3 && currentStrikes < 5 && (
                                   <span className="text-[10px] font-black text-rose-600 animate-pulse bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/30">
-                                    ⚠️ Degraded to Lotus
+                                    {student.group === 'VOICE' ? '⚠️ Degraded to Lotus' : '🚨 3+ Strikes'}
+                                  </span>
+                                )}
+
+                                {currentStrikes >= 5 && (
+                                  <span className="text-[10px] font-black text-red-800 dark:text-red-300 animate-pulse bg-red-500/20 px-1.5 py-0.5 rounded border border-red-700/50">
+                                    💀 {isBn ? `বহিষ্কার পর্যায় (${toBn(currentStrikes)})` : `Dismissal Level (${currentStrikes})`}
                                   </span>
                                 )}
                               </div>
@@ -2213,7 +2268,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                             </span>
                           </div>
                           <p className="text-xs text-slate-400 mt-1">
-                            {isBn ? 'মূল্যায়নকৃত দিন' : 'Evaluated'}: <span className="text-white font-bold">{presentDays + absentDays} {isBn ? 'দিন' : 'days'}</span> ({presentDays} {isBn ? 'উপস্থিত' : 'present'}, {absentDays} {isBn ? 'ছুটি' : 'leave'}) • {isBn ? 'স্ট্রাইক' : 'Strikes'}: <span className="text-amber-400 font-black">{devoteeStrikesMap[targetStudent.id]?.strikes ?? targetStudent.monthlyStrikes}/3</span>
+                            {isBn ? 'মূল্যায়নকৃত দিন' : 'Evaluated'}: <span className="text-white font-bold">{presentDays + absentDays} {isBn ? 'দিন' : 'days'}</span> ({presentDays} {isBn ? 'উপস্থিত' : 'present'}, {absentDays} {isBn ? 'ছুটি' : 'leave'}) • {isBn ? 'স্ট্রাইক' : 'Strikes'}: <span className="text-amber-400 font-black">{toBn(devoteeStrikesMap[targetStudent.id]?.strikes ?? targetStudent.monthlyStrikes)} {isBn ? 'টি' : ''}</span>
                           </p>
                         </div>
                         
@@ -2482,7 +2537,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                         </td>
                         <td className="p-3 font-mono font-bold">
                           <span className={st.totalStrikes >= 3 ? 'text-rose-600 font-black' : st.totalStrikes > 0 ? 'text-amber-600' : 'text-slate-400'}>
-                            {st.totalStrikes}/3
+                            {st.totalStrikes}
                           </span>
                         </td>
                         <td className="p-3">
@@ -2564,12 +2619,11 @@ export const AshramDisciplineAudit: React.FC = () => {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Monthly Strikes (0-3)
+                    Monthly Strikes (Cumulative)
                   </label>
                   <input
                     type="number"
                     min="0"
-                    max="3"
                     value={editingStudent.monthlyStrikes}
                     onChange={e => setEditingStudent({ ...editingStudent, monthlyStrikes: parseInt(e.target.value) || 0 })}
                     className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs text-slate-900 dark:text-white font-bold"
@@ -2667,6 +2721,195 @@ export const AshramDisciplineAudit: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Strike Management & Disciplinary Warning Modal */}
+      {strikeModalStudentId && (() => {
+        const targetStudent = students.find(s => s.id === strikeModalStudentId);
+        if (!targetStudent) return null;
+        const strikeInfo = devoteeStrikesMap[targetStudent.id] || { strikes: targetStudent.monthlyStrikes, autoStrikes: 0, violations: [] };
+        const currentStrikes = strikeInfo.strikes;
+        const isDemotingVoice = targetStudent.group === 'VOICE' && pendingStrikeCount >= 3;
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fade-in">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[90vh] flex flex-col">
+              
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-2xl bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30 flex items-center justify-center shrink-0">
+                    <AlertCircle size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
+                      {isBn ? 'আশ্রম শৃঙ্খলার স্ট্রাইক ও সতর্কীকরণ' : 'Ashram Strike & Disciplinary Warning'}
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-bold mt-0.5">
+                      👤 {targetStudent.name} • <span className={targetStudent.group === 'VOICE' ? 'text-amber-600 dark:text-amber-400' : 'text-indigo-600 dark:text-indigo-400'}>{targetStudent.group === 'VOICE' ? '🌟 VOICE Group' : '🪷 Lotus Group'}</span>
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setStrikeModalStudentId(null)}
+                  className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors cursor-pointer"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Scrollable Content */}
+              <div className="flex-1 overflow-y-auto pr-1 space-y-4 text-xs">
+                
+                {/* Authority Notice */}
+                <div className="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-[11px] font-bold flex items-center gap-2">
+                  <Shield size={16} className="text-amber-600 shrink-0" />
+                  <span>
+                    {isBn 
+                      ? '🔒 এই ব্যবস্থা শুধুমাত্র অ্যাডমিন ও মর্নিং প্রোগ্রাম ইনচার্জের অনুমোদনে নিয়ন্ত্রিত।' 
+                      : '🔒 Strike adjustment is strictly restricted to Admin and Morning Program Incharge.'}
+                  </span>
+                </div>
+
+                {/* Current vs New Strike Comparison Box */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-1">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                      {isBn ? 'বর্তমান স্ট্রাইক' : 'Current Strikes'}
+                    </span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-black text-slate-900 dark:text-white">
+                        {toBn(currentStrikes)}
+                      </span>
+                      <span className="text-[11px] text-slate-400">
+                        ({isBn ? 'অটো' : 'Auto'}: {toBn(strikeInfo.autoStrikes)})
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 space-y-1">
+                    <span className="text-[11px] font-bold text-rose-700 dark:text-rose-300 uppercase tracking-wider block">
+                      {isBn ? 'নতুন নির্ধারিত মান' : 'Target Strikes'}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setPendingStrikeCount(prev => Math.max(0, prev - 1))}
+                        disabled={pendingStrikeCount === 0}
+                        className="w-7 h-7 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-black text-sm flex items-center justify-center hover:bg-slate-300 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        min="0"
+                        value={pendingStrikeCount}
+                        onChange={(e) => setPendingStrikeCount(Math.max(0, parseInt(e.target.value) || 0))}
+                        className="w-12 text-center text-lg font-black text-slate-900 dark:text-white bg-white dark:bg-slate-800 rounded-lg border border-slate-300 dark:border-slate-600 py-0.5"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setPendingStrikeCount(prev => prev + 1)}
+                        className="w-7 h-7 rounded-xl bg-rose-600 text-white font-black text-sm flex items-center justify-center hover:bg-rose-500 shadow-sm cursor-pointer"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Auto Rule Violations Breakdown if any */}
+                {strikeInfo.violations.length > 0 && (
+                  <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-1.5">
+                    <span className="text-[11px] font-black text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                      ⚡ {isBn ? 'স্বয়ংক্রিয়ভাবে চিহ্নিত অনিয়ম সমূহ:' : 'System Auto-Detected Rule Violations:'}
+                    </span>
+                    <div className="space-y-1 max-h-28 overflow-y-auto pr-1 text-[10.5px]">
+                      {strikeInfo.violations.map((v, idx) => (
+                        <div key={idx} className="flex items-start gap-1.5 text-slate-600 dark:text-slate-400">
+                          <span className="font-mono font-bold text-rose-600 shrink-0">• {v.date}:</span>
+                          <span>{v.rules.join(', ')}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Disciplinary Policy Warning Levels */}
+                <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-rose-500/10 to-slate-100 dark:to-slate-800/60 border border-amber-500/30 space-y-2">
+                  <span className="text-[11px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                    ⚠️ {isBn ? 'শৃঙ্খলা নীতি ও সতর্কীকরণ পর্যায়:' : 'Disciplinary Warning Policy:'}
+                  </span>
+                  <div className="space-y-1 text-[11px] text-slate-700 dark:text-slate-300">
+                    <div className="flex items-center gap-2">
+                      <span className="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 font-black text-[10px]">১-২ স্ট্রাইক</span>
+                      <span>{isBn ? 'মৌখিক ও আনুষ্ঠানিক সতর্কতা (Formal Caution)' : 'Formal disciplinary caution & observation'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-1.5 py-0.2 rounded bg-rose-600/20 text-rose-800 dark:text-rose-300 font-black text-[10px]">৩+ স্ট্রাইক</span>
+                      <span>{isBn ? 'স্বয়ংক্রিয়ভাবে লোটাস গ্রুপে অবনমন (Lotus Demotion)' : 'Automatic demotion to Lotus Group'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-1.5 py-0.2 rounded bg-red-700/25 text-red-900 dark:text-red-300 font-black text-[10px]">৫+ স্ট্রাইক</span>
+                      <span>{isBn ? 'আশ্রম আবাসিক সুযোগ বাতিল বা বহিষ্কার বিবেচনা' : 'Ashram residency disqualification / dismissal'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Demotion Alert if target strikes >= 3 */}
+                {isDemotingVoice && (
+                  <div className="p-3 rounded-2xl bg-rose-600/20 border border-rose-600/40 text-rose-900 dark:text-rose-200 text-xs font-bold space-y-0.5 animate-pulse">
+                    <p className="font-black flex items-center gap-1.5 text-rose-700 dark:text-rose-300">
+                      🚨 {isBn ? 'গুরুত্বপূর্ণ সতর্কবার্তা:' : 'Critical Warning:'}
+                    </p>
+                    <p className="text-[11px] font-normal leading-relaxed">
+                      {isBn
+                        ? `${targetStudent.name} বর্তমানে ভয়েস গ্রুপে আছেন। ৩ বা ততোধিক স্ট্রাইক নিশ্চিত করলে তিনি তাৎক্ষণিকভাবে লোটাস গ্রুপে অবনমিত হবেন।`
+                        : `${targetStudent.name} is in VOICE Group. Setting strikes to 3+ will immediately demote him to Lotus Group.`}
+                    </p>
+                  </div>
+                )}
+
+                {/* Warning Acknowledgment Checkbox */}
+                <label className="flex items-start gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={strikeWarningAck}
+                    onChange={(e) => setStrikeWarningAck(e.target.checked)}
+                    className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 border-slate-300 dark:border-slate-600 mt-0.5 cursor-pointer"
+                  />
+                  <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 leading-snug">
+                    {isBn 
+                      ? 'আমি আশ্রমের শৃঙ্খলা বিধি ও সতর্কবার্তা পর্যালোচনা করেছি এবং এই স্ট্রাইক সমন্বয় নিশ্চিত করছি।' 
+                      : 'I have reviewed the ashram discipline warnings and confirm this strike adjustment.'}
+                  </span>
+                </label>
+
+              </div>
+
+              {/* Modal Actions */}
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setStrikeModalStudentId(null)}
+                  className="flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                >
+                  {isBn ? 'বাতিল' : 'Cancel'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmStrikeUpdate}
+                  disabled={!strikeWarningAck}
+                  className="flex-1 py-2.5 rounded-xl text-xs font-black text-white bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:cursor-not-allowed shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <AlertCircle size={14} />
+                  <span>{isBn ? 'স্ট্রাইক পরিবর্তন নিশ্চিত করুন' : 'Confirm Strike Change'}</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        );
+      })()}
 
       {/* WhatsApp Report Live Preview Modal */}
       {previewReport && (

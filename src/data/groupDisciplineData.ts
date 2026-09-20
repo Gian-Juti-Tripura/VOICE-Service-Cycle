@@ -34,8 +34,8 @@ export const DISCIPLINE_AUDITOR_ROLES: AuditorProfile[] = [
     inchargeNameBn: 'দীপেন্দ্রনাথ রায় (দীপেন প্রভু)',
     studentId: 'member_5',
     badgeColor: 'bg-emerald-600 text-white',
-    descriptionEn: 'Authorized to edit Wake-up (4:00 AM), MP Punctuality (with late minutes), Mangalarati, and Morning Class.',
-    descriptionBn: 'ভোর ৪:০০ জাগরণ, মর্নিং প্রোগ্রাম (বিলম্ব মিনিট), মঙ্গল আরতি ও ক্লাসের উপস্থিতি নিয়ন্ত্রণের ক্ষমতাপ্রাপ্ত।'
+    descriptionEn: 'Authorized to edit Wake-up (4:00 AM), MP Punctuality (with late minutes), Mangalarati, Morning Class, and Disciplinary Strikes.',
+    descriptionBn: 'ভোর ৪:০০ জাগরণ, মর্নিং প্রোগ্রাম (বিলম্ব মিনিট), মঙ্গল আরতি, ক্লাস ও শৃঙ্খলামূলক স্ট্রাইক নিয়ন্ত্রণের ক্ষমতাপ্রাপ্ত।'
   },
   {
     key: 'SECURITY_MANAGER',
@@ -77,7 +77,7 @@ export interface StudentDisciplineRecord {
   group: GroupType;
   phone?: string;
   cycleOrder?: number;
-  monthlyStrikes: number; // 0 to 3
+  monthlyStrikes: number; // cumulative count (0, 1, 2, 3, 4, 5+)
   manualStrikeDelta?: number; // manual incharge override delta
   status: 'ACTIVE' | 'WARNED' | 'DEMOTION_DUE' | 'DISMISSED';
 }
