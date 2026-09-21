@@ -155,8 +155,8 @@ export const INITIAL_DISCIPLINE_STUDENTS: StudentDisciplineRecord[] = [
   { id: 'member_11', name: 'BAPPI C. P.', group: 'VOICE', cycleOrder: 12, monthlyStrikes: 1, status: 'WARNED' },
 
   // Lotus Group (Only Sangakara Das and Pranto C Das)
-  { id: 'member_3', name: 'PRANTO P. (Pranto C Das)', group: 'LOTUS', phone: '+880 1609-302008', cycleOrder: 4, monthlyStrikes: 2, status: 'WARNED' },
-  { id: 'member_4', name: 'SANGA P. (Sangakara Das)', group: 'LOTUS', phone: '+880 1722-711849', cycleOrder: 5, monthlyStrikes: 2, status: 'WARNED' },
+  { id: 'member_3', name: 'PRANTO P.', group: 'LOTUS', phone: '+880 1609-302008', cycleOrder: 4, monthlyStrikes: 2, status: 'WARNED' },
+  { id: 'member_4', name: 'SANGA P.', group: 'LOTUS', phone: '+880 1722-711849', cycleOrder: 5, monthlyStrikes: 2, status: 'WARNED' },
 ];
 
 export const createDefaultDailyRecordsForDate = (dateIso: string): Record<string, DailyDisciplineEntry> => {

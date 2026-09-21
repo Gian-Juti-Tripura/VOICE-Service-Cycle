@@ -24,15 +24,26 @@ export interface ExtendedDailyMeta {
   updatedAt?: string;
 }
 
+const cleanStudentName = (name: string): string => {
+  return name.replace(/\s*\(Pranto C Das\)/gi, '').replace(/\s*\(Sangakara Das\)/gi, '').trim();
+};
+
 /**
  * Read cached students from LocalStorage (instant 0ms startup)
  */
 export function getCachedDisciplineStudents(): StudentDisciplineRecord[] {
   try {
     const saved = localStorage.getItem(STORAGE_STUDENTS_KEY);
-    return saved ? JSON.parse(saved) : INITIAL_DISCIPLINE_STUDENTS;
+    const list: StudentDisciplineRecord[] = saved ? JSON.parse(saved) : INITIAL_DISCIPLINE_STUDENTS;
+    return list.map(s => ({
+      ...s,
+      name: cleanStudentName(s.name)
+    }));
   } catch {
-    return INITIAL_DISCIPLINE_STUDENTS;
+    return INITIAL_DISCIPLINE_STUDENTS.map(s => ({
+      ...s,
+      name: cleanStudentName(s.name)
+    }));
   }
 }
 
@@ -50,7 +61,7 @@ export function getCachedDailyRecords(): Record<string, Record<string, DailyDisc
 }
 
 /**
- * Fetch all students from Supabase \`discipline_students\` table
+ * Fetch all students from Supabase `discipline_students` table
  */
 export async function fetchDisciplineStudents(): Promise<StudentDisciplineRecord[]> {
   try {
@@ -65,7 +76,7 @@ export async function fetchDisciplineStudents(): Promise<StudentDisciplineRecord
 
     const students: StudentDisciplineRecord[] = data.map(row => ({
       id: row.id,
-      name: row.name,
+      name: cleanStudentName(row.name),
       group: (row.group_type as GroupType) || 'VOICE',
       phone: row.phone || '',
       cycleOrder: row.cycle_order ?? 0,

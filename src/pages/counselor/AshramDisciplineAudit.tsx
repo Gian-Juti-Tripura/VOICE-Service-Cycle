@@ -612,6 +612,7 @@ export const AshramDisciplineAudit: React.FC = () => {
   const generateMorningProgramCombinedReport = () => {
     const voiceStudents = students.filter(s => s.group === 'VOICE');
     const lotusStudents = students.filter(s => s.group === 'LOTUS');
+    const cleanName = (n: string) => n.replace(/\s*\(Pranto C Das\)/gi, '').replace(/\s*\(Sangakara Das\)/gi, '').trim();
 
     const voiceOnTime: string[] = [];
     const voiceLateOrMissed: string[] = [];
@@ -624,15 +625,15 @@ export const AshramDisciplineAudit: React.FC = () => {
     voiceStudents.forEach(s => {
       const entry = getEntry(s.id);
       const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes ?? 0;
-      const strikeStr = `(${isBn ? 'স্ট্রাইক: ' + toBn(sStrikes) : 'Strike: ' + sStrikes})`;
+      const strikeStr = `_(${isBn ? 'স্ট্রাইক: ' + toBn(sStrikes) : 'Strike: ' + sStrikes})_`;
 
       if (entry.isAbsent) {
         const reason = formatReasonText(entry.absenceReason, isBn);
-        voiceAbsent.push(`*${s.name}* ${strikeStr} — ${reason}`);
+        voiceAbsent.push(`*${cleanName(s.name)}* ${strikeStr} — ${reason}`);
       } else {
         const isPerfect = entry.wokeUpOnTime && entry.morningProgramOnTime && entry.mangalaratiAttended && entry.morningClassAttended;
         if (isPerfect) {
-          voiceOnTime.push(`*${s.name}* ${strikeStr}`);
+          voiceOnTime.push(`*${cleanName(s.name)}* ${strikeStr}`);
         } else {
           const notes: string[] = [];
           if (!entry.wokeUpOnTime) notes.push(isBn ? 'দেরিতে জাগরণ' : 'Wake Late');
@@ -648,7 +649,7 @@ export const AshramDisciplineAudit: React.FC = () => {
             const r = formatReasonText(entry.morningClassReason, isBn);
             notes.push(`${isBn ? 'ক্লাস অনুপস্থিত' : 'Missed Class'} (${r})`);
           }
-          voiceLateOrMissed.push(`*${s.name}* ${strikeStr} — ${notes.join(', ')}`);
+          voiceLateOrMissed.push(`*${cleanName(s.name)}* ${strikeStr} — ${notes.join(', ')}`);
         }
       }
     });
@@ -656,15 +657,15 @@ export const AshramDisciplineAudit: React.FC = () => {
     lotusStudents.forEach(s => {
       const entry = getEntry(s.id);
       const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes ?? 0;
-      const strikeStr = `(${isBn ? 'স্ট্রাইক: ' + toBn(sStrikes) : 'Strike: ' + sStrikes})`;
+      const strikeStr = `_(${isBn ? 'স্ট্রাইক: ' + toBn(sStrikes) : 'Strike: ' + sStrikes})_`;
 
       if (entry.isAbsent) {
         const reason = formatReasonText(entry.absenceReason, isBn);
-        lotusAbsent.push(`*${s.name}* ${strikeStr} — ${reason}`);
+        lotusAbsent.push(`*${cleanName(s.name)}* ${strikeStr} — ${reason}`);
       } else {
         const isPerfect = entry.wokeUpOnTime && entry.morningProgramOnTime && entry.mangalaratiAttended && entry.morningClassAttended;
         if (isPerfect) {
-          lotusOnTime.push(`*${s.name}* ${strikeStr}`);
+          lotusOnTime.push(`*${cleanName(s.name)}* ${strikeStr}`);
         } else {
           const notes: string[] = [];
           if (!entry.wokeUpOnTime) notes.push(isBn ? 'দেরিতে জাগরণ' : 'Wake Late');
@@ -680,7 +681,7 @@ export const AshramDisciplineAudit: React.FC = () => {
             const r = formatReasonText(entry.morningClassReason, isBn);
             notes.push(`${isBn ? 'ক্লাস অনুপস্থিত' : 'Missed Class'} (${r})`);
           }
-          lotusLateOrMissed.push(`*${s.name}* ${strikeStr} — ${notes.join(', ')}`);
+          lotusLateOrMissed.push(`*${cleanName(s.name)}* ${strikeStr} — ${notes.join(', ')}`);
         }
       }
     });
@@ -757,6 +758,7 @@ export const AshramDisciplineAudit: React.FC = () => {
   const generateSecurityManagerCombinedReport = () => {
     const voiceStudents = students.filter(s => s.group === 'VOICE');
     const lotusStudents = students.filter(s => s.group === 'LOTUS');
+    const cleanName = (n: string) => n.replace(/\s*\(Pranto C Das\)/gi, '').replace(/\s*\(Sangakara Das\)/gi, '').trim();
 
     const voiceDevoteesList: string[] = [];
     const lotusDevoteesList: string[] = [];
@@ -770,10 +772,10 @@ export const AshramDisciplineAudit: React.FC = () => {
       if (entry.isAbsent) {
         totalAbsent++;
         const reason = formatReasonText(entry.absenceReason, isBn);
-        voiceDevoteesList.push(`${toBn(i + 1)}. *${s.name}* — ${isBn ? 'ছুটি / অনুপস্থিত' : 'On Leave'} (${reason})`);
+        voiceDevoteesList.push(`${toBn(i + 1)}. *${cleanName(s.name)}* — ${isBn ? 'ছুটি / অনুপস্থিত' : 'On Leave'} (${reason})`);
       } else if (entry.sleptOnTime) {
         totalCompliant++;
-        voiceDevoteesList.push(`${toBn(i + 1)}. *${s.name}* — ${isBn ? 'শয়নে উপস্থিত (বিছানায়)' : 'In bed'}`);
+        voiceDevoteesList.push(`${toBn(i + 1)}. *${cleanName(s.name)}* — ${isBn ? 'শয়নে উপস্থিত (বিছানায়)' : 'In bed'}`);
       } else {
         totalNonCompliant++;
         let note = '';
@@ -784,7 +786,7 @@ export const AshramDisciplineAudit: React.FC = () => {
         } else if (entry.reason) {
           note = ` (${formatReasonText(entry.reason, isBn)})`;
         }
-        voiceDevoteesList.push(`${toBn(i + 1)}. *${s.name}* — ${isBn ? 'বিছানায় নেই' : 'Not in bed'}${note}`);
+        voiceDevoteesList.push(`${toBn(i + 1)}. *${cleanName(s.name)}* — ${isBn ? 'বিছানায় নেই' : 'Not in bed'}${note}`);
       }
     });
 
@@ -793,10 +795,10 @@ export const AshramDisciplineAudit: React.FC = () => {
       if (entry.isAbsent) {
         totalAbsent++;
         const reason = formatReasonText(entry.absenceReason, isBn);
-        lotusDevoteesList.push(`${toBn(i + 1)}. *${s.name}* — ${isBn ? 'ছুটি / অনুপস্থিত' : 'On Leave'} (${reason})`);
+        lotusDevoteesList.push(`${toBn(i + 1)}. *${cleanName(s.name)}* — ${isBn ? 'ছুটি / অনুপস্থিত' : 'On Leave'} (${reason})`);
       } else if (entry.sleptOnTime) {
         totalCompliant++;
-        lotusDevoteesList.push(`${toBn(i + 1)}. *${s.name}* — ${isBn ? 'শয়নে উপস্থিত (বিছানায়)' : 'In bed'}`);
+        lotusDevoteesList.push(`${toBn(i + 1)}. *${cleanName(s.name)}* — ${isBn ? 'শয়নে উপস্থিত (বিছানায়)' : 'In bed'}`);
       } else {
         totalNonCompliant++;
         let note = '';
@@ -807,7 +809,7 @@ export const AshramDisciplineAudit: React.FC = () => {
         } else if (entry.reason) {
           note = ` (${formatReasonText(entry.reason, isBn)})`;
         }
-        lotusDevoteesList.push(`${toBn(i + 1)}. *${s.name}* — ${isBn ? 'বিছানায় নেই' : 'Not in bed'}${note}`);
+        lotusDevoteesList.push(`${toBn(i + 1)}. *${cleanName(s.name)}* — ${isBn ? 'বিছানায় নেই' : 'Not in bed'}${note}`);
       }
     });
 
