@@ -623,13 +623,16 @@ export const AshramDisciplineAudit: React.FC = () => {
 
     voiceStudents.forEach(s => {
       const entry = getEntry(s.id);
+      const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes ?? 0;
+      const strikeStr = `(${isBn ? 'স্ট্রাইক: ' + toBn(sStrikes) : 'Strike: ' + sStrikes})`;
+
       if (entry.isAbsent) {
         const reason = formatReasonText(entry.absenceReason, isBn);
-        voiceAbsent.push(`*${s.name}* — ${reason}`);
+        voiceAbsent.push(`*${s.name}* ${strikeStr} — ${reason}`);
       } else {
         const isPerfect = entry.wokeUpOnTime && entry.morningProgramOnTime && entry.mangalaratiAttended && entry.morningClassAttended;
         if (isPerfect) {
-          voiceOnTime.push(s.name);
+          voiceOnTime.push(`${s.name} ${strikeStr}`);
         } else {
           const notes: string[] = [];
           if (!entry.wokeUpOnTime) notes.push(isBn ? 'দেরিতে জাগরণ' : 'Wake Late');
@@ -645,22 +648,23 @@ export const AshramDisciplineAudit: React.FC = () => {
             const r = formatReasonText(entry.morningClassReason, isBn);
             notes.push(`${isBn ? 'ক্লাস অনুপস্থিত' : 'Missed Class'} (${r})`);
           }
-          const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes;
-          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক ' + toBn(sStrikes) : 'Strike ' + sStrikes}]` : '';
-          voiceLateOrMissed.push(`*${s.name}*${strikeStr} — ${notes.join(', ')}`);
+          voiceLateOrMissed.push(`*${s.name}* ${strikeStr} — ${notes.join(', ')}`);
         }
       }
     });
 
     lotusStudents.forEach(s => {
       const entry = getEntry(s.id);
+      const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes ?? 0;
+      const strikeStr = `(${isBn ? 'স্ট্রাইক: ' + toBn(sStrikes) : 'Strike: ' + sStrikes})`;
+
       if (entry.isAbsent) {
         const reason = formatReasonText(entry.absenceReason, isBn);
-        lotusAbsent.push(`*${s.name}* — ${reason}`);
+        lotusAbsent.push(`*${s.name}* ${strikeStr} — ${reason}`);
       } else {
         const isPerfect = entry.wokeUpOnTime && entry.morningProgramOnTime && entry.mangalaratiAttended && entry.morningClassAttended;
         if (isPerfect) {
-          lotusOnTime.push(s.name);
+          lotusOnTime.push(`${s.name} ${strikeStr}`);
         } else {
           const notes: string[] = [];
           if (!entry.wokeUpOnTime) notes.push(isBn ? 'দেরিতে জাগরণ' : 'Wake Late');
@@ -676,9 +680,7 @@ export const AshramDisciplineAudit: React.FC = () => {
             const r = formatReasonText(entry.morningClassReason, isBn);
             notes.push(`${isBn ? 'ক্লাস অনুপস্থিত' : 'Missed Class'} (${r})`);
           }
-          const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes;
-          let strikeStr = sStrikes > 0 ? ` [${isBn ? 'স্ট্রাইক ' + toBn(sStrikes) : 'Strike ' + sStrikes}]` : '';
-          lotusLateOrMissed.push(`*${s.name}*${strikeStr} — ${notes.join(', ')}`);
+          lotusLateOrMissed.push(`*${s.name}* ${strikeStr} — ${notes.join(', ')}`);
         }
       }
     });
