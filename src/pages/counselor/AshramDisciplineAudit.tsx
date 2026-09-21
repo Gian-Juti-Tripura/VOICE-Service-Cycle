@@ -374,6 +374,55 @@ export const AshramDisciplineAudit: React.FC = () => {
     );
   };
 
+  const handleMarkAllStudentsOnTime = () => {
+    if (effectiveAuditorRole === 'VIEWER') {
+      checkPermission('manage');
+      return;
+    }
+    if (effectiveAuditorRole === 'SECURITY_MANAGER') {
+      toast.error(
+        isBn 
+          ? '🔒 সিকিউরিটি ম্যানেজার হিসেবে আপনি শুধুমাত্র শয়নের সময় নিয়ন্ত্রণ করতে পারবেন।' 
+          : '🔒 As Security Manager, you can only manage bedtime/night attendance.'
+      );
+      return;
+    }
+
+    const newDayEntries: Record<string, DailyDisciplineEntry> = { ...(dailyRecords[dateIso] || {}) };
+
+    students.forEach(s => {
+      const prevEntry = getEntry(s.id);
+      newDayEntries[s.id] = {
+        studentId: s.id,
+        dateStr: dateIso,
+        isAbsent: prevEntry.isAbsent,
+        absenceReason: prevEntry.absenceReason,
+        sleptOnTime: true,
+        bedLateMinutes: 0,
+        wokeUpOnTime: true,
+        morningProgramOnTime: true,
+        mpLateMinutes: 0,
+        mangalaratiAttended: true,
+        mangalaratiReason: '',
+        morningClassAttended: true,
+        morningClassReason: '',
+        reason: '',
+        isEmergency: false
+      };
+    });
+
+    setDailyRecords(prev => ({
+      ...prev,
+      [dateIso]: newDayEntries
+    }));
+
+    toast.success(
+      isBn 
+        ? 'সকল ভক্তকে অন-টাইম মার্ক করা হয়েছে!' 
+        : 'Marked all devotees as On-Time!'
+    );
+  };
+
   // Live Automatic Strike Evaluation based on must-follow rules
   const devoteeStrikesMap = useMemo(() => {
     const datesSet = new Set<string>();
@@ -1470,212 +1519,289 @@ export const AshramDisciplineAudit: React.FC = () => {
             )}
           </div>
 
-          {/* Quick Permission Status Pills */}
-          <div className="flex items-center gap-1.5 flex-wrap pt-2 border-t border-slate-100 dark:border-slate-800 text-[10.5px]">
-            <span className="font-bold text-slate-500 mr-1">{isBn ? 'অনুমতি সমূহ:' : 'Permissions:'}</span>
-            
-            <span className={`px-2 py-0.5 rounded-md font-semibold flex items-center gap-1 ${
-              canEditBedtime 
-                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30' 
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 line-through'
-            }`}>
-              {canEditBedtime ? '✅' : '🔒'} {isBn ? 'শয়ন কারফিউ (১০/১১টা) ও বিলম্ব' : 'Bed Curfew & Late Mins'}
-            </span>
-
-            <span className={`px-2 py-0.5 rounded-md font-semibold flex items-center gap-1 ${
-              canEditMorning 
-                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30' 
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 line-through'
-            }`}>
-              {canEditMorning ? '✅' : '🔒'} {isBn ? 'জাগরণ, এমপি, আরতি ও ক্লাস' : 'Wake, MP, Arati & Class'}
-            </span>
-
-            <span className={`px-2 py-0.5 rounded-md font-semibold flex items-center gap-1 ${
-              canEditAbsence 
-                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30' 
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 line-through'
-            }`}>
-              {canEditAbsence ? '✅' : '🔒'} {isBn ? 'ছুটি / অনুপস্থিতি' : 'Leave / Absence'}
-            </span>
-
-            <span className={`px-2 py-0.5 rounded-md font-semibold flex items-center gap-1 ${
-              canEditStrikes 
-                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30' 
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 line-through'
-            }`}>
-              {canEditStrikes ? '✅' : '🔒'} {isBn ? 'স্ট্রাইক সমন্বয় (অ্যাডমিন ও মর্নিং ইনচার্জ)' : 'Strikes (Admin & Morning Incharge)'}
-            </span>
-
-            <span className={`px-2 py-0.5 rounded-md font-semibold flex items-center gap-1 ${
-              canManageDevotees 
-                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30' 
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 line-through'
-            }`}>
-              {canManageDevotees ? '✅' : '🔒'} {isBn ? 'ভক্ত তালিকা পরিবর্তন' : 'Devotee Registry'}
-            </span>
-
-            {effectiveAuditorRole === 'VIEWER' && (
-              <span className="text-amber-600 dark:text-amber-400 font-black ml-auto">
-                👁️ {isBn ? 'শুধুমাত্র দেখার সুযোগ (রিপোর্ট ও ভার্ডিক্ট উন্মুক্ত)' : 'View Only Mode (Read & Reports Enabled)'}
+          {/* Parallel Permissions Status Grid */}
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                {isBn ? 'আপনার অডিট ও সম্পাদনা অধিকার' : 'Audit & Edit Permissions'}
               </span>
-            )}
+              {effectiveAuditorRole === 'VIEWER' && (
+                <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                  👁️ {isBn ? 'শুধুমাত্র দেখার সুযোগ' : 'View Only Mode'}
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 text-xs">
+              <div className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl border font-bold transition-colors ${
+                canEditBedtime 
+                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-500/30' 
+                  : 'bg-slate-50 dark:bg-slate-800/40 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-800'
+              }`}>
+                <span className="flex items-center gap-1.5 truncate">
+                  <span>🌙</span>
+                  <span className="truncate">{isBn ? 'শয়ন কারফিউ' : 'Bed Curfew'}</span>
+                </span>
+                <span className="text-[11px] shrink-0 font-mono">{canEditBedtime ? '✅' : '🔒'}</span>
+              </div>
+
+              <div className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl border font-bold transition-colors ${
+                canEditMorning 
+                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-500/30' 
+                  : 'bg-slate-50 dark:bg-slate-800/40 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-800'
+              }`}>
+                <span className="flex items-center gap-1.5 truncate">
+                  <span>🌅</span>
+                  <span className="truncate">{isBn ? 'প্রভাতী সাধনা' : 'Morning'}</span>
+                </span>
+                <span className="text-[11px] shrink-0 font-mono">{canEditMorning ? '✅' : '🔒'}</span>
+              </div>
+
+              <div className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl border font-bold transition-colors ${
+                canEditAbsence 
+                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-500/30' 
+                  : 'bg-slate-50 dark:bg-slate-800/40 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-800'
+              }`}>
+                <span className="flex items-center gap-1.5 truncate">
+                  <span>📋</span>
+                  <span className="truncate">{isBn ? 'ছুটি / অনুপস্থিতি' : 'Absence'}</span>
+                </span>
+                <span className="text-[11px] shrink-0 font-mono">{canEditAbsence ? '✅' : '🔒'}</span>
+              </div>
+
+              <div className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl border font-bold transition-colors ${
+                canEditStrikes 
+                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-500/30' 
+                  : 'bg-slate-50 dark:bg-slate-800/40 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-800'
+              }`}>
+                <span className="flex items-center gap-1.5 truncate">
+                  <span>⚡</span>
+                  <span className="truncate">{isBn ? 'স্ট্রাইক' : 'Strikes'}</span>
+                </span>
+                <span className="text-[11px] shrink-0 font-mono">{canEditStrikes ? '✅' : '🔒'}</span>
+              </div>
+
+              <div className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl border font-bold transition-colors ${
+                canManageDevotees 
+                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-500/30' 
+                  : 'bg-slate-50 dark:bg-slate-800/40 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-800'
+              }`}>
+                <span className="flex items-center gap-1.5 truncate">
+                  <span>👥</span>
+                  <span className="truncate">{isBn ? 'ভক্ত তালিকা' : 'Devotees'}</span>
+                </span>
+                <span className="text-[11px] shrink-0 font-mono">{canManageDevotees ? '✅' : '🔒'}</span>
+              </div>
+            </div>
           </div>
         </div>
 
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
+        {/* Minimal Group Navigation & Action Center */}
+        <div className="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-2.5">
           
-          <div className="flex items-center gap-1.5 overflow-x-auto p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+          {/* Row 1: Group Navigation & Add Devotee (Parallel 4-Column Grid) */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {/* Tab 1: VOICE Group */}
             <button
+              type="button"
               onClick={() => setActiveTab('VOICE')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
+              className={`flex items-center justify-between px-3 py-2 sm:py-2.5 rounded-2xl border text-xs font-black transition-all cursor-pointer shadow-xs ${
                 activeTab === 'VOICE'
-                  ? 'bg-amber-500 text-slate-950 shadow-sm font-black'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  ? 'bg-amber-500 border-amber-600 text-slate-950 shadow-md ring-2 ring-amber-500/30'
+                  : 'bg-slate-50 dark:bg-slate-800/70 border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
-              <span>🌟 VOICE Group</span>
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-black/15">
+              <span className="flex items-center gap-1.5 truncate">
+                <span>🌟</span>
+                <span>{isBn ? 'ভয়েস গ্রুপ' : 'VOICE Group'}</span>
+              </span>
+              <span className={`px-2 py-0.5 rounded-full text-[10.5px] font-mono font-bold shrink-0 ${
+                activeTab === 'VOICE'
+                  ? 'bg-slate-950 text-amber-300'
+                  : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+              }`}>
                 {voiceCount}
               </span>
             </button>
 
+            {/* Tab 2: Lotus Group */}
             <button
+              type="button"
               onClick={() => setActiveTab('LOTUS')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
+              className={`flex items-center justify-between px-3 py-2 sm:py-2.5 rounded-2xl border text-xs font-black transition-all cursor-pointer shadow-xs ${
                 activeTab === 'LOTUS'
-                  ? 'bg-indigo-600 text-white shadow-sm font-black'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  ? 'bg-indigo-600 border-indigo-700 text-white shadow-md ring-2 ring-indigo-500/30'
+                  : 'bg-slate-50 dark:bg-slate-800/70 border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
-              <span>🪷 Lotus Group</span>
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-black/20">
+              <span className="flex items-center gap-1.5 truncate">
+                <span>🪷</span>
+                <span>{isBn ? 'লোটাস গ্রুপ' : 'Lotus Group'}</span>
+              </span>
+              <span className={`px-2 py-0.5 rounded-full text-[10.5px] font-mono font-bold shrink-0 ${
+                activeTab === 'LOTUS'
+                  ? 'bg-white text-indigo-900'
+                  : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+              }`}>
                 {lotusCount}
               </span>
             </button>
 
+            {/* Tab 3: All Devotees */}
             <button
+              type="button"
               onClick={() => setActiveTab('ALL')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer ${
+              className={`flex items-center justify-between px-3 py-2 sm:py-2.5 rounded-2xl border text-xs font-black transition-all cursor-pointer shadow-xs ${
                 activeTab === 'ALL'
-                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm font-black'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                  ? 'bg-slate-900 dark:bg-white border-slate-950 dark:border-white text-white dark:text-slate-900 shadow-md ring-2 ring-slate-500/30'
+                  : 'bg-slate-50 dark:bg-slate-800/70 border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
-              <span>All Devotees ({students.length})</span>
+              <span className="flex items-center gap-1.5 truncate">
+                <span>👥</span>
+                <span>{isBn ? 'সকল ভক্ত' : 'All Devotees'}</span>
+              </span>
+              <span className={`px-2 py-0.5 rounded-full text-[10.5px] font-mono font-bold shrink-0 ${
+                activeTab === 'ALL'
+                  ? 'bg-white/20 dark:bg-slate-900/20 text-white dark:text-slate-900'
+                  : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+              }`}>
+                {students.length}
+              </span>
+            </button>
+
+            {/* Button 4: Add Devotee */}
+            <button
+              type="button"
+              onClick={() => {
+                if (checkPermission('manage')) {
+                  setIsAddModalOpen(true);
+                }
+              }}
+              className="flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 active:scale-[0.98] border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold transition-all cursor-pointer shadow-xs"
+              title={isBn ? 'নতুন ভক্ত যোগ করুন' : 'Add New Devotee'}
+            >
+              <UserPlus size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
+              <span className="truncate">{isBn ? 'নতুন ভক্ত যোগ' : 'Add Devotee'}</span>
             </button>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
+          {/* Row 2: Parallel 4-Column Quick Action Boxes */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+            {/* Action 1: Mark All On-Time */}
+            <button
+              type="button"
+              onClick={() => {
+                if (activeTab === 'VOICE') handleMarkAllOnTime('VOICE');
+                else if (activeTab === 'LOTUS') handleMarkAllOnTime('LOTUS');
+                else handleMarkAllStudentsOnTime();
+              }}
+              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-[0.98] border border-emerald-500/25 text-emerald-800 dark:text-emerald-300 text-xs font-bold transition-all cursor-pointer shadow-xs"
+              title={isBn ? 'নির্বাচিত গ্রুপের সবাইকে সময়মত মার্ক করুন' : 'Mark all devotees in this group as on time'}
+            >
+              <Check size={14} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span className="truncate">{isBn ? 'সবাই সময়মত' : 'Mark On-Time'}</span>
+            </button>
+
+            {/* Action 2: WhatsApp Report / Dispatch */}
             {activeTab === 'VOICE' && (
-              <>
-                <button
-                  onClick={() => handleMarkAllOnTime('VOICE')}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold hover:bg-emerald-500/20 transition-all cursor-pointer"
-                  title="Mark all VOICE students as on time today"
-                >
-                  <Check size={14} className="text-emerald-600" />
-                  <span>Mark All On-Time</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    const r = generateVoiceReport();
-                    shareToWhatsAppOrSystem({ text: r, successMessage: 'Sharing VOICE Report...' });
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition-all cursor-pointer shadow-xs"
-                >
-                  <Send size={13} />
-                  <span>VOICE WhatsApp</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    triggerHaptic('selection');
-                    setPreviewReport({
-                      title: isBn ? '🌟 ভয়েস গ্রুপ রিপোর্ট প্রিভিউ' : '🌟 VOICE Group Report Preview',
-                      content: generateVoiceReport()
-                    });
-                  }}
-                  className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer"
-                  title="Preview WhatsApp Report"
-                >
-                  <Eye size={13} className="text-amber-500" />
-                  <span>Preview</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    triggerHaptic('selection');
-                    copyToClipboard(generateVoiceReport(), 'VOICE');
-                  }}
-                  className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer"
-                  title="Copy VOICE Report"
-                >
-                  {copiedVoice ? <Check size={13} /> : <Copy size={13} />}
-                  <span>{copiedVoice ? 'Copied!' : 'Copy'}</span>
-                </button>
-              </>
+              <button
+                type="button"
+                onClick={() => {
+                  const r = generateVoiceReport();
+                  shareToWhatsAppOrSystem({ text: r, successMessage: isBn ? 'ভয়েস রিপোর্ট শেয়ার হচ্ছে...' : 'Sharing VOICE Report...' });
+                }}
+                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-slate-950 text-xs font-black transition-all cursor-pointer shadow-xs"
+                title="Send VOICE WhatsApp Report"
+              >
+                <Send size={13} className="shrink-0" />
+                <span className="truncate">{isBn ? 'ভয়েস হোয়াটসঅ্যাপ' : 'VOICE WhatsApp'}</span>
+              </button>
             )}
 
             {activeTab === 'LOTUS' && (
-              <>
-                <button
-                  onClick={() => handleMarkAllOnTime('LOTUS')}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold hover:bg-emerald-500/20 transition-all cursor-pointer"
-                  title="Mark all Lotus students as on time today"
-                >
-                  <Check size={14} className="text-emerald-600" />
-                  <span>Mark All On-Time</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    const r = generateLotusReport();
-                    shareToWhatsAppOrSystem({ text: r, successMessage: 'Sharing Lotus Report...' });
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black transition-all cursor-pointer shadow-xs"
-                >
-                  <Send size={13} />
-                  <span>Lotus WhatsApp</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    triggerHaptic('selection');
-                    setPreviewReport({
-                      title: isBn ? '🪷 লোটাস গ্রুপ রিপোর্ট প্রিভিউ' : '🪷 Lotus Group Report Preview',
-                      content: generateLotusReport()
-                    });
-                  }}
-                  className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer"
-                  title="Preview WhatsApp Report"
-                >
-                  <Eye size={13} className="text-indigo-400" />
-                  <span>Preview</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    triggerHaptic('selection');
-                    copyToClipboard(generateLotusReport(), 'LOTUS');
-                  }}
-                  className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer"
-                  title="Copy Lotus Report"
-                >
-                  {copiedLotus ? <Check size={13} /> : <Copy size={13} />}
-                  <span>{copiedLotus ? 'Copied!' : 'Copy'}</span>
-                </button>
-              </>
+              <button
+                type="button"
+                onClick={() => {
+                  const r = generateLotusReport();
+                  shareToWhatsAppOrSystem({ text: r, successMessage: isBn ? 'লোটাস রিপোর্ট শেয়ার হচ্ছে...' : 'Sharing Lotus Report...' });
+                }}
+                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] text-white text-xs font-black transition-all cursor-pointer shadow-xs"
+                title="Send Lotus WhatsApp Report"
+              >
+                <Send size={13} className="shrink-0" />
+                <span className="truncate">{isBn ? 'লোটাস হোয়াটসঅ্যাপ' : 'Lotus WhatsApp'}</span>
+              </button>
             )}
 
+            {activeTab === 'ALL' && (
+              <button
+                type="button"
+                onClick={() => setIsMonthlyVerdictModalOpen(true)}
+                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-[0.98] text-slate-950 text-xs font-black transition-all cursor-pointer shadow-xs"
+                title="Open Monthly Verdict & Performance Analytics"
+              >
+                <Award size={13} className="shrink-0" />
+                <span className="truncate">{isBn ? 'মাসিক রিপোর্ট' : 'Monthly Report'}</span>
+              </button>
+            )}
+
+            {/* Action 3: Preview */}
             <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-bold hover:bg-amber-500/20 transition-all cursor-pointer"
-              title="Add New Devotee"
+              type="button"
+              onClick={() => {
+                triggerHaptic('selection');
+                if (activeTab === 'VOICE') {
+                  setPreviewReport({
+                    title: isBn ? '🌟 ভয়েস গ্রুপ রিপোর্ট প্রিভিউ' : '🌟 VOICE Group Report Preview',
+                    content: generateVoiceReport()
+                  });
+                } else if (activeTab === 'LOTUS') {
+                  setPreviewReport({
+                    title: isBn ? '🪷 লোটাস গ্রুপ রিপোর্ট প্রিভিউ' : '🪷 Lotus Group Report Preview',
+                    content: generateLotusReport()
+                  });
+                } else {
+                  setPreviewReport({
+                    title: isBn ? '🌅 সম্মিলিত মর্নিং সাধনা রিপোর্ট' : '🌅 Combined Morning Sadhana Report',
+                    content: generateMorningProgramCombinedReport()
+                  });
+                }
+              }}
+              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 active:scale-[0.98] border border-slate-200 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer shadow-xs"
+              title={isBn ? 'রিপোর্ট প্রিভিউ দেখুন' : 'Preview WhatsApp Report'}
             >
-              <UserPlus size={14} />
-              <span>Add Devotee</span>
+              <Eye size={13} className="text-amber-500 shrink-0" />
+              <span className="truncate">{isBn ? 'প্রিভিউ' : 'Preview'}</span>
+            </button>
+
+            {/* Action 4: Copy Report */}
+            <button
+              type="button"
+              onClick={() => {
+                triggerHaptic('selection');
+                if (activeTab === 'VOICE') {
+                  copyToClipboard(generateVoiceReport(), 'VOICE');
+                } else if (activeTab === 'LOTUS') {
+                  copyToClipboard(generateLotusReport(), 'LOTUS');
+                } else {
+                  copyToClipboard(generateMorningProgramCombinedReport(), 'MP');
+                }
+              }}
+              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 active:scale-[0.98] border border-slate-200 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer shadow-xs"
+              title={isBn ? 'রিপোর্ট ক্লিপবোর্ডে কপি করুন' : 'Copy Report to Clipboard'}
+            >
+              {((activeTab === 'VOICE' && copiedVoice) || (activeTab === 'LOTUS' && copiedLotus) || (activeTab === 'ALL' && copiedMp)) ? (
+                <>
+                  <Check size={13} className="text-emerald-500 shrink-0" />
+                  <span className="truncate text-emerald-600 dark:text-emerald-400">{isBn ? 'কপি হয়েছে' : 'Copied!'}</span>
+                </>
+              ) : (
+                <>
+                  <Copy size={13} className="shrink-0 text-slate-500" />
+                  <span className="truncate">{isBn ? 'কপি' : 'Copy'}</span>
+                </>
+              )}
             </button>
           </div>
         </div>
