@@ -207,6 +207,8 @@ export const AshramDisciplineAudit: React.FC = () => {
   }, [dailyRecords]);
 
   const dateIso = selectedDate.toISOString().split('T')[0];
+  const todayIso = new Date().toISOString().split('T')[0];
+  const isToday = dateIso === todayIso;
   const isBn = language === 'bn';
 
   // Permission Evaluation — Assigned Admin & Morning Program Incharge can edit everything
@@ -289,6 +291,13 @@ export const AshramDisciplineAudit: React.FC = () => {
     weekday: 'long', 
     day: 'numeric', 
     month: 'long', 
+    year: 'numeric' 
+  });
+
+  const dateFormattedShort = selectedDate.toLocaleDateString(isBn ? 'bn-BD' : 'en-GB', { 
+    weekday: 'short', 
+    day: 'numeric', 
+    month: 'short', 
     year: 'numeric' 
   });
 
@@ -1304,65 +1313,113 @@ export const AshramDisciplineAudit: React.FC = () => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/15">
-                <button 
-                  onClick={() => changeDate(-1)} 
-                  className="p-1.5 hover:bg-white/20 rounded-xl text-white transition-colors cursor-pointer"
-                  title="Previous Day"
-                >
-                  <ChevronLeft size={18} />
-                </button>
-                <div className="flex items-center gap-2 px-3 py-1 text-center">
-                  <Calendar size={15} className="text-amber-300" />
-                  <span className="font-bold text-xs sm:text-sm text-white whitespace-nowrap">
-                    {dateFormatted}
-                  </span>
+              {/* Date & Today: Minimal, Professional 2-Column Side-by-Side Boxes */}
+              <div className="grid grid-cols-[1fr_auto] sm:grid-cols-[auto_auto] gap-2 items-center w-full md:w-auto">
+                {/* Column 1: Date Navigation Box */}
+                <div className="relative flex items-center justify-between gap-1 bg-white/10 dark:bg-slate-900/60 backdrop-blur-md px-1.5 py-1 sm:px-2.5 sm:py-1.5 rounded-2xl border border-white/20 shadow-sm min-w-0">
+                  <button 
+                    type="button"
+                    onClick={() => changeDate(-1)} 
+                    className="p-1.5 hover:bg-white/20 active:scale-90 rounded-xl text-white transition-all cursor-pointer shrink-0"
+                    title={isBn ? 'পূর্ববর্তী দিন' : 'Previous Day'}
+                  >
+                    <ChevronLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  </button>
+                  
+                  <label className="flex items-center justify-center gap-1.5 px-1.5 sm:px-2 py-1 min-w-0 cursor-pointer group select-none">
+                    <Calendar size={14} className="text-amber-300 shrink-0 group-hover:scale-110 transition-transform" />
+                    <span className="font-extrabold text-xs sm:text-sm text-white truncate text-center group-hover:text-amber-200 transition-colors">
+                      <span className="hidden sm:inline">{dateFormatted}</span>
+                      <span className="sm:hidden">{dateFormattedShort}</span>
+                    </span>
+                    <input 
+                      type="date" 
+                      value={dateIso} 
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          setSelectedDate(parseIsoDate(e.target.value));
+                        }
+                      }} 
+                      className="sr-only" 
+                    />
+                  </label>
+
+                  <button 
+                    type="button"
+                    onClick={() => changeDate(1)} 
+                    className="p-1.5 hover:bg-white/20 active:scale-90 rounded-xl text-white transition-all cursor-pointer shrink-0"
+                    title={isBn ? 'পরবর্তী দিন' : 'Next Day'}
+                  >
+                    <ChevronRight size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  </button>
                 </div>
+
+                {/* Column 2: Today Button Box */}
                 <button 
-                  onClick={() => changeDate(1)} 
-                  className="p-1.5 hover:bg-white/20 rounded-xl text-white transition-colors cursor-pointer"
-                  title="Next Day"
-                >
-                  <ChevronRight size={18} />
-                </button>
-                <button 
+                  type="button"
                   onClick={() => setSelectedDate(new Date())} 
-                  className="ml-1 px-2.5 py-1 text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-xl transition-all cursor-pointer"
+                  className={`px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs font-black rounded-2xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm shrink-0 active:scale-95 ${
+                    isToday
+                      ? 'bg-amber-400 text-slate-950 ring-2 ring-amber-300/80 shadow-amber-500/20 font-black'
+                      : 'bg-white/15 hover:bg-white/25 text-white border border-white/20 hover:border-white/30'
+                  }`}
+                  title={isBn ? 'আজকের তারিখে ফিরে যান' : 'Jump to Today'}
                 >
-                  Today
+                  <Sparkles size={13} className={isToday ? 'text-slate-950' : 'text-amber-300'} />
+                  <span className="font-black">{isBn ? 'আজ' : 'Today'}</span>
                 </button>
               </div>
             </div>
 
-            {/* Minimal Group Info: Titles and (Features in brackets) */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 pt-1">
-              <div className="flex-1 flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-400/20 text-xs">
-                <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                  <span className="font-black text-amber-300">
-                    🌟 {isBn ? 'ভয়েস গ্রুপ' : 'VOICE Group'}
+            {/* Groups in 2 Columns: Minimal, Clean, Beautiful Side-by-Side Boxes */}
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-1">
+              {/* Box 1: VOICE Group */}
+              <button 
+                type="button"
+                onClick={() => setActiveTab('VOICE')}
+                className={`p-2.5 sm:p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-1.5 sm:gap-2 shadow-xs group ${
+                  activeTab === 'VOICE'
+                    ? 'bg-amber-500/20 border-amber-400/50 text-white ring-2 ring-amber-400/40 shadow-md'
+                    : 'bg-amber-500/10 border-amber-400/20 text-amber-100 hover:bg-amber-500/15'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-1.5">
+                  <span className="font-black text-amber-300 text-xs sm:text-sm flex items-center gap-1.5 truncate">
+                    <span className="text-sm sm:text-base">🌟</span>
+                    <span className="truncate">{isBn ? 'ভয়েস গ্রুপ' : 'VOICE Group'}</span>
                   </span>
-                  <span className="text-[11px] text-amber-100/80 font-medium">
-                    ({isBn ? '১০টা শয়ন, ৪টা জাগরণ, ৪:৩০ এমপি, মঙ্গলারতি ও ক্লাস' : 'Bed ≤ 10 PM, Wake 4 AM, MP ≤ 4:30 AM, Mangalarati & Class'})
+                  <span className="text-[10px] sm:text-xs font-mono font-black bg-amber-400/25 text-amber-200 px-2 py-0.5 rounded-full shrink-0 border border-amber-400/30">
+                    {voiceCount} {isBn ? 'জন' : ''}
                   </span>
                 </div>
-                <span className="text-[10px] font-mono font-bold bg-amber-400/20 text-amber-200 px-2 py-0.5 rounded-full shrink-0">
-                  {voiceCount} {isBn ? 'জন' : ''}
-                </span>
-              </div>
+                <p className="text-[10px] sm:text-[11px] text-amber-100/80 leading-snug font-medium">
+                  {isBn ? 'শয়ন ≤ ১০টা • জাগরণ ৪টা • এমপি ≤ ৪:৩০ • ক্লাস' : 'Bed ≤ 10 PM • Wake 4 AM • MP ≤ 4:30 • Class'}
+                </p>
+              </button>
 
-              <div className="flex-1 flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-400/20 text-xs">
-                <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                  <span className="font-black text-indigo-300">
-                    🪷 {isBn ? 'লোটাস গ্রুপ' : 'Lotus Group'}
+              {/* Box 2: Lotus Group */}
+              <button 
+                type="button"
+                onClick={() => setActiveTab('LOTUS')}
+                className={`p-2.5 sm:p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-1.5 sm:gap-2 shadow-xs group ${
+                  activeTab === 'LOTUS'
+                    ? 'bg-indigo-500/25 border-indigo-400/50 text-white ring-2 ring-indigo-400/40 shadow-md'
+                    : 'bg-indigo-500/10 border-indigo-400/20 text-indigo-100 hover:bg-indigo-500/15'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-1.5">
+                  <span className="font-black text-indigo-300 text-xs sm:text-sm flex items-center gap-1.5 truncate">
+                    <span className="text-sm sm:text-base">🪷</span>
+                    <span className="truncate">{isBn ? 'লোটাস গ্রুপ' : 'Lotus Group'}</span>
                   </span>
-                  <span className="text-[11px] text-indigo-100/80 font-medium">
-                    ({isBn ? '১১টা শয়ন, ৫টা এমপি, মঙ্গলারতি ও ক্লাস' : 'Bed ≤ 11 PM, MP ≤ 5:00 AM, Mangalarati & Class'})
+                  <span className="text-[10px] sm:text-xs font-mono font-black bg-indigo-400/25 text-indigo-200 px-2 py-0.5 rounded-full shrink-0 border border-indigo-400/30">
+                    {lotusCount} {isBn ? 'জন' : ''}
                   </span>
                 </div>
-                <span className="text-[10px] font-mono font-bold bg-indigo-400/20 text-indigo-200 px-2 py-0.5 rounded-full shrink-0">
-                  {lotusCount} {isBn ? 'জন' : ''}
-                </span>
-              </div>
+                <p className="text-[10px] sm:text-[11px] text-indigo-100/80 leading-snug font-medium">
+                  {isBn ? 'শয়ন ≤ ১১টা • এমপি ≤ ৫:০০ • মঙ্গল ও ক্লাস' : 'Bed ≤ 11 PM • MP ≤ 5:00 AM • Class'}
+                </p>
+              </button>
             </div>
 
           </div>
