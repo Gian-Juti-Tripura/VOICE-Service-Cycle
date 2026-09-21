@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -13,6 +14,7 @@ import { UserProfileModal } from '../profile/UserProfileModal';
 import { ThemeCustomizerModal } from '../theme/ThemeCustomizerModal';
 import { getUserProfile, PROFILE_UPDATED_EVENT, type UserProfileState } from '../../utils/userProfile';
 import { getThemeSettings, THEME_UPDATED_EVENT, isDarkEffective, type ThemeSettingsState } from '../../utils/themeSettings';
+import { CALENDAR_2026_DATA } from '../../data/calendar2026Data';
 
 interface DynamicNotification {
   id: string;
@@ -32,34 +34,76 @@ interface DynamicNotification {
   link: string;
 }
 
-const STATIC_FESTIVALS_NOTIFS: DynamicNotification[] = [
-  {
-    id: 'fest_janmastami',
-    titleEn: 'Sri Krishna Janmastami (04 Sep 2026)',
-    titleBn: 'শ্রীকৃষ্ণ জন্মাষ্টমী মহোৎসব (৪ সেপ্টেম্বর ২০২৬)',
-    descEn: 'Fasting till Midnight 12:00 AM • Mahabhisheka & Divine Feast.',
-    descBn: 'মধ্যরাত ১২:০০ পর্যন্ত নির্জলা/সজল উপবাস • রাত ১২টায় অভিষেক ও আনন্দ উৎসব।',
-    timeEn: '04 Sep 2026',
-    timeBn: '৪ সেপ্টে ২০২৬',
-    read: false,
-    type: 'FESTIVAL',
-    priority: 'HIGH',
-    link: '/calendar'
-  },
-  {
-    id: 'fest_radhastami',
-    titleEn: 'Srimati Radhastami (19 Sep 2026)',
-    titleBn: 'শ্রীমতী রাধাষ্টমী শুভ আবির্ভাব (১৯ সেপ্টেম্বর ২০২৬)',
-    descEn: 'Fasting till Noon 12:00 PM • Radha Kripa Kataksha & Kirtan.',
-    descBn: 'দুপুর ১২:০০ পর্যন্ত উপবাস ও শ্রীরাধা কৃপাকটাক্ষ স্তোত্র পাঠ।',
-    timeEn: '19 Sep 2026',
-    timeBn: '১৯ সেপ্টে ২০২৬',
-    read: false,
-    type: 'FESTIVAL',
-    priority: 'HIGH',
-    link: '/calendar'
-  },
-  {
+const formatCalendarBadgeDate = (dateStr: string, lang: 'en' | 'bn'): string => {
+  try {
+    const [year, month, day] = dateStr.split('-');
+    if (lang === 'bn') {
+      const monthsBn = ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টে', 'অক্টো', 'নভে', 'ডিসে'];
+      const bnDigits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+      const dayBn = parseInt(day, 10).toString().replace(/\d/g, d => bnDigits[parseInt(d, 10)]);
+      const yearBn = year.replace(/\d/g, d => bnDigits[parseInt(d, 10)]);
+      return `${dayBn} ${monthsBn[parseInt(month, 10) - 1]} ${yearBn}`;
+    } else {
+      const monthsEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${day} ${monthsEn[parseInt(month, 10) - 1]} ${year}`;
+    }
+  } catch {
+    return dateStr;
+  }
+};
+
+const getUpcomingCalendarNotifications = (): DynamicNotification[] => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const todayStr = `${year}-${month}-${day}`;
+
+  const tm = new Date();
+  tm.setDate(tm.getDate() + 1);
+  const tomorrowStr = `${tm.getFullYear()}-${String(tm.getMonth() + 1).padStart(2, '0')}-${String(tm.getDate()).padStart(2, '0')}`;
+
+  let upcoming = CALENDAR_2026_DATA.filter(ev => ev.date >= todayStr);
+  if (upcoming.length === 0) {
+    upcoming = CALENDAR_2026_DATA.slice(0, 3);
+  } else if (upcoming.length < 3) {
+    upcoming = [...upcoming, ...CALENDAR_2026_DATA.slice(0, 3 - upcoming.length)];
+  }
+
+  const selected = upcoming.slice(0, 3);
+
+  const festivalNotifs: DynamicNotification[] = selected.map(ev => {
+    const dateEn = formatCalendarBadgeDate(ev.date, 'en');
+    const dateBn = formatCalendarBadgeDate(ev.date, 'bn');
+    const isToday = ev.date === todayStr;
+    const isTomorrow = ev.date === tomorrowStr;
+
+    let timeEn = dateEn;
+    let timeBn = dateBn;
+    if (isToday) {
+      timeEn = `Today • ${dateEn}`;
+      timeBn = `আজ • ${dateBn}`;
+    } else if (isTomorrow) {
+      timeEn = `Tomorrow • ${dateEn}`;
+      timeBn = `আগামীকাল • ${dateBn}`;
+    }
+
+    return {
+      id: `fest_${ev.id}`,
+      titleEn: `${ev.nameEn} (${dateEn})`,
+      titleBn: `${ev.nameBn} (${dateBn})`,
+      descEn: `${ev.fastingEn}${ev.paranaEn ? ` • Parana: ${ev.paranaEn}` : ''}`,
+      descBn: `${ev.fastingBn}${ev.paranaBn ? ` • পারণ: ${ev.paranaBn}` : ''}`,
+      timeEn,
+      timeBn,
+      read: false,
+      type: (ev.type === 'EKADASHI' ? 'EKADASHI' : 'FESTIVAL') as DynamicNotification['type'],
+      priority: (ev.type === 'EKADASHI' || isToday || isTomorrow) ? 'HIGH' : 'NORMAL',
+      link: '/calendar'
+    };
+  });
+
+  const dailySevaAlert: DynamicNotification = {
     id: 'seva_daily_alert',
     titleEn: 'Daily Seva Duty Roster Active',
     titleBn: 'আজকের সেবাক্রম ও দায়িত্ব সক্রিয়',
@@ -71,8 +115,10 @@ const STATIC_FESTIVALS_NOTIFS: DynamicNotification[] = [
     type: 'SEVA',
     priority: 'NORMAL',
     link: '/service-cycle'
-  }
-];
+  };
+
+  return [...festivalNotifs, dailySevaAlert];
+};
 
 export const Navbar: React.FC = () => {
   const { user, logout, role } = useAuth();
@@ -134,7 +180,8 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('advaita_notices_updated', updateNotices);
   }, []);
 
-  // Build combined live notifications (Posted notices at top, then festivals & seva)
+  // Build combined live notifications (Posted notices at top, then dynamic upcoming festivals & seva)
+  const upcomingFestivalNotifs = getUpcomingCalendarNotifications();
   const notifications: DynamicNotification[] = [
     // 1. All real manager posted notices from localStorage
     ...storedNotices.map(n => ({
@@ -154,8 +201,8 @@ export const Navbar: React.FC = () => {
       priority: n.priority,
       link: '/announcements'
     })),
-    // 2. Real upcoming festivals & seva alerts
-    ...STATIC_FESTIVALS_NOTIFS.map(f => ({
+    // 2. Real dynamic upcoming festivals & seva alerts
+    ...upcomingFestivalNotifs.map(f => ({
       ...f,
       read: readNotifIds.includes(f.id)
     }))
@@ -275,20 +322,23 @@ export const Navbar: React.FC = () => {
               )}
             </button>
 
-            {/* Notification Dropdown Panel */}
-            {notifOpen && (
-              <>
+            {/* Notification Modal / Centered Panel */}
+            {notifOpen && createPortal(
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-3.5 sm:p-4 animate-fade-in">
                 {/* Backdrop Overlay for Dismissal */}
                 <div 
-                  className="fixed inset-0 z-[90] bg-slate-950/60 backdrop-blur-xs" 
+                  className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs transition-opacity" 
                   onClick={() => setNotifOpen(false)} 
                 />
 
-                {/* Solid Opaque Dropdown Container */}
-                <div className="fixed sm:absolute left-3 right-3 sm:left-auto sm:right-0 top-16 sm:top-full mt-2 w-auto sm:w-[420px] rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)] z-[100] p-4 sm:p-5 animate-scale-in max-h-[85vh] flex flex-col space-y-3">
+                {/* Solid Opaque Centered Modal Container */}
+                <div 
+                  className="relative w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700/80 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)] z-10 p-4 sm:p-5 animate-scale-in max-h-[85vh] flex flex-col space-y-3 my-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   
                   {/* Header */}
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
                     <div className="flex items-center gap-2">
                       <div className="p-1.5 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400">
                         <Sparkles size={14} />
@@ -302,7 +352,15 @@ export const Navbar: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
+                      {unreadCount > 0 && (
+                        <button 
+                          onClick={markAllAsRead} 
+                          className="px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-[11px] font-black text-rose-600 hover:underline dark:text-rose-400 cursor-pointer"
+                        >
+                          {language === 'bn' ? 'সব পঠিত' : 'Mark read'}
+                        </button>
+                      )}
                       <button
                         onClick={() => {
                           setNotifOpen(false);
@@ -311,16 +369,15 @@ export const Navbar: React.FC = () => {
                         title="Notification Settings"
                         className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-amber-500 transition-colors cursor-pointer"
                       >
-                        <Settings size={14} />
+                        <Settings size={15} />
                       </button>
-                      {unreadCount > 0 && (
-                        <button 
-                          onClick={markAllAsRead} 
-                          className="text-[11px] font-black text-rose-600 hover:underline dark:text-rose-400 cursor-pointer"
-                        >
-                          {language === 'bn' ? 'সব পঠিত' : 'Mark read'}
-                        </button>
-                      )}
+                      <button
+                        onClick={() => setNotifOpen(false)}
+                        title="Close"
+                        className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                      >
+                        <X size={16} />
+                      </button>
                     </div>
                   </div>
 
@@ -401,7 +458,7 @@ export const Navbar: React.FC = () => {
                   </div>
 
                   {/* Quick Action Footer */}
-                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs shrink-0">
                     <Link
                       to="/announcements"
                       onClick={() => setNotifOpen(false)}
@@ -421,7 +478,8 @@ export const Navbar: React.FC = () => {
                   </div>
 
                 </div>
-              </>
+              </div>,
+              document.body
             )}
           </div>
 

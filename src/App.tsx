@@ -166,7 +166,39 @@ const AppContent = () => {
       <CornerThemeButton />
       <InstallPromptBanner />
       <main className="flex-1 pb-28 sm:pb-20 relative z-10">
-        <Toaster position="top-center" />
+        <Toaster 
+          position="bottom-center" 
+          containerStyle={{
+            bottom: 88,
+            zIndex: 99999,
+          }}
+          toastOptions={{
+            duration: 3500,
+            style: {
+              background: 'rgba(15, 23, 42, 0.95)',
+              color: '#ffffff',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              borderRadius: '20px',
+              padding: '12px 20px',
+              fontSize: '13px',
+              fontWeight: 700,
+              boxShadow: '0 20px 30px -10px rgba(0, 0, 0, 0.5)',
+              backdropFilter: 'blur(12px)',
+            },
+            success: {
+              iconTheme: {
+                primary: '#10b981',
+                secondary: '#ffffff',
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: '#f43f5e',
+                secondary: '#ffffff',
+              },
+            },
+          }}
+        />
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
             {/* Public Hub Landing Cards (Open to all visitors & members) */}
