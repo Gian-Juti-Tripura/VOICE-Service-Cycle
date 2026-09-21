@@ -1806,130 +1806,132 @@ export const AshramDisciplineAudit: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-4 sm:p-5 rounded-[24px] border border-indigo-500/30 shadow-md space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-2.5">
+        {/* Incharge Reports - Minimal Two Column Side-by-Side Boxes */}
+        <div className="bg-slate-900 text-white p-3.5 sm:p-4 rounded-3xl border border-slate-800 shadow-md space-y-2.5">
+          <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2">
             <div className="flex items-center gap-2">
-              <span className="text-amber-400">📊</span>
+              <span className="text-amber-400 text-sm">📊</span>
               <h2 className="text-xs sm:text-sm font-black tracking-wide uppercase text-white">
-                Incharge Daily Reports & WhatsApp Dispatch
+                {isBn ? 'ইনচার্জ দৈনিক রিপোর্ট ও ডিসপ্যাচ' : 'Incharge Daily Reports & WhatsApp Dispatch'}
               </h2>
             </div>
+            <span className="text-[10.5px] font-bold text-slate-400 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/10">
+              {isBn ? `মোট ${students.length} জন ভক্ত` : `${students.length} Devotees`}
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex flex-col justify-between gap-3">
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-amber-300 flex items-center gap-1.5">
-                    <Sun size={14} className="text-amber-400" />
-                    {isBn ? 'মর্নিং প্রোগ্রাম ইনচার্জ রিপোর্ট' : 'Morning Program Incharge Report'}
-                  </span>
-                  <span className="text-[10px] bg-amber-500/20 text-amber-200 font-mono px-2 py-0.5 rounded-full font-bold">
-                    {isBn ? `সকল ${students.length} জন` : `All ${students.length} Students`}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-300 mt-1 font-normal">
-                  {isBn 
-                    ? 'সকালবেলার ঘুম থেকে ওঠা, এমপি সময়ানুবর্তিতা, মঙ্গলারতি ও প্রাতঃকালীন ক্লাস উপস্থিতি।' 
-                    : 'Covers morning wake-up, MP punctuality (with late minutes), Mangalarati & Morning Class attendance.'}
-                </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+            {/* Column 1: Morning Program Report */}
+            <div className="p-3 rounded-2xl bg-white/[0.04] hover:bg-white/[0.06] border border-amber-500/25 transition-all flex flex-col justify-between gap-2.5 shadow-xs">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-extrabold text-amber-300 flex items-center gap-1.5 truncate">
+                  <Sun size={15} className="text-amber-400 shrink-0" />
+                  <span className="truncate">{isBn ? 'মর্নিং প্রোগ্রাম রিপোর্ট' : 'Morning Program Report'}</span>
+                </span>
+                <span className="text-[10px] bg-amber-500/15 text-amber-300 font-mono px-2 py-0.5 rounded-full font-bold border border-amber-500/20 shrink-0">
+                  {isBn ? 'প্রভাতী সাধনা' : 'Morning'}
+                </span>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1">
+              <div className="grid grid-cols-3 gap-1.5 pt-0.5">
                 <button
+                  type="button"
                   onClick={() => {
                     const r = generateMorningProgramCombinedReport();
                     shareToWhatsAppOrSystem({ text: r, successMessage: isBn ? 'মর্নিং রিপোর্ট শেয়ার হচ্ছে...' : 'Sharing Morning Report...' });
                   }}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-black text-xs shadow-xs transition-all cursor-pointer"
+                  className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-black text-xs shadow-xs transition-all cursor-pointer"
+                  title="Send Morning Report via WhatsApp"
                 >
-                  <Send size={13} />
-                  <span>{isBn ? 'হোয়াটসঅ্যাপে পাঠান' : 'Send WhatsApp'}</span>
+                  <Send size={12} className="shrink-0" />
+                  <span className="truncate">{isBn ? 'হোয়াটসঅ্যাপ' : 'WhatsApp'}</span>
                 </button>
-                <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:w-auto">
-                  <button
-                    onClick={() => {
-                      triggerHaptic('selection');
-                      setPreviewReport({
-                        title: isBn ? '🌅 মর্নিং প্রোগ্রাম রিপোর্ট প্রিভিউ' : '🌅 Morning Program Report Preview',
-                        content: generateMorningProgramCombinedReport()
-                      });
-                    }}
-                    className="inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-[0.98] text-white border border-white/15 text-xs font-bold transition-all cursor-pointer"
-                    title={isBn ? 'রিপোর্ট প্রিভিউ কার্ড' : 'Preview WhatsApp Card'}
-                  >
-                    <Eye size={13} className="text-amber-300" />
-                    <span>{isBn ? 'প্রিভিউ' : 'Preview'}</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      triggerHaptic('selection');
-                      copyToClipboard(generateMorningProgramCombinedReport(), 'MP');
-                    }}
-                    className="inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-[0.98] text-white border border-white/15 text-xs font-bold transition-all cursor-pointer"
-                  >
-                    {copiedMp ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
-                    <span>{copiedMp ? (isBn ? 'কপি হয়েছে' : 'Copied') : (isBn ? 'কপি' : 'Copy')}</span>
-                  </button>
-                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic('selection');
+                    setPreviewReport({
+                      title: isBn ? '🌅 মর্নিং প্রোগ্রাম রিপোর্ট প্রিভিউ' : '🌅 Morning Program Report Preview',
+                      content: generateMorningProgramCombinedReport()
+                    });
+                  }}
+                  className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-xl bg-white/10 hover:bg-white/20 active:scale-[0.98] text-white border border-white/15 text-xs font-bold transition-all cursor-pointer"
+                  title="Preview Morning WhatsApp Card"
+                >
+                  <Eye size={12} className="text-amber-300 shrink-0" />
+                  <span className="truncate">{isBn ? 'প্রিভিউ' : 'Preview'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic('selection');
+                    copyToClipboard(generateMorningProgramCombinedReport(), 'MP');
+                  }}
+                  className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-xl bg-white/10 hover:bg-white/20 active:scale-[0.98] text-white border border-white/15 text-xs font-bold transition-all cursor-pointer"
+                  title="Copy Morning Report"
+                >
+                  {copiedMp ? <Check size={12} className="text-emerald-400 shrink-0" /> : <Copy size={12} className="shrink-0 text-slate-300" />}
+                  <span className="truncate">{copiedMp ? (isBn ? 'কপি হয়েছে' : 'Copied!') : (isBn ? 'কপি' : 'Copy')}</span>
+                </button>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex flex-col justify-between gap-3">
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-indigo-300 flex items-center gap-1.5">
-                    <Moon size={14} className="text-indigo-400" />
-                    {isBn ? 'সিকিউরিটি ম্যানেজার নাইট রিপোর্ট' : 'Security Manager Night Report'}
-                  </span>
-                  <span className="text-[10px] bg-indigo-500/20 text-indigo-200 font-mono px-2 py-0.5 rounded-full font-bold">
-                    {isBn ? `সকল ${students.length} জন` : `All ${students.length} Students`}
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-300 mt-1 font-normal">
-                  {isBn
-                    ? 'রাত্রিকালীন কারফিউ (১০:০০ / ১১:০০ টা), বিলম্ব মিনিট, বাতি নেভানো নিরাপত্তা ও নাইট লিভ।'
-                    : 'Covers bedtime curfew compliance (10 PM / 11 PM), late minutes, lights-off security & night leave.'}
-                </p>
+            {/* Column 2: Security Manager Night Report */}
+            <div className="p-3 rounded-2xl bg-white/[0.04] hover:bg-white/[0.06] border border-indigo-500/25 transition-all flex flex-col justify-between gap-2.5 shadow-xs">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-extrabold text-indigo-300 flex items-center gap-1.5 truncate">
+                  <Moon size={15} className="text-indigo-400 shrink-0" />
+                  <span className="truncate">{isBn ? 'সিকিউরিটি নাইট রিপোর্ট' : 'Security Night Report'}</span>
+                </span>
+                <span className="text-[10px] bg-indigo-500/15 text-indigo-300 font-mono px-2 py-0.5 rounded-full font-bold border border-indigo-500/20 shrink-0">
+                  {isBn ? 'নৈশ কারফিউ' : 'Curfew'}
+                </span>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1">
+              <div className="grid grid-cols-3 gap-1.5 pt-0.5">
                 <button
+                  type="button"
                   onClick={() => {
                     const r = generateSecurityManagerCombinedReport();
                     shareToWhatsAppOrSystem({ text: r, successMessage: isBn ? 'নাইট রিপোর্ট শেয়ার হচ্ছে...' : 'Sharing Night Report...' });
                   }}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] text-white font-black text-xs shadow-xs transition-all cursor-pointer"
+                  className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] text-white font-black text-xs shadow-xs transition-all cursor-pointer"
+                  title="Send Night Report via WhatsApp"
                 >
-                  <Send size={13} />
-                  <span>{isBn ? 'হোয়াটসঅ্যাপে পাঠান' : 'Send WhatsApp'}</span>
+                  <Send size={12} className="shrink-0" />
+                  <span className="truncate">{isBn ? 'হোয়াটসঅ্যাপ' : 'WhatsApp'}</span>
                 </button>
-                <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:w-auto">
-                  <button
-                    onClick={() => {
-                      triggerHaptic('selection');
-                      setPreviewReport({
-                        title: isBn ? '🌙 নৈশ শৃঙ্খলা ও নিরাপত্তা রিপোর্ট প্রিভিউ' : '🌙 Night Discipline & Security Report Preview',
-                        content: generateSecurityManagerCombinedReport()
-                      });
-                    }}
-                    className="inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-[0.98] text-white border border-white/15 text-xs font-bold transition-all cursor-pointer"
-                    title={isBn ? 'রিপোর্ট প্রিভিউ কার্ড' : 'Preview WhatsApp Card'}
-                  >
-                    <Eye size={13} className="text-indigo-300" />
-                    <span>{isBn ? 'প্রিভিউ' : 'Preview'}</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      triggerHaptic('selection');
-                      copyToClipboard(generateSecurityManagerCombinedReport(), 'NIGHT');
-                    }}
-                    className="inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-[0.98] text-white border border-white/15 text-xs font-bold transition-all cursor-pointer"
-                  >
-                    {copiedNight ? <Check size={13} className="text-indigo-400" /> : <Copy size={13} />}
-                    <span>{copiedNight ? (isBn ? 'কপি হয়েছে' : 'Copied') : (isBn ? 'কপি' : 'Copy')}</span>
-                  </button>
-                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic('selection');
+                    setPreviewReport({
+                      title: isBn ? '🌙 নৈশ শৃঙ্খলা ও নিরাপত্তা রিপোর্ট প্রিভিউ' : '🌙 Night Discipline & Security Report Preview',
+                      content: generateSecurityManagerCombinedReport()
+                    });
+                  }}
+                  className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-xl bg-white/10 hover:bg-white/20 active:scale-[0.98] text-white border border-white/15 text-xs font-bold transition-all cursor-pointer"
+                  title="Preview Night WhatsApp Card"
+                >
+                  <Eye size={12} className="text-indigo-300 shrink-0" />
+                  <span className="truncate">{isBn ? 'প্রিভিউ' : 'Preview'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic('selection');
+                    copyToClipboard(generateSecurityManagerCombinedReport(), 'NIGHT');
+                  }}
+                  className="inline-flex items-center justify-center gap-1 px-2 py-2 rounded-xl bg-white/10 hover:bg-white/20 active:scale-[0.98] text-white border border-white/15 text-xs font-bold transition-all cursor-pointer"
+                  title="Copy Night Report"
+                >
+                  {copiedNight ? <Check size={12} className="text-indigo-400 shrink-0" /> : <Copy size={12} className="shrink-0 text-slate-300" />}
+                  <span className="truncate">{copiedNight ? (isBn ? 'কপি হয়েছে' : 'Copied!') : (isBn ? 'কপি' : 'Copy')}</span>
+                </button>
               </div>
             </div>
           </div>
