@@ -1153,31 +1153,29 @@ export const AshramDisciplineAudit: React.FC = () => {
           </div>
         </div>
 
-        {/* Two Major Feature Action Cards: Side by Side Professional Boxes */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        {/* Two Major Feature Action Cards: Sleek, Compact & Beautiful Side-by-Side Boxes */}
+        <div className="grid grid-cols-2 gap-2 sm:gap-3">
           {/* Card 1: Audit History & Log */}
           <button
             type="button"
             onClick={() => setIsHistoryModalOpen(true)}
-            className="group relative overflow-hidden text-left p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-amber-500/60 dark:hover:border-amber-500/50 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer active:scale-[0.99] flex flex-col justify-between gap-3 sm:gap-4"
+            className="group relative overflow-hidden text-left p-2.5 sm:p-3 rounded-2xl bg-gradient-to-br from-amber-500/[0.06] via-slate-50 to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-800/80 border border-slate-200/90 dark:border-slate-800 hover:border-amber-500/50 dark:hover:border-amber-500/40 shadow-xs hover:shadow-sm transition-all duration-200 cursor-pointer active:scale-[0.98] flex flex-col justify-between gap-2"
           >
-            <div className="flex items-center justify-between gap-2">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200">
-                <History size={22} className="sm:w-6 sm:h-6" />
+            <div className="flex items-center justify-between">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200">
+                <History size={15} className="sm:w-4 sm:h-4" />
               </div>
-              <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">
-                {isBn ? 'লগ ও টাইমলাইন' : 'Audit Trail'}
+              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 group-hover:text-amber-500 flex items-center gap-0.5 transition-colors">
+                {isBn ? 'লগ' : 'Logs'}
+                <ChevronRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
               </span>
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                  {isBn ? 'অডিট হিস্ট্রি ও লগ' : 'Audit History Log'}
-                </h3>
-                <ChevronRight size={15} className="text-slate-400 group-hover:text-amber-500 group-hover:translate-x-0.5 transition-all shrink-0" />
-              </div>
-              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium line-clamp-2">
-                {isBn ? 'সকল ভক্তের অতীত সাধনা, উপস্থিতি ও অনিয়ম পর্যালোচনার পূর্ণ লগ।' : 'Complete timeline of past sadhana entries, absences & violation logs.'}
+              <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors truncate">
+                {isBn ? 'অডিট হিস্ট্রি' : 'Audit History Log'}
+              </h3>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
+                {isBn ? 'অতীত সাধনা ও রেকর্ড' : 'Timeline & past logs'}
               </p>
             </div>
           </button>
@@ -1186,25 +1184,23 @@ export const AshramDisciplineAudit: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsMonthlyVerdictModalOpen(true)}
-            className="group relative overflow-hidden text-left p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-white dark:to-slate-900 border border-amber-500/40 dark:border-amber-500/35 hover:border-amber-500 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer active:scale-[0.99] flex flex-col justify-between gap-3 sm:gap-4"
+            className="group relative overflow-hidden text-left p-2.5 sm:p-3 rounded-2xl bg-gradient-to-br from-amber-500/[0.12] via-amber-500/[0.04] to-white dark:from-amber-950/20 dark:via-slate-900 dark:to-slate-900 border border-amber-500/35 dark:border-amber-500/30 hover:border-amber-500/60 shadow-xs hover:shadow-sm transition-all duration-200 cursor-pointer active:scale-[0.98] flex flex-col justify-between gap-2"
           >
-            <div className="flex items-center justify-between gap-2">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center shrink-0 group-hover:scale-105 shadow-md transition-transform duration-200">
-                <Award size={22} className="sm:w-6 sm:h-6" />
+            <div className="flex items-center justify-between">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 text-slate-950 shadow-xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200">
+                <Award size={15} className="sm:w-4 sm:h-4" />
               </div>
-              <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-500/30">
-                {isBn ? 'মাসিক মূল্যায়ন' : 'Monthly'}
+              <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-0.5">
+                {isBn ? 'মাসিক' : 'Monthly'}
+                <ChevronRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
               </span>
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <h3 className="text-xs sm:text-base font-black text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                  {isBn ? 'মাসিক মূল্যায়ন ও ভার্ডিক্ট' : 'Monthly Verdict & Report'}
-                </h3>
-                <ChevronRight size={15} className="text-amber-500 group-hover:translate-x-0.5 transition-all shrink-0" />
-              </div>
-              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium line-clamp-2">
-                {isBn ? 'সাফল্য হার, পদোন্নতি ও অবনমন মানদণ্ড এবং পূর্ণ মাসিক রিপোর্ট।' : 'Performance analytics, promotion/demotion criteria & WhatsApp report.'}
+              <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors truncate">
+                {isBn ? 'মাসিক মূল্যায়ন' : 'Monthly Verdict'}
+              </h3>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
+                {isBn ? 'পারফরম্যান্স ও রিপোর্ট' : 'Analytics & reports'}
               </p>
             </div>
           </button>
