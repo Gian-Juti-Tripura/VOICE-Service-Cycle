@@ -11,6 +11,11 @@ import { InstallPromptBanner } from './components/pwa/InstallPromptBanner';
 import { Toaster } from 'react-hot-toast';
 import { initializeOneSignal } from './utils/onesignal';
 import { scheduleDailyNotifications } from './utils/notificationScheduler';
+import { 
+  initRealtimeAnnouncementListener, 
+  checkAndAlertDailySeva, 
+  checkAndAlertNextDayFestivals 
+} from './services/unifiedNotificationService';
 import { getThemeSettings, applyThemeToDOM, THEME_UPDATED_EVENT, isDarkEffective, type ThemeSettingsState } from './utils/themeSettings';
 
 // Lazy Loaded Modules (Instant First Paint & Ultra-Small Initial Bundle)
@@ -110,9 +115,21 @@ const AppContent = () => {
     return () => window.removeEventListener(THEME_UPDATED_EVENT, handleUpdate);
   }, []);
 
+  // Realtime Cloud Announcement Push Listener (Listens for broadcasts from managers/admins)
   useEffect(() => {
+    const unsubscribe = initRealtimeAnnouncementListener();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
+
+  // Check automated next-day festival alerts & daily seva duty alerts
+  useEffect(() => {
+    checkAndAlertNextDayFestivals();
+
     if (user) {
       scheduleDailyNotifications(user.id);
+      checkAndAlertDailySeva(user.id);
     }
   }, [user]);
 

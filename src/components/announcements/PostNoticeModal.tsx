@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useLanguage } from '../../context/LanguageContext';
-import { addStoredNotice, type ManagerAnnouncement } from '../../utils/noticesStore';
+import { type ManagerAnnouncement } from '../../utils/noticesStore';
+import { broadcastAnnouncement } from '../../services/unifiedNotificationService';
 import { 
   Send, X, AlertCircle, ShieldAlert, Sparkles, Zap
 } from 'lucide-react';
@@ -333,7 +334,7 @@ export const PostNoticeModal: React.FC<PostNoticeModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!titleBn.trim() && !titleEn.trim()) {
       toast.error(language === 'bn' ? 'অনুগ্রহ করে নোটিশের শিরোনাম দিন' : 'Please enter notice title');
@@ -351,7 +352,7 @@ export const PostNoticeModal: React.FC<PostNoticeModalProps> = ({
     const finalDescBn = descBn.trim() || descEn.trim();
     const finalDescEn = descEn.trim() || descBn.trim();
 
-    const created = addStoredNotice({
+    const created = await broadcastAnnouncement({
       roleKey,
       roleTitleEn: selectedRole.titleEn,
       roleTitleBn: selectedRole.titleBn,
