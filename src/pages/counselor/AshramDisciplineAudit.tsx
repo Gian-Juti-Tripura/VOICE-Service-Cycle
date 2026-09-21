@@ -39,7 +39,6 @@ import toast from 'react-hot-toast';
 
 const STORAGE_STUDENTS_KEY = 'advaita_discipline_students_v6';
 const STORAGE_DAILY_KEY = 'advaita_discipline_daily_v6';
-const STORAGE_AUDITOR_ROLE_KEY = 'advaita_discipline_auditor_role_v1';
 
 interface MonthlyDevoteeStats {
   student: StudentDisciplineRecord;
@@ -85,27 +84,18 @@ export const AshramDisciplineAudit: React.FC = () => {
   const assignedRoleForUser = getAuditorRoleForEmail(currentUserEmail, assignments);
   const isUserAdmin = isMaster || authRole === 'ADMIN' || assignedRoleForUser === 'ADMIN';
 
-  // Role-Based Auditor Identity State (Admins can switch active preview role)
-  const [activeAuditorRole, setActiveAuditorRole] = useState<DisciplineAuditorRole>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_AUDITOR_ROLE_KEY);
-      return (saved as DisciplineAuditorRole) || 'ADMIN';
-    } catch {
-      return 'ADMIN';
-    }
-  });
-
-  // Effective auditor role — strictly enforced:
+  // Strict Gmail-based role resolution:
+  // No manual choose options — role is strictly determined by authentication and assignment.
   // 1. Not logged in -> pure VIEWER
-  // 2. Admin / Master Admin -> activeAuditorRole (can preview or stay ADMIN)
+  // 2. Admin / Master Admin -> ADMIN (full editing authority)
   // 3. Assigned Incharge (Morning / Security / Manager) -> strictly their assigned role
   // 4. Logged-in user with unassigned Gmail -> pure VIEWER
   const effectiveAuditorRole: DisciplineAuditorRole = useMemo(() => {
     if (!user) return 'VIEWER';
-    if (isUserAdmin) return activeAuditorRole;
+    if (isUserAdmin) return 'ADMIN';
     if (assignedRoleForUser && assignedRoleForUser !== 'VIEWER') return assignedRoleForUser;
     return 'VIEWER';
-  }, [user, isUserAdmin, activeAuditorRole, assignedRoleForUser]);
+  }, [user, isUserAdmin, assignedRoleForUser]);
 
   const hasAuditAuthority = effectiveAuditorRole !== 'VIEWER';
   const isPrivileged = hasAuditAuthority;
@@ -170,22 +160,19 @@ export const AshramDisciplineAudit: React.FC = () => {
     localStorage.setItem(STORAGE_DAILY_KEY, JSON.stringify(dailyRecords));
   }, [dailyRecords]);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_AUDITOR_ROLE_KEY, activeAuditorRole);
-  }, [activeAuditorRole]);
-
   const dateIso = selectedDate.toISOString().split('T')[0];
   const isBn = language === 'bn';
 
-  // Permission Evaluation — uses effectiveAuditorRole so non-privileged users are always VIEWER
-  const canEditBedtime = effectiveAuditorRole === 'ADMIN' || effectiveAuditorRole === 'SECURITY_MANAGER' || effectiveAuditorRole === 'INTERNAL_MANAGER';
-  const canEditMorning = effectiveAuditorRole === 'ADMIN' || effectiveAuditorRole === 'MORNING_INCHARGE' || effectiveAuditorRole === 'INTERNAL_MANAGER';
-  const canEditAbsence = effectiveAuditorRole === 'ADMIN' || effectiveAuditorRole === 'SECURITY_MANAGER' || effectiveAuditorRole === 'INTERNAL_MANAGER';
-  const canEditStrikes = effectiveAuditorRole === 'ADMIN' || effectiveAuditorRole === 'MORNING_INCHARGE';
-  const canManageDevotees = effectiveAuditorRole === 'ADMIN';
+  // Permission Evaluation — Assigned Admin & Morning Program Incharge can edit everything
+  const isFullEditor = effectiveAuditorRole === 'ADMIN' || effectiveAuditorRole === 'MORNING_INCHARGE';
+  const canEditBedtime = isFullEditor || effectiveAuditorRole === 'SECURITY_MANAGER' || effectiveAuditorRole === 'INTERNAL_MANAGER';
+  const canEditMorning = isFullEditor || effectiveAuditorRole === 'INTERNAL_MANAGER';
+  const canEditAbsence = isFullEditor || effectiveAuditorRole === 'SECURITY_MANAGER' || effectiveAuditorRole === 'INTERNAL_MANAGER';
+  const canEditStrikes = isFullEditor;
+  const canManageDevotees = isFullEditor;
 
   const checkPermission = (actionType: 'bedtime' | 'morning' | 'absence' | 'strikes' | 'manage'): boolean => {
-    if (effectiveAuditorRole === 'ADMIN') return true;
+    if (isFullEditor) return true;
     if (actionType === 'bedtime' && canEditBedtime) return true;
     if (actionType === 'morning' && canEditMorning) return true;
     if (actionType === 'absence' && canEditAbsence) return true;
@@ -1477,9 +1464,9 @@ export const AshramDisciplineAudit: React.FC = () => {
               </div>
             </div>
 
-            {/* Admin Controls: Role Switcher & Incharges Management Page Link */}
+            {/* Admin Controls: Incharges Management Page Link */}
             {isUserAdmin && (
-              <div className="flex items-center gap-2 shrink-0 flex-wrap">
+              <div className="flex items-center gap-2 shrink-0">
                 <Link
                   to="/discipline-audit/roles"
                   className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs font-bold transition shadow-xs"
@@ -1489,32 +1476,6 @@ export const AshramDisciplineAudit: React.FC = () => {
                   <span>{isBn ? 'ইনচার্জ ব্যবস্থাপনা' : 'Manage Incharges'}</span>
                   <ExternalLink size={12} className="opacity-70" />
                 </Link>
-
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400 hidden sm:inline">
-                    {isBn ? 'সক্রিয় প্রিভিউ:' : 'Preview Role:'}
-                  </span>
-                  <select
-                    value={activeAuditorRole}
-                    onChange={(e) => {
-                      const newRole = e.target.value as DisciplineAuditorRole;
-                      setActiveAuditorRole(newRole);
-                      const p = DISCIPLINE_AUDITOR_ROLES.find(r => r.key === newRole);
-                      toast.success(
-                        isBn
-                          ? `সক্রিয় রোল পরিবর্তন করা হয়েছে: ${p?.titleBn} (${p?.inchargeNameBn})`
-                          : `Switched active auditor to: ${p?.titleEn} (${p?.inchargeNameEn})`
-                      );
-                    }}
-                    className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 cursor-pointer"
-                  >
-                    {DISCIPLINE_AUDITOR_ROLES.map(r => (
-                      <option key={r.key} value={r.key}>
-                        {r.key === 'ADMIN' ? '👑' : r.key === 'MORNING_INCHARGE' ? '🌅' : r.key === 'SECURITY_MANAGER' ? '🌙' : r.key === 'INTERNAL_MANAGER' ? '📋' : '👁️'} {isBn ? r.titleBn : r.titleEn}
-                      </option>
-                    ))}
-                  </select>
-                </div>
               </div>
             )}
           </div>

@@ -34,8 +34,8 @@ export const DISCIPLINE_AUDITOR_ROLES: AuditorProfile[] = [
     inchargeNameBn: 'দীপেন্দ্রনাথ রায় (দীপেন প্রভু)',
     studentId: 'member_5',
     badgeColor: 'bg-emerald-600 text-white',
-    descriptionEn: 'Authorized to edit Wake-up (4:00 AM), MP Punctuality (with late minutes), Mangalarati, Morning Class, and Disciplinary Strikes.',
-    descriptionBn: 'ভোর ৪:০০ জাগরণ, মর্নিং প্রোগ্রাম (বিলম্ব মিনিট), মঙ্গল আরতি, ক্লাস ও শৃঙ্খলামূলক স্ট্রাইক নিয়ন্ত্রণের ক্ষমতাপ্রাপ্ত।'
+    descriptionEn: 'Full ashram discipline editing authority across Morning Sadhana, Bedtime, Strikes, and Devotees.',
+    descriptionBn: 'মর্নিং প্রোগ্রাম সাধনা, শয়ন সময়, স্ট্রাইক ও ভক্তদের তথ্যের পূর্ণ সম্পাদন অধিকারপ্রাপ্ত।'
   },
   {
     key: 'SECURITY_MANAGER',
