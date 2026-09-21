@@ -91,33 +91,55 @@ export const dispatchSystemPushNotification = async (payload: PushNotificationPa
 
   // 3. Web PWA Service Worker Push (Shows system banner like WhatsApp/Telegram)
   if (typeof window !== 'undefined' && 'Notification' in window) {
-    if (Notification.permission === 'granted') {
-      try {
+    try {
+      let perm = Notification.permission;
+      if (perm !== 'granted') {
+        perm = await Notification.requestPermission();
+      }
+
+      if (perm === 'granted') {
+        let reg: ServiceWorkerRegistration | null | undefined = null;
+
         if ('serviceWorker' in navigator) {
-          const registration = await navigator.serviceWorker.ready;
-          if (registration && registration.showNotification) {
-            await registration.showNotification(title, {
-              body,
-              icon,
-              badge: '/logo.png',
-              tag,
-              renotify: true,
-              vibrate: [200, 100, 200, 100, 200],
-              data: { url }
-            } as any);
-            return;
+          try {
+            reg = await navigator.serviceWorker.getRegistration();
+            if (!reg) {
+              reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+            }
+          } catch (swErr) {
+            console.warn('ServiceWorker get/register error:', swErr);
           }
         }
-        
-        // Fallback to standard window Notification
-        new Notification(title, {
-          body,
-          icon,
-          tag
-        });
-      } catch (e) {
-        console.error('Web notification dispatch error:', e);
+
+        // On Android Chrome, showNotification via ServiceWorker is strictly required
+        if (reg && 'showNotification' in reg) {
+          await reg.showNotification(title, {
+            body,
+            icon,
+            badge: '/logo.png',
+            tag,
+            renotify: true,
+            vibrate: [200, 100, 200, 100, 200],
+            data: { url }
+          } as any);
+          return;
+        }
+
+        // Fallback for desktop browsers
+        try {
+          new Notification(title, {
+            body,
+            icon,
+            tag
+          });
+        } catch (notifErr) {
+          console.warn('Standard Notification constructor fallback failed:', notifErr);
+        }
+      } else {
+        console.warn('Notification permission is not granted:', perm);
       }
+    } catch (e) {
+      console.error('Web notification dispatch error:', e);
     }
   }
 };

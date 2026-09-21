@@ -26,6 +26,17 @@
   </head>
   <body class="antialiased selection:bg-amber-500 selection:text-white">
     <div id="root"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then((reg) => {
+            console.log('Advaita VOICE ServiceWorker active:', reg.scope);
+          }).catch((err) => {
+            console.warn('ServiceWorker registration error:', err);
+          });
+        });
+      }
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
