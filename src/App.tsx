@@ -27,6 +27,7 @@ const UnifiedLectureLibrary = lazy(() => import('./pages/resources/UnifiedLectur
 const AnnouncementsPage = lazy(() => import('./pages/announcements/AnnouncementsPage'));
 const CounselorDesk = lazy(() => import('./pages/counselor/CounselorDesk'));
 const AshramDisciplineAudit = lazy(() => import('./pages/counselor/AshramDisciplineAudit'));
+const DisciplineAuditorRolesManager = lazy(() => import('./pages/counselor/DisciplineAuditorRolesManager'));
 const MealDashboard = lazy(() => import('./pages/meals/MealDashboard'));
 const MealAttendancePage = lazy(() => import('./pages/meals/MealAttendancePage'));
 const BazarTrackerPage = lazy(() => import('./pages/meals/BazarTrackerPage'));
@@ -172,6 +173,7 @@ const AppContent = () => {
             <Route path="/sadhana" element={<SadhanaTracker />} />
                         <Route path="/counselor" element={<CounselorDesk />} />
                         <Route path="/discipline-audit" element={<AshramDisciplineAudit />} />
+            <Route path="/discipline-audit/roles" element={<DisciplineAuditorRolesManager />} />
             
             {/* Prasad & Meal Management Routes */}
             <Route path="/meals" element={<MealDashboard />} />

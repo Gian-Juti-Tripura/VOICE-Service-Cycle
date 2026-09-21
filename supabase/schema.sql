@@ -230,6 +230,18 @@ CREATE TABLE IF NOT EXISTS public.daily_discipline_logs (
     UNIQUE(student_id, date_str)
 );
 
+-- 14b. Discipline Auditor Role Assignments (Gmail-based Access Control)
+CREATE TABLE IF NOT EXISTS public.discipline_auditor_assignments (
+    id TEXT PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    role TEXT NOT NULL CHECK (role IN ('ADMIN', 'MORNING_INCHARGE', 'SECURITY_MANAGER', 'INTERNAL_MANAGER', 'VIEWER')),
+    assigned_by TEXT,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+);
+
 -- 15. DYS Course Enrollments & Certifications
 CREATE TABLE IF NOT EXISTS public.course_enrollments (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -274,6 +286,7 @@ ALTER TABLE public.meal_payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.balance_adjustments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.discipline_students ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.daily_discipline_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.discipline_auditor_assignments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.course_enrollments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.camp_registrations ENABLE ROW LEVEL SECURITY;
 
@@ -310,6 +323,9 @@ CREATE POLICY "Public read for discipline students" ON public.discipline_student
 
 DROP POLICY IF EXISTS "Public read for discipline logs" ON public.daily_discipline_logs;
 CREATE POLICY "Public read for discipline logs" ON public.daily_discipline_logs FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read for auditor assignments" ON public.discipline_auditor_assignments;
+CREATE POLICY "Public read for auditor assignments" ON public.discipline_auditor_assignments FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Public read for course enrollments" ON public.course_enrollments;
 CREATE POLICY "Public read for course enrollments" ON public.course_enrollments FOR SELECT USING (true);
@@ -364,6 +380,9 @@ CREATE POLICY "Manage discipline students" ON public.discipline_students FOR ALL
 DROP POLICY IF EXISTS "Manage discipline logs" ON public.daily_discipline_logs;
 CREATE POLICY "Manage discipline logs" ON public.daily_discipline_logs FOR ALL USING (true);
 
+DROP POLICY IF EXISTS "Manage auditor assignments" ON public.discipline_auditor_assignments;
+CREATE POLICY "Manage auditor assignments" ON public.discipline_auditor_assignments FOR ALL USING (true);
+
 -- ==============================================================================
 -- REALTIME REPLICATION (Instant WebSocket Push to Devotee Phones)
 -- ==============================================================================
@@ -412,6 +431,10 @@ BEGIN
     END;
     BEGIN
         ALTER PUBLICATION supabase_realtime ADD TABLE public.daily_discipline_logs;
+    EXCEPTION WHEN duplicate_object THEN NULL;
+    END;
+    BEGIN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.discipline_auditor_assignments;
     EXCEPTION WHEN duplicate_object THEN NULL;
     END;
     BEGIN
@@ -529,3 +552,18 @@ ON CONFLICT (id) DO UPDATE SET
     phone = EXCLUDED.phone,
     cycle_order = EXCLUDED.cycle_order,
     status = EXCLUDED.status;
+
+-- Initial Discipline Auditor Role Assignments (Admin, Morning Incharge, Security Manager)
+INSERT INTO public.discipline_auditor_assignments (id, email, name, role, assigned_by, is_active) VALUES
+('assign_admin_gian', 'gianjuti.csecu@gmail.com', 'Gian Juti Tripura (Admin)', 'ADMIN', 'System', true),
+('assign_admin_ras', 'rasvihari.voice@gmail.com', 'Rasvihari Das (Admin)', 'ADMIN', 'System', true),
+('assign_morning_dipen', 'dipendranath.roy@gmail.com', 'Dipendranath Roy (Dipen P.)', 'MORNING_INCHARGE', 'Gian Juti (Admin)', true),
+('assign_security_sanga', 'sangakara.das@gmail.com', 'Sangakara Das (Sanga P.)', 'SECURITY_MANAGER', 'Gian Juti (Admin)', true)
+ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    name = EXCLUDED.name,
+    role = EXCLUDED.role,
+    assigned_by = EXCLUDED.assigned_by,
+    is_active = EXCLUDED.is_active,
+    updated_at = timezone('utc'::text, now());
+

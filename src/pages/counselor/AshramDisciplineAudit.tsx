@@ -8,7 +8,7 @@ import {
   UserPlus, Trash2, ArrowRightLeft,
   Moon, Sun, Clock, AlertCircle, Edit, Save, X, Send,
   Flame, BookOpen, History, Award,
-  Download, Shield, Eye, Lock
+  Download, Shield, Eye, Lock, ExternalLink, Key, UserCheck
 } from 'lucide-react';
 import { 
   type GroupType, 
@@ -25,6 +25,13 @@ import {
   INITIAL_DAILY_DISCIPLINE_RECORDS,
   createDefaultDailyRecordsForDate
 } from '../../data/groupDisciplineData';
+import {
+  type DisciplineAuditorAssignment,
+  getAuditorAssignments,
+  getCachedAuditorAssignments,
+  getAuditorRoleForEmail,
+  isMasterAdmin
+} from '../../services/disciplineAuditorService';
 import { shareToWhatsAppOrSystem } from '../../utils/shareUtils';
 import { exportTableToPdf } from '../../lib/exportTablePdf';
 import { triggerHaptic } from '../../utils/haptics';
@@ -57,15 +64,28 @@ interface MonthlyDevoteeStats {
 
 export const AshramDisciplineAudit: React.FC = () => {
   const { language } = useLanguage();
-  const { role: authRole } = useAuth();
+  const { user, role: authRole } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date(2026, 8, 7, 12, 0, 0));
   const [activeTab, setActiveTab] = useState<GroupType | 'ALL'>('VOICE');
 
-  // Only ADMIN and INTERNAL_MANAGER can use the role-switcher and make edits.
-  // Everyone else (MEMBER / null) is forced to pure read-only VIEWER.
-  const isPrivileged = authRole === 'ADMIN' || authRole === 'INTERNAL_MANAGER';
+  const currentUserEmail = user?.email?.toLowerCase().trim();
 
-  // Role-Based Auditor Identity State
+  // Load and synchronize auditor assignments from Supabase & LocalStorage
+  const [assignments, setAssignments] = useState<DisciplineAuditorAssignment[]>(() => getCachedAuditorAssignments());
+
+  useEffect(() => {
+    getAuditorAssignments().then(data => {
+      if (data && data.length > 0) {
+        setAssignments(data);
+      }
+    });
+  }, []);
+
+  const isMaster = isMasterAdmin(currentUserEmail);
+  const assignedRoleForUser = getAuditorRoleForEmail(currentUserEmail, assignments);
+  const isUserAdmin = isMaster || authRole === 'ADMIN' || assignedRoleForUser === 'ADMIN';
+
+  // Role-Based Auditor Identity State (Admins can switch active preview role)
   const [activeAuditorRole, setActiveAuditorRole] = useState<DisciplineAuditorRole>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_AUDITOR_ROLE_KEY);
@@ -75,8 +95,20 @@ export const AshramDisciplineAudit: React.FC = () => {
     }
   });
 
-  // Effective auditor role — non-privileged users are always forced to VIEWER
-  const effectiveAuditorRole: DisciplineAuditorRole = isPrivileged ? activeAuditorRole : 'VIEWER';
+  // Effective auditor role — strictly enforced:
+  // 1. Not logged in -> pure VIEWER
+  // 2. Admin / Master Admin -> activeAuditorRole (can preview or stay ADMIN)
+  // 3. Assigned Incharge (Morning / Security / Manager) -> strictly their assigned role
+  // 4. Logged-in user with unassigned Gmail -> pure VIEWER
+  const effectiveAuditorRole: DisciplineAuditorRole = useMemo(() => {
+    if (!user) return 'VIEWER';
+    if (isUserAdmin) return activeAuditorRole;
+    if (assignedRoleForUser && assignedRoleForUser !== 'VIEWER') return assignedRoleForUser;
+    return 'VIEWER';
+  }, [user, isUserAdmin, activeAuditorRole, assignedRoleForUser]);
+
+  const hasAuditAuthority = effectiveAuditorRole !== 'VIEWER';
+  const isPrivileged = hasAuditAuthority;
 
   // Track active custom minute inputs for Bedtime and MP
   const [customBedActive, setCustomBedActive] = useState<Record<string, boolean>>({});
@@ -160,32 +192,55 @@ export const AshramDisciplineAudit: React.FC = () => {
     if (actionType === 'strikes' && canEditStrikes) return true;
     if (actionType === 'manage' && canManageDevotees) return true;
 
+    if (!user) {
+      toast.error(
+        isBn 
+          ? '🔒 সম্পাদনা করতে অনুগ্রহ করে আপনার দায়িত্বপ্রাপ্ত জিমেইল দিয়ে লগইন করুন।' 
+          : '🔒 Please log in with your assigned Gmail to edit discipline records.'
+      );
+      return false;
+    }
+
+    if (!isPrivileged) {
+      toast.error(
+        isBn 
+          ? `🔒 আপনার জিমেইলে (${currentUserEmail}) কোনো ইনচার্জ দায়িত্ব নির্ধারিত নেই। পরিবর্তনের জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।` 
+          : `🔒 Your Gmail (${currentUserEmail}) is not assigned an incharge role. Please contact Admin.`
+      );
+      return false;
+    }
+
     const curProfile = DISCIPLINE_AUDITOR_ROLES.find(r => r.key === effectiveAuditorRole);
     const roleTitle = isBn ? curProfile?.titleBn : curProfile?.titleEn;
+
+    const morningIncharge = assignments.find(a => a.role === 'MORNING_INCHARGE' && a.isActive);
+    const securityIncharge = assignments.find(a => a.role === 'SECURITY_MANAGER' && a.isActive);
+    const morningLabel = morningIncharge ? morningIncharge.name : (isBn ? 'মর্নিং ইনচার্জ' : 'Morning Incharge');
+    const securityLabel = securityIncharge ? securityIncharge.name : (isBn ? 'সিকিউরিটি ম্যানেজার' : 'Security Manager');
 
     if (actionType === 'bedtime') {
       toast.error(
         isBn 
-          ? `🔒 শয়নের সময় ও বিলম্ব মিনিট সম্পাদনার অধিকার শুধুমাত্র সিকিউরিটি ও এনার্জি ম্যানেজার (সাঙ্গাকারা দাস) এবং অ্যাডমিনের রয়েছে। (বর্তমান আইডি: ${roleTitle})`
-          : `🔒 Only Security & Energy Manager (Sangakara Das) & Admin can edit Bedtime records. (Current: ${roleTitle})`
+          ? `🔒 শয়ন কারফিউ ও বিলম্ব মিনিট সম্পাদনার অধিকার শুধুমাত্র সিকিউরিটি ম্যানেজার (${securityLabel}) এবং অ্যাডমিনের রয়েছে। (বর্তমান: ${roleTitle})`
+          : `🔒 Bedtime editing is restricted to Security Manager (${securityLabel}) & Admin. (Current: ${roleTitle})`
       );
     } else if (actionType === 'morning') {
       toast.error(
         isBn
-          ? `🔒 জাগরণ, মর্নিং প্রোগ্রাম ও মঙ্গল আরতি সম্পাদনার অধিকার শুধুমাত্র মর্নিং ইনচার্জ (দীপেন্দ্রনাথ রায়) এবং অ্যাডমিনের রয়েছে। (বর্তমান আইডি: ${roleTitle})`
-          : `🔒 Only Morning Program Incharge (Dipendranath Roy) & Admin can edit Morning Sadhana records. (Current: ${roleTitle})`
+          ? `🔒 জাগরণ, মর্নিং প্রোগ্রাম ও মঙ্গল আরতি সম্পাদনার অধিকার শুধুমাত্র মর্নিং ইনচার্জ (${morningLabel}) এবং অ্যাডমিনের রয়েছে। (বর্তমান: ${roleTitle})`
+          : `🔒 Morning sadhana editing is restricted to Morning Incharge (${morningLabel}) & Admin. (Current: ${roleTitle})`
       );
     } else if (actionType === 'absence') {
       toast.error(
         isBn
-          ? `🔒 অনুপস্থিতি ও নৈশ ছুটির কারণ ব্যবস্থাপনার অধিকার সিকিউরিটি ম্যানেজার ও অ্যাডমিনের রয়েছে।`
-          : `🔒 Only Security Manager & Admin can manage presence/absence reasons.`
+          ? `🔒 অনুপস্থিতি ও ছুটির কারণ ব্যবস্থাপনার অধিকার সিকিউরিটি ম্যানেজার (${securityLabel}) ও অ্যাডমিনের রয়েছে।`
+          : `🔒 Leave/absence management is restricted to Security Manager (${securityLabel}) & Admin.`
       );
     } else if (actionType === 'strikes') {
       toast.error(
         isBn
-          ? `🔒 স্ট্রাইক সমন্বয় করার অধিকার শুধুমাত্র অ্যাডমিন ও মর্নিং প্রোগ্রাম ইনচার্জের রয়েছে।`
-          : `🔒 Only Admin and Morning Program Incharge can adjust strikes.`
+          ? `🔒 স্ট্রাইক সমন্বয় করার অধিকার শুধুমাত্র অ্যাডমিন ও মর্নিং প্রোগ্রাম ইনচার্জের (${morningLabel}) রয়েছে।`
+          : `🔒 Only Admin and Morning Program Incharge (${morningLabel}) can adjust strikes.`
       );
     } else {
       toast.error(
@@ -1268,25 +1323,58 @@ export const AshramDisciplineAudit: React.FC = () => {
         {/* Role-Based Auditor Identity Switcher Banner */}
         <div className={`rounded-3xl p-4 sm:p-5 border shadow-md space-y-3 ${
           !isPrivileged
-            ? 'bg-slate-50 dark:bg-slate-900/60 border-slate-300 dark:border-slate-700 opacity-90'
+            ? 'bg-slate-50 dark:bg-slate-900/60 border-slate-300 dark:border-slate-700'
             : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'
         }`}>
 
-          {/* Non-privileged: strict read-only banner */}
-          {!isPrivileged && (
-            <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-200/60 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700">
-              <div className="w-9 h-9 rounded-xl bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0">
-                <Lock size={18} />
+          {/* Not logged in banner */}
+          {!user && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                  <Lock size={18} />
+                </div>
+                <div>
+                  <p className="text-xs sm:text-sm font-black">
+                    {isBn ? '🔒 আপনি লগইন করেননি (শুধুমাত্র দেখার মোড)' : '🔒 Not Logged In (Read-Only Mode)'}
+                  </p>
+                  <p className="text-[11px] sm:text-xs text-amber-700 dark:text-amber-300/80 mt-0.5 font-medium">
+                    {isBn 
+                      ? 'শয়ন কারফিউ, প্রভাতী সাধনা বা স্ট্রাইক সম্পাদনা করতে আপনার দায়িত্বপ্রাপ্ত জিমেইল দিয়ে লগইন করুন।' 
+                      : 'To record bedtime, morning sadhana or strikes, please log in with your assigned incharge Gmail.'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-black text-slate-600 dark:text-slate-400">
-                  {isBn ? '🔒 শুধুমাত্র দেখার অনুমতি' : '🔒 Read-Only Access'}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-500 mt-0.5">
-                  {isBn
-                    ? 'এই অডিট পৃষ্ঠায় সম্পাদনার অধিকার শুধুমাত্র মর্নিং প্রোগ্রাম ইনচার্জ, সিকিউরিটি ম্যানেজার ও অ্যাডমিনের জন্য সংরক্ষিত।'
-                    : 'Editing is strictly restricted to Morning Program Incharge, Security Manager, and Admin only. You may view reports freely.'}
-                </p>
+              <Link 
+                to="/login"
+                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black shadow-sm transition shrink-0"
+              >
+                <Key size={14} />
+                <span>{isBn ? 'জিমেইল দিয়ে লগইন' : 'Log In with Gmail'}</span>
+              </Link>
+            </div>
+          )}
+
+          {/* Logged in but unassigned banner */}
+          {user && !isPrivileged && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0">
+                  <Eye size={18} />
+                </div>
+                <div>
+                  <p className="text-xs sm:text-sm font-black flex items-center gap-2 flex-wrap">
+                    <span>{isBn ? '🔒 সাধারণ দর্শক মোড' : '🔒 Viewer Mode'}</span>
+                    <span className="font-mono text-xs font-medium text-slate-500 dark:text-slate-400">
+                      ({currentUserEmail})
+                    </span>
+                  </p>
+                  <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+                    {isBn 
+                      ? 'আপনার জিমেইলে কোনো ইনচার্জ দায়িত্ব বরাদ্দ নেই। সম্পাদনার অধিকার পেতে অ্যাডমিনের সাথে যোগাযোগ করুন।' 
+                      : 'No incharge role assigned to your Gmail. You have read-only access to records and reports.'}
+                  </p>
+                </div>
               </div>
             </div>
           )}
@@ -1314,11 +1402,23 @@ export const AshramDisciplineAudit: React.FC = () => {
                       ? DISCIPLINE_AUDITOR_ROLES.find(r => r.key === effectiveAuditorRole)?.titleBn
                       : DISCIPLINE_AUDITOR_ROLES.find(r => r.key === effectiveAuditorRole)?.titleEn}
                   </span>
+                  {user && isPrivileged && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1">
+                      <UserCheck size={10} />
+                      <span>{isBn ? 'যাচাইকৃত লগইন' : 'Verified Login'}</span>
+                    </span>
+                  )}
                 </div>
                 <p className={`text-xs sm:text-sm font-bold mt-0.5 ${isPrivileged ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'}`}>
-                  👤 {isBn
-                    ? DISCIPLINE_AUDITOR_ROLES.find(r => r.key === effectiveAuditorRole)?.inchargeNameBn
-                    : DISCIPLINE_AUDITOR_ROLES.find(r => r.key === effectiveAuditorRole)?.inchargeNameEn}
+                  👤 {(() => {
+                    const userAssignment = assignments.find(a => a.email.toLowerCase() === currentUserEmail && a.isActive);
+                    if (userAssignment) return `${userAssignment.name} (${userAssignment.email})`;
+                    if (isUserAdmin) return `${currentUserEmail || 'Admin'} (Master Admin)`;
+                    const roleProfile = DISCIPLINE_AUDITOR_ROLES.find(r => r.key === effectiveAuditorRole);
+                    const activeRoleAssignment = assignments.find(a => a.role === effectiveAuditorRole && a.isActive);
+                    if (activeRoleAssignment) return `${activeRoleAssignment.name} (${activeRoleAssignment.email})`;
+                    return isBn ? roleProfile?.inchargeNameBn : roleProfile?.inchargeNameEn;
+                  })()}
                   <span className="text-slate-400 dark:text-slate-500 font-normal ml-2 hidden sm:inline">
                     — {isBn
                       ? DISCIPLINE_AUDITOR_ROLES.find(r => r.key === effectiveAuditorRole)?.descriptionBn
@@ -1328,32 +1428,44 @@ export const AshramDisciplineAudit: React.FC = () => {
               </div>
             </div>
 
-            {/* Role Select Control — only visible to privileged users */}
-            {isPrivileged && (
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 hidden sm:inline">
-                  {isBn ? 'সক্রিয় আইডি:' : 'Active Role:'}
-                </span>
-                <select
-                  value={activeAuditorRole}
-                  onChange={(e) => {
-                    const newRole = e.target.value as DisciplineAuditorRole;
-                    setActiveAuditorRole(newRole);
-                    const p = DISCIPLINE_AUDITOR_ROLES.find(r => r.key === newRole);
-                    toast.success(
-                      isBn
-                        ? `সক্রিয় রোল পরিবর্তন করা হয়েছে: ${p?.titleBn} (${p?.inchargeNameBn})`
-                        : `Switched active auditor to: ${p?.titleEn} (${p?.inchargeNameEn})`
-                    );
-                  }}
-                  className="w-full sm:w-auto bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 cursor-pointer"
+            {/* Admin Controls: Role Switcher & Incharges Management Page Link */}
+            {isUserAdmin && (
+              <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                <Link
+                  to="/discipline-audit/roles"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs font-bold transition shadow-xs"
+                  title={isBn ? 'ইনচার্জ ও জিমেইল নির্ধারণ করুন' : 'Assign & manage incharge Gmails'}
                 >
-                  {DISCIPLINE_AUDITOR_ROLES.map(r => (
-                    <option key={r.key} value={r.key}>
-                      {r.key === 'ADMIN' ? '👑' : r.key === 'MORNING_INCHARGE' ? '🌅' : r.key === 'SECURITY_MANAGER' ? '🌙' : r.key === 'INTERNAL_MANAGER' ? '📋' : '👁️'} {isBn ? r.titleBn : r.titleEn} ({isBn ? r.inchargeNameBn : r.inchargeNameEn})
-                    </option>
-                  ))}
-                </select>
+                  <Shield size={14} />
+                  <span>{isBn ? 'ইনচার্জ ব্যবস্থাপনা' : 'Manage Incharges'}</span>
+                  <ExternalLink size={12} className="opacity-70" />
+                </Link>
+
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400 hidden sm:inline">
+                    {isBn ? 'সক্রিয় প্রিভিউ:' : 'Preview Role:'}
+                  </span>
+                  <select
+                    value={activeAuditorRole}
+                    onChange={(e) => {
+                      const newRole = e.target.value as DisciplineAuditorRole;
+                      setActiveAuditorRole(newRole);
+                      const p = DISCIPLINE_AUDITOR_ROLES.find(r => r.key === newRole);
+                      toast.success(
+                        isBn
+                          ? `সক্রিয় রোল পরিবর্তন করা হয়েছে: ${p?.titleBn} (${p?.inchargeNameBn})`
+                          : `Switched active auditor to: ${p?.titleEn} (${p?.inchargeNameEn})`
+                      );
+                    }}
+                    className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500 cursor-pointer"
+                  >
+                    {DISCIPLINE_AUDITOR_ROLES.map(r => (
+                      <option key={r.key} value={r.key}>
+                        {r.key === 'ADMIN' ? '👑' : r.key === 'MORNING_INCHARGE' ? '🌅' : r.key === 'SECURITY_MANAGER' ? '🌙' : r.key === 'INTERNAL_MANAGER' ? '📋' : '👁️'} {isBn ? r.titleBn : r.titleEn}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             )}
           </div>
