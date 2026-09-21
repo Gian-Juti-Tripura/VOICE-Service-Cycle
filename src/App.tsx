@@ -50,11 +50,33 @@ const EmergencyRosterPage = lazy(() => import('./pages/manager/EmergencyRosterPa
 const MemberDashboard = lazy(() => import('./pages/member/MemberDashboard'));
 
 const LoadingFallback = () => (
-  <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
-    <div className="w-8 h-8 rounded-full border-2 border-primary-600 border-t-transparent animate-spin" />
-    <span className="text-xs font-bold text-slate-400 dark:text-slate-500 animate-pulse">
-      Loading Advaita VOICE Module...
-    </span>
+  <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3.5 p-6 select-none">
+    <div className="relative flex items-center justify-center w-16 h-16">
+      {/* Radiant golden ambient glow */}
+      <div className="absolute inset-0 rounded-full bg-amber-500/20 blur-lg animate-pulse pointer-events-none" />
+      {/* Subtle outer rotating dashed golden ring */}
+      <div className="absolute inset-0 rounded-full border border-dashed border-amber-400/40 animate-[spin_12s_linear_infinite]" />
+      {/* Central Golden Logo */}
+      <img
+        src="/logo.png"
+        alt="Advaita VOICE"
+        className="w-12 h-12 rounded-full object-cover shadow-md ring-1 ring-amber-400/30"
+      />
+    </div>
+
+    <div className="flex flex-col items-center gap-1 text-center">
+      <span className="text-xs font-serif font-extrabold tracking-[0.18em] uppercase bg-gradient-to-r from-amber-200 via-amber-400 to-amber-300 bg-clip-text text-transparent">
+        Advaita VOICE
+      </span>
+      <span className="text-[11px] font-medium text-slate-400 dark:text-slate-400">
+        মডিউল লোড হচ্ছে...
+      </span>
+    </div>
+
+    {/* Subtle Shimmer line */}
+    <div className="w-24 h-1 bg-white/10 dark:bg-white/15 rounded-full overflow-hidden">
+      <div className="w-full h-full bg-gradient-to-r from-transparent via-amber-400 to-transparent animate-[pulse_1.5s_infinite]" />
+    </div>
   </div>
 );
 
