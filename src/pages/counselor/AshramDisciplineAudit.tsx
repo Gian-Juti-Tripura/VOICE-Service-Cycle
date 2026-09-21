@@ -624,15 +624,17 @@ export const AshramDisciplineAudit: React.FC = () => {
     voiceStudents.forEach(s => {
       const entry = getEntry(s.id);
       const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes ?? 0;
-      const strikeStr = `(${isBn ? 'স্ট্রাইক: ' + toBn(sStrikes) : 'Strike: ' + sStrikes})`;
+      const strikeStr = isBn
+        ? `_(স্ট্রাইক: ${toBn(sStrikes)})_`
+        : `_(ꜱᴛʀɪᴋᴇ: ${sStrikes})_`;
 
       if (entry.isAbsent) {
         const reason = formatReasonText(entry.absenceReason, isBn);
-        voiceAbsent.push(`*${s.name}* ${strikeStr} — ${reason}`);
+        voiceAbsent.push(`*${s.name}*   ${strikeStr} — ${reason}`);
       } else {
         const isPerfect = entry.wokeUpOnTime && entry.morningProgramOnTime && entry.mangalaratiAttended && entry.morningClassAttended;
         if (isPerfect) {
-          voiceOnTime.push(`${s.name} ${strikeStr}`);
+          voiceOnTime.push(`*${s.name}*   ${strikeStr}`);
         } else {
           const notes: string[] = [];
           if (!entry.wokeUpOnTime) notes.push(isBn ? 'দেরিতে জাগরণ' : 'Wake Late');
@@ -648,7 +650,7 @@ export const AshramDisciplineAudit: React.FC = () => {
             const r = formatReasonText(entry.morningClassReason, isBn);
             notes.push(`${isBn ? 'ক্লাস অনুপস্থিত' : 'Missed Class'} (${r})`);
           }
-          voiceLateOrMissed.push(`*${s.name}* ${strikeStr} — ${notes.join(', ')}`);
+          voiceLateOrMissed.push(`*${s.name}*   ${strikeStr} — ${notes.join(', ')}`);
         }
       }
     });
@@ -656,15 +658,17 @@ export const AshramDisciplineAudit: React.FC = () => {
     lotusStudents.forEach(s => {
       const entry = getEntry(s.id);
       const sStrikes = devoteeStrikesMap[s.id]?.strikes ?? s.monthlyStrikes ?? 0;
-      const strikeStr = `(${isBn ? 'স্ট্রাইক: ' + toBn(sStrikes) : 'Strike: ' + sStrikes})`;
+      const strikeStr = isBn
+        ? `_(স্ট্রাইক: ${toBn(sStrikes)})_`
+        : `_(ꜱᴛʀɪᴋᴇ: ${sStrikes})_`;
 
       if (entry.isAbsent) {
         const reason = formatReasonText(entry.absenceReason, isBn);
-        lotusAbsent.push(`*${s.name}* ${strikeStr} — ${reason}`);
+        lotusAbsent.push(`*${s.name}*   ${strikeStr} — ${reason}`);
       } else {
         const isPerfect = entry.wokeUpOnTime && entry.morningProgramOnTime && entry.mangalaratiAttended && entry.morningClassAttended;
         if (isPerfect) {
-          lotusOnTime.push(`${s.name} ${strikeStr}`);
+          lotusOnTime.push(`*${s.name}*   ${strikeStr}`);
         } else {
           const notes: string[] = [];
           if (!entry.wokeUpOnTime) notes.push(isBn ? 'দেরিতে জাগরণ' : 'Wake Late');
@@ -680,7 +684,7 @@ export const AshramDisciplineAudit: React.FC = () => {
             const r = formatReasonText(entry.morningClassReason, isBn);
             notes.push(`${isBn ? 'ক্লাস অনুপস্থিত' : 'Missed Class'} (${r})`);
           }
-          lotusLateOrMissed.push(`*${s.name}* ${strikeStr} — ${notes.join(', ')}`);
+          lotusLateOrMissed.push(`*${s.name}*   ${strikeStr} — ${notes.join(', ')}`);
         }
       }
     });
@@ -694,58 +698,64 @@ export const AshramDisciplineAudit: React.FC = () => {
       ? `🌅 *অদ্বৈত ভয়েস — প্রাতঃকালীন সাধনা ও উপস্থিতি প্রতিবেদন* 🌅\n`
       : `🌅 *ADVAITA VOICE — MORNING PROGRAM REPORT* 🌅\n`;
     report += `📅 *${isBn ? 'তারিখ' : 'Date'}:* ${dateFormatted}\n`;
-    report += `📊 *${isBn ? 'উপস্থিতি' : 'Attendance'}:* ${toBn(totalOnTime)}/${toBn(totalStudents)} ${isBn ? 'সময়মতো' : 'On-Time'}${totalAbsent > 0 ? ` • ${toBn(totalAbsent)} ${isBn ? 'ছুটি' : 'on Leave'}` : ''}\n`;
-    report += `───────────────────────────\n`;
+    report += `📊 *${isBn ? 'উপস্থিতি' : 'Attendance'}:* ${toBn(totalOnTime)}/${toBn(totalStudents)} ${isBn ? 'সময়মতো' : 'On-Time'}${totalAbsent > 0 ? ` • ${toBn(totalAbsent)} ${isBn ? 'ছুটি' : 'on Leave'}` : ''}\n\n`;
+    report += `───────────────────────────\n\n`;
 
     report += `🌟 *${toBn(1)}. ${isBn ? 'ভয়েস গ্রুপ' : 'VOICE GROUP'}* _(${isBn ? 'টার্গেট: ≤ ৪:৩০ AM | ক্লাস: ৭:০০ AM' : 'MP: ≤ 4:30 AM | Class: 7:00 AM'})_\n\n`;
     report += `✅ *${isBn ? 'সময়মতো সম্পন্ন' : 'Completed On-Time'} (${toBn(voiceOnTime.length)}/${toBn(voiceStudents.length)}):*\n`;
     if (voiceOnTime.length === 0) {
       report += `   _${isBn ? 'কেউ নেই' : 'None'}_\n`;
     } else {
-      voiceOnTime.forEach((name, i) => {
-        report += `   ${toBn(i + 1)}. ${name}\n`;
+      voiceOnTime.forEach((item, i) => {
+        const pad = (i + 1) < 10 ? '   ' : '  ';
+        report += `${pad}${toBn(i + 1)}. ${item}\n`;
       });
     }
 
     if (voiceLateOrMissed.length > 0) {
       report += `\n⚠️ *${isBn ? 'দেরি বা অপূর্ণ' : 'Late / Incomplete'} (${toBn(voiceLateOrMissed.length)}):*\n`;
       voiceLateOrMissed.forEach((item, i) => {
-        report += `   ${toBn(i + 1)}. ${item}\n`;
+        const pad = (i + 1) < 10 ? '   ' : '  ';
+        report += `${pad}${toBn(i + 1)}. ${item}\n`;
       });
     }
 
     if (voiceAbsent.length > 0) {
       report += `\n🕊️ *${isBn ? 'ছুটি / অনুপস্থিত' : 'On Leave / Absent'} (${toBn(voiceAbsent.length)}):*\n`;
       voiceAbsent.forEach((item, i) => {
-        report += `   ${toBn(i + 1)}. ${item}\n`;
+        const pad = (i + 1) < 10 ? '   ' : '  ';
+        report += `${pad}${toBn(i + 1)}. ${item}\n`;
       });
     }
-    report += `\n───────────────────────────\n`;
+    report += `\n───────────────────────────\n\n`;
 
     report += `🪷 *${toBn(2)}. ${isBn ? 'লোটাস গ্রুপ' : 'LOTUS GROUP'}* _(${isBn ? 'টার্গেট: ≤ ৫:০০ AM | ক্লাস: ৭:০০ AM' : 'MP: ≤ 5:00 AM | Class: 7:00 AM'})_\n\n`;
     report += `✅ *${isBn ? 'সময়মতো সম্পন্ন' : 'Completed On-Time'} (${toBn(lotusOnTime.length)}/${toBn(lotusStudents.length)}):*\n`;
     if (lotusOnTime.length === 0) {
       report += `   _${isBn ? 'কেউ নেই' : 'None'}_\n`;
     } else {
-      lotusOnTime.forEach((name, i) => {
-        report += `   ${toBn(i + 1)}. ${name}\n`;
+      lotusOnTime.forEach((item, i) => {
+        const pad = (i + 1) < 10 ? '   ' : '  ';
+        report += `${pad}${toBn(i + 1)}. ${item}\n`;
       });
     }
 
     if (lotusLateOrMissed.length > 0) {
       report += `\n⚠️ *${isBn ? 'দেরি বা অপূর্ণ' : 'Late / Incomplete'} (${toBn(lotusLateOrMissed.length)}):*\n`;
       lotusLateOrMissed.forEach((item, i) => {
-        report += `   ${toBn(i + 1)}. ${item}\n`;
+        const pad = (i + 1) < 10 ? '   ' : '  ';
+        report += `${pad}${toBn(i + 1)}. ${item}\n`;
       });
     }
 
     if (lotusAbsent.length > 0) {
       report += `\n🕊️ *${isBn ? 'ছুটি / অনুপস্থিত' : 'On Leave / Absent'} (${toBn(lotusAbsent.length)}):*\n`;
       lotusAbsent.forEach((item, i) => {
-        report += `   ${toBn(i + 1)}. ${item}\n`;
+        const pad = (i + 1) < 10 ? '   ' : '  ';
+        report += `${pad}${toBn(i + 1)}. ${item}\n`;
       });
     }
-    report += `\n───────────────────────────\n`;
+    report += `\n───────────────────────────\n\n`;
 
     report += `📊 *${isBn ? 'সারসংক্ষেপ' : 'Summary'}:* ${toBn(totalOnTime)} ${isBn ? 'অন-টাইম' : 'On-Time'} • ${toBn(totalPresent - totalOnTime)} ${isBn ? 'বিলম্ব/আংশিক' : 'Late/Partial'} • ${toBn(totalAbsent)} ${isBn ? 'ছুটি' : 'on Leave'}\n`;
     report += `🙏 *${isBn ? 'রিপোর্ট প্রেরক' : 'Reported by'}:* ${isBn ? 'মর্নিং প্রোগ্রাম ইনচার্জ (অদ্বৈত ভয়েস)' : 'Morning Program Incharge (Advaita VOICE)'}\n`;
