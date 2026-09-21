@@ -78,8 +78,8 @@ export const ThemeCustomizerModal: React.FC<ThemeCustomizerModalProps> = ({ isOp
     triggerHaptic();
     const def: ThemeSettingsState = {
       mode: 'light',
-      palette: 'saffron',
-      flowerShower: true,
+      palette: 'emerald',
+      flowerShower: false,
       lightingEffects: true,
       backgroundAtmosphere: true
     };

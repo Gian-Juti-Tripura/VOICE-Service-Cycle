@@ -11,9 +11,9 @@
 export type ThemeMode = 'light' | 'dark' | 'system';
 
 export type ThemePaletteId = 
-  | 'saffron'  // Vedic Saffron & Royal Gold (Default)
+  | 'emerald'  // Govardhan & Sacred Tulasi (Default)
+  | 'saffron'  // Vedic Saffron & Royal Gold
   | 'lotus'    // Vrindavan Rose & Lotus
-  | 'emerald'  // Govardhan & Sacred Tulasi
   | 'ocean'    // Yamuna & Shyam Sundar Blue
   | 'royal'    // Navadvipa Royal Purple
   | 'sunrise'; // Braja Dawn & Radiant Marigold
@@ -38,9 +38,26 @@ export interface ThemePaletteConfig {
 
 export const THEME_PALETTES: ThemePaletteConfig[] = [
   {
+    id: 'emerald',
+    nameEn: 'Govardhan & Sacred Tulasi (Default)',
+    nameBn: 'গোবর্ধন ও তুলসী কানন (ডিফল্ট)',
+    taglineEn: 'Sacred peacocks, Vrinda devi & Govardhana hill',
+    taglineBn: 'শ্রীগিরিরাজ গোবর্ধন ও শ্রীমতী তুলসী দেবীর কুঞ্জ',
+    previewColors: ['#10b981', '#059669', '#047857'],
+    primaryHex: '#10b981',
+    accentHex: '#059669',
+    lightBannerGradient: 'from-emerald-600 via-teal-600 to-emerald-700',
+    darkBannerGradient: 'from-slate-950 via-slate-900 to-emerald-950',
+    activeRing: 'ring-emerald-500',
+    activeBorder: 'border-emerald-500',
+    badgeBg: 'bg-emerald-500/15',
+    badgeText: 'text-emerald-700 dark:text-emerald-400',
+    cardGlow: 'rgba(16, 185, 129, 0.25)'
+  },
+  {
     id: 'saffron',
-    nameEn: 'Vedic Saffron & Gold (Default)',
-    nameBn: 'বৈদিক জাফরান ও স্বর্ণ (ডিফল্ট)',
+    nameEn: 'Vedic Saffron & Gold',
+    nameBn: 'বৈদিক জাফরান ও স্বর্ণ',
     taglineEn: 'Classic Chaitanya Mahaprabhu golden radiance',
     taglineBn: 'শ্রীশ্রী গৌরাঙ্গের স্বর্ণদ্যুতি ও আনন্দময় রূপ',
     previewColors: ['#f59e0b', '#d97706', '#b45309'],
@@ -70,23 +87,6 @@ export const THEME_PALETTES: ThemePaletteConfig[] = [
     badgeBg: 'bg-rose-500/15',
     badgeText: 'text-rose-700 dark:text-rose-400',
     cardGlow: 'rgba(244, 63, 94, 0.25)'
-  },
-  {
-    id: 'emerald',
-    nameEn: 'Govardhan & Sacred Tulasi',
-    nameBn: 'গোবর্ধন ও তুলসী কানন',
-    taglineEn: 'Sacred peacocks, Vrinda devi & Govardhana hill',
-    taglineBn: 'শ্রীগিরিরাজ গোবর্ধন ও শ্রীমতী তুলসী দেবীর কুঞ্জ',
-    previewColors: ['#10b981', '#059669', '#047857'],
-    primaryHex: '#10b981',
-    accentHex: '#059669',
-    lightBannerGradient: 'from-emerald-600 via-teal-600 to-emerald-700',
-    darkBannerGradient: 'from-slate-950 via-slate-900 to-emerald-950',
-    activeRing: 'ring-emerald-500',
-    activeBorder: 'border-emerald-500',
-    badgeBg: 'bg-emerald-500/15',
-    badgeText: 'text-emerald-700 dark:text-emerald-400',
-    cardGlow: 'rgba(16, 185, 129, 0.25)'
   },
   {
     id: 'ocean',
@@ -181,11 +181,11 @@ export const getThemeSettings = (): ThemeSettingsState => {
     const mode: ThemeMode = (rawMode === 'dark' || rawMode === 'light' || rawMode === 'system') ? rawMode : 'light';
 
     const rawPalette = localStorage.getItem(STORAGE_KEYS.PALETTE) as ThemePaletteId;
-    const validPalettes: ThemePaletteId[] = ['saffron', 'lotus', 'emerald', 'ocean', 'royal', 'sunrise'];
-    const palette: ThemePaletteId = validPalettes.includes(rawPalette) ? rawPalette : 'saffron';
+    const validPalettes: ThemePaletteId[] = ['emerald', 'saffron', 'lotus', 'ocean', 'royal', 'sunrise'];
+    const palette: ThemePaletteId = (rawPalette && validPalettes.includes(rawPalette)) ? rawPalette : 'emerald';
 
     const rawFlowers = localStorage.getItem(STORAGE_KEYS.FLOWERS);
-    const flowerShower = rawFlowers === null ? true : rawFlowers === 'true';
+    const flowerShower = rawFlowers === null ? false : rawFlowers === 'true';
 
     const rawLighting = localStorage.getItem(STORAGE_KEYS.LIGHTING);
     const lightingEffects = rawLighting === null ? true : rawLighting === 'true';
@@ -204,8 +204,8 @@ export const getThemeSettings = (): ThemeSettingsState => {
     console.error('Failed to load theme settings:', e);
     return {
       mode: 'light',
-      palette: 'saffron',
-      flowerShower: true,
+      palette: 'emerald',
+      flowerShower: false,
       lightingEffects: true,
       backgroundAtmosphere: true
     };
