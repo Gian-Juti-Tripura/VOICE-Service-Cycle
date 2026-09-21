@@ -10,6 +10,7 @@ import {
   Flame, BookOpen, History, Award,
   Download, Shield, Eye, Lock, ExternalLink, Key, UserCheck
 } from 'lucide-react';
+import { supabase } from '../../supabase/supabaseClient';
 import { 
   type GroupType, 
   type DisciplineAuditorRole,
@@ -32,6 +33,17 @@ import {
   getAuditorRoleForEmail,
   isMasterAdmin
 } from '../../services/disciplineAuditorService';
+import {
+  getCachedDisciplineStudents,
+  getCachedDailyRecords,
+  fetchDisciplineStudents,
+  fetchDailyDisciplineLogs,
+  saveDailyDisciplineEntryToCloud,
+  saveBulkDailyDisciplineEntriesToCloud,
+  saveDisciplineStudents,
+  updateStudentStrikesInCloud,
+  autoMigrateLocalDataToSupabase
+} from '../../services/disciplineStorageService';
 import { shareToWhatsAppOrSystem } from '../../utils/shareUtils';
 import { exportTableToPdf } from '../../lib/exportTablePdf';
 import { triggerHaptic } from '../../utils/haptics';
@@ -64,20 +76,70 @@ interface MonthlyDevoteeStats {
 export const AshramDisciplineAudit: React.FC = () => {
   const { language } = useLanguage();
   const { user, role: authRole } = useAuth();
-  const [selectedDate, setSelectedDate] = useState<Date>(() => new Date(2026, 8, 7, 12, 0, 0));
+  const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
   const [activeTab, setActiveTab] = useState<GroupType | 'ALL'>('VOICE');
 
   const currentUserEmail = user?.email?.toLowerCase().trim();
 
   // Load and synchronize auditor assignments from Supabase & LocalStorage
   const [assignments, setAssignments] = useState<DisciplineAuditorAssignment[]>(() => getCachedAuditorAssignments());
+  const [isCloudSyncing, setIsCloudSyncing] = useState<boolean>(false);
+  const [lastCloudSyncTime, setLastCloudSyncTime] = useState<Date | null>(null);
 
+  // Background Cloud Sync & Realtime Listener
   useEffect(() => {
-    getAuditorAssignments().then(data => {
-      if (data && data.length > 0) {
-        setAssignments(data);
+    let isMounted = true;
+    setIsCloudSyncing(true);
+
+    // 1. Fetch live assignments, students, and daily records
+    Promise.all([
+      getAuditorAssignments(),
+      autoMigrateLocalDataToSupabase(),
+      fetchDisciplineStudents(),
+      fetchDailyDisciplineLogs()
+    ]).then(([liveAssignments, _, cloudStudents, cloudDaily]) => {
+      if (!isMounted) return;
+      if (liveAssignments && liveAssignments.length > 0) {
+        setAssignments(liveAssignments);
       }
+      if (cloudStudents && cloudStudents.length > 0) {
+        setStudents(cloudStudents);
+      }
+      if (cloudDaily && Object.keys(cloudDaily).length > 0) {
+        setDailyRecords(cloudDaily);
+      }
+      setLastCloudSyncTime(new Date());
+      setIsCloudSyncing(false);
+    }).catch(err => {
+      console.warn('Initial cloud discipline sync warning:', err);
+      if (isMounted) setIsCloudSyncing(false);
     });
+
+    // 2. Realtime subscription for cross-device live updates
+    const channel = supabase
+      .channel('public:daily_discipline_sync')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_discipline_logs' }, () => {
+        fetchDailyDisciplineLogs().then(data => {
+          if (isMounted && data) {
+            setDailyRecords(data);
+            setLastCloudSyncTime(new Date());
+          }
+        });
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'discipline_students' }, () => {
+        fetchDisciplineStudents().then(data => {
+          if (isMounted && data) {
+            setStudents(data);
+            setLastCloudSyncTime(new Date());
+          }
+        });
+      })
+      .subscribe();
+
+    return () => {
+      isMounted = false;
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const isMaster = isMasterAdmin(currentUserEmail);
@@ -104,24 +166,8 @@ export const AshramDisciplineAudit: React.FC = () => {
   const [customBedActive, setCustomBedActive] = useState<Record<string, boolean>>({});
   const [customMpActive, setCustomMpActive] = useState<Record<string, boolean>>({});
 
-  const [students, setStudents] = useState<StudentDisciplineRecord[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_STUDENTS_KEY);
-      return saved ? JSON.parse(saved) : INITIAL_DISCIPLINE_STUDENTS;
-    } catch {
-      return INITIAL_DISCIPLINE_STUDENTS;
-    }
-  });
-
-  const [dailyRecords, setDailyRecords] = useState<Record<string, Record<string, DailyDisciplineEntry>>>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_DAILY_KEY);
-      const parsed = saved ? JSON.parse(saved) : {};
-      return { ...INITIAL_DAILY_DISCIPLINE_RECORDS, ...parsed };
-    } catch {
-      return INITIAL_DAILY_DISCIPLINE_RECORDS;
-    }
-  });
+  const [students, setStudents] = useState<StudentDisciplineRecord[]>(() => getCachedDisciplineStudents());
+  const [dailyRecords, setDailyRecords] = useState<Record<string, Record<string, DailyDisciplineEntry>>>(() => getCachedDailyRecords());
 
   const [copiedVoice, setCopiedVoice] = useState(false);
   const [copiedLotus, setCopiedLotus] = useState(false);
@@ -282,17 +328,17 @@ export const AshramDisciplineAudit: React.FC = () => {
     return defaultDay[studentId] || {
       studentId,
       dateStr: customDateIso,
-      isAbsent: studentId === 'member_0',
-      absenceReason: studentId === 'member_0' ? 'Out of town / Home Leave (গ্রামের বাড়ি / বাইরে অবস্থান)' : '',
+      isAbsent: false,
+      absenceReason: '',
       sleptOnTime: true,
       bedLateMinutes: 0,
       wokeUpOnTime: true,
       morningProgramOnTime: true,
       mpLateMinutes: 0,
-      mangalaratiAttended: studentId !== 'member_0',
-      mangalaratiReason: studentId === 'member_0' ? 'Leave / Absent' : '',
-      morningClassAttended: studentId !== 'member_0',
-      morningClassReason: studentId === 'member_0' ? 'Leave / Absent' : '',
+      mangalaratiAttended: true,
+      mangalaratiReason: '',
+      morningClassAttended: true,
+      morningClassReason: '',
       reason: '',
       isEmergency: false,
     };
@@ -309,6 +355,11 @@ export const AshramDisciplineAudit: React.FC = () => {
         [studentId]: updated
       }
     }));
+
+    const reporter = currentUserEmail || (effectiveAuditorRole === 'ADMIN' ? 'Admin' : 'Incharge');
+    saveDailyDisciplineEntryToCloud(updated, reporter).catch(err => {
+      console.warn('Cloud sync error for entry update:', err);
+    });
   };
 
   const handleMarkAllOnTime = (group: GroupType) => {
@@ -327,10 +378,11 @@ export const AshramDisciplineAudit: React.FC = () => {
 
     const targetStudents = students.filter(s => s.group === group);
     const newDayEntries: Record<string, DailyDisciplineEntry> = { ...(dailyRecords[dateIso] || {}) };
+    const entriesToSave: DailyDisciplineEntry[] = [];
 
     targetStudents.forEach(s => {
       const prevEntry = getEntry(s.id);
-      newDayEntries[s.id] = {
+      const entry: DailyDisciplineEntry = {
         studentId: s.id,
         dateStr: dateIso,
         isAbsent: prevEntry.isAbsent,
@@ -347,12 +399,19 @@ export const AshramDisciplineAudit: React.FC = () => {
         reason: '',
         isEmergency: false
       };
+      newDayEntries[s.id] = entry;
+      entriesToSave.push(entry);
     });
 
     setDailyRecords(prev => ({
       ...prev,
       [dateIso]: newDayEntries
     }));
+
+    const reporter = currentUserEmail || (effectiveAuditorRole === 'ADMIN' ? 'Admin' : 'Incharge');
+    saveBulkDailyDisciplineEntriesToCloud(entriesToSave, reporter).catch(err => {
+      console.warn('Cloud bulk sync error:', err);
+    });
 
     toast.success(
       isBn 
@@ -376,10 +435,11 @@ export const AshramDisciplineAudit: React.FC = () => {
     }
 
     const newDayEntries: Record<string, DailyDisciplineEntry> = { ...(dailyRecords[dateIso] || {}) };
+    const entriesToSave: DailyDisciplineEntry[] = [];
 
     students.forEach(s => {
       const prevEntry = getEntry(s.id);
-      newDayEntries[s.id] = {
+      const entry: DailyDisciplineEntry = {
         studentId: s.id,
         dateStr: dateIso,
         isAbsent: prevEntry.isAbsent,
@@ -396,12 +456,19 @@ export const AshramDisciplineAudit: React.FC = () => {
         reason: '',
         isEmergency: false
       };
+      newDayEntries[s.id] = entry;
+      entriesToSave.push(entry);
     });
 
     setDailyRecords(prev => ({
       ...prev,
       [dateIso]: newDayEntries
     }));
+
+    const reporter = currentUserEmail || (effectiveAuditorRole === 'ADMIN' ? 'Admin' : 'Incharge');
+    saveBulkDailyDisciplineEntriesToCloud(entriesToSave, reporter).catch(err => {
+      console.warn('Cloud bulk sync error:', err);
+    });
 
     toast.success(
       isBn 
@@ -412,21 +479,11 @@ export const AshramDisciplineAudit: React.FC = () => {
 
   // Live Automatic Strike Evaluation based on must-follow rules
   const devoteeStrikesMap = useMemo(() => {
-    const datesSet = new Set<string>();
-    Object.keys(dailyRecords).filter(d => d.startsWith(selectedVerdictMonth)).forEach(d => datesSet.add(d));
-
-    const [vYear, vMonth] = selectedVerdictMonth.split('-').map(Number);
-    const now = new Date();
-    const isCurrentMonth = now.getFullYear() === vYear && (now.getMonth() + 1) === vMonth;
-    const daysInMonthCount = new Date(vYear, vMonth, 0).getDate();
-    const maxDay = isCurrentMonth ? now.getDate() : daysInMonthCount;
-
-    for (let day = 1; day <= maxDay; day++) {
-      const dStr = `${vYear}-${String(vMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      datesSet.add(dStr);
-    }
-
-    const monthDates = Array.from(datesSet).sort();
+    // Only evaluate dates in the selected month that have actual recorded discipline logs
+    const recordedDatesInMonth = Object.keys(dailyRecords).filter(d => 
+      d.startsWith(selectedVerdictMonth) && dailyRecords[d] && Object.keys(dailyRecords[d]).length > 0
+    );
+    const monthDates = recordedDatesInMonth.sort();
 
     const map: Record<string, { 
       autoStrikes: number; 
@@ -525,7 +582,10 @@ export const AshramDisciplineAudit: React.FC = () => {
     const newStrikes = Math.max(0, pendingStrikeCount); // Continuous counting without cap
     const manualStrikeDelta = newStrikes - autoStrikes;
 
-    setStudents(prev => prev.map(s => {
+    let finalStatus: StudentDisciplineRecord['status'] = 'ACTIVE';
+    let finalGroup: GroupType = targetStudent.group;
+
+    const updatedStudents = students.map(s => {
       if (s.id !== strikeModalStudentId) return s;
       let status: StudentDisciplineRecord['status'] = 'ACTIVE';
       let group: GroupType = s.group;
@@ -556,8 +616,14 @@ export const AshramDisciplineAudit: React.FC = () => {
         }
       }
 
+      finalStatus = status;
+      finalGroup = group;
       return { ...s, group, monthlyStrikes: newStrikes, manualStrikeDelta, status };
-    }));
+    });
+
+    setStudents(updatedStudents);
+    saveDisciplineStudents(updatedStudents);
+    updateStudentStrikesInCloud(targetStudent.id, newStrikes, finalStatus, finalGroup);
 
     toast.success(
       isBn
@@ -571,7 +637,7 @@ export const AshramDisciplineAudit: React.FC = () => {
   const handleSwitchGroup = (studentId: string) => {
     if (!checkPermission('manage')) return;
 
-    setStudents(prev => prev.map(s => {
+    const updated = students.map(s => {
       if (s.id !== studentId) return s;
       const newGroup: GroupType = s.group === 'VOICE' ? 'LOTUS' : 'VOICE';
       toast.success(
@@ -579,8 +645,11 @@ export const AshramDisciplineAudit: React.FC = () => {
           ? `${s.name}-কে ${newGroup === 'VOICE' ? 'ভয়েস গ্রুপে' : 'লোটাস গ্রুপে'} স্থানান্তর করা হয়েছে` 
           : `Moved ${s.name} to ${newGroup} Group`
       );
-      return { ...s, group: newGroup, monthlyStrikes: 0, status: 'ACTIVE' };
-    }));
+      return { ...s, group: newGroup, monthlyStrikes: 0, status: 'ACTIVE' as const };
+    });
+
+    setStudents(updated);
+    saveDisciplineStudents(updated);
   };
 
   const handleAddStudent = (e: React.FormEvent) => {
@@ -598,7 +667,9 @@ export const AshramDisciplineAudit: React.FC = () => {
       status: 'ACTIVE'
     };
 
-    setStudents(prev => [...prev, newStudent]);
+    const updated = [...students, newStudent];
+    setStudents(updated);
+    saveDisciplineStudents(updated);
     setNewStudentName('');
     setNewStudentPhone('');
     setIsAddModalOpen(false);
@@ -610,7 +681,9 @@ export const AshramDisciplineAudit: React.FC = () => {
     if (!checkPermission('manage')) return;
     if (!editingStudent || !editingStudent.name.trim()) return;
 
-    setStudents(prev => prev.map(s => s.id === editingStudent.id ? editingStudent : s));
+    const updated = students.map(s => s.id === editingStudent.id ? editingStudent : s);
+    setStudents(updated);
+    saveDisciplineStudents(updated);
     setEditingStudent(null);
     toast.success(isBn ? 'ভক্তের তথ্য আপডেট হয়েছে' : 'Devotee details updated');
   };
@@ -618,7 +691,9 @@ export const AshramDisciplineAudit: React.FC = () => {
   const handleDeleteStudent = (studentId: string, name: string) => {
     if (!checkPermission('manage')) return;
     if (!window.confirm(`Remove ${name} from discipline list?`)) return;
-    setStudents(prev => prev.filter(s => s.id !== studentId));
+    const updated = students.filter(s => s.id !== studentId);
+    setStudents(updated);
+    saveDisciplineStudents(updated);
     toast.success('Devotee removed');
   };
 
@@ -627,8 +702,12 @@ export const AshramDisciplineAudit: React.FC = () => {
     if (!window.confirm('Reset devotee list and restore September 1–7 historical data?')) return;
     setStudents(INITIAL_DISCIPLINE_STUDENTS);
     setDailyRecords(INITIAL_DAILY_DISCIPLINE_RECORDS);
-    localStorage.setItem(STORAGE_STUDENTS_KEY, JSON.stringify(INITIAL_DISCIPLINE_STUDENTS));
-    localStorage.setItem(STORAGE_DAILY_KEY, JSON.stringify(INITIAL_DAILY_DISCIPLINE_RECORDS));
+    saveDisciplineStudents(INITIAL_DISCIPLINE_STUDENTS);
+    const allBaseline: DailyDisciplineEntry[] = [];
+    Object.values(INITIAL_DAILY_DISCIPLINE_RECORDS).forEach(day => {
+      Object.values(day).forEach(entry => allBaseline.push(entry));
+    });
+    saveBulkDailyDisciplineEntriesToCloud(allBaseline, 'Reset Admin');
     toast.success('Reset to 12 active devotees & restored September history!');
   };
 
@@ -1011,21 +1090,11 @@ export const AshramDisciplineAudit: React.FC = () => {
   };
 
   const monthlyStats = useMemo<MonthlyDevoteeStats[]>(() => {
-    const datesSet = new Set<string>();
-    Object.keys(dailyRecords).filter(d => d.startsWith(selectedVerdictMonth)).forEach(d => datesSet.add(d));
-
-    const [vYear, vMonth] = selectedVerdictMonth.split('-').map(Number);
-    const now = new Date();
-    const isCurrentMonth = now.getFullYear() === vYear && (now.getMonth() + 1) === vMonth;
-    const daysInMonthCount = new Date(vYear, vMonth, 0).getDate();
-    const maxDay = isCurrentMonth ? now.getDate() : daysInMonthCount;
-
-    for (let day = 1; day <= maxDay; day++) {
-      const dStr = `${vYear}-${String(vMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      datesSet.add(dStr);
-    }
-
-    const monthDates = Array.from(datesSet).sort();
+    // Only evaluate dates in the month that have actual audited records
+    const recordedDatesInMonth = Object.keys(dailyRecords).filter(d => 
+      d.startsWith(selectedVerdictMonth) && dailyRecords[d] && Object.keys(dailyRecords[d]).length > 0
+    );
+    const monthDates = recordedDatesInMonth.sort();
 
     return students.map(student => {
       let presentDays = 0;
@@ -1444,6 +1513,17 @@ export const AshramDisciplineAudit: React.FC = () => {
                       <span>{isBn ? 'যাচাইকৃত লগইন' : 'Verified Login'}</span>
                     </span>
                   )}
+                  <span 
+                    title={lastCloudSyncTime ? (isBn ? `সর্বশেষ সিঙ্ক: ${lastCloudSyncTime.toLocaleTimeString()}` : `Last cloud sync: ${lastCloudSyncTime.toLocaleTimeString()}`) : undefined}
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 ${
+                      isCloudSyncing
+                        ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30'
+                        : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${isCloudSyncing ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`} />
+                    <span>{isCloudSyncing ? (isBn ? 'সিঙ্ক হচ্ছে...' : 'Syncing...') : (isBn ? 'ক্লাউড সিঙ্ক' : 'Cloud Synced')}</span>
+                  </span>
                 </div>
                 <p className={`text-xs sm:text-sm font-bold mt-0.5 ${isPrivileged ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'}`}>
                   👤 {(() => {
@@ -1919,6 +1999,7 @@ export const AshramDisciplineAudit: React.FC = () => {
               return (
                 <div 
                   key={student.id}
+                  id={`student-card-${student.id}`}
                   className={`rounded-2xl p-4 sm:p-5 border transition-all shadow-xs ${
                     isAbsent
                       ? 'bg-amber-50/40 dark:bg-amber-950/20 border-amber-300/80 dark:border-amber-800/60'
@@ -2021,6 +2102,19 @@ export const AshramDisciplineAudit: React.FC = () => {
                                   <span>{currentStrikes === 0 ? '✅' : currentStrikes <= 2 ? '⚠️' : currentStrikes <= 4 ? '🚨' : '💀'}</span>
                                   <span>{isBn ? `${toBn(currentStrikes)} স্ট্রাইক` : `${currentStrikes} Strike${currentStrikes !== 1 ? 's' : ''}`}</span>
                                   {canEditStrikes && <Edit size={10} className="ml-0.5 opacity-70" />}
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setHistorySelectedStudentId(student.id);
+                                    setIsHistoryModalOpen(true);
+                                  }}
+                                  className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center gap-1 border border-slate-200 dark:border-slate-700 cursor-pointer shadow-xs transition-colors"
+                                  title={isBn ? 'এই ভক্তের হিস্ট্রি ও টাইমলাইন দেখুন' : "View this devotee's history & timeline"}
+                                >
+                                  <History size={10} />
+                                  <span>{isBn ? 'হিস্ট্রি' : 'History'}</span>
                                 </button>
 
                                 {strikeInfo.autoStrikes > 0 && (
@@ -2511,12 +2605,25 @@ export const AshramDisciplineAudit: React.FC = () => {
                           </p>
                         </div>
                         
-                        <div className="text-right sm:border-l sm:border-white/15 sm:pl-4">
-                          <div className="text-[11px] text-slate-400 font-medium">{isBn ? 'সাধনা সাফল্যের হার' : 'Sadhana Success Rate'}</div>
-                          <div className={`text-xl font-mono font-black ${
-                            overallRate >= 90 ? 'text-emerald-400' : overallRate >= 75 ? 'text-amber-400' : 'text-rose-400'
-                          }`}>
-                            {overallRate}%
+                        <div className="flex items-center gap-3">
+                          {canEditStrikes && (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenStrikeModal(targetStudent.id)}
+                              className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 active:scale-[0.98] text-white font-black text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+                              title={isBn ? 'স্ট্রাইক সমন্বয় করুন' : 'Adjust Strikes'}
+                            >
+                              <AlertCircle size={14} />
+                              <span>{isBn ? '⚡ স্ট্রাইক পরিবর্তন' : '⚡ Adjust Strikes'}</span>
+                            </button>
+                          )}
+                          <div className="text-right sm:border-l sm:border-white/15 sm:pl-4 shrink-0">
+                            <div className="text-[11px] text-slate-400 font-medium">{isBn ? 'সাধনা সাফল্যের হার' : 'Sadhana Success Rate'}</div>
+                            <div className={`text-xl font-mono font-black ${
+                              overallRate >= 90 ? 'text-emerald-400' : overallRate >= 75 ? 'text-amber-400' : 'text-rose-400'
+                            }`}>
+                              {overallRate}%
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -2582,6 +2689,28 @@ export const AshramDisciplineAudit: React.FC = () => {
                                   </span>
                                 </div>
                               )}
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedDate(parseIsoDate(date));
+                                  setIsHistoryModalOpen(false);
+                                  toast.success(isBn ? `${date} এর অডিট খোলা হয়েছে` : `Opened audit for ${date}`);
+                                  setTimeout(() => {
+                                    const el = document.getElementById(`student-card-${targetStudent.id}`);
+                                    if (el) {
+                                      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                      el.classList.add('ring-2', 'ring-amber-500');
+                                      setTimeout(() => el.classList.remove('ring-2', 'ring-amber-500'), 2500);
+                                    }
+                                  }, 150);
+                                }}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 font-bold text-[11px] border border-indigo-200 dark:border-indigo-800/60 transition-colors shrink-0 cursor-pointer ml-auto sm:ml-0 shadow-2xs"
+                                title={isBn ? 'এই দিনের তথ্য সম্পাদনা করুন' : "Edit this day's discipline"}
+                              >
+                                <Edit size={12} />
+                                <span>{isBn ? 'সম্পাদনা' : 'Edit Day'}</span>
+                              </button>
                             </div>
                           );
                         })}
@@ -2970,7 +3099,7 @@ export const AshramDisciplineAudit: React.FC = () => {
         const isDemotingVoice = targetStudent.group === 'VOICE' && pendingStrikeCount >= 3;
 
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fade-in">
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-fade-in">
             <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 max-w-lg w-full shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[90vh] flex flex-col">
               
               {/* Modal Header */}
@@ -3054,6 +3183,30 @@ export const AshramDisciplineAudit: React.FC = () => {
                       </button>
                     </div>
                   </div>
+                </div>
+
+                {/* Quick Presets for 1-Click Update */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mr-1">
+                    {isBn ? 'কুইক প্রিসেট:' : 'Quick Presets:'}
+                  </span>
+                  {[
+                    { label: isBn ? '০ ক্লিন' : '0 Clean', val: 0, cls: 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800' },
+                    { label: isBn ? '১ সতর্কবার্তা' : '1 Warning', val: 1, cls: 'bg-amber-50 hover:bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border-amber-300 dark:border-amber-800' },
+                    { label: isBn ? '২ চূড়ান্ত' : '2 Final', val: 2, cls: 'bg-orange-50 hover:bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300 border-orange-300 dark:border-orange-800' },
+                    { label: isBn ? '৩ অবনমন' : '3 Demote', val: 3, cls: 'bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 border-rose-300 dark:border-rose-800' },
+                  ].map(preset => (
+                    <button
+                      key={preset.val}
+                      type="button"
+                      onClick={() => setPendingStrikeCount(preset.val)}
+                      className={`px-2.5 py-1 rounded-xl text-[11px] font-bold border transition-all cursor-pointer ${preset.cls} ${
+                        pendingStrikeCount === preset.val ? 'ring-2 ring-rose-500 shadow-xs scale-105 font-black' : ''
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
                 </div>
 
                 {/* Auto Rule Violations Breakdown if any */}

@@ -163,14 +163,16 @@ export const createDefaultDailyRecordsForDate = (dateIso: string): Record<string
   const result: Record<string, DailyDisciplineEntry> = {};
   
   INITIAL_DISCIPLINE_STUDENTS.forEach(student => {
-    const isUtpol = student.id === 'member_0';
+    // Only apply historical sample absence for Utpol in the Sept 1-7 baseline
+    const isSeptHistorical = dateIso.startsWith('2026-09-0') && parseInt(dateIso.split('-')[2], 10) <= 7;
+    const isUtpolHistoricalAbsent = isSeptHistorical && student.id === 'member_0';
     const isSept2 = dateIso === '2026-09-02';
     
     result[student.id] = {
       studentId: student.id,
       dateStr: dateIso,
-      isAbsent: isUtpol,
-      absenceReason: isUtpol 
+      isAbsent: isUtpolHistoricalAbsent,
+      absenceReason: isUtpolHistoricalAbsent 
         ? (isSept2 
             ? 'Health / Hospital / Sickness (অসুস্থতা / চিকিৎসা)' 
             : 'Out of town / Home Leave (গ্রামের বাড়ি / বাইরে অবস্থান)')
@@ -180,10 +182,10 @@ export const createDefaultDailyRecordsForDate = (dateIso: string): Record<string
       wokeUpOnTime: true,
       morningProgramOnTime: true,
       mpLateMinutes: 0,
-      mangalaratiAttended: !isUtpol,
-      mangalaratiReason: isUtpol ? 'Leave / Absent' : '',
-      morningClassAttended: !isUtpol,
-      morningClassReason: isUtpol ? 'Leave / Absent' : '',
+      mangalaratiAttended: !isUtpolHistoricalAbsent,
+      mangalaratiReason: isUtpolHistoricalAbsent ? 'Leave / Absent' : '',
+      morningClassAttended: !isUtpolHistoricalAbsent,
+      morningClassReason: isUtpolHistoricalAbsent ? 'Leave / Absent' : '',
       reason: '',
       isEmergency: false
     };
