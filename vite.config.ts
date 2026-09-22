@@ -15,7 +15,7 @@ export default defineConfig({
         short_name: 'VOICE Hub',
         description: 'Advaita VOICE Ashram Management, Prasad, Sadhana & Syllabus System',
         theme_color: '#14532d',
-        background_color: '#14532d',
+        background_color: '#faf8f2',
         display: 'standalone',
         orientation: 'portrait-primary',
         icons: [
