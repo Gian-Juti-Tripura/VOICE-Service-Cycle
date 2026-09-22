@@ -150,7 +150,7 @@ export const INITIAL_DISCIPLINE_STUDENTS: StudentDisciplineRecord[] = [
   { id: 'member_6', name: 'ANKON P.', group: 'VOICE', phone: '01933503979', cycleOrder: 7, monthlyStrikes: 2, status: 'WARNED' },
   { id: 'member_7', name: 'ANTOR P.', group: 'VOICE', phone: '+880 1704-370139', cycleOrder: 8, monthlyStrikes: 2, status: 'WARNED' },
   { id: 'member_8', name: 'ROTON P.', group: 'VOICE', phone: '+880 1750-504601', cycleOrder: 9, monthlyStrikes: 1, status: 'WARNED' },
-  { id: 'member_9', name: 'JOY S. P.', group: 'VOICE', phone: '+880 1734-550288', cycleOrder: 10, monthlyStrikes: 1, status: 'WARNED' },
+  { id: 'member_9', name: 'JOY S. P.', group: 'VOICE', phone: '+880 1734-550288', cycleOrder: 10, monthlyStrikes: 2, status: 'WARNED' },
   { id: 'member_10', name: 'JOYKANT P.', group: 'VOICE', phone: '+880 1754-034183', cycleOrder: 11, monthlyStrikes: 0, status: 'ACTIVE' },
   { id: 'member_11', name: 'BAPPI C. P.', group: 'VOICE', cycleOrder: 12, monthlyStrikes: 1, status: 'WARNED' },
 

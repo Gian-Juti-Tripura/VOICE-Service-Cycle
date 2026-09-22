@@ -407,42 +407,35 @@ export const AshramDisciplineAudit: React.FC = () => {
         const dayRulesBroken: string[] = [];
 
         // 1. Must-Follow Rule 1: Timely Bedtime Curfew (<=10 PM / <=11 PM)
-        if (!entry.sleptOnTime && !entry.isEmergency) {
-          dayRulesBroken.push(isBn ? `দেরিতে শয়ন (${toBn(entry.bedLateMinutes || 15)} মি. বিলম্ব)` : `Late Bedtime (${entry.bedLateMinutes || 15}m late)`);
+        // Strikes/chances exist for emergency situations (exams, illness, etc.) so reasons do not waive the strike
+        if (!entry.sleptOnTime) {
+          const min = entry.bedLateMinutes || 15;
+          const r = entry.reason ? ` (${formatReasonText(entry.reason, isBn)})` : '';
+          dayRulesBroken.push(isBn ? `দেরিতে শয়ন (${toBn(min)} মি. বিলম্ব)${r}` : `Late Bedtime (${min}m late)${r}`);
         }
 
         // 2. Must-Follow Rule 2: Timely Morning Program Attendance (<=4:30 AM / <=5:00 AM)
-        if (!entry.morningProgramOnTime && !entry.isEmergency) {
-          dayRulesBroken.push(isBn ? `মর্নিং প্রোগ্রামে বিলম্ব (${toBn(entry.mpLateMinutes || 15)} মি. বিলম্ব)` : `Late MP (${entry.mpLateMinutes || 15}m late)`);
+        if (!entry.morningProgramOnTime) {
+          const min = entry.mpLateMinutes || 15;
+          const r = entry.reason ? ` (${formatReasonText(entry.reason, isBn)})` : '';
+          dayRulesBroken.push(isBn ? `মর্নিং প্রোগ্রামে বিলম্ব (${toBn(min)} মি. বিলম্ব)${r}` : `Late MP (${min}m late)${r}`);
         }
 
         // 3. Must-Follow Rule 3: Wake-up at 4:00 AM
-        if (!entry.wokeUpOnTime && !entry.isEmergency) {
+        if (!entry.wokeUpOnTime) {
           dayRulesBroken.push(isBn ? 'দেরিতে জাগরণ (ভোর ৪:০০ নয়)' : 'Late Wake-up (missed 4:00 AM)');
         }
 
         // 4. Must-Follow Rule 4: Mangalarati Attendance
-        const excusedMangal = [
-          'Health / Sickness (অসুস্থতা / চিকিৎসা)',
-          'Health Emergency / Sickness (অসুস্থতা / স্বাস্থ্য সমস্যা)',
-          'Morning Temple Seva Duty (সকালের বিশেষ সেবা দায়িত্ব)',
-          'Temple / VOICE Seva Duty (মন্দির বা ভয়েস বিশেষ সেবা)'
-        ];
-        if (!entry.mangalaratiAttended && !entry.isEmergency && (!entry.mangalaratiReason || !excusedMangal.includes(entry.mangalaratiReason))) {
-          dayRulesBroken.push(isBn ? 'অননুমোদিত মঙ্গল আরতি অনুপস্থিতি' : 'Missed Mangalarati (unexcused)');
+        if (!entry.mangalaratiAttended) {
+          const r = entry.mangalaratiReason ? ` (${formatReasonText(entry.mangalaratiReason, isBn)})` : (entry.reason ? ` (${formatReasonText(entry.reason, isBn)})` : '');
+          dayRulesBroken.push(isBn ? `মঙ্গল আরতি অনুপস্থিতি${r}` : `Missed Mangalarati${r}`);
         }
 
         // 5. Must-Follow Rule 5: Morning Bhagavatam Class Attendance
-        const excusedClass = [
-          'University Class / Lab (বিশ্ববিদ্যালয়ের ক্লাস / ল্যাব পরীক্ষা)',
-          'Academic Exam Prep (পরীক্ষার বিশেষ প্রস্তুতি)',
-          'Health / Sickness (অসুস্থতা / বিশ্রাম)',
-          'Health Emergency / Sickness (অসুস্থতা / স্বাস্থ্য সমস্যা)',
-          'Morning Temple Seva Duty (সকালের বিশেষ সেবা দায়িত্ব)',
-          'Temple / VOICE Seva Duty (মন্দির বা ভয়েস বিশেষ সেবা)'
-        ];
-        if (!entry.morningClassAttended && !entry.isEmergency && (!entry.morningClassReason || !excusedClass.includes(entry.morningClassReason))) {
-          dayRulesBroken.push(isBn ? 'অননুমোদিত ক্লাস অনুপস্থিতি' : 'Missed Class (unexcused)');
+        if (!entry.morningClassAttended) {
+          const r = entry.morningClassReason ? ` (${formatReasonText(entry.morningClassReason, isBn)})` : (entry.reason ? ` (${formatReasonText(entry.reason, isBn)})` : '');
+          dayRulesBroken.push(isBn ? `ক্লাস অনুপস্থিতি${r}` : `Missed Class${r}`);
         }
 
         if (dayRulesBroken.length > 0) {
