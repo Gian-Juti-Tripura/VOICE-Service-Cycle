@@ -147,16 +147,16 @@ export const INITIAL_DISCIPLINE_STUDENTS: StudentDisciplineRecord[] = [
   { id: 'member_1', name: 'CHAITANYA P.', group: 'VOICE', phone: '+880 1331-982443', cycleOrder: 2, monthlyStrikes: 0, status: 'ACTIVE' },
   { id: 'member_2', name: 'GIAN P.', group: 'VOICE', phone: '+8801571328549', cycleOrder: 3, monthlyStrikes: 0, status: 'ACTIVE' },
   { id: 'member_5', name: 'DIPEN P.', group: 'VOICE', phone: '01571422381', cycleOrder: 6, monthlyStrikes: 0, status: 'ACTIVE' },
-  { id: 'member_6', name: 'ANKON P.', group: 'VOICE', phone: '01933503979', cycleOrder: 7, monthlyStrikes: 1, status: 'WARNED' },
-  { id: 'member_7', name: 'ANTOR P.', group: 'VOICE', phone: '+880 1704-370139', cycleOrder: 8, monthlyStrikes: 1, status: 'WARNED' },
-  { id: 'member_8', name: 'ROTON P.', group: 'VOICE', phone: '+880 1750-504601', cycleOrder: 9, monthlyStrikes: 0, status: 'ACTIVE' },
+  { id: 'member_6', name: 'ANKON P.', group: 'VOICE', phone: '01933503979', cycleOrder: 7, monthlyStrikes: 2, status: 'WARNED' },
+  { id: 'member_7', name: 'ANTOR P.', group: 'VOICE', phone: '+880 1704-370139', cycleOrder: 8, monthlyStrikes: 2, status: 'WARNED' },
+  { id: 'member_8', name: 'ROTON P.', group: 'VOICE', phone: '+880 1750-504601', cycleOrder: 9, monthlyStrikes: 1, status: 'WARNED' },
   { id: 'member_9', name: 'JOY S. P.', group: 'VOICE', phone: '+880 1734-550288', cycleOrder: 10, monthlyStrikes: 1, status: 'WARNED' },
   { id: 'member_10', name: 'JOYKANT P.', group: 'VOICE', phone: '+880 1754-034183', cycleOrder: 11, monthlyStrikes: 0, status: 'ACTIVE' },
   { id: 'member_11', name: 'BAPPI C. P.', group: 'VOICE', cycleOrder: 12, monthlyStrikes: 1, status: 'WARNED' },
 
   // Lotus Group (Only Sangakara Das and Pranto C Das)
-  { id: 'member_3', name: 'PRANTO P.', group: 'LOTUS', phone: '+880 1609-302008', cycleOrder: 4, monthlyStrikes: 2, status: 'WARNED' },
-  { id: 'member_4', name: 'SANGA P.', group: 'LOTUS', phone: '+880 1722-711849', cycleOrder: 5, monthlyStrikes: 2, status: 'WARNED' },
+  { id: 'member_3', name: 'PRANTO P.', group: 'LOTUS', phone: '+880 1609-302008', cycleOrder: 4, monthlyStrikes: 3, status: 'DEMOTION_DUE' },
+  { id: 'member_4', name: 'SANGA P.', group: 'LOTUS', phone: '+880 1722-711849', cycleOrder: 5, monthlyStrikes: 3, status: 'DEMOTION_DUE' },
 ];
 
 export const createDefaultDailyRecordsForDate = (dateIso: string): Record<string, DailyDisciplineEntry> => {
@@ -521,5 +521,45 @@ export const INITIAL_DAILY_DISCIPLINE_RECORDS: Record<string, Record<string, Dai
 
   '2026-09-07': {
     ...createDefaultDailyRecordsForDate('2026-09-07')
+  },
+
+  '2026-09-22': {
+    ...createDefaultDailyRecordsForDate('2026-09-22'),
+    // Utpol Das: Home Leave
+    'member_0': {
+      studentId: 'member_0',
+      dateStr: '2026-09-22',
+      isAbsent: true,
+      absenceReason: 'Out of town / Home Leave (গ্রামের বাড়ি / বাইরে অবস্থান)',
+      sleptOnTime: true,
+      bedLateMinutes: 0,
+      wokeUpOnTime: true,
+      morningProgramOnTime: true,
+      mpLateMinutes: 0,
+      mangalaratiAttended: false,
+      mangalaratiReason: 'Leave / Absent',
+      morningClassAttended: false,
+      morningClassReason: 'Leave / Absent',
+      reason: '',
+      isEmergency: false
+    },
+    // Chaitanya Das: Home Leave
+    'member_1': {
+      studentId: 'member_1',
+      dateStr: '2026-09-22',
+      isAbsent: true,
+      absenceReason: 'Out of town / Home Leave (গ্রামের বাড়ি / বাইরে অবস্থান)',
+      sleptOnTime: true,
+      bedLateMinutes: 0,
+      wokeUpOnTime: true,
+      morningProgramOnTime: true,
+      mpLateMinutes: 0,
+      mangalaratiAttended: false,
+      mangalaratiReason: 'Leave / Absent',
+      morningClassAttended: false,
+      morningClassReason: 'Leave / Absent',
+      reason: '',
+      isEmergency: false
+    }
   }
 };

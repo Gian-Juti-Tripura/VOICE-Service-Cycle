@@ -204,10 +204,23 @@ export const AshramDisciplineAudit: React.FC = () => {
     localStorage.setItem(STORAGE_DAILY_KEY, JSON.stringify(dailyRecords));
   }, [dailyRecords]);
 
-  const dateIso = selectedDate.toISOString().split('T')[0];
-  const todayIso = new Date().toISOString().split('T')[0];
+  const formatToLocalIso = (d: Date): string => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  const dateIso = formatToLocalIso(selectedDate);
+  const todayIso = formatToLocalIso(new Date());
   const isToday = dateIso === todayIso;
   const isBn = language === 'bn';
+
+  // Automatically keep verdict month aligned with the viewed date's month
+  useEffect(() => {
+    const viewedMonth = dateIso.slice(0, 7);
+    setSelectedVerdictMonth(viewedMonth);
+  }, [dateIso]);
 
   // Permission Evaluation — Assigned Admin & Morning Program Incharge can edit everything
   const isFullEditor = effectiveAuditorRole === 'ADMIN' || effectiveAuditorRole === 'MORNING_INCHARGE';
@@ -607,6 +620,68 @@ export const AshramDisciplineAudit: React.FC = () => {
     const next = new Date(selectedDate);
     next.setDate(next.getDate() + days);
     setSelectedDate(next);
+  };
+
+  const syncDateRecordsToCloud = async (targetDateIso = dateIso, silent = false) => {
+    try {
+      setIsCloudSyncing(true);
+      const entriesToSave: DailyDisciplineEntry[] = [];
+      const updatedDayRecords: Record<string, DailyDisciplineEntry> = {};
+
+      students.forEach(s => {
+        const entry = getEntry(s.id, targetDateIso);
+        entriesToSave.push(entry);
+        updatedDayRecords[s.id] = entry;
+      });
+
+      // 1. Update local daily records state & LocalStorage
+      setDailyRecords(prev => {
+        const next = {
+          ...prev,
+          [targetDateIso]: {
+            ...(prev[targetDateIso] || {}),
+            ...updatedDayRecords
+          }
+        };
+        localStorage.setItem(STORAGE_DAILY_KEY, JSON.stringify(next));
+        return next;
+      });
+
+      // 2. Bulk sync daily entries to Supabase
+      const reporter = currentUserEmail || (effectiveAuditorRole === 'ADMIN' ? 'Admin' : 'Morning Incharge');
+      await saveBulkDailyDisciplineEntriesToCloud(entriesToSave, reporter);
+
+      // 3. Update cumulative student strikes and status in Supabase & LocalStorage
+      const updatedStudents = students.map(s => {
+        const calculated = devoteeStrikesMap[s.id];
+        const strikes = calculated?.strikes ?? s.monthlyStrikes;
+        let newStatus: StudentDisciplineRecord['status'] = 'ACTIVE';
+        if (strikes >= 5) newStatus = 'DISMISSED';
+        else if (strikes >= 3) newStatus = 'DEMOTION_DUE';
+        else if (strikes >= 1) newStatus = 'WARNED';
+
+        return {
+          ...s,
+          monthlyStrikes: strikes,
+          status: newStatus
+        };
+      });
+
+      setStudents(updatedStudents);
+      await saveDisciplineStudents(updatedStudents);
+
+      setLastCloudSyncTime(new Date());
+      setIsCloudSyncing(false);
+      if (!silent) {
+        toast.success(isBn ? 'আজকের রেকর্ড ও সকল স্ট্রাইক ক্লাউডে সংরক্ষিত হয়েছে!' : 'Day record & strikes synced to cloud!');
+      }
+    } catch (err) {
+      console.error('Failed to sync day records to cloud:', err);
+      setIsCloudSyncing(false);
+      if (!silent) {
+        toast.error(isBn ? 'ক্লাউড সিঙ্ক ব্যর্থ হয়েছে' : 'Cloud sync failed');
+      }
+    }
   };
 
   const generateMorningProgramCombinedReport = () => {
@@ -1528,9 +1603,23 @@ export const AshramDisciplineAudit: React.FC = () => {
                 {isBn ? 'ইনচার্জ দৈনিক রিপোর্ট ও ডিসপ্যাচ' : 'Incharge Daily Reports & WhatsApp Dispatch'}
               </h2>
             </div>
-            <span className="text-[10.5px] font-bold text-slate-400 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/10">
-              {isBn ? `মোট ${students.length} জন ভক্ত` : `${students.length} Devotees`}
-            </span>
+            <div className="flex items-center gap-2">
+              {isPrivileged && (
+                <button
+                  type="button"
+                  onClick={() => syncDateRecordsToCloud(dateIso)}
+                  disabled={isCloudSyncing}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 font-black text-xs shadow-md transition-all cursor-pointer disabled:opacity-50"
+                  title="Save and synchronize today's entire discipline record and updated strikes directly to Supabase cloud"
+                >
+                  <Save size={13} className={isCloudSyncing ? 'animate-spin' : ''} />
+                  <span>{isCloudSyncing ? (isBn ? 'সিঙ্ক হচ্ছে...' : 'Syncing...') : (isBn ? 'ক্লাউডে সেভ ও সিঙ্ক' : 'Save & Sync Day')}</span>
+                </button>
+              )}
+              <span className="text-[10.5px] font-bold text-slate-400 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/10 hidden sm:inline-block">
+                {isBn ? `মোট ${students.length} জন ভক্ত` : `${students.length} Devotees`}
+              </span>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
@@ -1550,6 +1639,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
+                    syncDateRecordsToCloud(dateIso, true);
                     const r = generateMorningProgramCombinedReport();
                     shareToWhatsAppOrSystem({ text: r, successMessage: isBn ? 'মর্নিং রিপোর্ট শেয়ার হচ্ছে...' : 'Sharing Morning Report...' });
                   }}
@@ -1579,6 +1669,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
+                    syncDateRecordsToCloud(dateIso, true);
                     triggerHaptic('selection');
                     copyToClipboard(generateMorningProgramCombinedReport(), 'MP');
                   }}
@@ -1607,6 +1698,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
+                    syncDateRecordsToCloud(dateIso, true);
                     const r = generateSecurityManagerCombinedReport();
                     shareToWhatsAppOrSystem({ text: r, successMessage: isBn ? 'নাইট রিপোর্ট শেয়ার হচ্ছে...' : 'Sharing Night Report...' });
                   }}
@@ -1636,6 +1728,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
+                    syncDateRecordsToCloud(dateIso, true);
                     triggerHaptic('selection');
                     copyToClipboard(generateSecurityManagerCombinedReport(), 'NIGHT');
                   }}
