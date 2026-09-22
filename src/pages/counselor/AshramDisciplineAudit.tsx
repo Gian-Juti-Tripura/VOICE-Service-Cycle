@@ -2452,6 +2452,16 @@ export const AshramDisciplineAudit: React.FC = () => {
                                   }`}>
                                     📖 Class: {entry.morningClassAttended ? 'Attended' : 'Missed'}
                                   </span>
+
+                                  {entry.isEmergency && (
+                                    <span 
+                                      className="px-2 py-0.5 rounded font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 border border-amber-300 dark:border-amber-700 flex items-center gap-1 shadow-2xs" 
+                                      title={entry.reason || 'Emergency Medical Exemption'}
+                                    >
+                                      <span>🏥</span>
+                                      <span>{isBn ? 'জরুরি ছাড় (স্ট্রাইক মওকুফ)' : 'Exempt (Emergency/Illness)'}</span>
+                                    </span>
+                                  )}
                                 </div>
                               )}
 
