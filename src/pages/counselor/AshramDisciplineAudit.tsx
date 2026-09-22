@@ -406,38 +406,23 @@ export const AshramDisciplineAudit: React.FC = () => {
 
         const dayRulesBroken: string[] = [];
 
-        // 1. Must-Follow Rule 1: Timely Bedtime Curfew (<=10 PM / <=11 PM)
-        // Strikes/chances exist for emergency situations (exams, illness, etc.) so reasons do not waive the strike
+        // STRICT DISCIPLINE RULE: Only TWO rules trigger strikes (No excuse for any reason):
+        // 1. Must-Follow Rule 1: Timely Bedtime Curfew (<=10 PM for VOICE / <=11 PM for Lotus)
         if (!entry.sleptOnTime) {
           const min = entry.bedLateMinutes || 15;
           const r = entry.reason ? ` (${formatReasonText(entry.reason, isBn)})` : '';
           dayRulesBroken.push(isBn ? `দেরিতে শয়ন (${toBn(min)} মি. বিলম্ব)${r}` : `Late Bedtime (${min}m late)${r}`);
         }
 
-        // 2. Must-Follow Rule 2: Timely Morning Program Attendance (<=4:30 AM / <=5:00 AM)
+        // 2. Must-Follow Rule 2: Timely Morning Program Attendance (<=4:30 AM for VOICE / <=5:00 AM for Lotus)
         if (!entry.morningProgramOnTime) {
           const min = entry.mpLateMinutes || 15;
           const r = entry.reason ? ` (${formatReasonText(entry.reason, isBn)})` : '';
           dayRulesBroken.push(isBn ? `মর্নিং প্রোগ্রামে বিলম্ব (${toBn(min)} মি. বিলম্ব)${r}` : `Late MP (${min}m late)${r}`);
         }
 
-        // 3. Must-Follow Rule 3: Wake-up at 4:00 AM
-        if (!entry.wokeUpOnTime) {
-          dayRulesBroken.push(isBn ? 'দেরিতে জাগরণ (ভোর ৪:০০ নয়)' : 'Late Wake-up (missed 4:00 AM)');
-        }
-
-        // 4. Must-Follow Rule 4: Mangalarati Attendance
-        if (!entry.mangalaratiAttended) {
-          const r = entry.mangalaratiReason ? ` (${formatReasonText(entry.mangalaratiReason, isBn)})` : (entry.reason ? ` (${formatReasonText(entry.reason, isBn)})` : '');
-          dayRulesBroken.push(isBn ? `মঙ্গল আরতি অনুপস্থিতি${r}` : `Missed Mangalarati${r}`);
-        }
-
-        // 5. Must-Follow Rule 5: Morning Bhagavatam Class Attendance
-        if (!entry.morningClassAttended) {
-          const r = entry.morningClassReason ? ` (${formatReasonText(entry.morningClassReason, isBn)})` : (entry.reason ? ` (${formatReasonText(entry.reason, isBn)})` : '');
-          dayRulesBroken.push(isBn ? `ক্লাস অনুপস্থিতি${r}` : `Missed Class${r}`);
-        }
-
+        // Note: Wake-up at 4:00 AM, Mangalarati, and Morning Class attendance are tracked as sadhana records,
+        // but strictly DO NOT count for disciplinary strikes as per ashram rule.
         if (dayRulesBroken.length > 0) {
           violationDaysCount++;
           violationList.push({ date: d, rules: dayRulesBroken });
@@ -2999,6 +2984,9 @@ export const AshramDisciplineAudit: React.FC = () => {
                   <span className="text-[11px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                     ⚠️ {isBn ? 'শৃঙ্খলা নীতি ও সতর্কীকরণ পর্যায়:' : 'Disciplinary Warning Policy:'}
                   </span>
+                  <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[10px] text-amber-900 dark:text-amber-200 font-semibold leading-relaxed">
+                    📌 {isBn ? 'স্ট্রাইক গণনা নীতি: শুধুমাত্র ২টি নিয়মে স্ট্রাইক কার্যকর হয় (কোনো কারণ বা অজুহাত গ্রহণযোগ্য নয়): ১. সময়মতো শয়ন (১০টা / ১১টা), ২. সময়মতো মর্নিং প্রোগ্রামে প্রবেশ (৪:৩০ / ৫:০০)। ক্লাস বা মঙ্গল আরতি মিস স্ট্রাইকে গণনা হয় না।' : 'Strike Policy: Strictly applied to 2 rules only (no excuse for any reason): 1. Bedtime Curfew (10 PM / 11 PM), 2. Morning Entry (<=4:30 AM / <=5:00 AM). Missed class/mangalarati are not counted as strikes.'}
+                  </div>
                   <div className="space-y-1 text-[11px] text-slate-700 dark:text-slate-300">
                     <div className="flex items-center gap-2">
                       <span className="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 font-black text-[10px]">১-২ স্ট্রাইক</span>
