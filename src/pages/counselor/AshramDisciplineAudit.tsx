@@ -1481,6 +1481,21 @@ export const AshramDisciplineAudit: React.FC = () => {
           </div>
         </div>
 
+        {/* Strict Ashram 2-Rule Strike Policy Info Banner */}
+        <div className="p-3 sm:p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-950 dark:text-amber-200 flex items-start sm:items-center gap-2.5 shadow-xs">
+          <span className="text-xl shrink-0 mt-0.5 sm:mt-0">⚖️</span>
+          <div className="space-y-0.5">
+            <span className="font-black text-[11px] sm:text-xs uppercase tracking-wider block text-amber-900 dark:text-amber-300">
+              {isBn ? 'আশ্রম শৃঙ্খলার স্ট্রাইক নীতি (Strict 2-Rule Strike Policy)' : 'Ashram Strike Policy (Strict 2 Rules Only)'}
+            </span>
+            <p className="text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+              {isBn 
+                ? 'স্ট্রাইক শুধুমাত্র এবং শুধুমাত্র এই ২টি নিয়মের ব্যত্যয়ের জন্য কার্যকর হয় (কোনো কারণ বা অজুহাত গ্রহণযোগ্য নয়): ১. সময়মতো শয়ন (ভয়েস: ১০:০০ PM, লোটাস: ১১:০০ PM), ২. সময়মতো মর্নিং প্রোগ্রামে প্রবেশ (ভয়েস: ≤ ৪:৩০ AM, লোটাস: ≤ ৫:০০ AM)। ক্লাস ও মঙ্গল আরতি মিস হওয়া সাধনায় নথিভুক্ত থাকে কিন্তু স্ট্রাইকে গণনা হয় না।'
+                : 'Disciplinary strikes strictly apply to 2 rules only (no excuse for any reason): 1. Timely Bedtime (VOICE: <=10:00 PM, Lotus: <=11:00 PM), 2. Timely Morning Entry (VOICE: <=4:30 AM, Lotus: <=5:00 AM). Missed class/mangalarati are logged for sadhana records but do not count as strikes.'}
+            </p>
+          </div>
+        </div>
+
         {/* Minimal Group Navigation & Action Center */}
         <div className="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-2.5">
           
