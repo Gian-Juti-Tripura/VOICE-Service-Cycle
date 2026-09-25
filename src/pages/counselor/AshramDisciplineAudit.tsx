@@ -555,10 +555,10 @@ export const AshramDisciplineAudit: React.FC = () => {
       const entry = getEntry(s.id);
       const name = cleanName(s.name).endsWith('Prabhu') ? cleanName(s.name) : `${cleanName(s.name)} Prabhu`;
       if (entry.isAbsent) {
-        const reason = entry.absenceReason ? ` (${formatReasonText(entry.absenceReason, false)})` : '';
+        const reason = entry.absenceReason ? ` (${formatReasonText(entry.absenceReason, isBn)})` : '';
         text += `*•${name}:*  Absent ${reason}.\n`;
       } else if (!entry.sleptOnTime) {
-        const reason = entry.reason ? `(${formatReasonText(entry.reason, false)})` : (entry.bedLateMinutes ? `(${entry.bedLateMinutes}m late)` : '(Late Bed)');
+        const reason = entry.reason ? `(${formatReasonText(entry.reason, isBn)})` : (entry.bedLateMinutes ? `(${entry.bedLateMinutes}m late)` : '(Late Bed)');
         text += `*•${name}:* Not In bed.${reason}\n`;
       } else {
         text += `*•${name}:* In bed.\n`;
@@ -570,10 +570,10 @@ export const AshramDisciplineAudit: React.FC = () => {
       const entry = getEntry(s.id);
       const name = cleanName(s.name).endsWith('Prabhu') ? cleanName(s.name) : `${cleanName(s.name)} Prabhu`;
       if (entry.isAbsent) {
-        const reason = entry.absenceReason ? ` (${formatReasonText(entry.absenceReason, false)})` : '';
+        const reason = entry.absenceReason ? ` (${formatReasonText(entry.absenceReason, isBn)})` : '';
         text += `*•${name}:*  Absent ${reason}.\n`;
       } else if (!entry.sleptOnTime) {
-        const reason = entry.reason ? `(${formatReasonText(entry.reason, false)})` : (entry.bedLateMinutes ? `(${entry.bedLateMinutes}m late)` : '(Late Bed)');
+        const reason = entry.reason ? `(${formatReasonText(entry.reason, isBn)})` : (entry.bedLateMinutes ? `(${entry.bedLateMinutes}m late)` : '(Late Bed)');
         text += `*•${name}:* Not In bed.${reason}\n`;
       } else {
         text += `*•${name}:* In bed.\n`;
@@ -600,12 +600,12 @@ export const AshramDisciplineAudit: React.FC = () => {
       const entry = getEntry(s.id);
       const name = cleanName(s.name);
       if (entry.isAbsent) {
-        voiceAbsent.push(`*${name}* — ${formatReasonText(entry.absenceReason, false)}`);
+        voiceAbsent.push(`*${name}* — ${formatReasonText(entry.absenceReason, isBn)}`);
       } else if (entry.morningProgramOnTime) {
         voiceOnTime.push(name);
       } else {
         const lateMins = entry.mpLateMinutes ? ` (+${entry.mpLateMinutes} মি.)` : '';
-        const r = entry.reason ? ` — ${formatReasonText(entry.reason, false)}` : '';
+        const r = entry.reason ? ` — ${formatReasonText(entry.reason, isBn)}` : '';
         voiceLate.push(`*${name}*${lateMins}${r}`);
       }
     });
@@ -614,12 +614,12 @@ export const AshramDisciplineAudit: React.FC = () => {
       const entry = getEntry(s.id);
       const name = cleanName(s.name);
       if (entry.isAbsent) {
-        lotusAbsent.push(`*${name}* — ${formatReasonText(entry.absenceReason, false)}`);
+        lotusAbsent.push(`*${name}* — ${formatReasonText(entry.absenceReason, isBn)}`);
       } else if (entry.morningProgramOnTime) {
         lotusOnTime.push(name);
       } else {
         const lateMins = entry.mpLateMinutes ? ` (+${entry.mpLateMinutes} মি.)` : '';
-        const r = entry.reason ? ` — ${formatReasonText(entry.reason, false)}` : '';
+        const r = entry.reason ? ` — ${formatReasonText(entry.reason, isBn)}` : '';
         lotusLate.push(`*${name}*${lateMins}${r}`);
       }
     });
