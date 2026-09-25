@@ -1707,65 +1707,63 @@ export const AshramDisciplineAudit: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Sadhana Checkboxes (Clean compact row: Mangalarati, Class, Wake-up) */}
+                    {/* Sadhana Checkboxes (Clean compact row: Mangalarati, Class, Wake-up in ONE single row) */}
                     {!entry.isAbsent && (
-                      <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 flex-wrap text-xs">
-                        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                            সাধনা:
-                          </span>
-                          
-                          {/* Mangalarati */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              updateEntry(student.id, { mangalaratiAttended: !entry.mangalaratiAttended });
-                              triggerHaptic('light');
-                            }}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition flex items-center gap-1 cursor-pointer ${
-                              entry.mangalaratiAttended
-                                ? 'bg-amber-500/15 border-amber-500/40 text-amber-700 dark:text-amber-300'
-                                : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 line-through'
-                            }`}
-                          >
-                            <span>🔥 মঙ্গল আরতি</span>
-                            {entry.mangalaratiAttended && <Check size={12} />}
-                          </button>
+                      <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar flex-nowrap py-0.5">
+                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0">
+                          সাধনা:
+                        </span>
+                        
+                        {/* Mangalarati */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateEntry(student.id, { mangalaratiAttended: !entry.mangalaratiAttended });
+                            triggerHaptic('light');
+                          }}
+                          className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-bold border transition flex items-center gap-1 shrink-0 cursor-pointer ${
+                            entry.mangalaratiAttended
+                              ? 'bg-amber-500/15 border-amber-500/40 text-amber-700 dark:text-amber-300'
+                              : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 line-through'
+                          }`}
+                        >
+                          <span>🔥 মঙ্গল আরতি</span>
+                          {entry.mangalaratiAttended && <Check size={11} className="stroke-[2.5]" />}
+                        </button>
 
-                          {/* Bhagavatam Class */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              updateEntry(student.id, { morningClassAttended: !entry.morningClassAttended });
-                              triggerHaptic('light');
-                            }}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition flex items-center gap-1 cursor-pointer ${
-                              entry.morningClassAttended
-                                ? 'bg-indigo-500/15 border-indigo-500/40 text-indigo-700 dark:text-indigo-300'
-                                : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 line-through'
-                            }`}
-                          >
-                            <span>📖 ভাগবত ক্লাস</span>
-                            {entry.morningClassAttended && <Check size={12} />}
-                          </button>
+                        {/* Bhagavatam Class */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateEntry(student.id, { morningClassAttended: !entry.morningClassAttended });
+                            triggerHaptic('light');
+                          }}
+                          className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-bold border transition flex items-center gap-1 shrink-0 cursor-pointer ${
+                            entry.morningClassAttended
+                              ? 'bg-indigo-500/15 border-indigo-500/40 text-indigo-700 dark:text-indigo-300'
+                              : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 line-through'
+                          }`}
+                        >
+                          <span>📖 ভাগবত ক্লাস</span>
+                          {entry.morningClassAttended && <Check size={11} className="stroke-[2.5]" />}
+                        </button>
 
-                          {/* Wake-up 4:00 AM */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              updateEntry(student.id, { wokeUpOnTime: !entry.wokeUpOnTime });
-                              triggerHaptic('light');
-                            }}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition flex items-center gap-1 cursor-pointer ${
-                              entry.wokeUpOnTime
-                                ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300'
-                                : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 line-through'
-                            }`}
-                          >
-                            <span>⏰ জাগরণ ৪টা</span>
-                            {entry.wokeUpOnTime && <Check size={12} />}
-                          </button>
-                        </div>
+                        {/* Wake-up 4:00 AM */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateEntry(student.id, { wokeUpOnTime: !entry.wokeUpOnTime });
+                            triggerHaptic('light');
+                          }}
+                          className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[11px] sm:text-xs font-bold border transition flex items-center gap-1 shrink-0 cursor-pointer ${
+                            entry.wokeUpOnTime
+                              ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300'
+                              : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 line-through'
+                          }`}
+                        >
+                          <span>⏰ জাগরণ ৪টা</span>
+                          {entry.wokeUpOnTime && <Check size={11} className="stroke-[2.5]" />}
+                        </button>
                       </div>
                     )}
 
