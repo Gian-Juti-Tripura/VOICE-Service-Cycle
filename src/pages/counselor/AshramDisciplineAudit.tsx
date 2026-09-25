@@ -151,6 +151,14 @@ export const AshramDisciplineAudit: React.FC = () => {
     return 'VIEWER';
   }, [user, isUserAdmin, assignedRoleForUser]);
 
+  // Admin and Managers have rights to manually edit devotee groups (VOICE ⇄ LOTUS)
+  const canEditGroup = useMemo(() => {
+    if (isUserAdmin) return true;
+    if (authRole === 'INTERNAL_MANAGER') return true;
+    if (effectiveAuditorRole === 'ADMIN' || effectiveAuditorRole === 'INTERNAL_MANAGER') return true;
+    return false;
+  }, [isUserAdmin, authRole, effectiveAuditorRole]);
+
   // Background Cloud Sync & Realtime Listener
   useEffect(() => {
     let isMounted = true;
@@ -408,23 +416,20 @@ export const AshramDisciplineAudit: React.FC = () => {
       );
 
       let newStatus: StudentDisciplineRecord['status'] = 'ACTIVE';
-      let newGroup: GroupType = targetStudent.group;
+      // STOP AUTO PUSH: Devotee group is NEVER automatically changed to LOTUS upon reaching strikes.
+      // Group changes are strictly manual decisions by Admin and Managers.
+      const currentGroup: GroupType = targetStudent.group;
 
       if (newStrikes === 1 || newStrikes === 2) {
         newStatus = 'WARNED';
       } else if (newStrikes >= 3) {
-        if (targetStudent.group === 'VOICE') {
-          newStatus = 'DEMOTION_DUE';
-          newGroup = 'LOTUS';
-        } else {
-          newStatus = newStrikes >= 5 ? 'DISMISSED' : 'DEMOTION_DUE';
-        }
+        newStatus = newStrikes >= 5 ? 'DISMISSED' : 'DEMOTION_DUE';
       }
 
-      if (targetStudent.monthlyStrikes !== newStrikes || targetStudent.status !== newStatus || targetStudent.group !== newGroup) {
+      if (targetStudent.monthlyStrikes !== newStrikes || targetStudent.status !== newStatus) {
         const updatedStudents = students.map(s => 
           s.id === studentId 
-            ? { ...s, monthlyStrikes: newStrikes, status: newStatus, group: newGroup } 
+            ? { ...s, monthlyStrikes: newStrikes, status: newStatus } 
             : s
         );
         setStudents(updatedStudents);
@@ -434,10 +439,41 @@ export const AshramDisciplineAudit: React.FC = () => {
           console.warn('LocalStorage save failed for students:', e);
         }
 
-        updateStudentStrikesInCloud(studentId, newStrikes, newStatus, newGroup).catch(err => {
+        updateStudentStrikesInCloud(studentId, newStrikes, newStatus, currentGroup).catch(err => {
           console.warn('Failed to update student strikes in Supabase:', err);
         });
       }
+    }
+  };
+
+  // Manual Devotee Group Switcher (Exclusively for Admin & Managers)
+  const handleUpdateDevoteeGroup = async (studentId: string, newGroup: GroupType) => {
+    if (!canEditGroup) {
+      toast.error('শুধুমাত্র অ্যাডমিন এবং ম্যানেজার গ্রুপ পরিবর্তন করতে পারবেন');
+      return;
+    }
+
+    const targetStudent = students.find(s => s.id === studentId);
+    if (!targetStudent) return;
+    if (targetStudent.group === newGroup) return;
+
+    const updatedStudents = students.map(s => 
+      s.id === studentId ? { ...s, group: newGroup } : s
+    );
+    setStudents(updatedStudents);
+
+    try {
+      localStorage.setItem(STORAGE_STUDENTS_KEY, JSON.stringify(updatedStudents));
+    } catch (e) {
+      console.warn('LocalStorage save failed for student group update:', e);
+    }
+
+    try {
+      await updateStudentStrikesInCloud(studentId, targetStudent.monthlyStrikes, targetStudent.status, newGroup);
+      toast.success(`${cleanName(targetStudent.name)} এর গ্রুপ ${newGroup}-এ পরিবর্তন করা হয়েছে`);
+    } catch (err) {
+      console.warn('Supabase group update error:', err);
+      toast.success(`${cleanName(targetStudent.name)} এর গ্রুপ ${newGroup}-এ পরিবর্তন করা হয়েছে (Local)`);
     }
   };
 
@@ -1054,6 +1090,24 @@ export const AshramDisciplineAudit: React.FC = () => {
                               }`}>
                                 ⚡ {strikes} {isBn ? 'স্ট্রাইক' : 'strikes'}
                               </span>
+                              {canEditGroup ? (
+                                <select
+                                  value={student.group}
+                                  onChange={(e) => {
+                                    handleUpdateDevoteeGroup(student.id, e.target.value as GroupType);
+                                    triggerHaptic('medium');
+                                  }}
+                                  className="text-[10px] font-black px-1.5 py-0.5 rounded-md border bg-amber-50 dark:bg-amber-950/70 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 cursor-pointer focus:outline-none transition hover:bg-amber-100"
+                                  title="গ্রুপ পরিবর্তন করুন (Admin / Manager Only)"
+                                >
+                                  <option value="VOICE">VOICE ▾</option>
+                                  <option value="LOTUS">LOTUS ▾</option>
+                                </select>
+                              ) : (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400">
+                                  {student.group}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1276,6 +1330,24 @@ export const AshramDisciplineAudit: React.FC = () => {
                               }`}>
                                 ⚡ {strikes} {isBn ? 'স্ট্রাইক' : 'strikes'}
                               </span>
+                              {canEditGroup ? (
+                                <select
+                                  value={student.group}
+                                  onChange={(e) => {
+                                    handleUpdateDevoteeGroup(student.id, e.target.value as GroupType);
+                                    triggerHaptic('medium');
+                                  }}
+                                  className="text-[10px] font-black px-1.5 py-0.5 rounded-md border bg-indigo-50 dark:bg-indigo-950/70 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 cursor-pointer focus:outline-none transition hover:bg-indigo-100"
+                                  title="গ্রুপ পরিবর্তন করুন (Admin / Manager Only)"
+                                >
+                                  <option value="VOICE">VOICE ▾</option>
+                                  <option value="LOTUS">LOTUS ▾</option>
+                                </select>
+                              ) : (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400">
+                                  {student.group}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1548,13 +1620,32 @@ export const AshramDisciplineAudit: React.FC = () => {
                             }`}>
                               ⚡ {strikes} {isBn ? 'স্ট্রাইক' : 'strikes'}
                             </span>
-                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-                              student.group === 'VOICE' 
-                                ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400' 
-                                : 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400'
-                            }`}>
-                              {student.group}
-                            </span>
+                            {canEditGroup ? (
+                              <select
+                                value={student.group}
+                                onChange={(e) => {
+                                  handleUpdateDevoteeGroup(student.id, e.target.value as GroupType);
+                                  triggerHaptic('medium');
+                                }}
+                                className={`text-[10px] font-black px-1.5 py-0.5 rounded-md border cursor-pointer focus:outline-none transition ${
+                                  student.group === 'VOICE' 
+                                    ? 'bg-amber-50 dark:bg-amber-950/70 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-100' 
+                                    : 'bg-indigo-50 dark:bg-indigo-950/70 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100'
+                                }`}
+                                title="গ্রুপ পরিবর্তন করুন (Admin / Manager Only)"
+                              >
+                                <option value="VOICE">VOICE ▾</option>
+                                <option value="LOTUS">LOTUS ▾</option>
+                              </select>
+                            ) : (
+                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                                student.group === 'VOICE' 
+                                  ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400' 
+                                  : 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400'
+                              }`}>
+                                {student.group}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -2118,7 +2209,34 @@ export const AshramDisciplineAudit: React.FC = () => {
                           </p>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {canEditGroup ? (
+                            <select
+                              value={st.student.group}
+                              onChange={(e) => {
+                                handleUpdateDevoteeGroup(st.student.id, e.target.value as GroupType);
+                                triggerHaptic('medium');
+                              }}
+                              className={`text-[10px] font-black px-2 py-1 rounded-lg border cursor-pointer focus:outline-none transition ${
+                                st.student.group === 'VOICE'
+                                  ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-300 dark:border-amber-700'
+                                  : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border-indigo-300 dark:border-indigo-700'
+                              }`}
+                              title="গ্রুপ পরিবর্তন করুন (Admin / Manager Only)"
+                            >
+                              <option value="VOICE">VOICE ▾</option>
+                              <option value="LOTUS">LOTUS ▾</option>
+                            </select>
+                          ) : (
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                              st.student.group === 'VOICE'
+                                ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                                : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300'
+                            }`}>
+                              {st.student.group}
+                            </span>
+                          )}
+
                           <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
                             st.totalStrikes === 0
                               ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
