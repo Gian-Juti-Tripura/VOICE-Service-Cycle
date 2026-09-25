@@ -42,11 +42,13 @@ import {
   saveBulkDailyDisciplineEntriesToCloud,
   saveDisciplineStudents,
   updateStudentStrikesInCloud,
+  deleteStudentFromCloud,
   autoMigrateLocalDataToSupabase
 } from '../../services/disciplineStorageService';
 import { shareToWhatsAppOrSystem } from '../../utils/shareUtils';
 import { exportTableToPdf } from '../../lib/exportTablePdf';
 import { triggerHaptic } from '../../utils/haptics';
+import { ErrorBoundary } from '../../components/common/ErrorBoundary';
 import toast from 'react-hot-toast';
 
 const STORAGE_STUDENTS_KEY = 'advaita_discipline_students_v6';
@@ -197,18 +199,31 @@ export const AshramDisciplineAudit: React.FC = () => {
   const [strikeWarningAck, setStrikeWarningAck] = useState<boolean>(false);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_STUDENTS_KEY, JSON.stringify(students));
+    try {
+      localStorage.setItem(STORAGE_STUDENTS_KEY, JSON.stringify(students));
+    } catch (e) {
+      console.warn('LocalStorage save failed for students:', e);
+    }
   }, [students]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_DAILY_KEY, JSON.stringify(dailyRecords));
+    try {
+      localStorage.setItem(STORAGE_DAILY_KEY, JSON.stringify(dailyRecords));
+    } catch (e) {
+      console.warn('LocalStorage save failed for dailyRecords:', e);
+    }
   }, [dailyRecords]);
 
   const formatToLocalIso = (d: Date): string => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
+    try {
+      if (!d || isNaN(d.getTime())) d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    } catch {
+      return '2026-09-01';
+    }
   };
 
   const dateIso = formatToLocalIso(selectedDate);
@@ -298,30 +313,73 @@ export const AshramDisciplineAudit: React.FC = () => {
     return false;
   };
 
-  const dateFormatted = selectedDate.toLocaleDateString(isBn ? 'bn-BD' : 'en-GB', { 
+  const toBn = (num: number | string | undefined | null) => {
+    if (num === undefined || num === null) return '';
+    if (!isBn) return String(num);
+    const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    return String(num).replace(/[0-9]/g, d => bnDigits[parseInt(d, 10)]);
+  };
+
+  const parseIsoDate = (iso: string): Date => {
+    try {
+      if (!iso || typeof iso !== 'string') return new Date();
+      const cleanIso = iso.split('T')[0].trim();
+      const parts = cleanIso.split('-').map(Number);
+      if (parts.length >= 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+        return new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0);
+      }
+      const fallbackDate = new Date(iso);
+      if (!isNaN(fallbackDate.getTime())) return fallbackDate;
+      return new Date();
+    } catch {
+      return new Date();
+    }
+  };
+
+  const safeFormatDate = (
+    dateInput: Date | string | number | undefined | null,
+    options: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' },
+    fallback = ''
+  ): string => {
+    if (!dateInput) return fallback;
+    try {
+      let d: Date;
+      if (typeof dateInput === 'string') {
+        d = parseIsoDate(dateInput);
+      } else if (dateInput instanceof Date) {
+        d = dateInput;
+      } else {
+        d = new Date(dateInput);
+      }
+      if (isNaN(d.getTime())) return fallback || String(dateInput);
+      try {
+        return d.toLocaleDateString(isBn ? 'bn-BD' : 'en-GB', options);
+      } catch {
+        // Fallback for Android WebView / Realme UI where bn-BD locale throws
+        try {
+          return d.toLocaleDateString('en-GB', options);
+        } catch {
+          return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+      }
+    } catch {
+      return fallback || String(dateInput);
+    }
+  };
+
+  const dateFormatted = safeFormatDate(selectedDate, { 
     weekday: 'long', 
     day: 'numeric', 
     month: 'long', 
     year: 'numeric' 
   });
 
-  const dateFormattedShort = selectedDate.toLocaleDateString(isBn ? 'bn-BD' : 'en-GB', { 
+  const dateFormattedShort = safeFormatDate(selectedDate, { 
     weekday: 'short', 
     day: 'numeric', 
     month: 'short', 
     year: 'numeric' 
   });
-
-  const toBn = (num: number | string) => {
-    if (!isBn) return String(num);
-    const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-    return String(num).replace(/[0-9]/g, d => bnDigits[parseInt(d, 10)]);
-  };
-
-  const parseIsoDate = (iso: string) => {
-    const [y, m, d] = iso.split('-').map(Number);
-    return new Date(y, m - 1, d, 12, 0, 0);
-  };
 
   const formatReasonText = (reason?: string, bn = isBn) => {
     if (!reason) return bn ? 'ছুটি / অনুপস্থিত' : 'On Leave';
@@ -364,22 +422,102 @@ export const AshramDisciplineAudit: React.FC = () => {
     };
   };
 
+  // Strict 2-rule strike evaluation: ONLY 2 rules count for disciplinary strikes (no excuse for any reason)
+  const calculateDevoteeStrikes = (
+    studentId: string, 
+    records: Record<string, Record<string, DailyDisciplineEntry>>, 
+    monthPrefix: string,
+    manualDelta = 0
+  ) => {
+    let violationDays = 0;
+    const recordedDatesInMonth = Object.keys(records).filter(d => 
+      d.startsWith(monthPrefix) && records[d] && records[d][studentId]
+    );
+
+    recordedDatesInMonth.forEach(d => {
+      const entry = records[d]?.[studentId];
+      if (!entry || entry.isAbsent) return;
+      if (!entry.sleptOnTime || !entry.morningProgramOnTime) {
+        violationDays++;
+      }
+    });
+
+    const totalStrikes = Math.max(0, violationDays + manualDelta);
+    return {
+      autoStrikes: violationDays,
+      strikes: totalStrikes
+    };
+  };
+
   const updateEntry = (studentId: string, updates: Partial<DailyDisciplineEntry>, customDateIso = dateIso) => {
     const current = getEntry(studentId, customDateIso);
-    const updated = { ...current, ...updates };
+    const updated: DailyDisciplineEntry = { ...current, ...updates };
 
-    setDailyRecords(prev => ({
-      ...prev,
+    // 1. Update daily records in state and LocalStorage immediately
+    const nextDailyRecords = {
+      ...dailyRecords,
       [customDateIso]: {
-        ...(prev[customDateIso] || {}),
+        ...(dailyRecords[customDateIso] || {}),
         [studentId]: updated
       }
-    }));
+    };
+    setDailyRecords(nextDailyRecords);
+    try {
+      localStorage.setItem(STORAGE_DAILY_KEY, JSON.stringify(nextDailyRecords));
+    } catch (e) {
+      console.warn('LocalStorage save failed for daily logs:', e);
+    }
 
+    // 2. Save daily log to Supabase immediately
     const reporter = currentUserEmail || (effectiveAuditorRole === 'ADMIN' ? 'Admin' : 'Incharge');
     saveDailyDisciplineEntryToCloud(updated, reporter).catch(err => {
       console.warn('Cloud sync error for entry update:', err);
     });
+
+    // 3. Immediately recalculate strikes for this student and sync to Supabase
+    const monthPrefix = customDateIso.slice(0, 7);
+    const targetStudent = students.find(s => s.id === studentId);
+    if (targetStudent) {
+      const { strikes: newStrikes } = calculateDevoteeStrikes(
+        studentId, 
+        nextDailyRecords, 
+        monthPrefix, 
+        targetStudent.manualStrikeDelta ?? 0
+      );
+
+      let newStatus: StudentDisciplineRecord['status'] = 'ACTIVE';
+      let newGroup: GroupType = targetStudent.group;
+
+      if (newStrikes === 1 || newStrikes === 2) {
+        newStatus = 'WARNED';
+      } else if (newStrikes >= 3) {
+        if (targetStudent.group === 'VOICE') {
+          newStatus = 'DEMOTION_DUE';
+          newGroup = 'LOTUS';
+        } else {
+          newStatus = newStrikes >= 5 ? 'DISMISSED' : 'DEMOTION_DUE';
+        }
+      }
+
+      if (targetStudent.monthlyStrikes !== newStrikes || targetStudent.status !== newStatus || targetStudent.group !== newGroup) {
+        const updatedStudents = students.map(s => 
+          s.id === studentId 
+            ? { ...s, monthlyStrikes: newStrikes, status: newStatus, group: newGroup } 
+            : s
+        );
+        setStudents(updatedStudents);
+        try {
+          localStorage.setItem(STORAGE_STUDENTS_KEY, JSON.stringify(updatedStudents));
+        } catch (e) {
+          console.warn('LocalStorage save failed for students:', e);
+        }
+
+        // 4. Save recalculated strikes and status to Supabase discipline_students immediately!
+        updateStudentStrikesInCloud(studentId, newStrikes, newStatus, newGroup).catch(err => {
+          console.warn('Failed to update student strikes in Supabase:', err);
+        });
+      }
+    }
   };
 
   // Live Automatic Strike Evaluation based on must-follow rules
@@ -577,6 +715,9 @@ export const AshramDisciplineAudit: React.FC = () => {
     const updated = students.filter(s => s.id !== studentId);
     setStudents(updated);
     saveDisciplineStudents(updated);
+    deleteStudentFromCloud(studentId).catch(err => {
+      console.warn('Failed to delete student from cloud:', err);
+    });
     toast.success('Devotee removed');
   };
 
@@ -665,7 +806,7 @@ export const AshramDisciplineAudit: React.FC = () => {
   const generateMorningProgramCombinedReport = () => {
     const voiceStudents = students.filter(s => s.group === 'VOICE');
     const lotusStudents = students.filter(s => s.group === 'LOTUS');
-    const cleanName = (n: string) => n.replace(/\s*\(Pranto C Das\)/gi, '').replace(/\s*\(Sangakara Das\)/gi, '').trim();
+    const cleanName = (n?: string | null) => (n || '').replace(/\s*\(Pranto C Das\)/gi, '').replace(/\s*\(Sangakara Das\)/gi, '').trim();
 
     const voiceOnTime: string[] = [];
     const voiceLateOrMissed: string[] = [];
@@ -811,7 +952,7 @@ export const AshramDisciplineAudit: React.FC = () => {
   const generateSecurityManagerCombinedReport = () => {
     const voiceStudents = students.filter(s => s.group === 'VOICE');
     const lotusStudents = students.filter(s => s.group === 'LOTUS');
-    const cleanName = (n: string) => n.replace(/\s*\(Pranto C Das\)/gi, '').replace(/\s*\(Sangakara Das\)/gi, '').trim();
+    const cleanName = (n?: string | null) => (n || '').replace(/\s*\(Pranto C Das\)/gi, '').replace(/\s*\(Sangakara Das\)/gi, '').trim();
 
     const voiceDevoteesList: string[] = [];
     const lotusDevoteesList: string[] = [];
@@ -992,9 +1133,9 @@ export const AshramDisciplineAudit: React.FC = () => {
     const voiceStats = monthlyStats.filter(s => s.student.group === 'VOICE');
     const lotusStats = monthlyStats.filter(s => s.student.group === 'LOTUS');
 
-    const [year, month] = selectedVerdictMonth.split('-');
-    const monthDate = new Date(parseInt(year), parseInt(month) - 1, 1);
-    const monthFormatted = monthDate.toLocaleDateString(isBn ? 'bn-BD' : 'en-GB', { month: 'long', year: 'numeric' });
+    const [year, month] = (selectedVerdictMonth || '').split('-');
+    const monthDate = (!year || !month) ? new Date() : new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
+    const monthFormatted = safeFormatDate(monthDate, { month: 'long', year: 'numeric' });
 
     let report = isBn 
       ? `📊 *অদ্বৈত ভয়েস — মাসিক সাধনা ও শৃঙ্খলা মূল্যায়ন প্রতিবেদন* 📊\n`
@@ -1050,7 +1191,11 @@ export const AshramDisciplineAudit: React.FC = () => {
 
   const recordedDates = useMemo(() => {
     const dates = new Set<string>();
-    Object.keys(dailyRecords).forEach(d => dates.add(d));
+    Object.keys(dailyRecords).forEach(d => {
+      if (d && typeof d === 'string' && /^\d{4}-\d{2}-\d{2}/.test(d)) {
+        dates.add(d.split('T')[0]);
+      }
+    });
 
     const now = new Date();
     const curYear = now.getFullYear();
@@ -1060,7 +1205,7 @@ export const AshramDisciplineAudit: React.FC = () => {
       const dStr = `${curYear}-${String(curMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       dates.add(dStr);
     }
-    if (!dates.has(dateIso)) dates.add(dateIso);
+    if (dateIso && /^\d{4}-\d{2}-\d{2}/.test(dateIso)) dates.add(dateIso);
     return Array.from(dates).sort().reverse();
   }, [dailyRecords, dateIso]);
 
@@ -2389,8 +2534,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                       <div className="divide-y divide-slate-100 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-white dark:bg-slate-900 shadow-xs">
                         {recordedDates.map(date => {
                           const entry = getEntry(targetStudent.id, date);
-                          const dateObj = parseIsoDate(date);
-                          const dateLabel = dateObj.toLocaleDateString(isBn ? 'bn-BD' : 'en-GB', { 
+                          const dateLabel = safeFormatDate(date, { 
                             weekday: 'short', 
                             day: 'numeric', 
                             month: 'short' 
@@ -2492,8 +2636,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
                   {recordedDates.map(date => {
                     const isCurrent = date === dateIso;
-                    const dateObj = parseIsoDate(date);
-                    const formattedDate = dateObj.toLocaleDateString(isBn ? 'bn-BD' : 'en-GB', { 
+                    const formattedDate = safeFormatDate(date, { 
                       weekday: 'long', 
                       day: 'numeric', 
                       month: 'short',
@@ -3140,4 +3283,12 @@ export const AshramDisciplineAudit: React.FC = () => {
   );
 };
 
-export default AshramDisciplineAudit;
+const SafeAshramDisciplineAudit: React.FC = () => {
+  return (
+    <ErrorBoundary fallbackTitle="শৃঙ্খলা অডিট পেইজ লোড করতে সাময়িক সমস্যা হয়েছে">
+      <AshramDisciplineAudit />
+    </ErrorBoundary>
+  );
+};
+
+export default SafeAshramDisciplineAudit;

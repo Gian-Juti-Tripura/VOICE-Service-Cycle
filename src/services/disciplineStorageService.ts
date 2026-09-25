@@ -24,7 +24,8 @@ export interface ExtendedDailyMeta {
   updatedAt?: string;
 }
 
-const cleanStudentName = (name: string): string => {
+export const cleanStudentName = (name?: string | null): string => {
+  if (!name || typeof name !== 'string') return '';
   return name.replace(/\s*\(Pranto C Das\)/gi, '').replace(/\s*\(Sangakara Das\)/gi, '').trim();
 };
 
@@ -35,9 +36,9 @@ export function getCachedDisciplineStudents(): StudentDisciplineRecord[] {
   try {
     const saved = localStorage.getItem(STORAGE_STUDENTS_KEY);
     const list: StudentDisciplineRecord[] = saved ? JSON.parse(saved) : INITIAL_DISCIPLINE_STUDENTS;
-    return list.map(s => ({
+    return (Array.isArray(list) ? list : INITIAL_DISCIPLINE_STUDENTS).map(s => ({
       ...s,
-      name: cleanStudentName(s.name)
+      name: cleanStudentName(s?.name)
     }));
   } catch {
     return INITIAL_DISCIPLINE_STUDENTS.map(s => ({
@@ -62,6 +63,7 @@ export function getCachedDailyRecords(): Record<string, Record<string, DailyDisc
 
 /**
  * Fetch all students from Supabase `discipline_students` table
+ * Immediately syncs to LocalStorage so local matches Supabase
  */
 export async function fetchDisciplineStudents(): Promise<StudentDisciplineRecord[]> {
   try {
@@ -75,7 +77,7 @@ export async function fetchDisciplineStudents(): Promise<StudentDisciplineRecord
     }
 
     const students: StudentDisciplineRecord[] = data.map(row => ({
-      id: row.id,
+      id: String(row.id),
       name: cleanStudentName(row.name),
       group: (row.group_type as GroupType) || 'VOICE',
       phone: row.phone || '',
@@ -84,8 +86,12 @@ export async function fetchDisciplineStudents(): Promise<StudentDisciplineRecord
       status: (row.status as StudentDisciplineRecord['status']) || 'ACTIVE',
     }));
 
-    // Cache locally
-    localStorage.setItem(STORAGE_STUDENTS_KEY, JSON.stringify(students));
+    // Cache locally so local storage immediately reflects Supabase
+    try {
+      localStorage.setItem(STORAGE_STUDENTS_KEY, JSON.stringify(students));
+    } catch (e) {
+      console.warn('LocalStorage quota or write error for students:', e);
+    }
     return students;
   } catch (err) {
     console.warn('Failed to fetch students from Supabase, using local cache:', err);
@@ -94,16 +100,20 @@ export async function fetchDisciplineStudents(): Promise<StudentDisciplineRecord
 }
 
 /**
- * Save / Upsert students into Supabase \`discipline_students\` table
+ * Save / Upsert students into Supabase `discipline_students` table
  */
 export async function saveDisciplineStudents(students: StudentDisciplineRecord[]): Promise<void> {
   // Update local cache immediately
-  localStorage.setItem(STORAGE_STUDENTS_KEY, JSON.stringify(students));
+  try {
+    localStorage.setItem(STORAGE_STUDENTS_KEY, JSON.stringify(students));
+  } catch (e) {
+    console.warn('LocalStorage quota or write error on save students:', e);
+  }
 
   try {
     const rows = students.map(s => ({
       id: s.id,
-      name: s.name,
+      name: cleanStudentName(s.name),
       group_type: s.group,
       phone: s.phone || null,
       cycle_order: s.cycleOrder ?? 0,
@@ -152,7 +162,8 @@ export async function updateStudentStrikesInCloud(
 }
 
 /**
- * Fetch all daily discipline logs from Supabase \`daily_discipline_logs\`
+ * Fetch all daily discipline logs from Supabase `daily_discipline_logs`
+ * Supabase is the primary truth: updates local storage to mirror Supabase
  */
 export async function fetchDailyDisciplineLogs(): Promise<Record<string, Record<string, DailyDisciplineEntry>>> {
   try {
@@ -161,14 +172,12 @@ export async function fetchDailyDisciplineLogs(): Promise<Record<string, Record<
       .select('*')
       .order('date_str', { ascending: true });
 
-    if (error || !data) {
-      console.warn('Supabase fetch error for daily_discipline_logs:', error?.message);
+    if (error || !data || data.length === 0) {
+      if (error) console.warn('Supabase fetch error for daily_discipline_logs:', error.message);
       return getCachedDailyRecords();
     }
 
-    const records: Record<string, Record<string, DailyDisciplineEntry>> = {
-      ...getCachedDailyRecords()
-    };
+    const records: Record<string, Record<string, DailyDisciplineEntry>> = {};
 
     data.forEach(row => {
       let extra: ExtendedDailyMeta = {};
@@ -206,12 +215,30 @@ export async function fetchDailyDisciplineLogs(): Promise<Record<string, Record<
       };
     });
 
-    // Save consolidated records to local storage
-    localStorage.setItem(STORAGE_DAILY_KEY, JSON.stringify(records));
+    // Save consolidated records to local storage so local storage directly reflects Supabase
+    try {
+      localStorage.setItem(STORAGE_DAILY_KEY, JSON.stringify(records));
+    } catch (e) {
+      console.warn('LocalStorage quota or write error on saving daily logs:', e);
+    }
     return records;
   } catch (err) {
     console.warn('Failed to load logs from Supabase, falling back to cache:', err);
     return getCachedDailyRecords();
+  }
+}
+
+/**
+ * Delete student and their discipline logs from Supabase
+ */
+export async function deleteStudentFromCloud(studentId: string): Promise<boolean> {
+  try {
+    await supabase.from('discipline_students').delete().eq('id', studentId);
+    await supabase.from('daily_discipline_logs').delete().eq('student_id', studentId);
+    return true;
+  } catch (err) {
+    console.error('Failed to delete student from Supabase:', err);
+    return false;
   }
 }
 
@@ -322,7 +349,10 @@ export async function saveBulkDailyDisciplineEntriesToCloud(
  */
 export async function autoMigrateLocalDataToSupabase(): Promise<void> {
   try {
-    const isAlreadyMigrated = localStorage.getItem(STORAGE_MIGRATED_KEY);
+    let isAlreadyMigrated = false;
+    try {
+      isAlreadyMigrated = Boolean(localStorage.getItem(STORAGE_MIGRATED_KEY));
+    } catch {}
     if (isAlreadyMigrated) return;
 
     // Check count of existing logs in Supabase
@@ -337,7 +367,9 @@ export async function autoMigrateLocalDataToSupabase(): Promise<void> {
 
     // If Supabase already has records, mark migrated
     if (typeof count === 'number' && count > 0) {
-      localStorage.setItem(STORAGE_MIGRATED_KEY, 'true');
+      try {
+        localStorage.setItem(STORAGE_MIGRATED_KEY, 'true');
+      } catch {}
       return;
     }
 
@@ -359,7 +391,9 @@ export async function autoMigrateLocalDataToSupabase(): Promise<void> {
       await saveBulkDailyDisciplineEntriesToCloud(allEntriesToSeed, 'System Seeder');
     }
 
-    localStorage.setItem(STORAGE_MIGRATED_KEY, 'true');
+    try {
+      localStorage.setItem(STORAGE_MIGRATED_KEY, 'true');
+    } catch {}
   } catch (err) {
     console.error('Auto migration failed:', err);
   }

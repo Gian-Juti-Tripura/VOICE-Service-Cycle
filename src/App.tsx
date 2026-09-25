@@ -8,6 +8,7 @@ import { BottomNavBar } from './components/layout/BottomNavBar';
 import { FallingFlowers } from './components/effects/FallingFlowers';
 import { CornerThemeButton } from './components/theme/CornerThemeButton';
 import { InstallPromptBanner } from './components/pwa/InstallPromptBanner';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 import { initializeOneSignal } from './utils/onesignal';
 import { scheduleDailyNotifications } from './utils/notificationScheduler';
@@ -221,91 +222,93 @@ const AppContent = () => {
             },
           }}
         />
-        <Suspense fallback={<LoadingFallback />}>
-          <Routes>
-            {/* Public Hub Landing Cards (Open to all visitors & members) */}
-            <Route path="/" element={<HubHome />} />
-            <Route path="/syllabus" element={<SyllabusExplorer />} />
-            <Route path="/management" element={<AdvaitaOrgPage />} />
-            <Route path="/preaching" element={<PreachersToolkit />} />
-            <Route path="/calendar" element={<VaishnavaCalendarPage />} />
-            <Route path="/courses" element={<CoursesPage />} />
-            <Route path="/camps" element={<CampsPage />} />
-                        <Route path="/library" element={<SebanandaLibrary />} />
-            <Route path="/lectures-library" element={<UnifiedLectureLibrary />} />
-            <Route path="/announcements" element={<AnnouncementsPage />} />
-            <Route path="/profiles" element={<DevoteeProfilesPage />} />
-            
-            {/* Auth */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/reset-password" element={<Login defaultMode="RESET" />} />
-            
-            {/* Sadhana Module */}
-            <Route path="/sadhana" element={<SadhanaTracker />} />
-                        <Route path="/counselor" element={<CounselorDesk />} />
-                        <Route path="/discipline-audit" element={<AshramDisciplineAudit />} />
-            <Route path="/discipline-audit/roles" element={<DisciplineAuditorRolesManager />} />
-            
-            {/* Prasad & Meal Management Routes */}
-            <Route path="/meals" element={<MealDashboard />} />
-            <Route path="/meals/attendance" element={<MealAttendancePage />} />
-            <Route path="/meals/bazar" element={<BazarTrackerPage />} />
-            <Route path="/meals/payments" element={<MealPaymentsPage />} />
-            <Route path="/meals/reports" element={<MealReportsPage />} />
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingFallback />}>
+            <Routes>
+              {/* Public Hub Landing Cards (Open to all visitors & members) */}
+              <Route path="/" element={<HubHome />} />
+              <Route path="/syllabus" element={<SyllabusExplorer />} />
+              <Route path="/management" element={<AdvaitaOrgPage />} />
+              <Route path="/preaching" element={<PreachersToolkit />} />
+              <Route path="/calendar" element={<VaishnavaCalendarPage />} />
+              <Route path="/courses" element={<CoursesPage />} />
+              <Route path="/camps" element={<CampsPage />} />
+                          <Route path="/library" element={<SebanandaLibrary />} />
+              <Route path="/lectures-library" element={<UnifiedLectureLibrary />} />
+              <Route path="/announcements" element={<AnnouncementsPage />} />
+              <Route path="/profiles" element={<DevoteeProfilesPage />} />
+              
+              {/* Auth */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/reset-password" element={<Login defaultMode="RESET" />} />
+              
+              {/* Sadhana Module */}
+              <Route path="/sadhana" element={<SadhanaTracker />} />
+                          <Route path="/counselor" element={<CounselorDesk />} />
+                          <Route path="/discipline-audit" element={<AshramDisciplineAudit />} />
+              <Route path="/discipline-audit/roles" element={<DisciplineAuditorRolesManager />} />
+              
+              {/* Prasad & Meal Management Routes */}
+              <Route path="/meals" element={<MealDashboard />} />
+              <Route path="/meals/attendance" element={<MealAttendancePage />} />
+              <Route path="/meals/bazar" element={<BazarTrackerPage />} />
+              <Route path="/meals/payments" element={<MealPaymentsPage />} />
+              <Route path="/meals/reports" element={<MealReportsPage />} />
 
-            {/* Service Cycle Seva Roster */}
-            <Route 
-              path="/service-cycle" 
-              element={
-                <ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'MEMBER', 'ADMIN']}>
-                  <MemberDashboard />
-                </ProtectedRoute>
-              } 
-            />
+              {/* Service Cycle Seva Roster */}
+              <Route 
+                path="/service-cycle" 
+                element={
+                  <ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'MEMBER', 'ADMIN']}>
+                    <MemberDashboard />
+                  </ProtectedRoute>
+                } 
+              />
 
-            {/* Member Personal Dashboard */}
-            <Route 
-              path="/member" 
-              element={
-                <ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}>
-                  <MemberDashboard />
-                </ProtectedRoute>
-              } 
-            />
+              {/* Member Personal Dashboard */}
+              <Route 
+                path="/member" 
+                element={
+                  <ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}>
+                    <MemberDashboard />
+                  </ProtectedRoute>
+                } 
+              />
 
-            {/* Manager & Devotee Seva Routes */}
-            <Route 
-              path="/manager" 
-              element={
-                <ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN', 'MEMBER']}>
-                  <ManagerDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/manager/emergency" 
-              element={
-                <ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN', 'MEMBER']}>
-                  <EmergencyRosterPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/emergency-roster" 
-              element={<Navigate to="/manager/emergency" replace />} 
-            />
-            <Route path="/members" element={<ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}><MembersList /></ProtectedRoute>} />
-            <Route path="/manager/members" element={<ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}><MembersList /></ProtectedRoute>} />
-            <Route path="/manager/members/:id" element={<ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN']}><MemberEdit /></ProtectedRoute>} />
-            <Route path="/services" element={<ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}><ServicesList /></ProtectedRoute>} />
-            <Route path="/manager/services" element={<ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}><ServicesList /></ProtectedRoute>} />
-            <Route path="/manager/services/:id" element={<ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN']}><ServiceEdit /></ProtectedRoute>} />
-            <Route path="/manager/settings" element={<ProtectedRoute allowedRole="ADMIN"><SettingsDashboard /></ProtectedRoute>} />
+              {/* Manager & Devotee Seva Routes */}
+              <Route 
+                path="/manager" 
+                element={
+                  <ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN', 'MEMBER']}>
+                    <ManagerDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/manager/emergency" 
+                element={
+                  <ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN', 'MEMBER']}>
+                    <EmergencyRosterPage />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/emergency-roster" 
+                element={<Navigate to="/manager/emergency" replace />} 
+              />
+              <Route path="/members" element={<ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}><MembersList /></ProtectedRoute>} />
+              <Route path="/manager/members" element={<ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}><MembersList /></ProtectedRoute>} />
+              <Route path="/manager/members/:id" element={<ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN']}><MemberEdit /></ProtectedRoute>} />
+              <Route path="/services" element={<ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}><ServicesList /></ProtectedRoute>} />
+              <Route path="/manager/services" element={<ProtectedRoute allowedRoles={['MEMBER', 'INTERNAL_MANAGER', 'ADMIN']}><ServicesList /></ProtectedRoute>} />
+              <Route path="/manager/services/:id" element={<ProtectedRoute allowedRoles={['INTERNAL_MANAGER', 'ADMIN']}><ServiceEdit /></ProtectedRoute>} />
+              <Route path="/manager/settings" element={<ProtectedRoute allowedRole="ADMIN"><SettingsDashboard /></ProtectedRoute>} />
 
-            {/* Catch-all redirect to Hub */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
+              {/* Catch-all redirect to Hub */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </main>
     </div>
   );
