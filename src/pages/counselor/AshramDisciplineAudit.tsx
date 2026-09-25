@@ -8,7 +8,7 @@ import {
   Moon, Sun, X, Send,
   History, Award,
   Download, Shield, Eye, ExternalLink, Key, UserCheck,
-  RefreshCw
+  RefreshCw, Clock, AlertTriangle
 } from 'lucide-react';
 import { supabase } from '../../supabase/supabaseClient';
 import { 
@@ -44,6 +44,37 @@ import toast from 'react-hot-toast';
 
 const STORAGE_STUDENTS_KEY = 'advaita_discipline_students_v6';
 const STORAGE_DAILY_KEY = 'advaita_discipline_daily_v6';
+
+export const MORNING_LATE_REASONS = [
+  'ঘুম ভাঙতে দেরি / ক্লান্তি',
+  'শারীরিক অসুস্থতা / অস্বস্তি',
+  'রাতে দেরিতে ঘুমানো / পড়া',
+  'স্নানে বা প্রস্তুতিতে বিলম্ব',
+  'মন্দির / আশ্রমের সেবা',
+  'পরীক্ষার বিশেষ প্রস্তুতি',
+  'বিশ্ববিদ্যালয় ক্লাস / ল্যাব',
+  'ব্যক্তিগত জরুরি কারণ',
+  'অন্যান্য'
+];
+
+export const NIGHT_LATE_REASONS = [
+  'পরীক্ষার বিশেষ প্রস্তুতি',
+  'মন্দির সেবা / বিশেষ দায়িত্ব',
+  'দেরিতে ঘুম / ক্লান্তি',
+  'অধ্যয়ন / গ্রুপ স্টাডি',
+  'শারীরিক অসুস্থতা / বিশ্রাম',
+  'ব্যক্তিগত জরুরি কারণ',
+  'অন্যান্য'
+];
+
+export const ABSENCE_REASONS_LIST = [
+  'গ্রামের বাড়ি / পারিবারিক ছুটি',
+  'শারীরিক অসুস্থতা / চিকিৎসা',
+  'বিশ্ববিদ্যালয় পরীক্ষা / একাডেমিক',
+  'মন্দির বা বিশেষ প্রচার সেবা',
+  'ব্যক্তিগত জরুরি ছুটি',
+  'অন্যান্য'
+];
 
 interface MonthlyDevoteeStats {
   student: StudentDisciplineRecord;
@@ -537,8 +568,9 @@ export const AshramDisciplineAudit: React.FC = () => {
       } else if (entry.morningProgramOnTime) {
         voiceOnTime.push(name);
       } else {
-        const r = entry.reason ? ` (${formatReasonText(entry.reason, false)})` : '';
-        voiceLate.push(`*${name}*${r}`);
+        const lateMins = entry.mpLateMinutes ? ` (+${entry.mpLateMinutes} মি.)` : '';
+        const r = entry.reason ? ` — ${formatReasonText(entry.reason, false)}` : '';
+        voiceLate.push(`*${name}*${lateMins}${r}`);
       }
     });
 
@@ -550,8 +582,9 @@ export const AshramDisciplineAudit: React.FC = () => {
       } else if (entry.morningProgramOnTime) {
         lotusOnTime.push(name);
       } else {
-        const r = entry.reason ? ` (${formatReasonText(entry.reason, false)})` : '';
-        lotusLate.push(`*${name}*${r}`);
+        const lateMins = entry.mpLateMinutes ? ` (+${entry.mpLateMinutes} মি.)` : '';
+        const r = entry.reason ? ` — ${formatReasonText(entry.reason, false)}` : '';
+        lotusLate.push(`*${name}*${lateMins}${r}`);
       }
     });
 
@@ -1062,7 +1095,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => {
-                              updateEntry(student.id, { sleptOnTime: false, isAbsent: false, bedLateMinutes: 15, reason: entry.reason || 'Late Bed' });
+                              updateEntry(student.id, { sleptOnTime: false, isAbsent: false, bedLateMinutes: entry.bedLateMinutes || 15, reason: entry.reason || 'Late Bed' });
                               triggerHaptic('warning');
                             }}
                             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
@@ -1073,34 +1106,98 @@ export const AshramDisciplineAudit: React.FC = () => {
                           >
                             <span>❌</span>
                             <span>Not In bed</span>
+                            {!entry.isAbsent && !entry.sleptOnTime && entry.bedLateMinutes ? (
+                              <span className="ml-0.5 text-[10px] bg-rose-800/80 px-1 py-0.2 rounded font-mono">
+                                +{entry.bedLateMinutes}m
+                              </span>
+                            ) : null}
                           </button>
                         </div>
                       </div>
 
                       {/* Smooth Reason row if Not In bed */}
                       {!entry.isAbsent && !entry.sleptOnTime && (
-                        <div className="pt-2 border-t border-rose-100 dark:border-rose-900/30 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                          <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 shrink-0">
-                            বিলম্বের কারণ:
-                          </span>
-                          <input
-                            type="text"
-                            value={entry.reason || ''}
-                            placeholder="কারণ লিখুন (e.g. পরীক্ষার প্রস্তুতি, মন্দির সেবা...)"
-                            onChange={(e) => updateEntry(student.id, { reason: e.target.value })}
-                            className="flex-1 px-3 py-1 rounded-lg bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 text-xs text-rose-900 dark:text-rose-200 focus:outline-none"
-                          />
-                          <div className="flex items-center gap-1 flex-wrap">
-                            {['পরীক্ষার বিশেষ প্রস্তুতি', 'মন্দির সেবা', 'দেরিতে ঘুম'].map(tag => (
-                              <button
-                                key={tag}
-                                type="button"
-                                onClick={() => updateEntry(student.id, { reason: tag })}
-                                className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition cursor-pointer"
-                              >
-                                {tag}
-                              </button>
-                            ))}
+                        <div className="pt-2.5 pb-0.5 border-t border-rose-100 dark:border-rose-900/30 flex flex-col md:flex-row md:items-center gap-2">
+                          {/* 1. How much late time: Edit input (first order) + Dropdown option */}
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 shrink-0 flex items-center gap-1">
+                              <Clock size={12} className="text-rose-500" />
+                              কতক্ষণ বিলম্ব:
+                            </span>
+
+                            {/* Edit input (first order) */}
+                            <div className="relative flex items-center">
+                              <input
+                                type="number"
+                                min="1"
+                                max="360"
+                                value={entry.bedLateMinutes ?? ''}
+                                placeholder="15"
+                                onChange={(e) => {
+                                  const raw = e.target.value;
+                                  const val = raw === '' ? undefined : parseInt(raw, 10);
+                                  updateEntry(student.id, { bedLateMinutes: isNaN(val as number) ? undefined : val });
+                                }}
+                                className="w-14 px-2 py-1 text-center font-bold text-xs rounded-lg bg-white dark:bg-slate-800 border border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                              />
+                              <span className="text-[11px] font-semibold text-rose-500 dark:text-rose-400 ml-1">মি.</span>
+                            </div>
+
+                            {/* Dropdown selector for late time */}
+                            <select
+                              value={entry.bedLateMinutes ?? ''}
+                              onChange={(e) => {
+                                const val = e.target.value ? parseInt(e.target.value, 10) : undefined;
+                                updateEntry(student.id, { bedLateMinutes: val });
+                                triggerHaptic('light');
+                              }}
+                              className="px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-800 text-slate-700 dark:text-slate-200 font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-rose-500"
+                            >
+                              <option value="">বাছুন ▼</option>
+                              <option value="15">+১৫ মি.</option>
+                              <option value="30">+৩০ মি.</option>
+                              <option value="45">+৪৫ মি.</option>
+                              <option value="60">+৬০ মি. (১ ঘণ্টা)</option>
+                              <option value="90">+৯০ মি.</option>
+                              <option value="120">+১২০ মি. (২ ঘণ্টা)</option>
+                            </select>
+                          </div>
+
+                          {/* Divider on desktop */}
+                          <div className="hidden md:block w-px h-5 bg-rose-200 dark:bg-rose-800/60 shrink-0" />
+
+                          {/* 2. Beside it: Cause (Dropdown reason + Edit text input) */}
+                          <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5">
+                            <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 shrink-0 flex items-center gap-1">
+                              <AlertTriangle size={12} className="text-rose-500" />
+                              দেরির কারণ:
+                            </span>
+
+                            {/* Dropdown reasons */}
+                            <select
+                              value={NIGHT_LATE_REASONS.includes(entry.reason || '') ? (entry.reason || '') : ''}
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  updateEntry(student.id, { reason: e.target.value });
+                                  triggerHaptic('light');
+                                }
+                              }}
+                              className="px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-800 text-slate-700 dark:text-slate-200 font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-rose-500 shrink-0 sm:max-w-[190px]"
+                            >
+                              <option value="">কারণ বাছুন ▼</option>
+                              {NIGHT_LATE_REASONS.map(r => (
+                                <option key={r} value={r}>{r}</option>
+                              ))}
+                            </select>
+
+                            {/* Editable text input */}
+                            <input
+                              type="text"
+                              value={entry.reason || ''}
+                              placeholder="বিলম্বের কারণ (পরীক্ষার প্রস্তুতি, মন্দির সেবা...)"
+                              onChange={(e) => updateEntry(student.id, { reason: e.target.value })}
+                              className="flex-1 px-3 py-1 rounded-lg bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 text-xs text-rose-900 dark:text-rose-200 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                            />
                           </div>
                         </div>
                       )}
@@ -1111,6 +1208,21 @@ export const AshramDisciplineAudit: React.FC = () => {
                           <span className="text-[11px] font-bold text-sky-600 dark:text-sky-400 shrink-0">
                             ছুটির কারণ:
                           </span>
+                          <select
+                            value={ABSENCE_REASONS_LIST.includes(entry.absenceReason || '') ? (entry.absenceReason || '') : ''}
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                updateEntry(student.id, { absenceReason: e.target.value });
+                                triggerHaptic('light');
+                              }
+                            }}
+                            className="px-2.5 py-1 text-xs rounded-lg bg-white dark:bg-slate-800 border border-sky-200 dark:border-sky-800 text-slate-700 dark:text-slate-200 font-medium cursor-pointer focus:outline-none shrink-0 sm:max-w-[200px]"
+                          >
+                            <option value="">ছুটির কারণ বাছুন ▼</option>
+                            {ABSENCE_REASONS_LIST.map(r => (
+                              <option key={r} value={r}>{r}</option>
+                            ))}
+                          </select>
                           <input
                             type="text"
                             value={entry.absenceReason || ''}
@@ -1118,18 +1230,6 @@ export const AshramDisciplineAudit: React.FC = () => {
                             onChange={(e) => updateEntry(student.id, { absenceReason: e.target.value })}
                             className="flex-1 px-3 py-1 rounded-lg bg-sky-50/50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-900/40 text-xs text-sky-900 dark:text-sky-200 focus:outline-none"
                           />
-                          <div className="flex items-center gap-1 flex-wrap">
-                            {['গ্রামের বাড়ি / ছুটি', 'শারীরিক অসুস্থতা', 'পরীক্ষা'].map(tag => (
-                              <button
-                                key={tag}
-                                type="button"
-                                onClick={() => updateEntry(student.id, { absenceReason: tag })}
-                                className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition cursor-pointer"
-                              >
-                                {tag}
-                              </button>
-                            ))}
-                          </div>
                         </div>
                       )}
                     </div>
@@ -1216,7 +1316,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => {
-                              updateEntry(student.id, { sleptOnTime: false, isAbsent: false, bedLateMinutes: 15, reason: entry.reason || 'Late Bed' });
+                              updateEntry(student.id, { sleptOnTime: false, isAbsent: false, bedLateMinutes: entry.bedLateMinutes || 15, reason: entry.reason || 'Late Bed' });
                               triggerHaptic('warning');
                             }}
                             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
@@ -1227,22 +1327,98 @@ export const AshramDisciplineAudit: React.FC = () => {
                           >
                             <span>❌</span>
                             <span>Not In bed</span>
+                            {!entry.isAbsent && !entry.sleptOnTime && entry.bedLateMinutes ? (
+                              <span className="ml-0.5 text-[10px] bg-rose-800/80 px-1 py-0.2 rounded font-mono">
+                                +{entry.bedLateMinutes}m
+                              </span>
+                            ) : null}
                           </button>
                         </div>
                       </div>
 
                       {!entry.isAbsent && !entry.sleptOnTime && (
-                        <div className="pt-2 border-t border-rose-100 dark:border-rose-900/30 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                          <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 shrink-0">
-                            বিলম্বের কারণ:
-                          </span>
-                          <input
-                            type="text"
-                            value={entry.reason || ''}
-                            placeholder="কারণ লিখুন..."
-                            onChange={(e) => updateEntry(student.id, { reason: e.target.value })}
-                            className="flex-1 px-3 py-1 rounded-lg bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 text-xs text-rose-900 dark:text-rose-200 focus:outline-none"
-                          />
+                        <div className="pt-2.5 pb-0.5 border-t border-rose-100 dark:border-rose-900/30 flex flex-col md:flex-row md:items-center gap-2">
+                          {/* 1. How much late time: Edit input (first order) + Dropdown option */}
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 shrink-0 flex items-center gap-1">
+                              <Clock size={12} className="text-rose-500" />
+                              কতক্ষণ বিলম্ব:
+                            </span>
+
+                            {/* Edit input (first order) */}
+                            <div className="relative flex items-center">
+                              <input
+                                type="number"
+                                min="1"
+                                max="360"
+                                value={entry.bedLateMinutes ?? ''}
+                                placeholder="15"
+                                onChange={(e) => {
+                                  const raw = e.target.value;
+                                  const val = raw === '' ? undefined : parseInt(raw, 10);
+                                  updateEntry(student.id, { bedLateMinutes: isNaN(val as number) ? undefined : val });
+                                }}
+                                className="w-14 px-2 py-1 text-center font-bold text-xs rounded-lg bg-white dark:bg-slate-800 border border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                              />
+                              <span className="text-[11px] font-semibold text-rose-500 dark:text-rose-400 ml-1">মি.</span>
+                            </div>
+
+                            {/* Dropdown selector for late time */}
+                            <select
+                              value={entry.bedLateMinutes ?? ''}
+                              onChange={(e) => {
+                                const val = e.target.value ? parseInt(e.target.value, 10) : undefined;
+                                updateEntry(student.id, { bedLateMinutes: val });
+                                triggerHaptic('light');
+                              }}
+                              className="px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-800 text-slate-700 dark:text-slate-200 font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-rose-500"
+                            >
+                              <option value="">বাছুন ▼</option>
+                              <option value="15">+১৫ মি.</option>
+                              <option value="30">+৩০ মি.</option>
+                              <option value="45">+৪৫ মি.</option>
+                              <option value="60">+৬০ মি. (১ ঘণ্টা)</option>
+                              <option value="90">+৯০ মি.</option>
+                              <option value="120">+১২০ মি. (২ ঘণ্টা)</option>
+                            </select>
+                          </div>
+
+                          {/* Divider on desktop */}
+                          <div className="hidden md:block w-px h-5 bg-rose-200 dark:bg-rose-800/60 shrink-0" />
+
+                          {/* 2. Beside it: Cause (Dropdown reason + Edit text input) */}
+                          <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5">
+                            <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 shrink-0 flex items-center gap-1">
+                              <AlertTriangle size={12} className="text-rose-500" />
+                              দেরির কারণ:
+                            </span>
+
+                            {/* Dropdown reasons */}
+                            <select
+                              value={NIGHT_LATE_REASONS.includes(entry.reason || '') ? (entry.reason || '') : ''}
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  updateEntry(student.id, { reason: e.target.value });
+                                  triggerHaptic('light');
+                                }
+                              }}
+                              className="px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-800 text-slate-700 dark:text-slate-200 font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-rose-500 shrink-0 sm:max-w-[190px]"
+                            >
+                              <option value="">কারণ বাছুন ▼</option>
+                              {NIGHT_LATE_REASONS.map(r => (
+                                <option key={r} value={r}>{r}</option>
+                              ))}
+                            </select>
+
+                            {/* Editable text input */}
+                            <input
+                              type="text"
+                              value={entry.reason || ''}
+                              placeholder="বিলম্বের কারণ (পরীক্ষার প্রস্তুতি, মন্দির সেবা...)"
+                              onChange={(e) => updateEntry(student.id, { reason: e.target.value })}
+                              className="flex-1 px-3 py-1 rounded-lg bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 text-xs text-rose-900 dark:text-rose-200 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                            />
+                          </div>
                         </div>
                       )}
 
@@ -1251,6 +1427,21 @@ export const AshramDisciplineAudit: React.FC = () => {
                           <span className="text-[11px] font-bold text-sky-600 dark:text-sky-400 shrink-0">
                             ছুটির কারণ:
                           </span>
+                          <select
+                            value={ABSENCE_REASONS_LIST.includes(entry.absenceReason || '') ? (entry.absenceReason || '') : ''}
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                updateEntry(student.id, { absenceReason: e.target.value });
+                                triggerHaptic('light');
+                              }
+                            }}
+                            className="px-2.5 py-1 text-xs rounded-lg bg-white dark:bg-slate-800 border border-sky-200 dark:border-sky-800 text-slate-700 dark:text-slate-200 font-medium cursor-pointer focus:outline-none shrink-0 sm:max-w-[200px]"
+                          >
+                            <option value="">ছুটির কারণ বাছুন ▼</option>
+                            {ABSENCE_REASONS_LIST.map(r => (
+                              <option key={r} value={r}>{r}</option>
+                            ))}
+                          </select>
                           <input
                             type="text"
                             value={entry.absenceReason || ''}
@@ -1389,7 +1580,7 @@ export const AshramDisciplineAudit: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => {
-                            updateEntry(student.id, { morningProgramOnTime: false, isAbsent: false, mpLateMinutes: 15 });
+                            updateEntry(student.id, { morningProgramOnTime: false, isAbsent: false, mpLateMinutes: entry.mpLateMinutes || 15 });
                             triggerHaptic('warning');
                           }}
                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
@@ -1400,6 +1591,11 @@ export const AshramDisciplineAudit: React.FC = () => {
                         >
                           <span>⏰</span>
                           <span>দেরি</span>
+                          {!entry.isAbsent && !entry.morningProgramOnTime && entry.mpLateMinutes ? (
+                            <span className="ml-0.5 text-[10px] bg-rose-800/80 px-1 py-0.2 rounded font-mono">
+                              +{entry.mpLateMinutes}m
+                            </span>
+                          ) : null}
                         </button>
 
                         <button
@@ -1482,18 +1678,124 @@ export const AshramDisciplineAudit: React.FC = () => {
                       </div>
                     )}
 
-                    {/* Reason input if late to MP */}
+                    {/* Late to Morning Program: How much late time + Dropdown Reason row */}
                     {!entry.isAbsent && !entry.morningProgramOnTime && (
-                      <div className="pt-2 border-t border-rose-100 dark:border-rose-900/30 flex items-center gap-2">
-                        <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 shrink-0">
-                          দেরির কারণ:
+                      <div className="pt-2.5 pb-0.5 border-t border-rose-100 dark:border-rose-900/30 flex flex-col md:flex-row md:items-center gap-2">
+                        {/* 1. How much late time: Edit input (first order) + Dropdown option */}
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 shrink-0 flex items-center gap-1">
+                            <Clock size={12} className="text-rose-500" />
+                            কতক্ষণ দেরি:
+                          </span>
+
+                          {/* Edit input (first order) */}
+                          <div className="relative flex items-center">
+                            <input
+                              type="number"
+                              min="1"
+                              max="240"
+                              value={entry.mpLateMinutes ?? ''}
+                              placeholder="15"
+                              onChange={(e) => {
+                                const raw = e.target.value;
+                                const val = raw === '' ? undefined : parseInt(raw, 10);
+                                updateEntry(student.id, { mpLateMinutes: isNaN(val as number) ? undefined : val });
+                              }}
+                              className="w-14 px-2 py-1 text-center font-bold text-xs rounded-lg bg-white dark:bg-slate-800 border border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                            />
+                            <span className="text-[11px] font-semibold text-rose-500 dark:text-rose-400 ml-1">মি.</span>
+                          </div>
+
+                          {/* Dropdown selector for late time */}
+                          <select
+                            value={entry.mpLateMinutes ?? ''}
+                            onChange={(e) => {
+                              const val = e.target.value ? parseInt(e.target.value, 10) : undefined;
+                              updateEntry(student.id, { mpLateMinutes: val });
+                              triggerHaptic('light');
+                            }}
+                            className="px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-800 text-slate-700 dark:text-slate-200 font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-rose-500"
+                          >
+                            <option value="">বাছুন ▼</option>
+                            <option value="5">+৫ মি.</option>
+                            <option value="10">+১০ মি.</option>
+                            <option value="15">+১৫ মি.</option>
+                            <option value="20">+২০ মি.</option>
+                            <option value="25">+২৫ মি.</option>
+                            <option value="30">+৩০ মি.</option>
+                            <option value="45">+৪৫ মি.</option>
+                            <option value="60">+৬০ মি. (১ ঘণ্টা)</option>
+                            <option value="90">+৯০ মি.</option>
+                            <option value="120">+১২০ মি.</option>
+                          </select>
+                        </div>
+
+                        {/* Divider on desktop */}
+                        <div className="hidden md:block w-px h-5 bg-rose-200 dark:bg-rose-800/60 shrink-0" />
+
+                        {/* 2. Beside it: Cause (Dropdown reason + Edit text input) */}
+                        <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5">
+                          <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400 shrink-0 flex items-center gap-1">
+                            <AlertTriangle size={12} className="text-rose-500" />
+                            দেরির কারণ:
+                          </span>
+
+                          {/* Dropdown reasons */}
+                          <select
+                            value={MORNING_LATE_REASONS.includes(entry.reason || '') ? (entry.reason || '') : ''}
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                updateEntry(student.id, { reason: e.target.value });
+                                triggerHaptic('light');
+                              }
+                            }}
+                            className="px-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-800 text-slate-700 dark:text-slate-200 font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-rose-500 shrink-0 sm:max-w-[190px]"
+                          >
+                            <option value="">কারণ বাছুন ▼</option>
+                            {MORNING_LATE_REASONS.map(r => (
+                              <option key={r} value={r}>{r}</option>
+                            ))}
+                          </select>
+
+                          {/* Editable text input for custom cause */}
+                          <input
+                            type="text"
+                            value={entry.reason || ''}
+                            placeholder="মর্নিং প্রোগ্রামে দেরির কারণ বা বিশেষ নোট..."
+                            onChange={(e) => updateEntry(student.id, { reason: e.target.value })}
+                            className="flex-1 px-3 py-1 rounded-lg bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 text-xs text-rose-900 dark:text-rose-200 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Absence reason row in Morning Program */}
+                    {entry.isAbsent && (
+                      <div className="pt-2 border-t border-sky-100 dark:border-sky-900/30 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <span className="text-[11px] font-bold text-sky-600 dark:text-sky-400 shrink-0">
+                          ছুটির কারণ:
                         </span>
+                        <select
+                          value={ABSENCE_REASONS_LIST.includes(entry.absenceReason || '') ? (entry.absenceReason || '') : ''}
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              updateEntry(student.id, { absenceReason: e.target.value });
+                              triggerHaptic('light');
+                            }
+                          }}
+                          className="px-2.5 py-1 text-xs rounded-lg bg-white dark:bg-slate-800 border border-sky-200 dark:border-sky-800 text-slate-700 dark:text-slate-200 font-medium cursor-pointer focus:outline-none shrink-0 sm:max-w-[200px]"
+                        >
+                          <option value="">ছুটির কারণ বাছুন ▼</option>
+                          {ABSENCE_REASONS_LIST.map(r => (
+                            <option key={r} value={r}>{r}</option>
+                          ))}
+                        </select>
                         <input
                           type="text"
-                          value={entry.reason || ''}
-                          placeholder="মর্নিং প্রোগ্রামে দেরির কারণ..."
-                          onChange={(e) => updateEntry(student.id, { reason: e.target.value })}
-                          className="flex-1 px-3 py-1 rounded-lg bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 text-xs text-rose-900 dark:text-rose-200 focus:outline-none"
+                          value={entry.absenceReason || ''}
+                          placeholder="অনুপস্থিতির কারণ (গ্রামের বাড়ি, অসুস্থতা...)"
+                          onChange={(e) => updateEntry(student.id, { absenceReason: e.target.value })}
+                          className="flex-1 px-3 py-1 rounded-lg bg-sky-50/50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-900/40 text-xs text-sky-900 dark:text-sky-200 focus:outline-none"
                         />
                       </div>
                     )}
